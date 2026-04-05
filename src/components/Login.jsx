@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login } from "../services/AuthService";
 
-function Login({ onLogin, goToRegister }) {
+function Login({ onLogin, goToRegister, goToRecovery }) {
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -61,6 +61,10 @@ function Login({ onLogin, goToRegister }) {
 
                     <div className="link" onClick={goToRegister}>
                         Não tem conta? Cadastre-se
+                    </div>
+
+                    <div className="forgot-link" onClick={goToRecovery}>
+                        Esqueci minha senha
                     </div>
 
                 </div>
