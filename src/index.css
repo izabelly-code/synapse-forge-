@@ -162,3 +162,16 @@ body {
   padding: 8px 0;
   border-bottom: 1px solid #1f2937;
 }
+
+.forgot-link {
+  font-size: 14px;
+  padding-top: 15px;
+  margin-bottom: 15px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}

@@ -62,6 +62,22 @@ function Register({ onRegister }) {
                     </div>
 
                     <div className="input-group">
+                        <label>CPF</label>
+                        <input
+                            placeholder="Digite seu CPF"
+                            onChange={(e) => setCpf(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Telefone</label>
+                        <input
+                            placeholder="Digite seu Telefone"
+                            onChange={(e) => setTelefone(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
                         <label>Senha</label>
                         <input
                             type="password"
