@@ -16,7 +16,7 @@ function UserList({ onLogout }) {
     }
 
     return (
-        <div className="container">
+        <div className="app-container">
             <div className="card">
 
                 <div style={{ display: "flex", justifyContent: "space-between" }}>

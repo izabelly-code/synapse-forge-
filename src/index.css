@@ -1,30 +1,95 @@
-body {
+/* ===== RESET (FIX WHITE GAPS) ===== */
+html, body, #root {
+  height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: white;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  background: #0b0f1a;
+  color: #f1f5f9;
+}
+
+/* ===== MAIN LAYOUT ===== */
 .container {
-  height: 100vh;
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+/* ===== LEFT SIDE ===== */
+.left-side {
+  flex: 1;
+  background: url("/background.jpg") no-repeat center center;
+  background-size: cover;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* DARK OVERLAY */
+.left-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 26, 0.75);
+}
+
+/* LOGO */
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #FD5016;
+  z-index: 2;
+}
+
+/* TEXT CONTENT */
+.left-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 400px;
+}
+
+.left-content h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.left-content p {
+  color: #cbd5f5;
+}
+
+/* ===== RIGHT SIDE ===== */
+.right-side {
+  flex: 1;
+  background: #111827;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* ===== YOUR ORIGINAL CARD (UNCHANGED STYLE) ===== */
 .card {
-  background: #1e293b;
+  background: #111827;
   padding: 30px;
   border-radius: 12px;
   width: 320px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* TITLE */
 .card h2 {
   text-align: center;
   margin-bottom: 20px;
+  color: #FD5016;
 }
 
+/* INPUTS */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -34,28 +99,66 @@ body {
 .input-group input {
   padding: 10px;
   border-radius: 6px;
-  border: none;
+  border: 1px solid #1f2937;
   outline: none;
+  background: #020617;
+  color: #f1f5f9;
+  transition: 0.2s ease;
 }
 
+.input-group input:focus {
+  border-color: #3F4FF5;
+  box-shadow: 0 0 0 2px rgba(63, 79, 245, 0.2);
+}
+
+/* BUTTON */
 .button {
   width: 100%;
   padding: 10px;
   border: none;
   border-radius: 6px;
-  background: #3b82f6;
+  background: #FD5016;
   color: white;
   cursor: pointer;
   font-weight: bold;
+  transition: 0.2s ease;
 }
 
 .button:hover {
-  background: #2563eb;
+  background: #ff6836;
+  transform: translateY(-1px);
 }
 
+.button:active {
+  transform: scale(0.98);
+}
+
+/* LINK */
 .link {
   margin-top: 15px;
   text-align: center;
   cursor: pointer;
-  color: #93c5fd;
+  color: white;
+  transition: 0.2s ease;
+}
+
+.link:hover {
+  color: #ff6836;
+  text-decoration: underline;
+}
+
+/* ===== USER LIST LAYOUT ===== */
+.app-container {
+  min-height: 100vh;
+  background: #0b0f1a;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+}
+
+/* opcional: melhorar lista */
+.user-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #1f2937;
 }

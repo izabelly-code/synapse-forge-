@@ -26,44 +26,61 @@ function Register({ onRegister }) {
 
     return (
         <div className="container">
-            <div className="card">
 
-                <h2>Cadastro</h2>
+            {/* LEFT SIDE */}
+            <div className="left-side">
+                <div className="left-overlay"></div>
 
-                <div className="input-group">
-                    <label>Nome</label>
-                    <input
-                        placeholder="Digite seu nome"
-                        onChange={(e) => setNome(e.target.value)}
-                    />
+                <div className="logo">SynapseForge</div>
+
+                <div className="left-content">
+                    <h1>Crie sua conta</h1>
+                    <p>Comece agora e aproveite todos os recursos da plataforma.</p>
                 </div>
-
-                <div className="input-group">
-                    <label>Email</label>
-                    <input
-                        placeholder="Digite seu email"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-
-                <div className="input-group">
-                    <label>Senha</label>
-                    <input
-                        type="password"
-                        placeholder="Digite sua senha"
-                        onChange={(e) => setSenha(e.target.value)}
-                    />
-                </div>
-
-                <button className="button" onClick={handleRegister}>
-                    Cadastrar
-                </button>
-
-                <div className="link" onClick={onRegister}>
-                    Já tem conta? Voltar para login
-                </div>
-
             </div>
+
+            {/* RIGHT SIDE */}
+            <div className="right-side">
+                <div className="card">
+
+                    <h2>Cadastro</h2>
+
+                    <div className="input-group">
+                        <label>Nome</label>
+                        <input
+                            placeholder="Digite seu nome"
+                            onChange={(e) => setNome(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Email</label>
+                        <input
+                            placeholder="Digite seu email"
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Senha</label>
+                        <input
+                            type="password"
+                            placeholder="Digite sua senha"
+                            onChange={(e) => setSenha(e.target.value)}
+                        />
+                    </div>
+
+                    <button className="button" onClick={handleRegister}>
+                        Cadastrar
+                    </button>
+
+                    <div className="link" onClick={onRegister}>
+                        Já tem conta? Voltar para login
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     );
 }
