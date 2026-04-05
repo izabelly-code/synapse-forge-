@@ -18,37 +18,54 @@ function Login({ onLogin, goToRegister }) {
 
     return (
         <div className="container">
-            <div className="card">
 
-                <h2>Login</h2>
+            {/* LEFT SIDE */}
+            <div className="left-side">
+                <div className="left-overlay"></div>
 
-                <div className="input-group">
-                    <label>Email</label>
-                    <input
-                        type="text"
-                        placeholder="Digite seu email"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                <div className="logo">SynapseForge</div>
+
+                <div className="left-content">
+                    <h1>Bem-vindo a Synapse Forge!</h1>
+                    <p>Gerencie sua conta de forma simples e segura.</p>
                 </div>
-
-                <div className="input-group">
-                    <label>Senha</label>
-                    <input
-                        type="password"
-                        placeholder="Digite sua senha"
-                        onChange={(e) => setSenha(e.target.value)}
-                    />
-                </div>
-
-                <button className="button" onClick={handleLogin}>
-                    Entrar
-                </button>
-
-                <div className="link" onClick={goToRegister}>
-                    Não tem conta? Cadastre-se
-                </div>
-
             </div>
+
+            {/* RIGHT SIDE */}
+            <div className="right-side">
+                <div className="card">
+
+                    <h2>Login</h2>
+
+                    <div className="input-group">
+                        <label>Email</label>
+                        <input
+                            type="text"
+                            placeholder="Digite seu email"
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Senha</label>
+                        <input
+                            type="password"
+                            placeholder="Digite sua senha"
+                            onChange={(e) => setSenha(e.target.value)}
+                        />
+                    </div>
+
+                    <button className="button" onClick={handleLogin}>
+                        Entrar
+                    </button>
+
+                    <div className="link" onClick={goToRegister}>
+                        Não tem conta? Cadastre-se
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     );
 }
