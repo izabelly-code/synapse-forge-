@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../services/UserService";
+import { User } from "../types";
 
-function UserList({ onLogout }) {
+interface UserListProps {
+    onLogout: () => void;
+}
 
-    const [users, setUsers] = useState([]);
+function UserList({ onLogout }: UserListProps) {
+
+    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -12,7 +17,7 @@ function UserList({ onLogout }) {
 
     function handleLogout() {
         localStorage.removeItem("token");
-        onLogout(); // avisa o App
+        onLogout();
     }
 
     return (

@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { register } from "../services/AuthService";
 
-function Register({ onRegister }) {
+interface RegisterProps {
+    onRegister: () => void;
+}
+
+function Register({ onRegister }: RegisterProps) {
 
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
+    const [, setCpf] = useState("");
+    const [, setTelefone] = useState("");
 
     async function handleRegister() {
         try {

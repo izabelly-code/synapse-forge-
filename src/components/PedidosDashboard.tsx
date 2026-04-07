@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { getPedidos, avancarStatus } from "../services/PedidoService";
 import PedidoCard from "./PedidoCard";
+import { Pedido, PedidoStatus } from "../types";
 
-const FILTROS = [
+interface Filtro {
+    label: string;
+    value: PedidoStatus | "";
+}
+
+const FILTROS: Filtro[] = [
     { label: "Todos", value: "" },
     { label: "Modelagem", value: "MODELAGEM" },
     { label: "Impressão", value: "IMPRESSAO" },
@@ -11,14 +17,19 @@ const FILTROS = [
     { label: "Finalizado", value: "FINALIZADO" },
 ];
 
-function PedidosDashboard({ onLogout, onCalendario }) {
-    const [pedidos, setPedidos] = useState([]);
-    const [filtro, setFiltro] = useState("");
-    const [loadingIds, setLoadingIds] = useState(new Set());
+interface PedidosDashboardProps {
+    onLogout: () => void;
+    onCalendario: () => void;
+}
+
+function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
+    const [pedidos, setPedidos] = useState<Pedido[]>([]);
+    const [filtro, setFiltro] = useState<PedidoStatus | "">("");
+    const [loadingIds, setLoadingIds] = useState(new Set<string>());
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
 
-    async function fetchPedidos(status) {
+    async function fetchPedidos(status: PedidoStatus | "") {
         setFetching(true);
         setError("");
         try {
@@ -35,7 +46,7 @@ function PedidosDashboard({ onLogout, onCalendario }) {
         fetchPedidos(filtro);
     }, [filtro]);
 
-    async function handleAvancar(id) {
+    async function handleAvancar(id: string) {
         setLoadingIds((prev) => new Set(prev).add(id));
         try {
             const updated = await avancarStatus(id);

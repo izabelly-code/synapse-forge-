@@ -5,10 +5,12 @@ import PedidosDashboard from "./components/PedidosDashboard";
 import PasswordRecovery from "./components/PasswordRecovery";
 import Calendar from "./pages/Calendar";
 
+type Screen = "login" | "register" | "recovery" | "dashboard" | "calendario";
+
 function App() {
 
-    const [token, setToken] = useState(localStorage.getItem("token"));
-    const [screen, setScreen] = useState("login");
+    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+    const [screen, setScreen] = useState<Screen>("login");
 
     if (token) {
         if (screen === "calendario") {

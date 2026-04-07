@@ -1,36 +1,38 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import './Calendar.css';
-import EventoModal from '../components/EventoModal.jsx';
-import { useEventos } from '../hooks/useEventos.js';
+import EventoModal from '../components/EventoModal';
+import { useEventos } from '../hooks/useEventos';
+import { EventData } from '../types';
 
-// Helper to get days in month
-function getDaysInMonth(year, month) {
+function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
 
-// Helper to get the first day of the week (0 = Sunday)
-function getFirstDayOfMonth(year, month) {
+function getFirstDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 1).getDay();
 }
 
-// Helper to check if date is today
-function isToday(year, month, day) {
+function isToday(year: number, month: number, day: number): boolean {
   const today = new Date();
   return day === today.getDate() &&
          month === today.getMonth() &&
          year === today.getFullYear();
 }
 
-function formatDateBr(dateStr) {
+function formatDateBr(dateStr: string): string {
   const [year, month, day] = dateStr.split('-');
   return `${day}/${month}/${year}`;
 }
 
-function Calendar() {
+interface CalendarProps {
+  onBack?: () => void;
+}
+
+function Calendar({ onBack: _onBack }: CalendarProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const {
@@ -66,7 +68,7 @@ function Calendar() {
     }
   }
 
-  function handleDayClick(day) {
+  function handleDayClick(day: number) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     setSelectedDate(dateStr);
   }
@@ -77,18 +79,17 @@ function Calendar() {
     setCreateModalOpen(true);
   }
 
-
-  function handleDeleteEvent(eventoId) {
+  function handleDeleteEvent(eventoId: string) {
     deletarEvento(eventoId);
     deselecionar();
   }
 
-  function handleUpdateEvent(eventoId, dados) {
+  function handleUpdateEvent(eventoId: string, dados: Partial<EventData>) {
     atualizarEvento(eventoId, dados);
   }
 
   const monthName = new Date(currentYear, currentMonth).toLocaleString('pt-BR', { month: 'long' });
-  const calendarDays = [];
+  const calendarDays: (number | null)[] = [];
 
   for (let i = 0; i < firstDayOfMonth; i++) {
     calendarDays.push(null);
@@ -99,7 +100,7 @@ function Calendar() {
   }
 
   const eventosPorData = useMemo(() => {
-    const mapa = {};
+    const mapa: Record<string, EventData[]> = {};
     eventos.forEach((evt) => {
       if (!mapa[evt.data]) {
         mapa[evt.data] = [];
@@ -248,7 +249,7 @@ function Calendar() {
       {createModalOpen && (
         <EventoModal
           mode="create"
-          evento={{ data: selectedDate, startTime: '', endTime: '', participantes: [] }}
+          evento={{ data: selectedDate ?? undefined, startTime: '', endTime: '', participantes: [] }}
           onClose={() => setCreateModalOpen(false)}
         />
       )}

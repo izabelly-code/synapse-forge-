@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './EventoModal.css';
-import EventService from '../services/EventService.js';
+import EventService from '../services/EventService';
+import { EventData } from '../types';
 
-/**
- * Componente Modal para exibir e editar eventos
- *
- * @param {Object} evento - Dados do evento
- * @param {Function} onClose - Callback para fechar modal
- * @param {Function} onDelete - Callback para deletar evento
- * @param {Function} onUpdate - Callback para atualizar evento
- * @param {Function} onCreate - Callback para indicar que evento foi criado
- */
-function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
+interface EventoModalProps {
+  evento: Partial<EventData> | null;
+  mode?: 'view' | 'create';
+  onClose: () => void;
+  onDelete?: (id: string) => void;
+  onUpdate?: (id: string, dados: Partial<EventData>) => void;
+}
+
+interface FormData {
+  nome: string;
+  descricao: string;
+  data: string;
+  startTime: string;
+  endTime: string;
+  participantes: string[];
+}
+
+function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: EventoModalProps) {
   const isCreateMode = mode === 'create';
   const [editando, setEditando] = useState(isCreateMode);
   const [newParticipant, setNewParticipant] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     nome: evento?.nome || '',
     descricao: evento?.descricao || '',
     data: evento?.data || '',
@@ -26,7 +35,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
 
   if (!evento) return null;
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -44,7 +53,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
     setNewParticipant('');
   };
 
-  const handleRemoverParticipante = (index) => {
+  const handleRemoverParticipante = (index: number) => {
     setFormData((prev) => ({
       ...prev,
       participantes: prev.participantes.filter((_, idx) => idx !== index),
@@ -75,7 +84,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
         console.error('Erro ao criar evento via EventService:', error);
         window.alert('Não foi possível criar o evento. Tente novamente.');
       }
-    } else if (onUpdate) {
+    } else if (onUpdate && evento.id) {
       onUpdate(evento.id, formData);
       setEditando(false);
     }
@@ -99,18 +108,18 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
 
   const handleDeletar = () => {
     if (globalThis.confirm('Tem certeza que deseja deletar este evento?')) {
-      if (onDelete) {
+      if (onDelete && evento.id) {
         onDelete(evento.id);
       }
     }
   };
 
-  const formatarData = (dataStr) => {
+  const formatarData = (dataStr: string) => {
     const [ano, mes, dia] = dataStr.split('-');
     return `${dia}/${mes}/${ano}`;
   };
 
-  const formatarDataHora = (dataStr) => {
+  const formatarDataHora = (dataStr: string | Date | undefined) => {
     if (!dataStr) return 'N/A';
     const data = new Date(dataStr);
     return data.toLocaleDateString('pt-BR', {
@@ -172,7 +181,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
                   value={formData.descricao}
                   onChange={handleInputChange}
                   placeholder="Digite a descrição do evento"
-                  rows="4"
+                  rows={4}
                 />
               </div>
 
@@ -245,7 +254,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
             <div className="evento-detalhes">
               <div className="detalhe-item">
                 <span className="detalhe-label">📅 Data</span>
-                <span className="detalhe-valor">{formatarData(evento.data)}</span>
+                <span className="detalhe-valor">{evento.data ? formatarData(evento.data) : ''}</span>
               </div>
 
               {evento.descricao && (
@@ -265,7 +274,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
               <div className="detalhe-item">
                 <span className="detalhe-label">👥 Participantes</span>
                 <span className="detalhe-valor">
-                  {evento.participantes?.length > 0
+                  {evento.participantes && evento.participantes.length > 0
                     ? evento.participantes.join(', ')
                     : 'Nenhum participante'}
                 </span>

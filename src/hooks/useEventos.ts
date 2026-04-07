@@ -1,30 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
-import { mockServer } from '../mocks/mockServer.js';
-import EventService from '../services/EventService.js';
+import { mockServer } from '../mocks/mockServer';
+import EventService from '../services/EventService';
+import { EventData } from '../types';
 
-/**
- * Hook customizado para gerenciar eventos
- * Sincroniza com mock server e gerencia estado React
- *
- * @param {string} userId - ID do usuário
- * @returns {Object} - Estado e funções de gerenciamento
- */
-export function useEventos(userId) {
-  const [eventos, setEventos] = useState([]);
+interface EventoData {
+  nome: string;
+  data: string;
+  descricao?: string;
+  startTime?: string;
+  endTime?: string;
+  participantes?: string[];
+}
+
+export function useEventos(userId: string) {
+  const [eventos, setEventos] = useState<EventData[]>([]);
   const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState(null);
-  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
 
-  /**
-   * Carrega eventos do mock server ao montar ou quando userId muda
-   */
   useEffect(() => {
     carregarEventosDoServidor();
   }, [userId]);
 
-  /**
-   * Carrega eventos do servidor
-   */
   const carregarEventosDoServidor = useCallback(async () => {
     setCarregando(true);
     setErro(null);
@@ -34,18 +31,16 @@ export function useEventos(userId) {
         setEventos(resposta.dados);
       }
     } catch (err) {
-      setErro(err.erro || 'Erro ao carregar eventos');
+      const e = err as { erro?: string; message?: string };
+      setErro(e.erro || e.message || 'Erro ao carregar eventos');
       console.error('Erro:', err);
     } finally {
       setCarregando(false);
     }
   }, [userId]);
 
-  /**
-   * Cria um novo evento
-   */
   const criarEvento = useCallback(
-    async (eventoData) => {
+    async (eventoData: EventoData) => {
       try {
         const novoEvento = await EventService.criarEvento(
           userId,
@@ -60,21 +55,19 @@ export function useEventos(userId) {
         setEventos((prev) => [...prev, novoEvento]);
         return novoEvento;
       } catch (err) {
-        setErro(err.message || 'Erro ao criar evento');
+        const e = err as { message?: string };
+        setErro(e.message || 'Erro ao criar evento');
         console.error('Erro:', err);
       }
     },
     [userId]
   );
 
-  const adicionarEvento = useCallback((evento) => {
+  const adicionarEvento = useCallback((evento: EventData) => {
     setEventos((prev) => [...prev, evento]);
   }, []);
 
-  /**
-   * Atualiza um evento existente
-   */
-  const atualizarEvento = useCallback(async (id, dadosAtualizacao) => {
+  const atualizarEvento = useCallback(async (id: string, dadosAtualizacao: Partial<EventData>) => {
     try {
       const resposta = await mockServer.atualizarEvento(id, dadosAtualizacao);
       if (resposta.sucesso) {
@@ -87,15 +80,13 @@ export function useEventos(userId) {
         return resposta.dados;
       }
     } catch (err) {
-      setErro(err.erro || 'Erro ao atualizar evento');
+      const e = err as { erro?: string };
+      setErro(e.erro || 'Erro ao atualizar evento');
       console.error('Erro:', err);
     }
   }, [eventoSelecionado]);
 
-  /**
-   * Deleta um evento
-   */
-  const deletarEvento = useCallback(async (id) => {
+  const deletarEvento = useCallback(async (id: string) => {
     try {
       const resposta = await mockServer.deletarEvento(id);
       if (resposta.sucesso) {
@@ -106,31 +97,23 @@ export function useEventos(userId) {
         return true;
       }
     } catch (err) {
-      setErro(err.erro || 'Erro ao deletar evento');
+      const e = err as { erro?: string };
+      setErro(e.erro || 'Erro ao deletar evento');
       console.error('Erro:', err);
     }
   }, [eventoSelecionado]);
 
-  /**
-   * Obtém eventos de uma data específica
-   */
   const obterEventosPorData = useCallback(
-    (data) => {
+    (data: string) => {
       return eventos.filter((evt) => evt.data === data);
     },
     [eventos]
   );
 
-  /**
-   * Seleciona um evento
-   */
-  const selecionarEvento = useCallback((evento) => {
+  const selecionarEvento = useCallback((evento: EventData) => {
     setEventoSelecionado(evento);
   }, []);
 
-  /**
-   * Deseleciona evento
-   */
   const deselecionar = useCallback(() => {
     setEventoSelecionado(null);
   }, []);

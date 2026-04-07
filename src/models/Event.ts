@@ -1,29 +1,28 @@
-/**
- * Evento Model
- * Representa um evento no calendário
- */
-class Event {
-  /**
-   * Cria uma nova instância de Evento
-   * @param {string} id - ID único do evento (opcional, gerado se não fornecido)
-   * @param {string} user_id - ID do usuário proprietário do evento
-   * @param {string} nome - Nome/título do evento
-   * @param {Date|string} data - Data vinculada ao evento
-   * @param {string} descricao - Descrição do evento (opcional)
-   * @param {Date} criado_em - Data de criação (opcional)
-   * @param {Date} atualizado_em - Data de última atualização (opcional)
-   */
+import { EventData } from '../types';
+
+class Event implements EventData {
+  id: string;
+  user_id: string;
+  nome: string;
+  data: string;
+  descricao: string;
+  startTime: string;
+  endTime: string;
+  participantes: string[];
+  criado_em: Date | string;
+  atualizado_em: Date | string;
+
   constructor(
-    user_id,
-    nome,
-    data,
-    id = null,
+    user_id: string,
+    nome: string,
+    data: Date | string,
+    id: string | null = null,
     descricao = '',
     startTime = '',
     endTime = '',
-    participantes = [],
-    criado_em = new Date(),
-    atualizado_em = new Date()
+    participantes: string[] = [],
+    criado_em: Date | string = new Date(),
+    atualizado_em: Date | string = new Date()
   ) {
     this.id = id || this.gerarId();
     this.user_id = user_id;
@@ -37,20 +36,11 @@ class Event {
     this.atualizado_em = atualizado_em;
   }
 
-  /**
-   * Gera um ID único para o evento
-   * @returns {string}
-   */
-  gerarId() {
+  gerarId(): string {
     return `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  /**
-   * Formata a data para um formato consistente (YYYY-MM-DD)
-   * @param {Date|string} data
-   * @returns {string}
-   */
-  formatarData(data) {
+  formatarData(data: Date | string): string {
     if (data instanceof Date) {
       return data.toISOString().split('T')[0];
     }
@@ -60,11 +50,7 @@ class Event {
     return new Date().toISOString().split('T')[0];
   }
 
-  /**
-   * Retorna o objeto como um JSON limpo para enviar ao servidor
-   * @returns {object}
-   */
-  toJSON() {
+  toJSON(): EventData {
     return {
       id: this.id,
       user_id: this.user_id,
@@ -79,12 +65,7 @@ class Event {
     };
   }
 
-  /**
-   * Cria uma instância de Event a partir de um objeto JSON
-   * @param {object} json
-   * @returns {Event}
-   */
-  static fromJSON(json) {
+  static fromJSON(json: EventData): Event {
     return new Event(
       json.user_id,
       json.nome,
@@ -99,12 +80,8 @@ class Event {
     );
   }
 
-  /**
-   * Valida se o evento possui todos os campos obrigatórios
-   * @returns {boolean}
-   */
-  validar() {
-    return (
+  validar(): boolean {
+    return !!(
       this.user_id &&
       this.nome &&
       this.nome.trim() !== '' &&
@@ -113,11 +90,7 @@ class Event {
     );
   }
 
-  /**
-   * Retorna uma descrição em texto do evento
-   * @returns {string}
-   */
-  toString() {
+  toString(): string {
     return `Evento: ${this.nome} | Usuário: ${this.user_id} | Data: ${this.data}`;
   }
 }

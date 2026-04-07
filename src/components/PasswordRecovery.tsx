@@ -1,8 +1,12 @@
 import { useState } from "react";
 
-function PasswordRecovery({ goToLogin }) {
+interface PasswordRecoveryProps {
+    goToLogin: () => void;
+}
 
-    const [email, setEmail] = useState("");
+function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
+
+    const [, setEmail] = useState("");
 
     function handleSubmit() {
         alert("Recuperação enviada!");

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { login } from "../services/AuthService";
 
-function Login({ onLogin, goToRegister, goToRecovery }) {
+interface LoginProps {
+    onLogin: (token: string) => void;
+    goToRegister: () => void;
+    goToRecovery: () => void;
+}
+
+function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");

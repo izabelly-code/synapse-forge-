@@ -1,6 +1,8 @@
-const STATUS_SEQUENCE = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+import { Pedido, PedidoStatus } from '../types';
 
-const STATUS_LABELS = {
+const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+
+const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
     IMPRESSAO: "Impressão",
     PINTURA: "Pintura",
@@ -8,7 +10,7 @@ const STATUS_LABELS = {
     FINALIZADO: "Finalizado",
 };
 
-function formatDate(iso) {
+function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "short",
@@ -16,12 +18,16 @@ function formatDate(iso) {
     });
 }
 
-function isPrazoProximo(prazo) {
+function isPrazoProximo(prazo: string): boolean {
     const diff = new Date(prazo).getTime() - Date.now();
     return diff < 3 * 24 * 60 * 60 * 1000;
 }
 
-function ProgressBar({ status }) {
+interface ProgressBarProps {
+    status: PedidoStatus;
+}
+
+function ProgressBar({ status }: ProgressBarProps) {
     const currentIndex = STATUS_SEQUENCE.indexOf(status);
     const progress = ((currentIndex + 1) / STATUS_SEQUENCE.length) * 100;
 
@@ -50,7 +56,13 @@ function ProgressBar({ status }) {
     );
 }
 
-function PedidoCard({ pedido, onAvancar, loading }) {
+interface PedidoCardProps {
+    pedido: Pedido;
+    onAvancar: (id: string) => void;
+    loading: boolean;
+}
+
+function PedidoCard({ pedido, onAvancar, loading }: PedidoCardProps) {
     const prazoProximo = isPrazoProximo(pedido.prazo);
     const finalizado = pedido.status === "FINALIZADO";
 
