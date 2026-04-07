@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import PedidosDashboard from "./components/PedidosDashboard";
 import PasswordRecovery from "./components/PasswordRecovery";
+import Calendar from "./pages/Calendar";
 
 function App() {
 
@@ -10,7 +11,13 @@ function App() {
     const [screen, setScreen] = useState("login");
 
     if (token) {
-        return <PedidosDashboard onLogout={() => setToken(null)} />;
+        if (screen === "calendario") {
+            return <Calendar onBack={() => setScreen("dashboard")} />;
+        }
+        return <PedidosDashboard
+            onLogout={() => { setToken(null); setScreen("login"); }}
+            onCalendario={() => setScreen("calendario")}
+        />;
     }
 
     if (screen === "register") {

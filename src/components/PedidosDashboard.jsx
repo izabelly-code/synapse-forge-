@@ -11,7 +11,7 @@ const FILTROS = [
     { label: "Finalizado", value: "FINALIZADO" },
 ];
 
-function PedidosDashboard({ onLogout }) {
+function PedidosDashboard({ onLogout, onCalendario }) {
     const [pedidos, setPedidos] = useState([]);
     const [filtro, setFiltro] = useState("");
     const [loadingIds, setLoadingIds] = useState(new Set());
@@ -62,9 +62,14 @@ function PedidosDashboard({ onLogout }) {
             <header className="dashboard-header">
                 <div className="dashboard-header-inner">
                     <div className="logo">SynapseForge</div>
-                    <button className="link" onClick={handleLogout}>
-                        Sair
-                    </button>
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                        <button className="filtro-btn" onClick={onCalendario}>
+                            Calendário
+                        </button>
+                        <button className="link" onClick={handleLogout}>
+                            Sair
+                        </button>
+                    </div>
                 </div>
             </header>
 
