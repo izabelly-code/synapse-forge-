@@ -10,7 +10,6 @@ class Event {
    * @param {string} nome - Nome/título do evento
    * @param {Date|string} data - Data vinculada ao evento
    * @param {string} descricao - Descrição do evento (opcional)
-   * @param {string} cor - Cor do evento para visualização (opcional)
    * @param {Date} criado_em - Data de criação (opcional)
    * @param {Date} atualizado_em - Data de última atualização (opcional)
    */
@@ -20,7 +19,9 @@ class Event {
     data,
     id = null,
     descricao = '',
-    cor = '#0284c7',
+    startTime = '',
+    endTime = '',
+    participantes = [],
     criado_em = new Date(),
     atualizado_em = new Date()
   ) {
@@ -29,7 +30,9 @@ class Event {
     this.nome = nome;
     this.data = this.formatarData(data);
     this.descricao = descricao;
-    this.cor = cor;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.participantes = participantes;
     this.criado_em = criado_em;
     this.atualizado_em = atualizado_em;
   }
@@ -68,7 +71,9 @@ class Event {
       nome: this.nome,
       data: this.data,
       descricao: this.descricao,
-      cor: this.cor,
+      startTime: this.startTime,
+      endTime: this.endTime,
+      participantes: this.participantes,
       criado_em: this.criado_em,
       atualizado_em: this.atualizado_em,
     };
@@ -86,7 +91,9 @@ class Event {
       json.data,
       json.id,
       json.descricao || '',
-      json.cor || '#0284c7',
+      json.startTime || '',
+      json.endTime || '',
+      json.participantes || [],
       json.criado_em,
       json.atualizado_em
     );

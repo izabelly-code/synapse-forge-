@@ -16,43 +16,55 @@ class EventService {
    * @param {string} nome - Nome do evento
    * @param {string|Date} data - Data do evento
    * @param {string} descricao - Descrição (opcional)
-   * @param {string} cor - Cor (opcional)
+   * @param {string} startTime - Horário de início (opcional)
+   * @param {string} endTime - Horário de término (opcional)
+   * @param {string[]} participantes - Lista de participantes (opcional)
    * @returns {Event}
    */
-  criarEvento(user_id, nome, data, descricao = '', cor = '#0284c7') {
-    const evento = new Event(user_id, nome, data, null, descricao, cor);
-    
+  async criarEvento(user_id, nome, data, descricao = '', startTime = '', endTime = '', participantes = []) {
+    const evento = new Event(user_id, nome, data, null, descricao, startTime, endTime, participantes);
+
     if (!evento.validar()) {
       throw new Error('Evento inválido: campos obrigatórios ausentes');
     }
 
-    this.eventos.push(evento);
-    this.salvarNoLocalStorage();
-    return evento;
+    const eventoPayload = evento.toJSON();
+
+    try {
+      const response = await fetch('http://localhost:8081/evento/registrar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventoPayload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Evento registrado no backend:', data);
+
+      const eventoCriado = data?.dados || eventoPayload;
+      this.eventos.push(Event.fromJSON(eventoCriado));
+
+      return eventoCriado;
+    } catch (erro) {
+      console.warn('⚠️ Erro ao enviar evento ao backend, salvando localmente:', erro);
+      this.eventos.push(evento);
+      this.salvarNoLocalStorage();
+      return evento;
+    }
   }
 
-  /**
-   * Obtém todos os eventos
-   * @returns {Event[]}
-   */
-  obterTodos() {
-    return this.eventos;
+  
+  obterPorUsuarioMes(user_id, mes) {
+
+    return this.eventos.filter((evt) => evt.user_id === user_id && evt.data.includes(mes));
   }
 
-  /**
-   * Obtém eventos de um usuário específico
-   * @param {string} user_id
-   * @returns {Event[]}
-   */
-  obterPorUsuario(user_id) {
-    return this.eventos.filter((evt) => evt.user_id === user_id);
-  }
 
-  /**
-   * Obtém eventos de uma data específica
-   * @param {string|Date} data - Data no formato YYYY-MM-DD ou Date
-   * @returns {Event[]}
-   */
   obterPorData(data) {
     const dataFormatada = typeof data === 'string' ? data : data.toISOString().split('T')[0];
     return this.eventos.filter((evt) => evt.data === dataFormatada);
@@ -71,21 +83,10 @@ class EventService {
     );
   }
 
-  /**
-   * Obtém um evento pelo ID
-   * @param {string} id
-   * @returns {Event|null}
-   */
   obterPorId(id) {
     return this.eventos.find((evt) => evt.id === id) || null;
   }
 
-  /**
-   * Atualiza um evento existente
-   * @param {string} id - ID do evento
-   * @param {object} dados - Dados a atualizar
-   * @returns {Event|null}
-   */
   atualizarEvento(id, dados) {
     const evento = this.obterPorId(id);
     if (!evento) {

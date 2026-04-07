@@ -28,7 +28,9 @@ class MockServer {
           nome: 'Reunião de Planejamento',
           data: dataAtual,
           descricao: 'Discussão sobre objetivos do mês',
-          cor: '#0284c7',
+          startTime: '09:00',
+          endTime: '10:30',
+          participantes: ['Ana', 'Carlos'],
           criado_em: new Date().toISOString(),
           atualizado_em: new Date().toISOString(),
         },
@@ -38,7 +40,9 @@ class MockServer {
           nome: 'Almoço com Cliente',
           data: dataPróxima,
           descricao: 'Almoço para conversar sobre novo projeto',
-          cor: '#4ECDC4',
+          startTime: '12:30',
+          endTime: '13:30',
+          participantes: ['Patrícia'],
           criado_em: new Date().toISOString(),
           atualizado_em: new Date().toISOString(),
         },
@@ -48,7 +52,9 @@ class MockServer {
           nome: 'Revisão de Código',
           data: dataAtual,
           descricao: 'Code review dos PR abertos',
-          cor: '#FF6B6B',
+          startTime: '15:00',
+          endTime: '16:00',
+          participantes: ['Bruno', 'Gabriel'],
           criado_em: new Date().toISOString(),
           atualizado_em: new Date().toISOString(),
         },
@@ -58,7 +64,9 @@ class MockServer {
           nome: 'Sprint Planning',
           data: dataAnterior,
           descricao: 'Planejamento da sprint da semana',
-          cor: '#96CEB4',
+          startTime: '10:00',
+          endTime: '11:30',
+          participantes: ['Marina', 'Lucas'],
           criado_em: new Date().toISOString(),
           atualizado_em: new Date().toISOString(),
         },
@@ -153,26 +161,10 @@ class MockServer {
    * @param {Object} eventoData
    * @returns {Promise<Object>}
    */
-  async criarEvento(eventoData) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const novoEvento = {
-          id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          ...eventoData,
-          criado_em: new Date().toISOString(),
-          atualizado_em: new Date().toISOString(),
-        };
-        this.eventos.push(novoEvento);
-        this.salvarDados();
-        console.log(`📨 Mock POST /api/eventos - Evento criado: ${novoEvento.id}`);
-        resolve({
-          sucesso: true,
-          dados: novoEvento,
-          mensagem: 'Evento criado com sucesso',
-        });
-      }, 300);
-    });
-  }
+  /**
+   * Simula a criação de evento está apenas no EventService agora.
+   * O mock server continua fornecendo leitura, atualização e remoção local.
+   */
 
   /**
    * Simula uma chamada PUT - atualizar evento

@@ -23,7 +23,7 @@ src/
 ## 📋 Componentes
 
 ### 1. **Event (Model)**
-- Representa um evento com: `id`, `user_id`, `nome`, `data`, `descricao`, `cor`
+- Representa um evento com: `id`, `user_id`, `nome`, `data`, `descricao`, `startTime`, `endTime`, `participantes`
 - Métodos: `validar()`, `toJSON()`, `fromJSON()`, `toString()`
 
 ### 2. **EventService (Service)**
@@ -63,7 +63,7 @@ src/
 1. Calendar.jsx carrega com useEventos('user_123')
 2. useEventos chama mockServer.getEventosPorUsuario()
 3. MockServer carrega dados do localStorage ou cria mocks
-4. Eventos aparecem no calendário com pontos coloridos
+4. Eventos aparecem no calendário com resumo diário
 5. Clique em um dia para selecionar um evento
 6. EventoModal exibe ou edita o evento selecionado
 7. Alterações são sincronizadas com mockServer e localStorage
@@ -83,7 +83,9 @@ src/
   "nome": "Reunião de Planejamento",
   "data": "2026-03-23",
   "descricao": "Discussão sobre objetivos",
-  "cor": "#0284c7",
+  "startTime": "09:00",
+  "endTime": "10:00",
+  "participantes": ["Maria", "João"],
   "criado_em": "2026-03-23T10:30:00.000Z",
   "atualizado_em": "2026-03-23T10:30:00.000Z"
 }
@@ -107,9 +109,9 @@ src/
    - Ver detalhes no modal que abre
 
 4. **Teste as funcionalidades:**
-   - **Editar:** Clique em "Editar" para modificar nome, descrição, cor
+   - **Editar:** Clique em "Editar" para modificar nome, descrição, horário e participantes
    - **Deletar:** Clique em "Deletar" para remover o evento
-   - **Criar:** Adicione novos eventos (integração em progresso)
+   - **Criar:** Adicione novos eventos com formulário completo
    - **Navegar:** Use setas para ir a outros meses
 
 ## 🔍 Inspecionando a Console
@@ -167,14 +169,10 @@ Para migrar para um backend real:
 - [ ] Sincronização com Google Calendar/Outlook
 - [ ] Temas escuros/claros
 
-## 🎨 Cores Disponíveis
+## 🎨 Visuais e Campos
 
-- `#0284c7` - Azul (padrão)
-- `#4ECDC4` - Teal
-- `#FF6B6B` - Vermelho
-- `#96CEB4` - Verde
-
-Você pode adicionar mais no MockServer ou permitir customização no EventoModal.
+O layout agora exibe eventos por data, sem associar cores individuais aos eventos.
+Os eventos incluem `startTime`, `endTime` e `participantes`.
 
 ## 💡 Dicas
 

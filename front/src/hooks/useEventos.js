@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { mockServer } from '../mocks/mockServer.js';
+import EventService from '../services/EventService.js';
 
 /**
  * Hook customizado para gerenciar eventos
@@ -44,26 +45,31 @@ export function useEventos(userId) {
    * Cria um novo evento
    */
   const criarEvento = useCallback(
-    async (nome, data, descricao = '', cor = '#0284c7') => {
+    async (eventoData) => {
       try {
-        const resposta = await mockServer.criarEvento({
-          user_id: userId,
-          nome,
-          data,
-          descricao,
-          cor,
-        });
-        if (resposta.sucesso) {
-          setEventos((prev) => [...prev, resposta.dados]);
-          return resposta.dados;
-        }
+        const novoEvento = await EventService.criarEvento(
+          userId,
+          eventoData.nome,
+          eventoData.data,
+          eventoData.descricao || '',
+          eventoData.startTime || '',
+          eventoData.endTime || '',
+          eventoData.participantes || []
+        );
+
+        setEventos((prev) => [...prev, novoEvento]);
+        return novoEvento;
       } catch (err) {
-        setErro(err.erro || 'Erro ao criar evento');
+        setErro(err.message || 'Erro ao criar evento');
         console.error('Erro:', err);
       }
     },
     [userId]
   );
+
+  const adicionarEvento = useCallback((evento) => {
+    setEventos((prev) => [...prev, evento]);
+  }, []);
 
   /**
    * Atualiza um evento existente
@@ -135,6 +141,7 @@ export function useEventos(userId) {
     erro,
     eventoSelecionado,
     criarEvento,
+    adicionarEvento,
     atualizarEvento,
     deletarEvento,
     obterEventosPorData,

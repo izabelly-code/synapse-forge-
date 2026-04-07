@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './EventoModal.css';
+import EventService from '../services/EventService.js';
 
 /**
  * Componente Modal para exibir e editar eventos
@@ -8,13 +9,19 @@ import './EventoModal.css';
  * @param {Function} onClose - Callback para fechar modal
  * @param {Function} onDelete - Callback para deletar evento
  * @param {Function} onUpdate - Callback para atualizar evento
+ * @param {Function} onCreate - Callback para indicar que evento foi criado
  */
-function EventoModal({ evento, onClose, onDelete, onUpdate }) {
-  const [editando, setEditando] = useState(false);
+function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }) {
+  const isCreateMode = mode === 'create';
+  const [editando, setEditando] = useState(isCreateMode);
+  const [newParticipant, setNewParticipant] = useState('');
   const [formData, setFormData] = useState({
-    nome: evento.nome,
-    descricao: evento.descricao,
-    cor: evento.cor,
+    nome: evento?.nome || '',
+    descricao: evento?.descricao || '',
+    data: evento?.data || '',
+    startTime: evento?.startTime || '',
+    endTime: evento?.endTime || '',
+    participantes: evento?.participantes || [],
   });
 
   if (!evento) return null;
@@ -27,15 +34,71 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
     }));
   };
 
-  const handleSalvar = () => {
-    if (onUpdate) {
+  const handleAdicionarParticipante = () => {
+    const participante = newParticipant.trim();
+    if (!participante) return;
+    setFormData((prev) => ({
+      ...prev,
+      participantes: [...prev.participantes, participante],
+    }));
+    setNewParticipant('');
+  };
+
+  const handleRemoverParticipante = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      participantes: prev.participantes.filter((_, idx) => idx !== index),
+    }));
+  };
+
+  const handleSalvar = async () => {
+    if (!formData.nome.trim() || !formData.data) {
+      window.alert('Por favor, preencha o título e a data do evento.');
+      return;
+    }
+
+    if (isCreateMode) {
+      try {
+        const userId = evento.user_id || 'user_123';
+        const novoEvento = await EventService.criarEvento(
+          userId,
+          formData.nome,
+          formData.data,
+          formData.descricao || '',
+          formData.startTime || '',
+          formData.endTime || '',
+          formData.participantes || []
+        );
+
+        return novoEvento;
+      } catch (error) {
+        console.error('Erro ao criar evento via EventService:', error);
+        window.alert('Não foi possível criar o evento. Tente novamente.');
+      }
+    } else if (onUpdate) {
       onUpdate(evento.id, formData);
       setEditando(false);
     }
   };
 
+  const handleCancelar = () => {
+    if (isCreateMode) {
+      onClose();
+    } else {
+      setEditando(false);
+      setFormData({
+        nome: evento.nome || '',
+        descricao: evento.descricao || '',
+        data: evento.data || '',
+        startTime: evento.startTime || '',
+        endTime: evento.endTime || '',
+        participantes: evento.participantes || [],
+      });
+    }
+  };
+
   const handleDeletar = () => {
-    if (window.confirm('Tem certeza que deseja deletar este evento?')) {
+    if (globalThis.confirm('Tem certeza que deseja deletar este evento?')) {
       if (onDelete) {
         onDelete(evento.id);
       }
@@ -59,18 +122,27 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
     });
   };
 
+  let modalTitle = 'Detalhes do evento';
+  if (isCreateMode) {
+    modalTitle = 'Criar novo evento';
+  } else if (editando) {
+    modalTitle = 'Editar Evento';
+  } else if (evento.nome) {
+    modalTitle = evento.nome;
+  }
+
   return (
-    <div className="evento-modal-overlay" onClick={onClose}>
-      <div className="evento-modal-content" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="evento-modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="evento-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="evento-modal-header">
-          <div
-            className="evento-modal-cor"
-            style={{ backgroundColor: evento.cor }}
-          />
-          <h2 className="evento-modal-titulo">
-            {editando ? 'Editar Evento' : evento.nome}
-          </h2>
+          <h2 className="evento-modal-titulo">{modalTitle}</h2>
           <button className="evento-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -79,21 +151,19 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
         {/* Body */}
         <div className="evento-modal-body">
           {editando ? (
-            <form className="evento-form">
-              {/* Nome */}
+            <form className="evento-form" onSubmit={(e) => e.preventDefault()}>
               <div className="form-group">
-                <label htmlFor="nome">Nome do Evento</label>
+                <label htmlFor="nome">Título do Evento</label>
                 <input
                   type="text"
                   id="nome"
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
-                  placeholder="Digite o nome do evento"
+                  placeholder="Digite o título do evento"
                 />
               </div>
 
-              {/* Descrição */}
               <div className="form-group">
                 <label htmlFor="descricao">Descrição</label>
                 <textarea
@@ -106,30 +176,78 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
                 />
               </div>
 
-              {/* Cor */}
-              <div className="form-group">
-                <label htmlFor="cor">Cor</label>
-                <div className="color-picker">
+              <div className="field-row">
+                <div className="form-group">
+                  <label htmlFor="data">Data</label>
                   <input
-                    type="color"
-                    id="cor"
-                    name="cor"
-                    value={formData.cor}
+                    type="date"
+                    id="data"
+                    name="data"
+                    value={formData.data}
                     onChange={handleInputChange}
                   />
-                  <span className="color-value">{formData.cor}</span>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="startTime">Início</label>
+                  <input
+                    type="time"
+                    id="startTime"
+                    name="startTime"
+                    value={formData.startTime}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="endTime">Fim</label>
+                  <input
+                    type="time"
+                    id="endTime"
+                    name="endTime"
+                    value={formData.endTime}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label htmlFor="participantes">Participantes</label>
+                <div className="participants-input-row">
+                  <input
+                    type="text"
+                    id="participantes"
+                    name="participantes"
+                    value={newParticipant}
+                    onChange={(e) => setNewParticipant(e.target.value)}
+                    placeholder="Adicionar participante"
+                  />
+                  <button type="button" className="btn btn-secondary mini" onClick={handleAdicionarParticipante}>
+                    Adicionar
+                  </button>
+                </div>
+                <div className="participants-list">
+                  {formData.participantes.length > 0 ? (
+                    formData.participantes.map((nome, index) => (
+                      <span key={`${nome}-${index}`} className="participant-chip">
+                        {nome}
+                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover ${nome}`}>
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <p className="no-participants">Nenhum participante adicionado.</p>
+                  )}
+                </div>
+              </div>
+
             </form>
           ) : (
             <div className="evento-detalhes">
-              {/* Data */}
               <div className="detalhe-item">
                 <span className="detalhe-label">📅 Data</span>
                 <span className="detalhe-valor">{formatarData(evento.data)}</span>
               </div>
 
-              {/* Descrição */}
               {evento.descricao && (
                 <div className="detalhe-item">
                   <span className="detalhe-label">📝 Descrição</span>
@@ -137,13 +255,27 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
                 </div>
               )}
 
-              {/* Usuário */}
+              {evento.startTime && evento.endTime && (
+                <div className="detalhe-item">
+                  <span className="detalhe-label">⏱ Horário</span>
+                  <span className="detalhe-valor">{evento.startTime} - {evento.endTime}</span>
+                </div>
+              )}
+
+              <div className="detalhe-item">
+                <span className="detalhe-label">👥 Participantes</span>
+                <span className="detalhe-valor">
+                  {evento.participantes?.length > 0
+                    ? evento.participantes.join(', ')
+                    : 'Nenhum participante'}
+                </span>
+              </div>
+
               <div className="detalhe-item">
                 <span className="detalhe-label">👤 Usuário</span>
                 <span className="detalhe-valor">{evento.user_id}</span>
               </div>
 
-              {/* Data de Criação */}
               <div className="detalhe-item">
                 <span className="detalhe-label">➕ Criado em</span>
                 <span className="detalhe-valor">
@@ -151,7 +283,6 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
                 </span>
               </div>
 
-              {/* Data de Atualização */}
               <div className="detalhe-item">
                 <span className="detalhe-label">✏️ Atualizado em</span>
                 <span className="detalhe-valor">
@@ -168,12 +299,12 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
             <>
               <button
                 className="btn btn-secondary"
-                onClick={() => setEditando(false)}
+                onClick={handleCancelar}
               >
                 Cancelar
               </button>
               <button className="btn btn-primary" onClick={handleSalvar}>
-                Salvar Alterações
+                {isCreateMode ? 'Criar Evento' : 'Salvar Alterações'}
               </button>
             </>
           ) : (
@@ -183,6 +314,12 @@ function EventoModal({ evento, onClose, onDelete, onUpdate }) {
                 onClick={handleDeletar}
               >
                 Deletar
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={onClose}
+              >
+                Fechar
               </button>
               <button
                 className="btn btn-primary"
