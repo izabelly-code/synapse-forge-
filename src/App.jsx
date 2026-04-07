@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import UserList from "./components/UserList";
+import PedidosDashboard from "./components/PedidosDashboard";
 import PasswordRecovery from "./components/PasswordRecovery";
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
     const [screen, setScreen] = useState("login");
 
     if (token) {
-        return <UserList onLogout={() => setToken(null)} />;
+        return <PedidosDashboard onLogout={() => setToken(null)} />;
     }
 
     if (screen === "register") {
