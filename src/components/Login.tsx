@@ -1,0 +1,83 @@
+import { useState } from "react";
+import { login } from "../services/AuthService";
+
+interface LoginProps {
+    onLogin: (token: string) => void;
+    goToRegister: () => void;
+    goToRecovery: () => void;
+}
+
+function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
+
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+
+    async function handleLogin() {
+        try {
+            const token = await login(email, senha);
+            localStorage.setItem("token", token);
+            onLogin(token);
+        } catch (error) {
+            alert("Erro ao fazer login");
+        }
+    }
+
+    return (
+        <div className="container">
+
+            {/* LEFT SIDE */}
+            <div className="left-side">
+                <div className="left-overlay"></div>
+
+                <div className="logo">SynapseForge</div>
+
+                <div className="left-content">
+                    <h1>Bem-vindo a Synapse Forge!</h1>
+                    <p>Gerencie sua conta de forma simples e segura.</p>
+                </div>
+            </div>
+
+            {/* RIGHT SIDE */}
+            <div className="right-side">
+                <div className="card">
+
+                    <h2>Login</h2>
+
+                    <div className="input-group">
+                        <label>Email</label>
+                        <input
+                            type="text"
+                            placeholder="Digite seu email"
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Senha</label>
+                        <input
+                            type="password"
+                            placeholder="Digite sua senha"
+                            onChange={(e) => setSenha(e.target.value)}
+                        />
+                    </div>
+
+                    <button className="button" onClick={handleLogin}>
+                        Entrar
+                    </button>
+
+                    <div className="link" onClick={goToRegister}>
+                        Não tem conta? Cadastre-se
+                    </div>
+
+                    <div className="forgot-link" onClick={goToRecovery}>
+                        Esqueci minha senha
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    );
+}
+
+export default Login;
