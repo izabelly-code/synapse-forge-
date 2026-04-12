@@ -10,6 +10,11 @@ body {
   color: #f1f5f9;
 }
 
+.logo {
+    width: 225px;
+    margin-bottom: 20px;
+}
+
 /* ===== MAIN LAYOUT ===== */
 .container {
   height: 100%;
@@ -20,7 +25,7 @@ body {
 /* ===== LEFT SIDE ===== */
 .left-side {
   flex: 1;
-  background: url("/background.jpg") no-repeat center center;
+  background: url("assets/Images/background.jpg") no-repeat center center;
   background-size: cover;
   position: relative;
   display: flex;
@@ -111,6 +116,85 @@ body {
   box-shadow: 0 0 0 2px rgba(63, 79, 245, 0.2);
 }
 
+.input-error {
+    border: 1px solid red;
+}
+
+.error-text {
+    color: red;
+    font-size: 0.8rem;
+}
+
+.warning-text {
+    color: #FD5016;
+    font-size: 0.7rem;
+}
+
+.password-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password {
+    margin-left: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-align: center;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding-right: 40px; /* espaço pro ícone */
+}
+
+.input-icon {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.6;
+}
+
+.input-icon:hover {
+    opacity: 1;
+}
+
+.success {
+    color: green;
+    font-size: 0.9rem;
+}
+
+.success-box {
+    margin-bottom: 15px;
+}
+
+.spam-tip {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.senha-fraca {
+    color: red;
+}
+
+.senha-media {
+    color: orange;
+}
+
+.senha-forte {
+    color: green;
+}
+
 /* BUTTON */
 .button {
   width: 100%;
@@ -143,6 +227,34 @@ body {
 }
 
 .link:hover {
+  color: #ff6836;
+  text-decoration: underline;
+}
+
+.register-link,
+.resend-link,
+.login-link,
+.forgot-password-link {
+  display:block;
+  margin: 15px auto;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s ease;
+
+  /* REMOVE estilo de botão */
+  background: none;
+  border: none;
+  padding: 0;
+
+  /* deixa igual texto/link */
+  font: inherit;
+}
+
+.register-link:hover,
+.resend-link:hover,
+.login-link:hover,
+.forgot-password-link:hover {
   color: #ff6836;
   text-decoration: underline;
 }
