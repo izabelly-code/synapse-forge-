@@ -42,3 +42,11 @@ export async function criarPedido(data: CriarPedidoData): Promise<Pedido> {
     if (!response.ok) throw new Error("Falha ao criar pedido");
     return response.json();
 }
+
+export async function deletarPedido(id: string): Promise<void> {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error("Falha ao deletar pedido");
+}

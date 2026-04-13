@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { FiTrash2 } from 'react-icons/fi';
 import { Pedido, PedidoStatus } from '../types';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
@@ -59,12 +61,14 @@ function ProgressBar({ status }: ProgressBarProps) {
 interface PedidoCardProps {
     pedido: Pedido;
     onAvancar: (id: string) => void;
+    onDeletar: (id: string) => void;
     loading: boolean;
 }
 
-function PedidoCard({ pedido, onAvancar, loading }: PedidoCardProps) {
+function PedidoCard({ pedido, onAvancar, onDeletar, loading }: PedidoCardProps) {
     const prazoProximo = isPrazoProximo(pedido.prazo);
     const finalizado = pedido.status === "FINALIZADO";
+    const [confirmando, setConfirmando] = useState(false);
 
     return (
         <article className="pedido-card">
@@ -95,15 +99,27 @@ function PedidoCard({ pedido, onAvancar, loading }: PedidoCardProps) {
                     </p>
                 </div>
 
-                {!finalizado && (
-                    <button
-                        className="button pedido-btn-avancar"
-                        onClick={() => onAvancar(pedido.id)}
-                        disabled={loading}
-                    >
-                        {loading ? "Avançando..." : "Avançar →"}
-                    </button>
-                )}
+                <div className="pedido-footer-actions">
+                    {!finalizado && (
+                        <button
+                            className="button pedido-btn-avancar"
+                            onClick={() => onAvancar(pedido.id)}
+                            disabled={loading}
+                        >
+                            {loading ? "Avançando..." : "Avançar →"}
+                        </button>
+                    )}
+                    {confirmando ? (
+                        <div className="delete-confirm">
+                            <button className="delete-confirm-btn" onClick={() => onDeletar(pedido.id)}>Sim</button>
+                            <button className="delete-cancel-btn" onClick={() => setConfirmando(false)}>Não</button>
+                        </div>
+                    ) : (
+                        <button className="pedido-delete-btn" onClick={() => setConfirmando(true)} aria-label="Deletar pedido">
+                            <FiTrash2 size={15} />
+                        </button>
+                    )}
+                </div>
             </div>
         </article>
     );

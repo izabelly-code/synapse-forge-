@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { getPedidos, avancarStatus } from "../services/PedidoService";
+import { getPedidos, avancarStatus, deletarPedido } from "../services/PedidoService";
+import logo from "../assets/images/black-logo.png";
 import PedidoCard from "./PedidoCard";
+import NovoPedidoModal from "./NovoPedidoModal";
 import { Pedido, PedidoStatus } from "../types";
 
 interface Filtro {
@@ -28,6 +30,7 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
+    const [modalAberto, setModalAberto] = useState(false);
 
     async function fetchPedidos(status: PedidoStatus | "") {
         setFetching(true);
@@ -45,6 +48,15 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
     useEffect(() => {
         fetchPedidos(filtro);
     }, [filtro]);
+
+    async function handleDeletar(id: string) {
+        try {
+            await deletarPedido(id);
+            setPedidos((prev) => prev.filter((p) => p.id !== id));
+        } catch {
+            setError("Falha ao deletar pedido.");
+        }
+    }
 
     async function handleAvancar(id: string) {
         setLoadingIds((prev) => new Set(prev).add(id));
@@ -69,10 +81,16 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
 
     return (
         <div className="dashboard-layout">
+            {modalAberto && (
+                <NovoPedidoModal
+                    onClose={() => setModalAberto(false)}
+                    onCriado={() => { setModalAberto(false); fetchPedidos(filtro); }}
+                />
+            )}
             {/* Header */}
             <header className="dashboard-header">
                 <div className="dashboard-header-inner">
-                    <div className="logo">SynapseForge</div>
+                    <img src={logo} alt="SynapseForge" className="header-logo" />
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <button className="filtro-btn" onClick={onCalendario}>
                             Calendário
@@ -87,10 +105,17 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
             {/* Main */}
             <main className="dashboard-main">
                 <div className="dashboard-title-block">
-                    <h1 className="dashboard-title">Produção</h1>
-                    <p className="dashboard-subtitle">
-                        Acompanhe e avance os pedidos em cada etapa
-                    </p>
+                    <div className="dashboard-title-row">
+                        <div>
+                            <h1 className="dashboard-title">Produção</h1>
+                            <p className="dashboard-subtitle">
+                                Acompanhe e avance os pedidos em cada etapa
+                            </p>
+                        </div>
+                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
+                            + Novo Pedido
+                        </button>
+                    </div>
                 </div>
 
                 {/* Filtros */}
@@ -129,6 +154,7 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
                                 key={pedido.id}
                                 pedido={pedido}
                                 onAvancar={handleAvancar}
+                                onDeletar={handleDeletar}
                                 loading={loadingIds.has(pedido.id)}
                             />
                         ))}
