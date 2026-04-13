@@ -12,7 +12,7 @@ class EventService {
 
   /**
    * Cria um novo evento
-   * @param {string} user_id - ID do usuário
+   * @param {string} userId - ID do usuário
    * @param {string} nome - Nome do evento
    * @param {string|Date} data - Data do evento
    * @param {string} descricao - Descrição (opcional)
@@ -21,14 +21,15 @@ class EventService {
    * @param {string[]} participantes - Lista de participantes (opcional)
    * @returns {Event}
    */
-  async criarEvento(user_id, nome, data, descricao = '', startTime = '', endTime = '', participantes = []) {
-    const evento = new Event(user_id, nome, data, null, descricao, startTime, endTime, participantes);
+  async criarEvento(userId, nome, data, descricao = '', horarioInicio = '', horarioFim = '', participantes = []) {
+    const evento = new Event(userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
 
     if (!evento.validar()) {
       throw new Error('Evento inválido: campos obrigatórios ausentes');
     }
 
     const eventoPayload = evento.toJSON();
+    console.log('📤 Enviando evento para backend:', eventoPayload);
 
     try {
       const response = await fetch('http://localhost:8081/evento/registrar', {
@@ -46,22 +47,35 @@ class EventService {
       const data = await response.json();
       console.log('✅ Evento registrado no backend:', data);
 
-      const eventoCriado = data?.dados || eventoPayload;
-      this.eventos.push(Event.fromJSON(eventoCriado));
-
-      return eventoCriado;
     } catch (erro) {
-      console.warn('⚠️ Erro ao enviar evento ao backend, salvando localmente:', erro);
-      this.eventos.push(evento);
-      this.salvarNoLocalStorage();
-      return evento;
+      console.warn('⚠️ Erro ao enviar evento ao backend', erro);
+      return null;
     }
   }
 
   
-  obterPorUsuarioMes(user_id, mes) {
+  obterPorUsuarioMes(userId, mes) {
+  try {
+        const response = await fetch('http://localhost:8081/evento/registrar', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(eventoPayload),
+        });
 
-    return this.eventos.filter((evt) => evt.user_id === user_id && evt.data.includes(mes));
+        if (!response.ok) {
+          throw new Error(`Erro HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Evento registrado no backend:', data);
+
+      } catch (erro) {
+        console.warn('⚠️ Erro ao enviar evento ao backend', erro);
+        return null;
+      }
   }
 
 
@@ -72,14 +86,14 @@ class EventService {
 
   /**
    * Obtém eventos de um usuário em uma data específica
-   * @param {string} user_id
+   * @param {string} userId
    * @param {string|Date} data
    * @returns {Event[]}
    */
-  obterPorUsuarioEData(user_id, data) {
+  obterPorUsuarioEData(userId, data) {
     const dataFormatada = typeof data === 'string' ? data : data.toISOString().split('T')[0];
     return this.eventos.filter(
-      (evt) => evt.user_id === user_id && evt.data === dataFormatada
+      (evt) => evt.userId === userId && evt.data === dataFormatada
     );
   }
 
@@ -121,12 +135,12 @@ class EventService {
 
   /**
    * Deleta todos os eventos de um usuário
-   * @param {string} user_id
+   * @param {string} userId
    * @returns {number} - Quantidade de eventos deletados
    */
-  deletarPorUsuario(user_id) {
+  deletarPorUsuario(userId) {
     const quantidadeAnterior = this.eventos.length;
-    this.eventos = this.eventos.filter((evt) => evt.user_id !== user_id);
+    this.eventos = this.eventos.filter((evt) => evt.userId !== userId);
     const deletados = quantidadeAnterior - this.eventos.length;
     if (deletados > 0) {
       this.salvarNoLocalStorage();
@@ -174,7 +188,7 @@ class EventService {
     return {
       total: this.eventos.length,
       porUsuario: this.eventos.reduce((acc, evt) => {
-        acc[evt.user_id] = (acc[evt.user_id] || 0) + 1;
+        acc[evt.userId] = (acc[evt.userId] || 0) + 1;
         return acc;
       }, {}),
       porData: this.eventos.reduce((acc, evt) => {
