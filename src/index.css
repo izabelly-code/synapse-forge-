@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* ===== DESIGN TOKENS ===== */
 :root {
   /* Brand — laranja da logo, cor primária de todas as ações */
