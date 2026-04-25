@@ -10,6 +10,7 @@ export interface Pedido {
 }
 
 export interface EventData {
+  id: string;
   userId: string;
   nome: string;
   data: string;

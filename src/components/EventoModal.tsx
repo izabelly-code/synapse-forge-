@@ -1,6 +1,7 @@
 import EventService from '../services/EventService';
 import { EventData } from '../types';
 import React, { useState } from 'react';
+import './EventoModal.css';
 
 interface EventoModalProps {
   evento: Partial<EventData> | null;
@@ -11,6 +12,7 @@ interface EventoModalProps {
 }
 
 interface FormData {
+  id?: string;
   nome: string;
   descricao: string;
   data: string;
@@ -25,6 +27,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
   const [newParticipant, setNewParticipant] = useState('');
   const [editando, setEditando] = useState(isCreateMode);
   const [formData, setFormData] = useState<FormData>({
+    id: evento?.id,
     nome: evento?.nome || '',
     descricao: evento?.descricao || '',
     data: evento?.data || '',
@@ -68,9 +71,8 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
 
     if (isCreateMode) {
       try {
-        const userId = evento.userId ;
         const novoEvento = await EventService.criarEvento(
-          userId || '',
+          ,
           formData.nome,
           formData.data,
           formData.descricao || '',
