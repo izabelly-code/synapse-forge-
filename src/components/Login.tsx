@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { login } from "../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import logo from "../assets/images/white-logo.png";
-import background from "../assets/images/background.jpg";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -63,10 +62,12 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
 
         try {
             setLoading(true);
-            const token = await login(email, senha);
-            localStorage.setItem("token", token);
-            onLogin(token);
+            const { access_token, user_id } = await login(email, senha);
+            localStorage.setItem("token", access_token);
+            localStorage.setItem("userId", user_id);
+            onLogin(access_token);
         } catch (error) {
+            console.log(error);
             setErro("Não foi possível entrar. Verifique seus dados.");
             senhaRef.current?.focus();
         } finally {

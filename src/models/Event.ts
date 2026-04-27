@@ -1,6 +1,7 @@
 import { EventData } from '../types';
 
 class Event {
+  id?: string;
   userId: string;
   nome: string;
   data: string;
@@ -10,6 +11,7 @@ class Event {
   participantes: string[];
 
   constructor(
+    id: string | undefined,
     userId: string,
     nome: string,
     data: Date | string,
@@ -19,6 +21,7 @@ class Event {
     participantes: string[],
 
   ) {
+    this.id = id;
     this.userId = userId;
     this.nome = nome;
     this.data = this.formatarData(data);
@@ -40,6 +43,7 @@ class Event {
 
   toJSON(): EventData {
     return {
+      id: this.id || '',
       userId: this.userId,
       nome: this.nome,
       data: this.data,
@@ -52,6 +56,7 @@ class Event {
 
   static fromJSON(json: EventData): Event {
     return new Event(
+      json.id,
       json.userId,
       json.nome,
       json.data,
@@ -63,6 +68,7 @@ class Event {
   }
 
   validar() {
+    console.log('Validando evento:', this);
     return (
       this.userId &&
       this.nome &&

@@ -24,7 +24,7 @@ function formatDateBr(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function Calendar() {
+function Calendar({ onBack }: { onBack: () => void }) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -122,6 +122,8 @@ function Calendar() {
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
+            <button className="pill-button back-button" onClick={onBack}>← Voltar</button>
+
             <div className="month-navigator">
               <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
                 ←
@@ -133,6 +135,7 @@ function Calendar() {
                 →
               </button>
             </div>
+
             <div className="calendar-card-buttons">
               <button className="pill-button pill-primary" onClick={handleCreateNewEvent}>Criar evento</button>
             </div>

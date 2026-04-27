@@ -139,7 +139,7 @@
 .panel-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.8rem;
 }
@@ -165,7 +165,8 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  justify-content: flex-start;
+  justify-content: center;
+  flex: 1;
 }
 
 .nav-arrow {
@@ -184,6 +185,22 @@
 
 .nav-arrow:hover {
   color: var(--primary);
+}
+
+.back-button {
+  color: white;
+  background: var(--primary);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--primary-dark);
 }
 
 .calendar-card-buttons {

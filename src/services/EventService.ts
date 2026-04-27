@@ -11,7 +11,7 @@ class EventService {
 
  
   async criarEvento(userId: string, nome: string, data: string | Date, descricao: string = '', horarioInicio: string = '', horarioFim: string = '', participantes: string[] = []) {
-    const evento = new Event(userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
+    const evento = new Event('',userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
 
     if (!evento.validar()) {
       throw new Error('Evento inválido: campos obrigatórios ausentes');

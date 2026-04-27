@@ -72,7 +72,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
     if (isCreateMode) {
       try {
         const novoEvento = await EventService.criarEvento(
-          ,
+          localStorage.getItem("userId") || '',
           formData.nome,
           formData.data,
           formData.descricao || '',
