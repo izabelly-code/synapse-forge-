@@ -18,7 +18,6 @@ class EventService {
     }
 
     const eventoPayload = evento.toJSON();
-    console.log('📤 Enviando evento para backend:', eventoPayload);
     try {
       const token = localStorage.getItem("token");
       const response = await fetch('http://localhost:8081/evento/registrar', {
@@ -34,39 +33,35 @@ class EventService {
         throw new Error(`Erro HTTP ${response.status}`);
       }
 
-      const responseData = await response.json();
-      console.log('✅ Evento registrado no backend:', responseData);
-
     } catch (erro) {
       console.warn('⚠️ Erro ao enviar evento ao backend', erro);
       return null;
     }
   }
-
   
-  // obterPorUsuarioMes(userId, mes) {
-  // try {
-  //       const response = await fetch('http://localhost:8081/evento/registrar', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Authorization': `Bearer ${token}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify(eventoPayload),
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error(`Erro HTTP ${response.status}`);
-  //       }
-
-  //       const data = await response.json();
-  //       console.log('✅ Evento registrado no backend:', data);
-
-  //     } catch (erro) {
-  //       console.warn('⚠️ Erro ao enviar evento ao backend', erro);
-  //       return null;
-  //     }
-  // }
+  async buscarEventosPorUsuarioMes(userId: string, mes: string, ano: string): Promise<EventData[]> {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:8081/evento/buscar-mes/${userId}?mes=${mes}&ano=${ano}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      // Supondo que o backend retorna um array de eventos no formato EventData
+      return data;
+    } catch (erro) {
+      console.warn('⚠️ Erro ao buscar eventos do backend', erro);
+      return [];
+    }
+  }
 
   obterPorData(data: string | Date): Event[] {
     const dataFormatada = typeof data === 'string' ? data : data.toISOString().split('T')[0];

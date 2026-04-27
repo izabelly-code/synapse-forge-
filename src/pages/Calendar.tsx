@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './Calendar.css';
 import EventoModal from '../components/EventoModal';
-import { useEventos } from '../hooks/useEventos';
+import EventService from '../services/EventService';
 import { EventData } from '../types';
 
 function getDaysInMonth(year: number, month: number): number {
@@ -31,16 +31,41 @@ function Calendar({ onBack }: { onBack: () => void }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  const {
-    eventos,
-    carregando,
-    erro,
-    eventoSelecionado,
-    atualizarEvento,
-    deletarEvento,
-    selecionarEvento,
-    deselecionar,
-  } = useEventos('user_123');
+  const [eventos, setEventos] = useState<EventData[]>([]);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
+
+    // Funções para gerenciar evento selecionado
+  const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
+  const deselecionar = () => setEventoSelecionado(null);
+  const atualizarEvento = (id: string, dados: Partial<EventData>) => {
+    const eventoAtualizado = EventService.atualizarEvento(id, dados); 
+  };
+  const deletarEvento = (id: string) => {
+    EventService.deletarEvento(id);
+  };
+
+
+  // Busca eventos do backend ao iniciar e ao mudar mês/ano
+  useEffect(() => {
+    async function fetchEventos() {
+      setCarregando(true);
+      setErro(null);
+      try {
+        const userId = localStorage.getItem('userId') || '';
+        const mes = String(currentMonth + 1).padStart(2, '0');
+        const ano = String(currentYear);
+        const eventosAPI = await EventService.buscarEventosPorUsuarioMes(userId, mes, ano);
+        setEventos(eventosAPI);
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao buscar eventos');
+      } finally {
+        setCarregando(false);
+      }
+    }
+    fetchEventos();
+  }, [currentMonth, currentYear]);
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
