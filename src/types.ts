@@ -11,15 +11,13 @@ export interface Pedido {
 
 export interface EventData {
   id: string;
-  user_id: string;
+  userId: string;
   nome: string;
   data: string;
   descricao: string;
-  startTime: string;
-  endTime: string;
+  horarioInicio: string;
+  horarioFim: string;
   participantes: string[];
-  criado_em: Date | string;
-  atualizado_em: Date | string;
 }
 
 export interface User {

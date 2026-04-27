@@ -24,11 +24,7 @@ function formatDateBr(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-interface CalendarProps {
-  onBack?: () => void;
-}
-
-function Calendar({ onBack: _onBack }: CalendarProps) {
+function Calendar({ onBack }: { onBack: () => void }) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -120,28 +116,26 @@ function Calendar({ onBack: _onBack }: CalendarProps) {
 
   return (
     <div className="calendar-page">
-      <div className="hero-panel">
-
-        <div className="hero-actions">
-          <button className="btn btn-secondary" onClick={handlePrevMonth}>
-            ← Mês anterior
-          </button>
-          <button className="btn btn-secondary" onClick={handleNextMonth}>
-            Próximo mês →
-          </button>
-        </div>
-      </div>
-
       {erro && <div className="calendar-error">⚠️ {erro}</div>}
       {carregando && <div className="calendar-loading">Carregando eventos...</div>}
 
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
-            <div>
-              <p className="calendar-card-subtitle">Mês atual</p>
-              <h2>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {currentYear}</h2>
+            <button className="pill-button back-button" onClick={onBack}>← Voltar</button>
+
+            <div className="month-navigator">
+              <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
+                ←
+              </button>
+              <div>
+                <h2>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {currentYear}</h2>
+              </div>
+              <button className="nav-arrow" onClick={handleNextMonth} aria-label="Próximo mês">
+                →
+              </button>
             </div>
+
             <div className="calendar-card-buttons">
               <button className="pill-button pill-primary" onClick={handleCreateNewEvent}>Criar evento</button>
             </div>
@@ -204,11 +198,6 @@ function Calendar({ onBack: _onBack }: CalendarProps) {
               <h3>{selectedDate ? formatDateBr(selectedDate) : 'Selecione um dia'}</h3>
             </div>
 
-            <div className="panel-badge-row">
-              <span className="status-badge">Primário</span>
-              <span className="status-badge secondary">Secundário</span>
-            </div>
-
             <div className="panel-section">
               <h4>{selectedDayEvents.length ? 'Eventos no dia' : 'Nenhum evento agendado'}</h4>
               {selectedDayEvents.length > 0 ? (
@@ -249,7 +238,7 @@ function Calendar({ onBack: _onBack }: CalendarProps) {
       {createModalOpen && (
         <EventoModal
           mode="create"
-          evento={{ data: selectedDate ?? undefined, startTime: '', endTime: '', participantes: [] }}
+          evento={{ data: selectedDate ?? undefined, a: '', horarioFim: '', participantes: [] }}
           onClose={() => setCreateModalOpen(false)}
         />
       )}

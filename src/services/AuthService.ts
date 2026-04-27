@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8081/auth";
 
-export async function login(email: string, senha: string): Promise<string> {
+export async function login(email: string, senha: string): Promise<{ access_token: string; user_id: string }> {
     const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
@@ -10,7 +10,7 @@ export async function login(email: string, senha: string): Promise<string> {
     });
 
     const data = await response.json();
-    return data.access_token;
+    return { access_token: data.access_token, user_id: data.user_id };
 }
 
 interface RegisterData {

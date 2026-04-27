@@ -9,27 +9,24 @@ class EventService {
     this.carregarDoLocalStorage();
   }
 
-  async criarEvento(
-    user_id: string,
-    nome: string,
-    data: string | Date,
-    descricao = '',
-    startTime = '',
-    endTime = '',
-    participantes: string[] = []
-  ): Promise<EventData> {
-    const evento = new Event(user_id, nome, data, null, descricao, startTime, endTime, participantes);
+ 
+  async criarEvento(userId: string, nome: string, data: string | Date, descricao: string = '', horarioInicio: string = '', horarioFim: string = '', participantes: string[] = []) {
+    const evento = new Event('',userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
 
     if (!evento.validar()) {
       throw new Error('Evento inválido: campos obrigatórios ausentes');
     }
 
     const eventoPayload = evento.toJSON();
-
+    console.log('📤 Enviando evento para backend:', eventoPayload);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch('http://localhost:8081/evento/registrar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(eventoPayload),
       });
 
@@ -40,31 +37,52 @@ class EventService {
       const responseData = await response.json();
       console.log('✅ Evento registrado no backend:', responseData);
 
-      const eventoCriado: EventData = responseData?.dados || eventoPayload;
-      this.eventos.push(Event.fromJSON(eventoCriado));
-
-      return eventoCriado;
     } catch (erro) {
-      console.warn('⚠️ Erro ao enviar evento ao backend, salvando localmente:', erro);
-      this.eventos.push(evento);
-      this.salvarNoLocalStorage();
-      return evento.toJSON();
+      console.warn('⚠️ Erro ao enviar evento ao backend', erro);
+      return null;
     }
   }
 
-  obterPorUsuarioMes(user_id: string, mes: string): Event[] {
-    return this.eventos.filter((evt) => evt.user_id === user_id && evt.data.includes(mes));
-  }
+  
+  // obterPorUsuarioMes(userId, mes) {
+  // try {
+  //       const response = await fetch('http://localhost:8081/evento/registrar', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(eventoPayload),
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(`Erro HTTP ${response.status}`);
+  //       }
+
+  //       const data = await response.json();
+  //       console.log('✅ Evento registrado no backend:', data);
+
+  //     } catch (erro) {
+  //       console.warn('⚠️ Erro ao enviar evento ao backend', erro);
+  //       return null;
+  //     }
+  // }
 
   obterPorData(data: string | Date): Event[] {
     const dataFormatada = typeof data === 'string' ? data : data.toISOString().split('T')[0];
     return this.eventos.filter((evt) => evt.data === dataFormatada);
   }
 
-  obterPorUsuarioEData(user_id: string, data: string | Date): Event[] {
+  /**
+   * Obtém eventos de um usuário em uma data específica
+   * @param {string} userId
+   * @param {string|Date} data
+   * @returns {Event[]}
+   */
+  obterPorUsuarioEData(userId: string, data: string | Date): Event[] {
     const dataFormatada = typeof data === 'string' ? data : data.toISOString().split('T')[0];
     return this.eventos.filter(
-      (evt) => evt.user_id === user_id && evt.data === dataFormatada
+      (evt) => evt.userId === userId && evt.data === dataFormatada
     );
   }
 
@@ -98,9 +116,14 @@ class EventService {
     return false;
   }
 
-  deletarPorUsuario(user_id: string): number {
+  /**
+   * Deleta todos os eventos de um usuário
+   * @param {string} userId
+   * @returns {number} - Quantidade de eventos deletados
+   */
+  deletarPorUsuario(userId: string): number {
     const quantidadeAnterior = this.eventos.length;
-    this.eventos = this.eventos.filter((evt) => evt.user_id !== user_id);
+    this.eventos = this.eventos.filter((evt) => evt.userId !== userId);
     const deletados = quantidadeAnterior - this.eventos.length;
     if (deletados > 0) {
       this.salvarNoLocalStorage();
@@ -135,7 +158,7 @@ class EventService {
     return {
       total: this.eventos.length,
       porUsuario: this.eventos.reduce<Record<string, number>>((acc, evt) => {
-        acc[evt.user_id] = (acc[evt.user_id] || 0) + 1;
+        acc[evt.userId] = (acc[evt.userId] || 0) + 1;
         return acc;
       }, {}),
       porData: this.eventos.reduce<Record<string, number>>((acc, evt) => {

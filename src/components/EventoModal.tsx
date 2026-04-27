@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import './EventoModal.css';
 import EventService from '../services/EventService';
 import { EventData } from '../types';
+import React, { useState } from 'react';
+import './EventoModal.css';
 
 interface EventoModalProps {
   evento: Partial<EventData> | null;
@@ -12,24 +12,27 @@ interface EventoModalProps {
 }
 
 interface FormData {
+  id?: string;
   nome: string;
   descricao: string;
   data: string;
-  startTime: string;
-  endTime: string;
+  horarioInicio: string;
+  horarioFim: string;
   participantes: string[];
 }
 
 function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: EventoModalProps) {
   const isCreateMode = mode === 'create';
-  const [editando, setEditando] = useState(isCreateMode);
+  
   const [newParticipant, setNewParticipant] = useState('');
+  const [editando, setEditando] = useState(isCreateMode);
   const [formData, setFormData] = useState<FormData>({
+    id: evento?.id,
     nome: evento?.nome || '',
     descricao: evento?.descricao || '',
     data: evento?.data || '',
-    startTime: evento?.startTime || '',
-    endTime: evento?.endTime || '',
+    horarioInicio: evento?.horarioInicio || '',
+    horarioFim: evento?.horarioFim || '',
     participantes: evento?.participantes || [],
   });
 
@@ -68,14 +71,13 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
 
     if (isCreateMode) {
       try {
-        const userId = evento.user_id || 'user_123';
         const novoEvento = await EventService.criarEvento(
-          userId,
+          localStorage.getItem("userId") || '',
           formData.nome,
           formData.data,
           formData.descricao || '',
-          formData.startTime || '',
-          formData.endTime || '',
+          formData.horarioInicio || '',
+          formData.horarioFim || '',
           formData.participantes || []
         );
 
@@ -99,8 +101,8 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
         nome: evento.nome || '',
         descricao: evento.descricao || '',
         data: evento.data || '',
-        startTime: evento.startTime || '',
-        endTime: evento.endTime || '',
+        horarioInicio: evento.horarioInicio || '',
+        horarioFim: evento.horarioFim || '',
         participantes: evento.participantes || [],
       });
     }
@@ -117,18 +119,6 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
   const formatarData = (dataStr: string) => {
     const [ano, mes, dia] = dataStr.split('-');
     return `${dia}/${mes}/${ano}`;
-  };
-
-  const formatarDataHora = (dataStr: string | Date | undefined) => {
-    if (!dataStr) return 'N/A';
-    const data = new Date(dataStr);
-    return data.toLocaleDateString('pt-BR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   let modalTitle = 'Detalhes do evento';
@@ -197,22 +187,22 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="startTime">Início</label>
+                  <label htmlFor="horarioInicio">Início</label>
                   <input
                     type="time"
-                    id="startTime"
-                    name="startTime"
-                    value={formData.startTime}
+                    id="horarioInicio"
+                    name="horarioInicio"
+                    value={formData.horarioInicio}
                     onChange={handleInputChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="endTime">Fim</label>
+                  <label htmlFor="horarioFim">Fim</label>
                   <input
                     type="time"
-                    id="endTime"
-                    name="endTime"
-                    value={formData.endTime}
+                    id="horarioFim"
+                    name="horarioFim"
+                    value={formData.horarioFim}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -264,10 +254,10 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
                 </div>
               )}
 
-              {evento.startTime && evento.endTime && (
+              {evento.horarioInicio && evento.horarioFim && (
                 <div className="detalhe-item">
                   <span className="detalhe-label">⏱ Horário</span>
-                  <span className="detalhe-valor">{evento.startTime} - {evento.endTime}</span>
+                  <span className="detalhe-valor">{evento.horarioInicio} - {evento.horarioFim}</span>
                 </div>
               )}
 
@@ -277,25 +267,6 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
                   {evento.participantes && evento.participantes.length > 0
                     ? evento.participantes.join(', ')
                     : 'Nenhum participante'}
-                </span>
-              </div>
-
-              <div className="detalhe-item">
-                <span className="detalhe-label">👤 Usuário</span>
-                <span className="detalhe-valor">{evento.user_id}</span>
-              </div>
-
-              <div className="detalhe-item">
-                <span className="detalhe-label">➕ Criado em</span>
-                <span className="detalhe-valor">
-                  {formatarDataHora(evento.criado_em)}
-                </span>
-              </div>
-
-              <div className="detalhe-item">
-                <span className="detalhe-label">✏️ Atualizado em</span>
-                <span className="detalhe-valor">
-                  {formatarDataHora(evento.atualizado_em)}
                 </span>
               </div>
             </div>
