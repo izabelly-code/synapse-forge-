@@ -101,7 +101,6 @@ class EventService {
       )
     );
 
-    evento.atualizado_em = new Date();
     this.salvarNoLocalStorage();
     return evento;
   }
