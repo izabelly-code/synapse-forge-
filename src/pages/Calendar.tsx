@@ -238,7 +238,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
       {createModalOpen && (
         <EventoModal
           mode="create"
-          evento={{ data: selectedDate ?? undefined, a: '', horarioFim: '', participantes: [] }}
+          evento={{ data: selectedDate ?? undefined, nome: '', horarioFim: '', participantes: [] }}
           onClose={() => setCreateModalOpen(false)}
         />
       )}
