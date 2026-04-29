@@ -9,6 +9,7 @@ interface EventoModalProps {
   onClose: () => void;
   onDelete?: (id: string) => void;
   onUpdate?: (id: string, dados: Partial<EventData>) => void;
+  onSuccess?: () => void;
 }
 
 interface FormData {
@@ -21,7 +22,7 @@ interface FormData {
   participantes: string[];
 }
 
-function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: EventoModalProps) {
+function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuccess }: EventoModalProps) {
   const isCreateMode = mode === 'create';
   
   const [newParticipant, setNewParticipant] = useState('');
@@ -71,7 +72,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
 
     if (isCreateMode) {
       try {
-        const novoEvento = await EventService.criarEvento(
+        const sucesso = await EventService.criarEvento(
           localStorage.getItem("userId") || '',
           formData.nome,
           formData.data,
@@ -81,10 +82,18 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate }: Eve
           formData.participantes || []
         );
 
-        return novoEvento;
+        if (sucesso) {
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            onClose();
+          }
+        } else {
+          globalThis.alert('Não foi possível criar o evento. Tente novamente.');
+        }
       } catch (error) {
         console.error('Erro ao criar evento via EventService:', error);
-        window.alert('Não foi possível criar o evento. Tente novamente.');
+        globalThis.alert('Não foi possível criar o evento. Tente novamente.');
       }
     } else if (onUpdate && evento.id) {
       onUpdate(evento.id, formData);

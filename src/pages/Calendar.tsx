@@ -265,6 +265,14 @@ function Calendar({ onBack }: { onBack: () => void }) {
           mode="create"
           evento={{ data: selectedDate ?? undefined, nome: '', horarioFim: '', participantes: [] }}
           onClose={() => setCreateModalOpen(false)}
+          onSuccess={() => {
+            setCreateModalOpen(false);
+            // Atualiza a lista de eventos
+            const userId = localStorage.getItem('userId') || '';
+            const mes = String(currentMonth + 1).padStart(2, '0');
+            const ano = String(currentYear);
+            EventService.buscarEventosPorUsuarioMes(userId, mes, ano).then(setEventos);
+          }}
         />
       )}
 
