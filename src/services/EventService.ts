@@ -33,6 +33,7 @@ class EventService {
         throw new Error(`Erro HTTP ${response.status}`);
       }
 
+      return true;
     } catch (erro) {
       console.warn('⚠️ Erro ao enviar evento ao backend', erro);
       return null;
