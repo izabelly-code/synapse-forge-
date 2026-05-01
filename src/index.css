@@ -55,24 +55,27 @@ body {
   background: var(--background);
   color: var(--on-surface-variant);
   -webkit-font-smoothing: antialiased;
+  
 }
 
 /* ===== AUTH LAYOUT (Login / Register / Recovery) ===== */
-.container {
-  height: 100%;
+.screen-container {
+  display: grid;
+  grid-template-columns: 55% 45%; /* controla o tamanho corretamente */
+  height: 100vh;
   width: 100%;
-  display: flex;
 }
 
 /* Left panel — background image with dark overlay */
 .left-side {
-  flex: 1;
   background: url("assets/images/background.jpg") no-repeat center center;
   background-size: cover;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
+  padding: 0 3rem;
 }
 
 .left-overlay {
@@ -101,9 +104,14 @@ body {
   position: relative;
   z-index: 2;
   text-align: center;
-  max-width: 400px;
+  max-width: 600px;
   color: #ffffff;
   padding: 0 1.5rem;
+  width: 100%;
+}
+
+.left-content {
+  transform: translateY(-10%);
 }
 
 .left-content h1 {
@@ -123,13 +131,31 @@ body {
 
 /* Right panel — pure white, breathing room */
 .right-side {
-  flex: 1;
-  background: var(--surface);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
+
+
+
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left-side {
+    display: none;
+  }
+
+  .right-side {
+    width: 100%;
+  }
+}
+
 
 /* Auth card — surface-container-lowest lifted on white */
 .card {
@@ -140,6 +166,7 @@ body {
   max-width: 380px;
   box-shadow: var(--shadow-ambient);
   border: 1px solid var(--outline-variant);
+  margin: 0; /* <- isso aqui é importante */
 }
 
 .card h2 {

@@ -101,7 +101,7 @@ function Register({ onRegister }: RegisterProps) {
     }
 
     return (
-        <div className="container">
+        <div className="screen-container">
 
             {/* LEFT SIDE */}
             <div className="left-side">

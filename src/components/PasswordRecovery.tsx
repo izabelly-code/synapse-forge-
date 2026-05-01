@@ -99,7 +99,7 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
     }
 
     return (
-        <div className="container">
+        <div className="screen-container">
 
             {/* LEFT SIDE */}
             <div className="left-side">
