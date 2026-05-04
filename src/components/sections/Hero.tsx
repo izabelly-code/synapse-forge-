@@ -7,6 +7,7 @@ import card4Image from "../../assets/Images/card4.png";
 import "./Hero.css";
 import { FaReact, FaJava } from "react-icons/fa";
 import { SiTypescript, SiVite, SiTailwindcss, SiMongodb, SiSpringboot } from "react-icons/si";
+import Footer from "./Footer";
 
 const navItems = [
   { href: "#recursos", label: "Recursos" },
@@ -381,6 +382,7 @@ function Hero() {
           </div>
         </section>
       </div>
+      <Footer />
     </main>
   );
 }

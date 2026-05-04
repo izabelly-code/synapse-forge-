@@ -18,10 +18,6 @@ export function useEventos(userId: string) {
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
 
-  useEffect(() => {
-    carregarEventosDoServidor();
-  }, [userId]);
-
   const carregarEventosDoServidor = useCallback(async () => {
     setCarregando(true);
     setErro(null);
@@ -38,6 +34,10 @@ export function useEventos(userId: string) {
       setCarregando(false);
     }
   }, [userId]);
+
+  useEffect(() => {
+    carregarEventosDoServidor();
+  }, [carregarEventosDoServidor]);
 
   const criarEvento = useCallback(
     async (eventoData: EventoData) => {

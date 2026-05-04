@@ -40,7 +40,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
   const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
   const deselecionar = () => setEventoSelecionado(null);
   const atualizarEvento = (id: string, dados: Partial<EventData>) => {
-    const eventoAtualizado = EventService.atualizarEvento(id, dados); 
+    EventService.atualizarEvento(id, dados); 
   };
   const deletarEvento = (id: string) => {
     EventService.deletarEvento(id);
@@ -265,6 +265,14 @@ function Calendar({ onBack }: { onBack: () => void }) {
           mode="create"
           evento={{ data: selectedDate ?? undefined, nome: '', horarioFim: '', participantes: [] }}
           onClose={() => setCreateModalOpen(false)}
+          onSuccess={() => {
+            setCreateModalOpen(false);
+            // Atualiza a lista de eventos
+            const userId = localStorage.getItem('userId') || '';
+            const mes = String(currentMonth + 1).padStart(2, '0');
+            const ano = String(currentYear);
+            EventService.buscarEventosPorUsuarioMes(userId, mes, ano).then(setEventos);
+          }}
         />
       )}
 

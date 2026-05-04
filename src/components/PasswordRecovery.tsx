@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import logo from "../assets/images/white-logo.png";
-import background from "../assets/images/background.jpg";
+import logo from "../assets/Images/white-logo.png";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -99,7 +98,7 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
     }
 
     return (
-        <div className="container">
+        <div className="screen-container">
 
             {/* LEFT SIDE */}
             <div className="left-side">

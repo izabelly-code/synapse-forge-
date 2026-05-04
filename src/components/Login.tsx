@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { login } from "../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import logo from "../assets/images/white-logo.png";
+import logo from "../assets/Images/white-logo.png";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -76,7 +76,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
     }
 
     return (
-        <div className="container">
+        <div className="screen-container">
 
             {/* LEFT SIDE */}
             <div className="left-side">
@@ -138,7 +138,9 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                                 onClick={() => setShowSenha(!showSenha)}
                                 aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
                             >
-                                {showSenha ? <FiEyeOff color="white" /> : <FiEye color="white" />}
+                                {showSenha
+                                    ? <FiEyeOff className="text-gray-700" />
+                                    : <FiEye className="text-gray-700" />}
                             </button>
                         </div>
 
