@@ -106,19 +106,36 @@ class EventService {
     return this.eventos.find((evt) => evt.id === id) || null;
   }
 
-  atualizarEvento(id: string, dados: Partial<EventData>): Event | null {
-    const evento = this.obterPorId(id);
-    if (!evento) return null;
+  async atualizarEvento(id: string, dados: Partial<EventData>, userId?: string): Promise<EventData | null> {
+    try {
+      const token = localStorage.getItem('token');
+      const payload: Partial<EventData> = {
+        ...dados,
+      };
 
-    Object.assign(
-      evento,
-      Object.fromEntries(
-        Object.entries(dados).filter(([k]) => k !== 'id' && k !== 'criado_em')
-      )
-    );
+      if (userId) {
+        payload.userId = userId;
+      }
 
-    this.salvarNoLocalStorage();
-    return evento;
+      const response = await fetch(`http://localhost:8081/evento/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
+
+      const updatedEvent = await response.json();
+      return updatedEvent as EventData;
+    } catch (error_) {
+      console.warn('⚠️ Erro ao atualizar evento no backend', error_);
+      return null;
+    }
   }
 
   deletarEvento(id: string): boolean {

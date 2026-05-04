@@ -9,7 +9,7 @@ interface EventoModalProps {
   mode?: 'view' | 'create';
   onClose: () => void;
   onDelete?: (id: string) => void;
-  onUpdate?: (id: string, dados: Partial<EventData>) => void;
+  onUpdate?: (id: string, dados: Partial<EventData>) => Promise<void>;
   onSuccess?: () => void;
 }
 
@@ -138,8 +138,13 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         globalThis.alert('Não foi possível criar o evento. Tente novamente.');
       }
     } else if (onUpdate && evento.id) {
-      onUpdate(evento.id, formData);
-      setEditando(false);
+      try {
+        await onUpdate(evento.id, formData);
+        setEditando(false);
+      } catch (error_) {
+        console.error('Erro ao atualizar evento:', error_);
+        globalThis.alert('Não foi possível salvar as alterações. Tente novamente.');
+      }
     }
   };
 

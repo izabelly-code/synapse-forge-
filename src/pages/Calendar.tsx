@@ -39,9 +39,26 @@ function Calendar({ onBack }: { onBack: () => void }) {
     // Funções para gerenciar evento selecionado
   const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
   const deselecionar = () => setEventoSelecionado(null);
-  const atualizarEvento = (id: string, dados: Partial<EventData>) => {
-    EventService.atualizarEvento(id, dados); 
+
+  const atualizarEvento = async (id: string, dados: Partial<EventData>) => {
+    setCarregando(true);
+    setErro(null);
+
+    try {
+      const updatedEvent = await EventService.atualizarEvento(id, dados, eventoSelecionado?.userId);
+      if (updatedEvent) {
+        setEventos((prev) => prev.map((evt) => (evt.id === id ? updatedEvent : evt)));
+        setEventoSelecionado(updatedEvent);
+      } else {
+        setErro('Não foi possível atualizar o evento.');
+      }
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : 'Erro ao atualizar evento');
+    } finally {
+      setCarregando(false);
+    }
   };
+
   const deletarEvento = (id: string) => {
     EventService.deletarEvento(id);
   };
@@ -105,8 +122,8 @@ function Calendar({ onBack }: { onBack: () => void }) {
     deselecionar();
   }
 
-  function handleUpdateEvent(eventoId: string, dados: Partial<EventData>) {
-    atualizarEvento(eventoId, dados);
+  async function handleUpdateEvent(eventoId: string, dados: Partial<EventData>) {
+    await atualizarEvento(eventoId, dados);
   }
 
   const monthName = new Date(currentYear, currentMonth).toLocaleString('pt-BR', { month: 'long' });
@@ -227,7 +244,12 @@ function Calendar({ onBack }: { onBack: () => void }) {
               <h4>{selectedDayEvents.length ? 'Eventos no dia' : 'Nenhum evento agendado'}</h4>
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map((event) => (
-                  <div key={event.id} className="event-card">
+                  <div
+                    key={event.id}
+                    className="event-card"
+                    onClick={() => selecionarEvento(event)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div>
                       <p className="event-card-title">{event.nome}</p>
                       <p className="event-card-meta">{event.descricao || 'Sem descrição'}</p>
