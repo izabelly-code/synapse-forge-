@@ -40,7 +40,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
   const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
   const deselecionar = () => setEventoSelecionado(null);
   const atualizarEvento = (id: string, dados: Partial<EventData>) => {
-    const eventoAtualizado = EventService.atualizarEvento(id, dados); 
+    EventService.atualizarEvento(id, dados); 
   };
   const deletarEvento = (id: string) => {
     EventService.deletarEvento(id);

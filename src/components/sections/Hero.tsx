@@ -5,6 +5,8 @@ import card2Image from "../../assets/Images/card2.png";
 import card3Image from "../../assets/Images/card3.png";
 import card4Image from "../../assets/Images/card4.png";
 import "./Hero.css";
+import { FaReact, FaJava } from "react-icons/fa";
+import { SiTypescript, SiVite, SiTailwindcss, SiMongodb, SiSpringboot } from "react-icons/si";
 import Footer from "./Footer";
 
 const navItems = [
@@ -114,11 +116,13 @@ const trustItems = [
 ];
 
 const partnerLogos = [
-  { label: "logipsum", glyph: "spark" },
-  { label: "IPSUM", glyph: "split" },
-  { label: "LOGOIPSUM", glyph: "seal" },
-  { label: "logoipsum", glyph: "grid" },
-  { label: "OGO", glyph: "loop" },
+  { label: "React", Icon: FaReact },
+  { label: "TypeScript", Icon: SiTypescript },
+  { label: "Vite", Icon: SiVite },
+  { label: "Tailwind CSS", Icon: SiTailwindcss },
+  { label: "MongoDB", Icon: SiMongodb },
+  { label: "Spring Boot", Icon: SiSpringboot },
+  { label: "Java", Icon: FaJava },
 ];
 
 const marqueeLogos = [...partnerLogos, ...partnerLogos];
@@ -292,12 +296,12 @@ function Hero() {
             </article>
           </div>
 
-          <div className="sf-hero-logo-marquee" aria-label="Marcas parceiras">
+          <div className="sf-hero-logo-marquee" aria-label="Stack tecnológico">
             <div className="sf-hero-logo-track">
-              {marqueeLogos.map((logo, index) => (
-                <div key={logo.label + logo.glyph + index} className="sf-hero-logo-item">
-                  <span className={`sf-hero-logo-glyph sf-hero-logo-glyph-${logo.glyph}`} />
-                  <span>{logo.label}</span>
+              {marqueeLogos.map(({ label, Icon }, index) => (
+                <div key={label + index} className="sf-hero-logo-item">
+                  <Icon className="sf-hero-logo-icon" aria-hidden="true" />
+                  <span>{label}</span>
                 </div>
               ))}
             </div>

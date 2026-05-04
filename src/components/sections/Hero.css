@@ -421,109 +421,21 @@
 .sf-hero-logo-item {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-width: 118px;
+  gap: 14px;
+  min-width: 160px;
   padding-block: 6px;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
   flex-shrink: 0;
 }
 
-.sf-hero-logo-item:nth-child(1),
-.sf-hero-logo-item:nth-child(4) {
-  text-transform: none;
-}
-
-.sf-hero-logo-glyph {
-  position: relative;
-  display: inline-block;
-  width: 18px;
-  height: 18px;
+.sf-hero-logo-icon {
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
-.sf-hero-logo-glyph::before,
-.sf-hero-logo-glyph::after {
-  position: absolute;
-  content: "";
-}
-
-.sf-hero-logo-glyph-spark::before {
-  inset: 3px;
-  border-radius: 50%;
-  box-shadow:
-    -6px -6px 0 0 currentColor,
-    6px -2px 0 0 currentColor,
-    -1px 6px 0 0 currentColor,
-    6px 6px 0 0 currentColor;
-}
-
-.sf-hero-logo-glyph-split::before {
-  left: 1px;
-  top: 4px;
-  width: 7px;
-  height: 10px;
-  border-radius: 3px 0 0 3px;
-  background: currentColor;
-}
-
-.sf-hero-logo-glyph-split::after {
-  right: 1px;
-  top: 2px;
-  width: 8px;
-  height: 14px;
-  clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 86%);
-  background: currentColor;
-}
-
-.sf-hero-logo-glyph-seal::before {
-  inset: 1px;
-  border: 1.6px solid currentColor;
-  border-radius: 50%;
-}
-
-.sf-hero-logo-glyph-seal::after {
-  inset: 5px;
-  border: 1.6px solid currentColor;
-  border-radius: 50%;
-}
-
-.sf-hero-logo-glyph-grid::before {
-  inset: 1px;
-  border-radius: 5px;
-  border: 1.6px solid currentColor;
-}
-
-.sf-hero-logo-glyph-grid::after {
-  left: 5px;
-  top: 5px;
-  width: 8px;
-  height: 8px;
-  box-shadow:
-    0 0 0 0 currentColor,
-    6px 0 0 0 currentColor,
-    0 6px 0 0 currentColor,
-    6px 6px 0 0 currentColor;
-}
-
-.sf-hero-logo-glyph-loop::before,
-.sf-hero-logo-glyph-loop::after {
-  top: 2px;
-  width: 11px;
-  height: 11px;
-  border: 1.6px solid currentColor;
-  border-radius: 50%;
-}
-
-.sf-hero-logo-glyph-loop::before {
-  left: 0;
-}
-
-.sf-hero-logo-glyph-loop::after {
-  right: 0;
-}
 
 .sf-showcase-section {
   margin-top: 56px;
