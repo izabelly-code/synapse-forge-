@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { login } from "../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import logo from "../assets/images/white-logo.png";
+import logo from "../assets/Images/white-logo.png";
 
 interface LoginProps {
     onLogin: (token: string) => void;

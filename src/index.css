@@ -68,7 +68,7 @@ body {
 
 /* Left panel — background image with dark overlay */
 .left-side {
-  background: url("assets/images/background.jpg") no-repeat center center;
+  background: url("assets/Images/background.jpg") no-repeat center center;
   background-size: cover;
   position: relative;
   display: flex;

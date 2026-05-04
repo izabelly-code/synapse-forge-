@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPedidos, avancarStatus, deletarPedido } from "../services/PedidoService";
-import logo from "../assets/images/black-logo.png";
+import logo from "../assets/Images/black-logo.png";
 import PedidoCard from "./PedidoCard";
 import NovoPedidoModal from "./NovoPedidoModal";
 import { Pedido, PedidoStatus } from "../types";

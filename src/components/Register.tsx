@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { register } from "../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import logo from "../assets/images/white-logo.png";
+import logo from "../assets/Images/white-logo.png";
 
 interface RegisterProps {
     onRegister: () => void;
