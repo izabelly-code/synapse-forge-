@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { register } from "../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import logo from "../assets/images/white-logo.png";
-import background from "../assets/images/background.jpg";
 
 interface RegisterProps {
     onRegister: () => void;
@@ -23,6 +22,8 @@ function Register({ onRegister }: RegisterProps) {
 
     const [showSenha, setShowSenha] = useState(false);
     const [emailValido, setEmailValido] = useState(true);
+    const [cpfValido, setCpfValido] = useState(true);
+    const [telefoneValido, setTelefoneValido] = useState(true);
 
     const nomeRef = useRef<HTMLInputElement>(null);
 
@@ -40,31 +41,80 @@ function Register({ onRegister }: RegisterProps) {
         return "media";
     }
 
-    function formatarCPF(valor: string) {
-    return valor
-        .replace(/\D/g, "") // remove tudo que não é número
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-        .slice(0, 14);
-    }
-
-    function formatarTelefone(valor: string) {
-    const numeros = valor.replace(/\D/g, "").slice(0, 11);
-
-    if (numeros.length === 0) {
+    function getMensagemSenha(nivel: string) {
+        if (nivel === "fraca") {
+            return "Use pelo menos 6 caracteres.";
+        }
+        if (nivel === "media") {
+            return "Adicione letras maiúsculas e números para deixá-la mais forte.";
+        }
+        if (nivel === "forte") {
+            return "Ótima senha! Combine letras, números e símbolos para máxima segurança.";
+        }
         return "";
     }
 
-    if (numeros.length <= 2) {
-        return `(${numeros}`;
+    function formatarCPF(valor: string) {
+        return valor
+            .replace(/\D/g, "")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+            .slice(0, 14);
     }
 
-    if (numeros.length <= 7) {
-        return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+    function formatarTelefone(valor: string) {
+        const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+        if (numeros.length === 0) return "";
+        if (numeros.length <= 2) return `(${numeros}`;
+        if (numeros.length <= 7) return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
     }
 
-    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+    function validarCPF(cpf: string) {
+        const cleanCpf = cpf.replace(/\D/g, "");
+
+        if (cleanCpf.length !== 11) return false;
+        if (/^(\d)\1+$/.test(cleanCpf)) return false;
+
+        let soma = 0;
+        let resto;
+
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cleanCpf[i]) * (10 - i);
+        }
+
+        resto = (soma * 10) % 11;
+        if (resto >= 10) resto = 0;
+        if (resto !== parseInt(cleanCpf[9])) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cleanCpf[i]) * (11 - i);
+        }
+
+        resto = (soma * 10) % 11;
+        if (resto >= 10) resto = 0;
+
+        return resto === parseInt(cleanCpf[10]);
+    }
+
+    function validarTelefone(telefone: string) {
+        const numeros = telefone.replace(/\D/g, "");
+
+        if (numeros.length < 10 || numeros.length > 11) return false;
+
+        const ddd = numeros.slice(0, 2);
+        const numero = numeros.slice(2);
+
+        const dddsValidos = ["11","12","13","14","15","16","17","18","19","21","22","24","27","28","31","32","33","34","35","37","38","41","42","43","44","45","46","47","48","49","51","53","54","55","61","62","64","63","65","66","67","68","69","71","73","74","75","77","79","81","87","82","83","84","85","88","86","89","91","93","94","92","97","95","96","98","99"];
+
+        if (!dddsValidos.includes(ddd)) return false;
+        if (/^(\d)\1+$/.test(numeros)) return false;
+        if (numeros.length === 11 && !numero.startsWith("9")) return false;
+
+        return true;
     }
 
     const nivelSenha = forcaSenha(senha);
@@ -75,9 +125,24 @@ function Register({ onRegister }: RegisterProps) {
         setErro("");
         setSucesso("");
 
-        if (!nome) return setErro("Digite seu nome.");
-        if (!email || !validarEmail(email)) return setErro("Email inválido.");
-        if (!senha) return setErro("Digite sua senha.");
+        if (!nome.trim()) return setErro("Por favor, informe seu nome.");
+        if (nome.trim().length < 3) return setErro("O nome deve ter pelo menos 3 caracteres.");
+
+        if (!email) return setErro("Por favor, informe seu email.");
+        if (!validarEmail(email)) return setErro("Digite um email válido (ex: nome@email.com).");
+
+        const cpfNum = cpf.replace(/\D/g, "");
+        if (cpfNum.length < 11) return setErro("CPF incompleto.");
+        if (!validarCPF(cpf)) return setErro("CPF inválido. Verifique os números digitados.");
+
+        const telNum = telefone.replace(/\D/g, "");
+        if (telNum.length < 10) return setErro("Telefone incompleto.");
+        if (!validarTelefone(telefone)) return setErro("Telefone inválido. Verifique DDD e número.");
+
+        if (!senha) return setErro("Crie uma senha.");
+        if (senha.length < 6) return setErro("A senha deve ter no mínimo 6 caracteres.");
+
+        if (!confirmSenha) return setErro("Confirme sua senha.");
         if (senha !== confirmSenha) return setErro("As senhas não coincidem.");
 
         try {
@@ -94,19 +159,17 @@ function Register({ onRegister }: RegisterProps) {
             setTimeout(onRegister, 1500);
 
         } catch {
-            setErro("Erro ao cadastrar. Tente novamente.");
+            setErro("Erro ao cadastrar. Tente novamente em instantes.");
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <div className="container">
+        <div className="screen-container">
 
-            {/* LEFT SIDE */}
             <div className="left-side">
                 <div className="left-overlay"></div>
-
                 <img src={logo} alt="Logo SynapseForge" className="logo" />
 
                 <div className="left-content">
@@ -115,33 +178,30 @@ function Register({ onRegister }: RegisterProps) {
                 </div>
             </div>
 
-            {/* RIGHT SIDE */}
             <div className="right-side">
                 <form className="card" onSubmit={handleRegister}>
 
                     <h2>Cadastro</h2>
 
-                    {erro && <p className="error" role="alert">{erro}</p>}
+                    {erro && <p className="error">{erro}</p>}
                     {sucesso && <p className="success">{sucesso}</p>}
 
-                    {/* NOME */}
                     <div className="input-group">
-                        <label htmlFor="nome">Nome</label>
+                        <label>Nome</label>
                         <input
                             ref={nomeRef}
-                            id="nome"
                             value={nome}
                             onChange={(e) => setNome(e.target.value)}
                             placeholder="Digite seu nome"
                         />
+                        {nome && nome.length < 3 && (
+                            <span className="error-text">Nome muito curto</span>
+                        )}
                     </div>
 
-                    {/* EMAIL */}
                     <div className="input-group">
-                        <label htmlFor="email">Email</label>
+                        <label>Email</label>
                         <input
-                            id="email"
-                            type="email"
                             value={email}
                             onChange={(e) => {
                                 setEmail(e.target.value);
@@ -149,32 +209,60 @@ function Register({ onRegister }: RegisterProps) {
                             }}
                             className={!emailValido ? "input-error" : ""}
                             placeholder="Digite seu email"
-                            autoComplete="email"
                         />
-                        {!emailValido && <span className="error-text">Email inválido</span>}
+                        {email && !emailValido && (
+                            <span className="error-text">Formato inválido (ex: nome@email.com)</span>
+                        )}
                     </div>
 
-                    {/* CPF */}
                     <div className="input-group">
                         <label>CPF</label>
                         <input
                             value={cpf}
-                            onChange={(e) => setCpf(formatarCPF(e.target.value))}
+                            onChange={(e) => {
+                                const valor = formatarCPF(e.target.value);
+                                setCpf(valor);
+
+                                const numeros = valor.replace(/\D/g, "");
+                                if (numeros.length === 11) {
+                                    setCpfValido(validarCPF(valor));
+                                }
+                            }}
+                            className={!cpfValido ? "input-error" : ""}
                             placeholder="000.000.000-00"
                         />
+                        {cpf && cpf.replace(/\D/g, "").length < 11 && (
+                            <span className="error-text">CPF incompleto</span>
+                        )}
+                        {!cpfValido && (
+                            <span className="error-text">CPF inválido</span>
+                        )}
                     </div>
 
-                    {/* TELEFONE */}
                     <div className="input-group">
                         <label>Telefone</label>
                         <input
                             value={telefone}
-                            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+                            onChange={(e) => {
+                                const valor = formatarTelefone(e.target.value);
+                                setTelefone(valor);
+
+                                const numeros = valor.replace(/\D/g, "");
+                                if (numeros.length >= 10) {
+                                    setTelefoneValido(validarTelefone(valor));
+                                }
+                            }}
+                            className={!telefoneValido ? "input-error" : ""}
                             placeholder="(00) 00000-0000"
                         />
+                        {telefone && telefone.replace(/\D/g, "").length < 10 && (
+                            <span className="error-text">Telefone incompleto</span>
+                        )}
+                        {!telefoneValido && (
+                            <span className="error-text">Número ou DDD inválido</span>
+                        )}
                     </div>
 
-                    {/* SENHA */}
                     <div className="input-group">
                         <label>Senha</label>
 
@@ -184,29 +272,31 @@ function Register({ onRegister }: RegisterProps) {
                                 value={senha}
                                 onChange={(e) => setSenha(e.target.value)}
                                 placeholder="Digite sua senha"
-                                autoComplete="new-password"
                             />
 
                             <button
                                 type="button"
                                 className="input-icon"
                                 onClick={() => setShowSenha(!showSenha)}
-                                aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
                             >
-                                {showSenha ? <FiEyeOff color="white" /> : <FiEye color="white" />}
+                                {showSenha ? <FiEyeOff /> : <FiEye />}
                             </button>
                         </div>
+
+                        {senha && senha.length < 6 && (
+                            <span className="error-text">Mínimo de 6 caracteres</span>
+                        )}
 
                         {senha && (
                             <span className={`senha-${nivelSenha}`}>
                                 {nivelSenha === "fraca" && "Senha fraca"}
                                 {nivelSenha === "media" && "Senha média"}
                                 {nivelSenha === "forte" && "Senha forte"}
+                                {" • " + getMensagemSenha(nivelSenha)}
                             </span>
                         )}
                     </div>
 
-                    {/* CONFIRMAR SENHA */}
                     <div className="input-group">
                         <label>Confirmar senha</label>
                         <input
@@ -216,22 +306,14 @@ function Register({ onRegister }: RegisterProps) {
                             placeholder="Repita sua senha"
                         />
                         {confirmSenha && senha !== confirmSenha && (
-                            <span className="error-text">
-                                Senhas não coincidem
-                            </span>
+                            <span className="error-text">As senhas não coincidem</span>
                         )}
                     </div>
 
-                    {/* BOTÃO */}
-                    <button
-                        className="button"
-                        type="submit"
-                        disabled={loading}
-                    >
+                    <button className="button" type="submit" disabled={loading}>
                         {loading ? "Cadastrando..." : "Cadastrar"}
                     </button>
 
-                    {/* VOLTAR */}
                     <button
                         type="button"
                         className="login-link"
@@ -242,7 +324,6 @@ function Register({ onRegister }: RegisterProps) {
 
                 </form>
             </div>
-
         </div>
     );
 }
