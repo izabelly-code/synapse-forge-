@@ -1,5 +1,6 @@
 import EventService from '../services/EventService';
-import { EventData } from '../types';
+import { searchUsersByName } from '../services/UserService';
+import { EventData, User } from '../types';
 import React, { useState } from 'react';
 import './EventoModal.css';
 
@@ -22,10 +23,13 @@ interface FormData {
   participantes: string[];
 }
 
-function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuccess }: EventoModalProps) {
+function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuccess }: Readonly<EventoModalProps>) {
   const isCreateMode = mode === 'create';
   
   const [newParticipant, setNewParticipant] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [showUserSuggestions, setShowUserSuggestions] = useState(false);
+  const [participantNames, setParticipantNames] = useState<string[]>(evento?.participantes || []);
   const [editando, setEditando] = useState(isCreateMode);
   const [formData, setFormData] = useState<FormData>({
     id: evento?.id,
@@ -47,14 +51,49 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
     }));
   };
 
+  const handleParticipantInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewParticipant(value);
+
+    if (value.trim().length > 3) {
+      const token = localStorage.getItem('token');
+      const users = await searchUsersByName(value, token);
+      setFilteredUsers(users);
+      setShowUserSuggestions(true);
+    } else {
+      setFilteredUsers([]);
+      setShowUserSuggestions(false);
+    }
+  };
+
+  const handleSelectUser = (user: User) => {
+    const alreadyAdded = formData.participantes.includes(user.id);
+    if (!alreadyAdded) {
+      setFormData((prev) => ({
+        ...prev,
+        participantes: [...prev.participantes, user.id],
+      }));
+      setParticipantNames((prev) => [...prev, user.nome]);
+    }
+    setNewParticipant('');
+    setFilteredUsers([]);
+    setShowUserSuggestions(false);
+  };
+
   const handleAdicionarParticipante = () => {
     const participante = newParticipant.trim();
     if (!participante) return;
-    setFormData((prev) => ({
-      ...prev,
-      participantes: [...prev.participantes, participante],
-    }));
-    setNewParticipant('');
+
+    const matchedUser = filteredUsers.find(
+      (user) => user.nome.toLowerCase() === participante.toLowerCase() || user.email.toLowerCase() === participante.toLowerCase()
+    );
+
+    if (!matchedUser) {
+      globalThis.alert('Selecione um usuário válido da lista para adicionar como participante.');
+      return;
+    }
+
+    handleSelectUser(matchedUser);
   };
 
   const handleRemoverParticipante = (index: number) => {
@@ -62,6 +101,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
       ...prev,
       participantes: prev.participantes.filter((_, idx) => idx !== index),
     }));
+    setParticipantNames((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const handleSalvar = async () => {
@@ -76,10 +116,12 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
           localStorage.getItem("userId") || '',
           formData.nome,
           formData.data,
-          formData.descricao || '',
-          formData.horarioInicio || '',
-          formData.horarioFim || '',
-          formData.participantes || []
+          {
+            descricao: formData.descricao || '',
+            horarioInicio: formData.horarioInicio || '',
+            horarioFim: formData.horarioFim || '',
+            participantes: formData.participantes || [],
+          }
         );
 
         if (sucesso) {
@@ -114,6 +156,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         horarioFim: evento.horarioFim || '',
         participantes: evento.participantes || [],
       });
+      setParticipantNames(evento.participantes || []);
     }
   };
 
@@ -220,24 +263,57 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
               <div className="form-group">
                 <label htmlFor="participantes">Participantes</label>
                 <div className="participants-input-row">
-                  <input
-                    type="text"
-                    id="participantes"
-                    name="participantes"
-                    value={newParticipant}
-                    onChange={(e) => setNewParticipant(e.target.value)}
-                    placeholder="Adicionar participante"
-                  />
-                  <button type="button" className="btn btn-secondary mini" onClick={handleAdicionarParticipante}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <input
+                      type="text"
+                      id="participantes"
+                      name="participantes"
+                      value={newParticipant}
+                      onChange={handleParticipantInputChange}
+                      placeholder="Digite o nome do participante"
+                    />
+                    {showUserSuggestions && filteredUsers.length > 0 && (
+                      <div className="user-suggestions-dropdown">
+                        {filteredUsers.map((user) => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            className="user-suggestion-item"
+                            onClick={() => handleSelectUser(user)}
+                            style={{ cursor: 'pointer', padding: '8px 12px', borderBottom: '1px solid #eee', textAlign: 'left', width: '100%', background: 'transparent', border: 'none' }}
+                          >
+                            <strong>{user.nome}</strong>
+                            <br />
+                            <small style={{ color: '#666' }}>{user.email}</small>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary mini"
+                    onClick={handleAdicionarParticipante}
+                    disabled={!newParticipant.trim()}
+                  >
                     Adicionar
                   </button>
                 </div>
                 <div className="participants-list">
-                  {formData.participantes.length > 0 ? (
-                    formData.participantes.map((nome, index) => (
+                  {participantNames.length > 0 ? (
+                    participantNames.map((nome, index) => (
                       <span key={`${nome}-${index}`} className="participant-chip">
                         {nome}
                         <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover ${nome}`}>
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  ) : formData.participantes.length > 0 ? (
+                    formData.participantes.map((id, index) => (
+                      <span key={`${id}-${index}`} className="participant-chip">
+                        {id}
+                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover participante`}>
                           ✕
                         </button>
                       </span>

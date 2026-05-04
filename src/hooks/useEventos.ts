@@ -14,30 +14,10 @@ interface EventoData {
 
 export function useEventos(userId: string) {
   const [eventos, setEventos] = useState<EventData[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [carregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
 
-  const carregarEventosDoServidor = useCallback(async () => {
-    setCarregando(true);
-    setErro(null);
-    try {
-      const resposta = await mockServer.getEventosPorUsuario(userId);
-      if (resposta.sucesso) {
-        setEventos(resposta.dados);
-      }
-    } catch (err) {
-      const e = err as { erro?: string; message?: string };
-      setErro(e.erro || e.message || 'Erro ao carregar eventos');
-      console.error('Erro:', err);
-    } finally {
-      setCarregando(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    carregarEventosDoServidor();
-  }, [carregarEventosDoServidor]);
 
   const criarEvento = useCallback(
     async (eventoData: EventoData) => {
@@ -46,10 +26,12 @@ export function useEventos(userId: string) {
           userId,
           eventoData.nome,
           eventoData.data,
-          eventoData.descricao || '',
-          eventoData.startTime || '',
-          eventoData.endTime || '',
-          eventoData.participantes || []
+          {
+            descricao: eventoData.descricao || '',
+            horarioInicio: eventoData.startTime || '',
+            horarioFim: eventoData.endTime || '',
+            participantes: eventoData.participantes || [],
+          }
         );
 
         setEventos((prev) => [...prev, novoEvento]);
@@ -130,6 +112,5 @@ export function useEventos(userId: string) {
     obterEventosPorData,
     selecionarEvento,
     deselecionar,
-    recarregar: carregarEventosDoServidor,
   };
 }
