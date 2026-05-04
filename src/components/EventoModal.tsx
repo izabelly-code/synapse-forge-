@@ -1,7 +1,7 @@
 import EventService from '../services/EventService';
-import { searchUsersByName } from '../services/UserService';
+import { getUserById, searchUsersByName } from '../services/UserService';
 import { EventData, User } from '../types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './EventoModal.css';
 
 interface EventoModalProps {
@@ -29,7 +29,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
   const [newParticipant, setNewParticipant] = useState('');
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [showUserSuggestions, setShowUserSuggestions] = useState(false);
-  const [participantNames, setParticipantNames] = useState<string[]>(evento?.participantes || []);
+  const [participantNames, setParticipantNames] = useState<string[]>([]);
   const [editando, setEditando] = useState(isCreateMode);
   const [formData, setFormData] = useState<FormData>({
     id: evento?.id,
@@ -40,8 +40,6 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
     horarioFim: evento?.horarioFim || '',
     participantes: evento?.participantes || [],
   });
-
-  if (!evento) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -104,9 +102,32 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
     setParticipantNames((prev) => prev.filter((_, idx) => idx !== index));
   };
 
+  useEffect(() => {
+    async function loadParticipantNames() {
+      if (!evento?.participantes?.length) {
+        setParticipantNames([]);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const names = await Promise.all(
+        evento.participantes.map(async (id) => {
+          const user = await getUserById(id, token);
+          return user?.nome || id;
+        })
+      );
+
+      setParticipantNames(names);
+    }
+
+    loadParticipantNames();
+  }, [evento?.participantes]);
+
+  if (!evento) return null;
+
   const handleSalvar = async () => {
     if (!formData.nome.trim() || !formData.data) {
-      window.alert('Por favor, preencha o título e a data do evento.');
+      globalThis.alert('Por favor, preencha o título e a data do evento.');
       return;
     }
 
@@ -354,9 +375,11 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
               <div className="detalhe-item">
                 <span className="detalhe-label">👥 Participantes</span>
                 <span className="detalhe-valor">
-                  {evento.participantes && evento.participantes.length > 0
-                    ? evento.participantes.join(', ')
-                    : 'Nenhum participante'}
+                  {participantNames.length > 0
+                    ? participantNames.join(', ')
+                    : evento.participantes?.length
+                      ? evento.participantes.join(', ')
+                      : 'Nenhum participante'}
                 </span>
               </div>
             </div>

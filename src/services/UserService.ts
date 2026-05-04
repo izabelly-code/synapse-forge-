@@ -34,3 +34,26 @@ export async function searchUsersByName(nome: string, token: string | null): Pro
         return [];
     }
 }
+
+export async function getUserById(id: string, token: string | null): Promise<User | null> {
+    if (!id) {
+        return null;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao buscar usuário por ID:', error);
+        return null;
+    }
+}
