@@ -10,14 +10,34 @@ class EventService {
   }
 
  
-  async criarEvento(userId: string, nome: string, data: string | Date, descricao: string = '', horarioInicio: string = '', horarioFim: string = '', participantes: string[] = []) {
-    const evento = new Event('',userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
+  async criarEvento(
+    userId: string,
+    nome: string,
+    data: string | Date,
+    options: {
+      descricao?: string;
+      horarioInicio?: string;
+      horarioFim?: string;
+      participantes?: string[];
+    } = {}
+  ) {
+    const {
+      descricao = '',
+      horarioInicio = '',
+      horarioFim = '',
+      participantes = [],
+    } = options;
+
+    const evento = new Event('', userId, nome, data, descricao, horarioInicio, horarioFim, participantes);
 
     if (!evento.validar()) {
       throw new Error('Evento inválido: campos obrigatórios ausentes');
     }
 
-    const eventoPayload = evento.toJSON();
+    const eventoPayload = {
+      ...evento.toJSON(),
+      participantes: participantes,
+    };
     try {
       const token = localStorage.getItem("token");
       const response = await fetch('http://localhost:8081/evento/registrar', {
@@ -34,8 +54,8 @@ class EventService {
       }
 
       return true;
-    } catch (erro) {
-      console.warn('⚠️ Erro ao enviar evento ao backend', erro);
+    } catch (error_) {
+      console.warn('⚠️ Erro ao enviar evento ao backend', error_);
       return null;
     }
   }
@@ -58,8 +78,8 @@ class EventService {
       const data = await response.json();
       // Supondo que o backend retorna um array de eventos no formato EventData
       return data;
-    } catch (erro) {
-      console.warn('⚠️ Erro ao buscar eventos do backend', erro);
+    } catch (error_) {
+      console.warn('⚠️ Erro ao buscar eventos do backend', error_);
       return [];
     }
   }

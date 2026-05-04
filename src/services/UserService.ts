@@ -11,3 +11,26 @@ export async function getUsers(token: string | null): Promise<User[]> {
 
     return await response.json();
 }
+
+export async function searchUsersByName(nome: string, token: string | null): Promise<User[]> {
+    if (!nome.trim()) {
+        return [];
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/search?nome=${encodeURIComponent(nome)}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            return [];
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        return [];
+    }
+}
