@@ -67,8 +67,12 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             localStorage.setItem("userId", user_id);
             onLogin(access_token);
         } catch (error) {
-            console.log(error);
-            setErro("Não foi possível entrar. Verifique seus dados.");
+            const msg = error instanceof Error ? error.message : "";
+            if (msg === "EMAIL_NAO_CONFIRMADO") {
+                setErro("Confirme seu email antes de entrar. Verifique sua caixa de entrada.");
+            } else {
+                setErro("Não foi possível entrar. Verifique seus dados.");
+            }
             senhaRef.current?.focus();
         } finally {
             setLoading(false);

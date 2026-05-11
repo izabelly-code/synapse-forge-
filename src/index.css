@@ -523,6 +523,22 @@ body {
   gap: 0.5rem;
 }
 
+.pedido-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  opacity: 0.4;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.15s ease;
+}
+
+.pedido-edit-btn:hover {
+  opacity: 1;
+}
+
 .pedido-delete-btn {
   background: none;
   border: none;
@@ -866,4 +882,90 @@ body {
 .user-item {
   padding: 8px 0;
   border-bottom: 1px solid var(--outline-variant);
+}
+
+/* ===== USER PROFILE PAGE ===== */
+.profile-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-avatar-block {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  color: var(--on-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--on-background);
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+}
+
+.profile-senha-row {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 540px) {
+  .profile-senha-row {
+    flex-direction: column;
+  }
+}
+
+.profile-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.profile-email-atual {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  margin: 0 0 1rem;
+}
+
+.profile-email-pendente {
+  background: rgba(251, 74, 20, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--secondary);
+  margin-bottom: 1rem;
+}
+
+.profile-skeleton {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: 1.5rem;
+  height: 480px;
+  max-width: 640px;
+  animation: pulse 1.5s ease-in-out infinite;
 }

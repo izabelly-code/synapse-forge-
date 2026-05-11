@@ -19,6 +19,7 @@ function Register({ onRegister }: RegisterProps) {
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
     const [loading, setLoading] = useState(false);
+    const [emailCadastrado, setEmailCadastrado] = useState("");
 
     const [showSenha, setShowSenha] = useState(false);
     const [emailValido, setEmailValido] = useState(true);
@@ -155,14 +156,45 @@ function Register({ onRegister }: RegisterProps) {
                 role: "CLIENTE"
             });
 
-            setSucesso("Conta criada com sucesso!");
-            setTimeout(onRegister, 1500);
+            setEmailCadastrado(email);
 
-        } catch {
-            setErro("Erro ao cadastrar. Tente novamente em instantes.");
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : "";
+            setErro(msg.includes("já cadastrado") ? "Este email já está cadastrado." : "Erro ao cadastrar. Tente novamente em instantes.");
         } finally {
             setLoading(false);
         }
+    }
+
+    if (emailCadastrado) {
+        return (
+            <div className="screen-container">
+                <div className="left-side">
+                    <div className="left-overlay"></div>
+                    <img src={logo} alt="Logo SynapseForge" className="logo" />
+                    <div className="left-content">
+                        <h1>Quase lá!</h1>
+                        <p>Confirme seu email para começar a usar a plataforma.</p>
+                    </div>
+                </div>
+                <div className="right-side">
+                    <div className="card" style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>📧</div>
+                        <h2>Verifique seu email</h2>
+                        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
+                            Enviamos um link de confirmação para<br />
+                            <strong style={{ color: "var(--on-background)" }}>{emailCadastrado}</strong>
+                        </p>
+                        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+                            Clique no link do email para ativar sua conta e entrar automaticamente.
+                        </p>
+                        <button type="button" className="link" onClick={onRegister}>
+                            Voltar para o login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

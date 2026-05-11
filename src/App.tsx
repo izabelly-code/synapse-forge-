@@ -5,6 +5,9 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import RecoveryPage from "./pages/RecoveryPage";
 import Calendar from "./pages/Calendar";
+import UserProfilePage from "./pages/UserProfilePage";
+import ConfirmEmailPage from "./pages/ConfirmEmailPage";
+import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
 
 function App() {
   return (
@@ -16,6 +19,9 @@ function App() {
         <Route path="/recovery" element={<RecoveryPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/perfil" element={<UserProfilePage />} />
+        <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
+        <Route path="/confirmar-mudanca-email" element={<ConfirmEmailMudancaPage />} />
       </Routes>
     </BrowserRouter>
   );
