@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { criarPedido } from "../services/PedidoService";
+import { criarPedido, editarPedido } from "../services/PedidoService";
+import { Pedido } from "../types";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
     onCriado: () => void;
+    pedido?: Pedido;
 }
 
-function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
-    const [cliente, setCliente] = useState("");
-    const [projeto, setProjeto] = useState("");
-    const [descricao, setDescricao] = useState("");
-    const [prazo, setPrazo] = useState("");
+function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
+    const editando = !!pedido;
+
+    const [cliente, setCliente] = useState(pedido?.cliente ?? "");
+    const [projeto, setProjeto] = useState(pedido?.projeto ?? "");
+    const [descricao, setDescricao] = useState(pedido?.descricao ?? "");
+    const [prazo, setPrazo] = useState(pedido?.prazo ?? "");
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState("");
 
@@ -24,17 +28,23 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         if (!projeto.trim()) return setErro("Informe o nome do projeto.");
         if (!prazo) return setErro("Informe o prazo.");
 
+        const data = {
+            cliente: cliente.trim(),
+            projeto: projeto.trim(),
+            descricao: descricao.trim() || undefined,
+            prazo,
+        };
+
         try {
             setLoading(true);
-            await criarPedido({
-                cliente: cliente.trim(),
-                projeto: projeto.trim(),
-                descricao: descricao.trim() || undefined,
-                prazo,
-            });
+            if (editando) {
+                await editarPedido(pedido!.id, data);
+            } else {
+                await criarPedido(data);
+            }
             onCriado();
         } catch {
-            setErro("Erro ao criar pedido. Tente novamente.");
+            setErro(editando ? "Erro ao salvar pedido. Tente novamente." : "Erro ao criar pedido. Tente novamente.");
         } finally {
             setLoading(false);
         }
@@ -45,7 +55,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
 
                 <div className="modal-header">
-                    <h2>Novo Pedido</h2>
+                    <h2>{editando ? "Editar Pedido" : "Novo Pedido"}</h2>
                     <button className="modal-close" onClick={onClose} aria-label="Fechar">✕</button>
                 </div>
 
@@ -93,7 +103,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                             type="date"
                             value={prazo}
                             onChange={(e) => setPrazo(e.target.value)}
-                            min={hoje}
+                            min={editando ? undefined : hoje}
                         />
                     </div>
 
@@ -102,7 +112,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                             Cancelar
                         </button>
                         <button type="submit" className="button" disabled={loading}>
-                            {loading ? "Criando..." : "Criar Pedido"}
+                            {loading ? (editando ? "Salvando..." : "Criando...") : (editando ? "Salvar" : "Criar Pedido")}
                         </button>
                     </div>
                 </form>

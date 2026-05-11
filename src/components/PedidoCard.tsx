@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiTrash2, FiEdit2 } from 'react-icons/fi';
 import { Pedido, PedidoStatus } from '../types';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
@@ -62,10 +62,11 @@ interface PedidoCardProps {
     pedido: Pedido;
     onAvancar: (id: string) => void;
     onDeletar: (id: string) => void;
+    onEditar: (pedido: Pedido) => void;
     loading: boolean;
 }
 
-function PedidoCard({ pedido, onAvancar, onDeletar, loading }: PedidoCardProps) {
+function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoCardProps) {
     const prazoProximo = isPrazoProximo(pedido.prazo);
     const finalizado = pedido.status === "FINALIZADO";
     const [confirmando, setConfirmando] = useState(false);
@@ -109,6 +110,9 @@ function PedidoCard({ pedido, onAvancar, onDeletar, loading }: PedidoCardProps) 
                             {loading ? "Avançando..." : "Avançar →"}
                         </button>
                     )}
+                    <button className="pedido-edit-btn" onClick={() => onEditar(pedido)} aria-label="Editar pedido">
+                        <FiEdit2 size={15} />
+                    </button>
                     {confirmando ? (
                         <div className="delete-confirm">
                             <button className="delete-confirm-btn" onClick={() => onDeletar(pedido.id)}>Sim</button>

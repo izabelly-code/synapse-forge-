@@ -22,15 +22,17 @@ const FILTROS: Filtro[] = [
 interface PedidosDashboardProps {
     onLogout: () => void;
     onCalendario: () => void;
+    onPerfil: () => void;
 }
 
-function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
+function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboardProps) {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [filtro, setFiltro] = useState<PedidoStatus | "">("");
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
+    const [pedidoEditando, setPedidoEditando] = useState<Pedido | null>(null);
 
     async function fetchPedidos(status: PedidoStatus | "") {
         setFetching(true);
@@ -81,10 +83,11 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
 
     return (
         <div className="dashboard-layout">
-            {modalAberto && (
+            {(modalAberto || pedidoEditando) && (
                 <NovoPedidoModal
-                    onClose={() => setModalAberto(false)}
-                    onCriado={() => { setModalAberto(false); fetchPedidos(filtro); }}
+                    pedido={pedidoEditando ?? undefined}
+                    onClose={() => { setModalAberto(false); setPedidoEditando(null); }}
+                    onCriado={() => { setModalAberto(false); setPedidoEditando(null); fetchPedidos(filtro); }}
                 />
             )}
             {/* Header */}
@@ -94,6 +97,9 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <button className="filtro-btn" onClick={onCalendario}>
                             Calendário
+                        </button>
+                        <button className="filtro-btn" onClick={onPerfil}>
+                            Meu Perfil
                         </button>
                         <button className="link" onClick={handleLogout}>
                             Sair
@@ -155,6 +161,7 @@ function PedidosDashboard({ onLogout, onCalendario }: PedidosDashboardProps) {
                                 pedido={pedido}
                                 onAvancar={handleAvancar}
                                 onDeletar={handleDeletar}
+                                onEditar={setPedidoEditando}
                                 loading={loadingIds.has(pedido.id)}
                             />
                         ))}

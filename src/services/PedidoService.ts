@@ -43,6 +43,16 @@ export async function criarPedido(data: CriarPedidoData): Promise<Pedido> {
     return response.json();
 }
 
+export async function editarPedido(id: string, data: CriarPedidoData): Promise<Pedido> {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Falha ao editar pedido");
+    return response.json();
+}
+
 export async function deletarPedido(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
