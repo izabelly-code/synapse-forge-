@@ -8,6 +8,7 @@ function DashboardPage() {
     <PedidosDashboard
       onLogout={() => navigate("/login")}
       onCalendario={() => navigate("/calendar")}
+      onPerfil={() => navigate("/perfil")}
     />
   );
 }
