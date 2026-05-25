@@ -138,14 +138,26 @@ class EventService {
     }
   }
 
-  deletarEvento(id: string): boolean {
-    const indice = this.eventos.findIndex((evt) => evt.id === id);
-    if (indice > -1) {
-      this.eventos.splice(indice, 1);
-      this.salvarNoLocalStorage();
+  async deletarEvento(id: string): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8081/evento/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
       return true;
+    } catch (error_) {
+      console.warn('⚠️ Erro ao deletar evento no backend', error_);
+      return false;
     }
-    return false;
+    
   }
 
   /**

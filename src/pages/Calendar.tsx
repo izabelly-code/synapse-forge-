@@ -59,12 +59,6 @@ function Calendar({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const deletarEvento = (id: string) => {
-    EventService.deletarEvento(id);
-  };
-
-
-  // Busca eventos do backend ao iniciar e ao mudar mês/ano
   useEffect(() => {
     async function fetchEventos() {
       setCarregando(true);
@@ -118,7 +112,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
   }
 
   function handleDeleteEvent(eventoId: string) {
-    deletarEvento(eventoId);
+    EventService.deletarEvento(eventoId);
     deselecionar();
   }
 
@@ -295,6 +289,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
             const ano = String(currentYear);
             EventService.buscarEventosPorUsuarioMes(userId, mes, ano).then(setEventos);
           }}
+          onDelete={handleDeleteEvent}
         />
       )}
 
