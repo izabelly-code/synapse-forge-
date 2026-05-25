@@ -50,6 +50,36 @@ export async function confirmarEmail(token: string, signal?: AbortSignal): Promi
     return await response.json();
 }
 
+export async function esqueciSenha(email: string): Promise<string> {
+    const response = await fetch(`${API_URL}/esqueci-senha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg);
+    }
+
+    return await response.text();
+}
+
+export async function redefinirSenha(email: string, token: string, novaSenha: string): Promise<string> {
+    const response = await fetch(`${API_URL}/redefinir-senha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, token, novaSenha })
+    });
+
+    if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg);
+    }
+
+    return await response.text();
+}
+
 export async function solicitarMudancaEmail(userId: string, novoEmail: string, token: string | null): Promise<{ mensagem: string }> {
     const response = await fetch(`${USERS_URL}/${encodeURIComponent(userId)}/solicitar-mudanca-email`, {
         method: "POST",

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import logo from "../assets/Images/white-logo.png";
+import { esqueciSenha } from "../services/AuthService";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -43,8 +44,7 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
     }
 
     async function enviarEmail() {
-        // 👉 aqui vai sua API real
-        await new Promise((res) => setTimeout(res, 1500));
+        await esqueciSenha(email);
     }
 
     async function handleSubmit(e?: React.FormEvent) {
