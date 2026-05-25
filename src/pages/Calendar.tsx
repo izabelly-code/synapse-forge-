@@ -111,9 +111,17 @@ function Calendar({ onBack }: { onBack: () => void }) {
     setCreateModalOpen(true);
   }
 
-  function handleDeleteEvent(eventoId: string) {
-    EventService.deletarEvento(eventoId);
-    deselecionar();
+  async function handleDeleteEvent(eventoId: string) {
+    const sucesso = await EventService.deletarEvento(eventoId);
+
+    if (sucesso) {
+      setEventos((prev) => prev.filter((evento) => evento.id !== eventoId));
+      deselecionar();
+    } else {
+      setErro('NÃ£o foi possÃ­vel deletar o evento.');
+    }
+
+    return sucesso;
   }
 
   async function handleUpdateEvent(eventoId: string, dados: Partial<EventData>) {
