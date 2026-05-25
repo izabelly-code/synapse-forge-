@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FiTrash2, FiEdit2 } from 'react-icons/fi';
 import { Pedido, PedidoStatus } from '../types';
+import { gerarOrdemServico } from '../services/PedidoService';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -101,6 +102,7 @@ function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoC
                 </div>
 
                 <div className="pedido-footer-actions">
+
                     {!finalizado && (
                         <button
                             className="button pedido-btn-avancar"
@@ -110,19 +112,21 @@ function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoC
                             {loading ? "Avançando..." : "Avançar →"}
                         </button>
                     )}
-                    <button className="pedido-edit-btn" onClick={() => onEditar(pedido)} aria-label="Editar pedido">
+
+                    <button
+                        className="button pedido-btn-pdf"
+                        onClick={() => gerarOrdemServico(pedido.id)}
+                    >
+                        📄 PDF
+                    </button>
+
+                    <button
+                        className="pedido-edit-btn"
+                        onClick={() => onEditar(pedido)}
+                        aria-label="Editar pedido"
+                    >
                         <FiEdit2 size={15} />
                     </button>
-                    {confirmando ? (
-                        <div className="delete-confirm">
-                            <button className="delete-confirm-btn" onClick={() => onDeletar(pedido.id)}>Sim</button>
-                            <button className="delete-cancel-btn" onClick={() => setConfirmando(false)}>Não</button>
-                        </div>
-                    ) : (
-                        <button className="pedido-delete-btn" onClick={() => setConfirmando(true)} aria-label="Deletar pedido">
-                            <FiTrash2 size={15} />
-                        </button>
-                    )}
                 </div>
             </div>
         </article>

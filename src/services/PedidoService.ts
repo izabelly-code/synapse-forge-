@@ -60,3 +60,41 @@ export async function deletarPedido(id: string): Promise<void> {
     });
     if (!response.ok) throw new Error("Falha ao deletar pedido");
 }
+
+export async function gerarOrdemServico(id: string): Promise<void> {
+
+    const response = await fetch(`${API_URL}/${id}/ordem-servico`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+        throw new Error("Falha ao gerar PDF");
+    }
+
+    // transforma resposta em arquivo PDF
+    const blob = await response.blob();
+
+    // cria URL temporária
+    const url = window.URL.createObjectURL(blob);
+
+    // cria elemento <a>
+    const a = document.createElement("a");
+
+    a.href = url;
+
+    // nome do arquivo
+    a.download = `ordem-servico-${id}.pdf`;
+
+    // adiciona no body
+    document.body.appendChild(a);
+
+    // inicia download
+    a.click();
+
+    // remove elemento
+    a.remove();
+
+    // limpa memória
+    window.URL.revokeObjectURL(url);
+}

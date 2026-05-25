@@ -711,6 +711,12 @@ body {
   font-size: 0.8125rem;
 }
 
+.pedido-btn-pdf {
+  width: auto;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.8125rem;
+}
+
 .pedido-btn-avancar:disabled {
   opacity: 0.5;
   cursor: not-allowed;
