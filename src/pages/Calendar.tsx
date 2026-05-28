@@ -2,7 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import './Calendar.css';
 import EventoModal from '../components/EventoModal';
 import EventService from '../services/EventService';
+import { getCached, setCached } from '../services/cache';
 import { EventData } from '../types';
+
+const eventosCacheKey = (userId: string, mes: string, ano: string) =>
+  `eventos:${userId}:${mes}:${ano}`;
 
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
@@ -24,14 +28,21 @@ function formatDateBr(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function Calendar({ onBack }: { onBack: () => void }) {
+function Calendar() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  const [eventos, setEventos] = useState<EventData[]>([]);
+  const initialEventos = (() => {
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') ?? '' : '';
+    const mes = String(today.getMonth() + 1).padStart(2, '0');
+    const ano = String(today.getFullYear());
+    return getCached<EventData[]>(eventosCacheKey(userId, mes, ano));
+  })();
+
+  const [eventos, setEventos] = useState<EventData[]>(initialEventos ?? []);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
@@ -47,7 +58,14 @@ function Calendar({ onBack }: { onBack: () => void }) {
     try {
       const updatedEvent = await EventService.atualizarEvento(id, dados, eventoSelecionado?.userId);
       if (updatedEvent) {
-        setEventos((prev) => prev.map((evt) => (evt.id === id ? updatedEvent : evt)));
+        setEventos((prev) => {
+          const next = prev.map((evt) => (evt.id === id ? updatedEvent : evt));
+          const userId = localStorage.getItem('userId') || '';
+          const mes = String(currentMonth + 1).padStart(2, '0');
+          const ano = String(currentYear);
+          setCached(eventosCacheKey(userId, mes, ano), next);
+          return next;
+        });
         setEventoSelecionado(updatedEvent);
       } else {
         setErro('Não foi possível atualizar o evento.');
@@ -64,17 +82,27 @@ function Calendar({ onBack }: { onBack: () => void }) {
   };
 
 
-  // Busca eventos do backend ao iniciar e ao mudar mês/ano
+  // Busca eventos do backend ao iniciar e ao mudar mês/ano.
+  // Hidrata estado inicial do cache; só mostra "carregando" se não tiver cache do mês.
   useEffect(() => {
     async function fetchEventos() {
-      setCarregando(true);
+      const userId = localStorage.getItem('userId') || '';
+      const mes = String(currentMonth + 1).padStart(2, '0');
+      const ano = String(currentYear);
+      const key = eventosCacheKey(userId, mes, ano);
+      const cached = getCached<EventData[]>(key);
+
+      if (cached !== undefined) {
+        setEventos(cached);
+      } else {
+        setCarregando(true);
+      }
       setErro(null);
+
       try {
-        const userId = localStorage.getItem('userId') || '';
-        const mes = String(currentMonth + 1).padStart(2, '0');
-        const ano = String(currentYear);
         const eventosAPI = await EventService.buscarEventosPorUsuarioMes(userId, mes, ano);
         setEventos(eventosAPI);
+        setCached(key, eventosAPI);
       } catch (err) {
         setErro(err instanceof Error ? err.message : 'Erro ao buscar eventos');
       } finally {
@@ -159,13 +187,10 @@ function Calendar({ onBack }: { onBack: () => void }) {
   return (
     <div className="calendar-page">
       {erro && <div className="calendar-error">⚠️ {erro}</div>}
-      {carregando && <div className="calendar-loading">Carregando eventos...</div>}
 
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
-            <button className="pill-button back-button" onClick={onBack}>← Voltar</button>
-
             <div className="month-navigator">
               <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
                 ←

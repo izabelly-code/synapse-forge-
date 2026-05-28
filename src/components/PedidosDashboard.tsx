@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPedidos, avancarStatus, deletarPedido } from "../services/PedidoService";
-import logo from "../assets/Images/black-logo.png";
+import { getCached, setCached } from "../services/cache";
 import PedidoCard from "./PedidoCard";
 import NovoPedidoModal from "./NovoPedidoModal";
 import { Pedido, PedidoStatus } from "../types";
@@ -19,27 +19,34 @@ const FILTROS: Filtro[] = [
     { label: "Finalizado", value: "FINALIZADO" },
 ];
 
-interface PedidosDashboardProps {
-    onLogout: () => void;
-    onCalendario: () => void;
-    onPerfil: () => void;
-}
+const cacheKey = (filtro: PedidoStatus | "") => `pedidos:${filtro}`;
 
-function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboardProps) {
-    const [pedidos, setPedidos] = useState<Pedido[]>([]);
+function PedidosDashboard() {
+    const initialCached = getCached<Pedido[]>(cacheKey(""));
+    const [pedidos, setPedidos] = useState<Pedido[]>(initialCached ?? []);
     const [filtro, setFiltro] = useState<PedidoStatus | "">("");
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
-    const [fetching, setFetching] = useState(true);
+    const [fetching, setFetching] = useState(initialCached === undefined);
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoEditando, setPedidoEditando] = useState<Pedido | null>(null);
 
+    function updatePedidos(updater: Pedido[] | ((prev: Pedido[]) => Pedido[])) {
+        setPedidos((prev) => {
+            const next = typeof updater === "function" ? updater(prev) : updater;
+            setCached(cacheKey(filtro), next);
+            return next;
+        });
+    }
+
     async function fetchPedidos(status: PedidoStatus | "") {
-        setFetching(true);
+        const cached = getCached<Pedido[]>(cacheKey(status));
+        if (cached === undefined) setFetching(true);
         setError("");
         try {
             const data = await getPedidos(status || undefined);
             setPedidos(data);
+            setCached(cacheKey(status), data);
         } catch {
             setError("Erro ao carregar pedidos. Verifique se o servidor está rodando.");
         } finally {
@@ -49,12 +56,13 @@ function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboard
 
     useEffect(() => {
         fetchPedidos(filtro);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filtro]);
 
     async function handleDeletar(id: string) {
         try {
             await deletarPedido(id);
-            setPedidos((prev) => prev.filter((p) => p.id !== id));
+            updatePedidos((prev) => prev.filter((p) => p.id !== id));
         } catch {
             setError("Falha ao deletar pedido.");
         }
@@ -64,7 +72,7 @@ function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboard
         setLoadingIds((prev) => new Set(prev).add(id));
         try {
             const updated = await avancarStatus(id);
-            setPedidos((prev) => prev.map((p) => (p.id === id ? updated : p)));
+            updatePedidos((prev) => prev.map((p) => (p.id === id ? updated : p)));
         } catch {
             setError("Falha ao avançar status.");
         } finally {
@@ -76,13 +84,8 @@ function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboard
         }
     }
 
-    function handleLogout() {
-        localStorage.removeItem("token");
-        onLogout();
-    }
-
     return (
-        <div className="dashboard-layout">
+        <>
             {(modalAberto || pedidoEditando) && (
                 <NovoPedidoModal
                     pedido={pedidoEditando ?? undefined}
@@ -90,25 +93,7 @@ function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboard
                     onCriado={() => { setModalAberto(false); setPedidoEditando(null); fetchPedidos(filtro); }}
                 />
             )}
-            {/* Header */}
-            <header className="dashboard-header">
-                <div className="dashboard-header-inner">
-                    <img src={logo} alt="SynapseForge" className="header-logo" />
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <button className="filtro-btn" onClick={onCalendario}>
-                            Calendário
-                        </button>
-                        <button className="filtro-btn" onClick={onPerfil}>
-                            Meu Perfil
-                        </button>
-                        <button className="link" onClick={handleLogout}>
-                            Sair
-                        </button>
-                    </div>
-                </div>
-            </header>
 
-            {/* Main */}
             <main className="dashboard-main">
                 <div className="dashboard-title-block">
                     <div className="dashboard-title-row">
@@ -168,7 +153,7 @@ function PedidosDashboard({ onLogout, onCalendario, onPerfil }: PedidosDashboard
                     </div>
                 )}
             </main>
-        </div>
+        </>
     );
 }
 

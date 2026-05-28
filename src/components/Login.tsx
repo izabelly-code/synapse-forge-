@@ -65,6 +65,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             const { access_token, user_id } = await login(email, senha);
             localStorage.setItem("token", access_token);
             localStorage.setItem("userId", user_id);
+            localStorage.setItem("userEmail", email);
             onLogin(access_token);
         } catch (error) {
             const msg = error instanceof Error ? error.message : "";

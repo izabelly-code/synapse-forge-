@@ -42,19 +42,6 @@ function Register({ onRegister }: RegisterProps) {
         return "media";
     }
 
-    function getMensagemSenha(nivel: string) {
-        if (nivel === "fraca") {
-            return "Use pelo menos 6 caracteres.";
-        }
-        if (nivel === "media") {
-            return "Adicione letras maiúsculas e números para deixá-la mais forte.";
-        }
-        if (nivel === "forte") {
-            return "Ótima senha! Combine letras, números e símbolos para máxima segurança.";
-        }
-        return "";
-    }
-
     function formatarCPF(valor: string) {
         return valor
             .replace(/\D/g, "")
@@ -211,7 +198,7 @@ function Register({ onRegister }: RegisterProps) {
             </div>
 
             <div className="right-side">
-                <form className="card" onSubmit={handleRegister}>
+                <form className="card card-wide" onSubmit={handleRegister}>
 
                     <h2>Cadastro</h2>
 
@@ -226,9 +213,11 @@ function Register({ onRegister }: RegisterProps) {
                             onChange={(e) => setNome(e.target.value)}
                             placeholder="Digite seu nome"
                         />
-                        {nome && nome.length < 3 && (
-                            <span className="error-text">Nome muito curto</span>
-                        )}
+                        <span className="input-hint">
+                            {nome && nome.length < 3 && (
+                                <span className="error-text">Nome muito curto</span>
+                            )}
+                        </span>
                     </div>
 
                     <div className="input-group">
@@ -242,104 +231,108 @@ function Register({ onRegister }: RegisterProps) {
                             className={!emailValido ? "input-error" : ""}
                             placeholder="Digite seu email"
                         />
-                        {email && !emailValido && (
-                            <span className="error-text">Formato inválido (ex: nome@email.com)</span>
-                        )}
+                        <span className="input-hint">
+                            {email && !emailValido && (
+                                <span className="error-text">Formato inválido (ex: nome@email.com)</span>
+                            )}
+                        </span>
                     </div>
 
-                    <div className="input-group">
-                        <label>CPF</label>
-                        <input
-                            value={cpf}
-                            onChange={(e) => {
-                                const valor = formatarCPF(e.target.value);
-                                setCpf(valor);
-
-                                const numeros = valor.replace(/\D/g, "");
-                                if (numeros.length === 11) {
-                                    setCpfValido(validarCPF(valor));
-                                }
-                            }}
-                            className={!cpfValido ? "input-error" : ""}
-                            placeholder="000.000.000-00"
-                        />
-                        {cpf && cpf.replace(/\D/g, "").length < 11 && (
-                            <span className="error-text">CPF incompleto</span>
-                        )}
-                        {!cpfValido && (
-                            <span className="error-text">CPF inválido</span>
-                        )}
-                    </div>
-
-                    <div className="input-group">
-                        <label>Telefone</label>
-                        <input
-                            value={telefone}
-                            onChange={(e) => {
-                                const valor = formatarTelefone(e.target.value);
-                                setTelefone(valor);
-
-                                const numeros = valor.replace(/\D/g, "");
-                                if (numeros.length >= 10) {
-                                    setTelefoneValido(validarTelefone(valor));
-                                }
-                            }}
-                            className={!telefoneValido ? "input-error" : ""}
-                            placeholder="(00) 00000-0000"
-                        />
-                        {telefone && telefone.replace(/\D/g, "").length < 10 && (
-                            <span className="error-text">Telefone incompleto</span>
-                        )}
-                        {!telefoneValido && (
-                            <span className="error-text">Número ou DDD inválido</span>
-                        )}
-                    </div>
-
-                    <div className="input-group">
-                        <label>Senha</label>
-
-                        <div className="input-wrapper">
+                    <div className="form-row">
+                        <div className="input-group">
+                            <label>CPF</label>
                             <input
-                                type={showSenha ? "text" : "password"}
-                                value={senha}
-                                onChange={(e) => setSenha(e.target.value)}
-                                placeholder="Digite sua senha"
-                            />
+                                value={cpf}
+                                onChange={(e) => {
+                                    const valor = formatarCPF(e.target.value);
+                                    setCpf(valor);
 
-                            <button
-                                type="button"
-                                className="input-icon"
-                                onClick={() => setShowSenha(!showSenha)}
-                            >
-                                {showSenha ? <FiEyeOff /> : <FiEye />}
-                            </button>
+                                    const numeros = valor.replace(/\D/g, "");
+                                    if (numeros.length === 11) {
+                                        setCpfValido(validarCPF(valor));
+                                    }
+                                }}
+                                className={!cpfValido ? "input-error" : ""}
+                                placeholder="000.000.000-00"
+                            />
+                            <span className="input-hint">
+                                {!cpfValido ? (
+                                    <span className="error-text">CPF inválido</span>
+                                ) : cpf && cpf.replace(/\D/g, "").length < 11 ? (
+                                    <span className="error-text">CPF incompleto</span>
+                                ) : null}
+                            </span>
                         </div>
 
-                        {senha && senha.length < 6 && (
-                            <span className="error-text">Mínimo de 6 caracteres</span>
-                        )}
+                        <div className="input-group">
+                            <label>Telefone</label>
+                            <input
+                                value={telefone}
+                                onChange={(e) => {
+                                    const valor = formatarTelefone(e.target.value);
+                                    setTelefone(valor);
 
-                        {senha && (
-                            <span className={`senha-${nivelSenha}`}>
-                                {nivelSenha === "fraca" && "Senha fraca"}
-                                {nivelSenha === "media" && "Senha média"}
-                                {nivelSenha === "forte" && "Senha forte"}
-                                {" • " + getMensagemSenha(nivelSenha)}
+                                    const numeros = valor.replace(/\D/g, "");
+                                    if (numeros.length >= 10) {
+                                        setTelefoneValido(validarTelefone(valor));
+                                    }
+                                }}
+                                className={!telefoneValido ? "input-error" : ""}
+                                placeholder="(00) 00000-0000"
+                            />
+                            <span className="input-hint">
+                                {!telefoneValido ? (
+                                    <span className="error-text">DDD/número inválido</span>
+                                ) : telefone && telefone.replace(/\D/g, "").length < 10 ? (
+                                    <span className="error-text">Telefone incompleto</span>
+                                ) : null}
                             </span>
-                        )}
+                        </div>
                     </div>
 
-                    <div className="input-group">
-                        <label>Confirmar senha</label>
-                        <input
-                            type="password"
-                            value={confirmSenha}
-                            onChange={(e) => setConfirmSenha(e.target.value)}
-                            placeholder="Repita sua senha"
-                        />
-                        {confirmSenha && senha !== confirmSenha && (
-                            <span className="error-text">As senhas não coincidem</span>
-                        )}
+                    <div className="form-row">
+                        <div className="input-group">
+                            <label>Senha</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type={showSenha ? "text" : "password"}
+                                    value={senha}
+                                    onChange={(e) => setSenha(e.target.value)}
+                                    placeholder="Digite sua senha"
+                                />
+                                <button
+                                    type="button"
+                                    className="input-icon"
+                                    onClick={() => setShowSenha(!showSenha)}
+                                >
+                                    {showSenha ? <FiEyeOff /> : <FiEye />}
+                                </button>
+                            </div>
+                            <span className="input-hint">
+                                {senha && (
+                                    <span className={`senha-${nivelSenha}`}>
+                                        {nivelSenha === "fraca" && "Senha fraca"}
+                                        {nivelSenha === "media" && "Senha média"}
+                                        {nivelSenha === "forte" && "Senha forte"}
+                                    </span>
+                                )}
+                            </span>
+                        </div>
+
+                        <div className="input-group">
+                            <label>Confirmar senha</label>
+                            <input
+                                type="password"
+                                value={confirmSenha}
+                                onChange={(e) => setConfirmSenha(e.target.value)}
+                                placeholder="Repita sua senha"
+                            />
+                            <span className="input-hint">
+                                {confirmSenha && senha !== confirmSenha && (
+                                    <span className="error-text">Senhas não coincidem</span>
+                                )}
+                            </span>
+                        </div>
                     </div>
 
                     <button className="button" type="submit" disabled={loading}>
