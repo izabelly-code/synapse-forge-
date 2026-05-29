@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiInbox, FiSearch, FiBell, FiBox, FiActivity, FiClock, FiAlertTriangle, FiCheckCircle,
-    FiCalendar, FiChevronDown, FiFilter, FiCheck,
+    FiCalendar, FiChevronDown, FiFilter, FiCheck, FiList, FiGrid,
 } from "react-icons/fi";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../services/PedidoService";
 import { getCached, setCached } from "../services/cache";
@@ -84,6 +84,12 @@ function PedidosDashboard() {
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "periodo" | "filtros">(null);
     const [recemAvancado, setRecemAvancado] = useState<string | null>(null);
+    const [view, setView] = useState<"list" | "grid">(() => (localStorage.getItem("pedidosView") === "grid" ? "grid" : "list"));
+
+    function alternarView(v: "list" | "grid") {
+        setView(v);
+        localStorage.setItem("pedidosView", v);
+    }
 
     const buscaRef = useRef<HTMLInputElement>(null);
     const notifRef = useRef<HTMLDivElement>(null);
@@ -353,6 +359,27 @@ function PedidosDashboard() {
                     </div>
 
                     <div className="filtros-actions">
+                        <div className="view-toggle" role="group" aria-label="Modo de visualização">
+                            <button
+                                type="button"
+                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
+                                onClick={() => alternarView("list")}
+                                aria-pressed={view === "list"}
+                                aria-label="Visualizar em lista"
+                            >
+                                <FiList size={16} />
+                            </button>
+                            <button
+                                type="button"
+                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
+                                onClick={() => alternarView("grid")}
+                                aria-pressed={view === "grid"}
+                                aria-label="Visualizar em grade"
+                            >
+                                <FiGrid size={16} />
+                            </button>
+                        </div>
+
                         <div className="filtro-menu" ref={periodoRef}>
                             <button
                                 type="button"
@@ -438,15 +465,17 @@ function PedidosDashboard() {
                         )}
                     </div>
                 ) : (
-                    <div className="pedidos-list">
-                        <div className="pedidos-row-head" aria-hidden="true">
-                            <span>Pedido</span>
-                            <span>Cliente</span>
-                            <span>Projeto</span>
-                            <span>Prazo</span>
-                            <span>Progresso</span>
-                            <span />
-                        </div>
+                    <div className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
+                        {view === "list" && (
+                            <div className="pedidos-row-head" aria-hidden="true">
+                                <span>Pedido</span>
+                                <span>Cliente</span>
+                                <span>Projeto</span>
+                                <span>Prazo</span>
+                                <span>Progresso</span>
+                                <span />
+                            </div>
+                        )}
                         {visiveis.map((pedido, i) => (
                             <PedidoRow
                                 key={pedido.id}
