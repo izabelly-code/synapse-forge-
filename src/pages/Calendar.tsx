@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
+import { FiChevronLeft, FiChevronRight, FiAlertTriangle, FiEye, FiUsers, FiClock } from 'react-icons/fi';
 import './Calendar.css';
 import EventoModal from '../components/EventoModal';
 import EventService from '../services/EventService';
+import { getUsers } from '../services/UserService';
 import { getCached, setCached } from '../services/cache';
 import { EventData } from '../types';
 
@@ -46,6 +48,7 @@ function Calendar() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
+  const [nomesParticipantes, setNomesParticipantes] = useState<Record<string, string>>({});
 
     // Funções para gerenciar evento selecionado
   const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
@@ -182,29 +185,52 @@ function Calendar() {
     .slice()
     .sort((a, b) => a.data.localeCompare(b.data))
     .filter((evt) => evt.data >= `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`)
+    .filter((evt) => evt.data !== displayedDate)
     .slice(0, 4);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    let cancelado = false;
+    getUsers(token)
+      .then((users) => {
+        if (cancelado || !Array.isArray(users)) return;
+        const mapa: Record<string, string> = {};
+        for (const u of users) {
+          if (u?.id) mapa[u.id] = u.nome;
+        }
+        setNomesParticipantes(mapa);
+      })
+      .catch(() => { /* mantém o fallback para o id */ });
+    return () => { cancelado = true; };
+  }, []);
 
   return (
     <div className="calendar-page">
-      {erro && <div className="calendar-error">⚠️ {erro}</div>}
+      <header className="calendar-header">
+        <div>
+          <h1 className="dashboard-title">Calendário</h1>
+          <p className="dashboard-subtitle">Gerencie seus eventos e compromissos</p>
+        </div>
+        <button className="button btn-novo-pedido" onClick={handleCreateNewEvent}>
+          + Criar evento
+        </button>
+      </header>
+
+      {erro && <div className="calendar-error"><FiAlertTriangle size={16} /> {erro}</div>}
 
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
             <div className="month-navigator">
               <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
-                ←
+                <FiChevronLeft size={18} />
               </button>
               <div>
                 <h2>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {currentYear}</h2>
               </div>
               <button className="nav-arrow" onClick={handleNextMonth} aria-label="Próximo mês">
-                →
+                <FiChevronRight size={18} />
               </button>
-            </div>
-
-            <div className="calendar-card-buttons">
-              <button className="pill-button pill-primary" onClick={handleCreateNewEvent}>Criar evento</button>
             </div>
           </div>
 
@@ -230,12 +256,7 @@ function Calendar() {
                 <button
                   key={dateStr}
                   className={`calendar-day ${isCurrentDay ? 'today' : ''} ${selectedDate === dateStr ? 'selected' : ''}`}
-                  onClick={() => {
-                    handleDayClick(day);
-                    if (dayEvents.length > 0) {
-                      selecionarEvento(dayEvents[0]);
-                    }
-                  }}
+                  onClick={() => handleDayClick(day)}
                   aria-label={`Dia ${day}`}
                 >
                   <div className="day-top">
@@ -269,40 +290,49 @@ function Calendar() {
               <h4>{selectedDayEvents.length ? 'Eventos no dia' : 'Nenhum evento agendado'}</h4>
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className="event-card"
-                    onClick={() => selecionarEvento(event)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div>
+                  <div key={event.id} className="event-card">
+                    <div className="event-card-info">
                       <p className="event-card-title">{event.nome}</p>
                       <p className="event-card-meta">{event.descricao || 'Sem descrição'}</p>
+                      {event.horarioInicio && (
+                        <p className="event-card-time">
+                          <FiClock size={12} />
+                          {event.horarioInicio}{event.horarioFim ? ` - ${event.horarioFim}` : ''}
+                        </p>
+                      )}
+                      {event.participantes && event.participantes.length > 0 && (
+                        <p className="event-card-participants">
+                          <FiUsers size={12} />
+                          {event.participantes.map((id) => nomesParticipantes[id] || id).join(', ')}
+                        </p>
+                      )}
                     </div>
-                    <span className="event-dot" />
+                    <button className="event-card-action" onClick={() => selecionarEvento(event)}>
+                      <FiEye size={14} /> Ver / editar
+                    </button>
                   </div>
                 ))
               ) : (
                 <p className="panel-empty">Clique em um dia para ver os eventos desse dia.</p>
               )}
             </div>
+          </div>
 
-            <div className="panel-section panel-accent">
-              <div className="panel-accent-header">
-                <span>Próximos eventos</span>
-                <span className="panel-accent-count">{nextEvents.length}</span>
-              </div>
-              {nextEvents.length > 0 ? (
-                nextEvents.map((event) => (
-                  <div key={event.id} className="next-event-row">
-                    <span className="next-event-title">{event.nome}</span>
-                    <span className="next-event-date">{formatDateBr(event.data)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="panel-empty">Sem eventos no período atual.</p>
-              )}
+          <div className="panel-card">
+            <div className="panel-accent-header">
+              <span>Próximos eventos</span>
+              <span className="panel-accent-count">{nextEvents.length}</span>
             </div>
+            {nextEvents.length > 0 ? (
+              nextEvents.map((event) => (
+                <div key={event.id} className="next-event-row">
+                  <span className="next-event-title">{event.nome}</span>
+                  <span className="next-event-date">{formatDateBr(event.data)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="panel-empty">Sem eventos no período atual.</p>
+            )}
           </div>
         </aside>
       </div>
