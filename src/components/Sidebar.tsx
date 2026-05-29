@@ -54,7 +54,7 @@ function Sidebar() {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <img src={logo} alt="SynapseForge" className="sidebar-logo" />
+                <img src={logo} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/dashboard")} style={{ cursor: "pointer" }} />
             </div>
 
             <div className="sidebar-user">
