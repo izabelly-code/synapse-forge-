@@ -7,6 +7,8 @@ export interface Pedido {
   descricao?: string;
   status: PedidoStatus;
   prazo: string;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface EventData {
