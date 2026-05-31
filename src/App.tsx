@@ -8,6 +8,7 @@ import Calendar from "./pages/Calendar";
 import UserProfilePage from "./pages/UserProfilePage";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/perfil" element={<UserProfilePage />} />
         <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
         <Route path="/confirmar-mudanca-email" element={<ConfirmEmailMudancaPage />} />
+        <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );
