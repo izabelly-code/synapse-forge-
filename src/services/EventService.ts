@@ -1,6 +1,26 @@
 import Event from '../models/Event';
 import { EventData } from '../types';
 
+type BackendEventData = Partial<EventData> & {
+  _id?: string | number;
+  eventId?: string | number;
+  eventoId?: string | number;
+  user_id?: string;
+};
+
+function normalizeEventData(evento: BackendEventData): EventData {
+  return {
+    id: String(evento.id ?? evento._id ?? evento.eventId ?? evento.eventoId ?? ''),
+    userId: evento.userId ?? evento.user_id ?? '',
+    nome: evento.nome ?? '',
+    data: evento.data ?? '',
+    descricao: evento.descricao ?? '',
+    horarioInicio: evento.horarioInicio ?? '',
+    horarioFim: evento.horarioFim ?? '',
+    participantes: evento.participantes ?? [],
+  };
+}
+
 class EventService {
   private eventos: Event[];
 
@@ -76,8 +96,7 @@ class EventService {
         throw new Error(`Erro HTTP ${response.status}`);
       }
       const data = await response.json();
-      // Supondo que o backend retorna um array de eventos no formato EventData
-      return data;
+      return Array.isArray(data) ? data.map((evento) => normalizeEventData(evento)) : [];
     } catch (error_) {
       console.warn('⚠️ Erro ao buscar eventos do backend', error_);
       return [];
@@ -131,21 +150,33 @@ class EventService {
       }
 
       const updatedEvent = await response.json();
-      return updatedEvent as EventData;
+      return normalizeEventData(updatedEvent);
     } catch (error_) {
       console.warn('⚠️ Erro ao atualizar evento no backend', error_);
       return null;
     }
   }
 
-  deletarEvento(id: string): boolean {
-    const indice = this.eventos.findIndex((evt) => evt.id === id);
-    if (indice > -1) {
-      this.eventos.splice(indice, 1);
-      this.salvarNoLocalStorage();
+  async deletarEvento(id: string): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8081/evento/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
       return true;
+    } catch (error_) {
+      console.warn('⚠️ Erro ao deletar evento no backend', error_);
+      return false;
     }
-    return false;
+    
   }
 
   /**

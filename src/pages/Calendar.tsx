@@ -4,6 +4,16 @@ import EventoModal from '../components/EventoModal';
 import EventService from '../services/EventService';
 import { EventData } from '../types';
 
+type EventDataWithBackendId = EventData & {
+  _id?: string | number;
+  eventId?: string | number;
+  eventoId?: string | number;
+};
+
+function getEventId(evento: Partial<EventDataWithBackendId>): string {
+  return String(evento.id ?? evento._id ?? evento.eventId ?? evento.eventoId ?? '');
+}
+
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -59,12 +69,6 @@ function Calendar({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const deletarEvento = (id: string) => {
-    EventService.deletarEvento(id);
-  };
-
-
-  // Busca eventos do backend ao iniciar e ao mudar mês/ano
   useEffect(() => {
     async function fetchEventos() {
       setCarregando(true);
@@ -117,9 +121,17 @@ function Calendar({ onBack }: { onBack: () => void }) {
     setCreateModalOpen(true);
   }
 
-  function handleDeleteEvent(eventoId: string) {
-    deletarEvento(eventoId);
-    deselecionar();
+  async function handleDeleteEvent(eventoId: string) {
+    const sucesso = await EventService.deletarEvento(eventoId);
+
+    if (sucesso) {
+      setEventos((prev) => prev.filter((evento) => getEventId(evento) !== String(eventoId)));
+      deselecionar();
+    } else {
+      setErro('NÃ£o foi possÃ­vel deletar o evento.');
+    }
+
+    return sucesso;
   }
 
   async function handleUpdateEvent(eventoId: string, dados: Partial<EventData>) {
@@ -295,6 +307,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
             const ano = String(currentYear);
             EventService.buscarEventosPorUsuarioMes(userId, mes, ano).then(setEventos);
           }}
+          onDelete={handleDeleteEvent}
         />
       )}
 

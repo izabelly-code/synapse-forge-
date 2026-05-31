@@ -5,10 +5,10 @@ import React, { useEffect, useState } from 'react';
 import './EventoModal.css';
 
 interface EventoModalProps {
-  evento: Partial<EventData> | null;
+  evento: Partial<EventData>;
   mode?: 'view' | 'create';
   onClose: () => void;
-  onDelete?: (id: string) => void;
+  onDelete: (id: string) => Promise<boolean>;
   onUpdate?: (id: string, dados: Partial<EventData>) => Promise<void>;
   onSuccess?: () => void;
 }
@@ -186,11 +186,24 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
     }
   };
 
-  const handleDeletar = () => {
+  const handleDeletar = async () => {
     if (globalThis.confirm('Tem certeza que deseja deletar este evento?')) {
-      if (onDelete && evento.id) {
-        onDelete(evento.id);
+      if (evento.id) {
+        const sucesso = await onDelete(evento.id);
+        if (sucesso) {
+            if (onSuccess) {
+              onSuccess();
+            } else {
+              onClose();
+            }  
+          }else {
+              globalThis.alert('Não foi possível deletar o evento. Tente novamente.');
+            }
       }
+        else {
+          globalThis.alert('Não foi possível deletar o evento. Tente novamente.');
+        }
+
     }
   };
 
