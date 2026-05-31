@@ -4,6 +4,16 @@ import EventoModal from '../components/EventoModal';
 import EventService from '../services/EventService';
 import { EventData } from '../types';
 
+type EventDataWithBackendId = EventData & {
+  _id?: string | number;
+  eventId?: string | number;
+  eventoId?: string | number;
+};
+
+function getEventId(evento: Partial<EventDataWithBackendId>): string {
+  return String(evento.id ?? evento._id ?? evento.eventId ?? evento.eventoId ?? '');
+}
+
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -115,7 +125,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
     const sucesso = await EventService.deletarEvento(eventoId);
 
     if (sucesso) {
-      setEventos((prev) => prev.filter((evento) => evento.id !== eventoId));
+      setEventos((prev) => prev.filter((evento) => getEventId(evento) !== String(eventoId)));
       deselecionar();
     } else {
       setErro('NÃ£o foi possÃ­vel deletar o evento.');
