@@ -1,7 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
+import { FiChevronLeft, FiChevronRight, FiAlertTriangle, FiEye, FiUsers, FiClock } from 'react-icons/fi';
 import './Calendar.css';
 import EventoModal from '../components/EventoModal';
 import EventService from '../services/EventService';
+import { getUsers } from '../services/UserService';
+import { getCached, setCached } from '../services/cache';
 import { EventData } from '../types';
 
 type EventDataWithBackendId = EventData & {
@@ -13,6 +16,9 @@ type EventDataWithBackendId = EventData & {
 function getEventId(evento: Partial<EventDataWithBackendId>): string {
   return String(evento.id ?? evento._id ?? evento.eventId ?? evento.eventoId ?? '');
 }
+
+const eventosCacheKey = (userId: string, mes: string, ano: string) =>
+  `eventos:${userId}:${mes}:${ano}`;
 
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
@@ -34,17 +40,25 @@ function formatDateBr(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function Calendar({ onBack }: { onBack: () => void }) {
+function Calendar() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  const [eventos, setEventos] = useState<EventData[]>([]);
+  const initialEventos = (() => {
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') ?? '' : '';
+    const mes = String(today.getMonth() + 1).padStart(2, '0');
+    const ano = String(today.getFullYear());
+    return getCached<EventData[]>(eventosCacheKey(userId, mes, ano));
+  })();
+
+  const [eventos, setEventos] = useState<EventData[]>(initialEventos ?? []);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSelecionado, setEventoSelecionado] = useState<EventData | null>(null);
+  const [nomesParticipantes, setNomesParticipantes] = useState<Record<string, string>>({});
 
     // Funções para gerenciar evento selecionado
   const selecionarEvento = (evento: EventData) => setEventoSelecionado(evento);
@@ -57,7 +71,14 @@ function Calendar({ onBack }: { onBack: () => void }) {
     try {
       const updatedEvent = await EventService.atualizarEvento(id, dados, eventoSelecionado?.userId);
       if (updatedEvent) {
-        setEventos((prev) => prev.map((evt) => (evt.id === id ? updatedEvent : evt)));
+        setEventos((prev) => {
+          const next = prev.map((evt) => (evt.id === id ? updatedEvent : evt));
+          const userId = localStorage.getItem('userId') || '';
+          const mes = String(currentMonth + 1).padStart(2, '0');
+          const ano = String(currentYear);
+          setCached(eventosCacheKey(userId, mes, ano), next);
+          return next;
+        });
         setEventoSelecionado(updatedEvent);
       } else {
         setErro('Não foi possível atualizar o evento.');
@@ -71,14 +92,23 @@ function Calendar({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     async function fetchEventos() {
-      setCarregando(true);
+      const userId = localStorage.getItem('userId') || '';
+      const mes = String(currentMonth + 1).padStart(2, '0');
+      const ano = String(currentYear);
+      const key = eventosCacheKey(userId, mes, ano);
+      const cached = getCached<EventData[]>(key);
+
+      if (cached !== undefined) {
+        setEventos(cached);
+      } else {
+        setCarregando(true);
+      }
       setErro(null);
+
       try {
-        const userId = localStorage.getItem('userId') || '';
-        const mes = String(currentMonth + 1).padStart(2, '0');
-        const ano = String(currentYear);
         const eventosAPI = await EventService.buscarEventosPorUsuarioMes(userId, mes, ano);
         setEventos(eventosAPI);
+        setCached(key, eventosAPI);
       } catch (err) {
         setErro(err instanceof Error ? err.message : 'Erro ao buscar eventos');
       } finally {
@@ -128,7 +158,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
       setEventos((prev) => prev.filter((evento) => getEventId(evento) !== String(eventoId)));
       deselecionar();
     } else {
-      setErro('NÃ£o foi possÃ­vel deletar o evento.');
+      setErro('Não foi possível deletar o evento.');
     }
 
     return sucesso;
@@ -166,32 +196,52 @@ function Calendar({ onBack }: { onBack: () => void }) {
     .slice()
     .sort((a, b) => a.data.localeCompare(b.data))
     .filter((evt) => evt.data >= `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`)
+    .filter((evt) => evt.data !== displayedDate)
     .slice(0, 4);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    let cancelado = false;
+    getUsers(token)
+      .then((users) => {
+        if (cancelado || !Array.isArray(users)) return;
+        const mapa: Record<string, string> = {};
+        for (const u of users) {
+          if (u?.id) mapa[u.id] = u.nome;
+        }
+        setNomesParticipantes(mapa);
+      })
+      .catch(() => { /* mantém o fallback para o id */ });
+    return () => { cancelado = true; };
+  }, []);
 
   return (
     <div className="calendar-page">
-      {erro && <div className="calendar-error">⚠️ {erro}</div>}
-      {carregando && <div className="calendar-loading">Carregando eventos...</div>}
+      <header className="calendar-header">
+        <div>
+          <h1 className="dashboard-title">Calendário</h1>
+          <p className="dashboard-subtitle">Gerencie seus eventos e compromissos</p>
+        </div>
+        <button className="button btn-novo-pedido" onClick={handleCreateNewEvent}>
+          + Criar evento
+        </button>
+      </header>
+
+      {erro && <div className="calendar-error"><FiAlertTriangle size={16} /> {erro}</div>}
 
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
-            <button className="pill-button back-button" onClick={onBack}>← Voltar</button>
-
             <div className="month-navigator">
               <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
-                ←
+                <FiChevronLeft size={18} />
               </button>
               <div>
                 <h2>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {currentYear}</h2>
               </div>
               <button className="nav-arrow" onClick={handleNextMonth} aria-label="Próximo mês">
-                →
+                <FiChevronRight size={18} />
               </button>
-            </div>
-
-            <div className="calendar-card-buttons">
-              <button className="pill-button pill-primary" onClick={handleCreateNewEvent}>Criar evento</button>
             </div>
           </div>
 
@@ -217,12 +267,7 @@ function Calendar({ onBack }: { onBack: () => void }) {
                 <button
                   key={dateStr}
                   className={`calendar-day ${isCurrentDay ? 'today' : ''} ${selectedDate === dateStr ? 'selected' : ''}`}
-                  onClick={() => {
-                    handleDayClick(day);
-                    if (dayEvents.length > 0) {
-                      selecionarEvento(dayEvents[0]);
-                    }
-                  }}
+                  onClick={() => handleDayClick(day)}
                   aria-label={`Dia ${day}`}
                 >
                   <div className="day-top">
@@ -256,40 +301,49 @@ function Calendar({ onBack }: { onBack: () => void }) {
               <h4>{selectedDayEvents.length ? 'Eventos no dia' : 'Nenhum evento agendado'}</h4>
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className="event-card"
-                    onClick={() => selecionarEvento(event)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div>
+                  <div key={event.id} className="event-card">
+                    <div className="event-card-info">
                       <p className="event-card-title">{event.nome}</p>
                       <p className="event-card-meta">{event.descricao || 'Sem descrição'}</p>
+                      {event.horarioInicio && (
+                        <p className="event-card-time">
+                          <FiClock size={12} />
+                          {event.horarioInicio}{event.horarioFim ? ` - ${event.horarioFim}` : ''}
+                        </p>
+                      )}
+                      {event.participantes && event.participantes.length > 0 && (
+                        <p className="event-card-participants">
+                          <FiUsers size={12} />
+                          {event.participantes.map((id) => nomesParticipantes[id] || id).join(', ')}
+                        </p>
+                      )}
                     </div>
-                    <span className="event-dot" />
+                    <button className="event-card-action" onClick={() => selecionarEvento(event)}>
+                      <FiEye size={14} /> Ver / editar
+                    </button>
                   </div>
                 ))
               ) : (
                 <p className="panel-empty">Clique em um dia para ver os eventos desse dia.</p>
               )}
             </div>
+          </div>
 
-            <div className="panel-section panel-accent">
-              <div className="panel-accent-header">
-                <span>Próximos eventos</span>
-                <span className="panel-accent-count">{nextEvents.length}</span>
-              </div>
-              {nextEvents.length > 0 ? (
-                nextEvents.map((event) => (
-                  <div key={event.id} className="next-event-row">
-                    <span className="next-event-title">{event.nome}</span>
-                    <span className="next-event-date">{formatDateBr(event.data)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="panel-empty">Sem eventos no período atual.</p>
-              )}
+          <div className="panel-card">
+            <div className="panel-accent-header">
+              <span>Próximos eventos</span>
+              <span className="panel-accent-count">{nextEvents.length}</span>
             </div>
+            {nextEvents.length > 0 ? (
+              nextEvents.map((event) => (
+                <div key={event.id} className="next-event-row">
+                  <span className="next-event-title">{event.nome}</span>
+                  <span className="next-event-date">{formatDateBr(event.data)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="panel-empty">Sem eventos no período atual.</p>
+            )}
           </div>
         </aside>
       </div>

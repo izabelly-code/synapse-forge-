@@ -26,6 +26,15 @@ export async function avancarStatus(id: string): Promise<Pedido> {
     return response.json();
 }
 
+export async function regredirStatus(id: string): Promise<Pedido> {
+    const response = await fetch(`${API_URL}/${id}/status/regredir`, {
+        method: "PATCH",
+        headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error("Falha ao regredir status");
+    return response.json();
+}
+
 interface CriarPedidoData {
     cliente: string;
     projeto: string;
