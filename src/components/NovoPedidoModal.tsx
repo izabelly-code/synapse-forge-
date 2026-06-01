@@ -19,6 +19,8 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
     const [projeto, setProjeto] = useState(pedido?.projeto ?? "");
     const [descricao, setDescricao] = useState(pedido?.descricao ?? "");
     const [prazo, setPrazo] = useState(pedido?.prazo ?? "");
+    const [objeto3D, setObjeto3D] = useState<File | null>(null);
+    const [imagensReferencia, setImagensReferencia] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<Erros>({});
     const [erroEnvio, setErroEnvio] = useState("");
@@ -75,8 +77,10 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
         const data = {
             cliente: cliente.trim(),
             projeto: projeto.trim(),
-            descricao: descricao.trim() || undefined,
+            descricao: descricao.trim(),
             prazo,
+            objeto3D,
+            imagensReferencia,
         };
 
         try {
@@ -149,15 +153,46 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="descricao">
-                            Descrição <span className="label-opcional">(opcional)</span>
-                        </label>
+                        <label htmlFor="descricao">Descrição</label>
                         <textarea
                             id="descricao"
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
                             placeholder="Detalhes do pedido, referências, acabamento desejado..."
                             rows={3}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="objeto3D">
+                            Upload do objeto 3D {editando && <span className="label-opcional">(opcional)</span>}
+                        </label>
+                        {pedido?.objeto3D && (
+                            <p className="file-current">Arquivo atual: {pedido.objeto3D}</p>
+                        )}
+                        <input
+                            id="objeto3D"
+                            type="file"
+                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="imagensReferencia">
+                            Upload de imagens de referência {editando && <span className="label-opcional">(opcional)</span>}
+                        </label>
+                        {!!pedido?.imagensReferencia?.length && (
+                            <p className="file-current">
+                                Imagens atuais: {pedido.imagensReferencia.join(", ")}
+                            </p>
+                        )}
+                        <input
+                            id="imagensReferencia"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => setImagensReferencia(Array.from(e.target.files ?? []))}
                         />
                     </div>
 

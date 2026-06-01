@@ -5,6 +5,8 @@ export interface Pedido {
   cliente: string;
   projeto: string;
   descricao?: string;
+  objeto3D?: string;
+  imagensReferencia?: string[];
   status: PedidoStatus;
   prazo: string;
   criadoEm?: string;
