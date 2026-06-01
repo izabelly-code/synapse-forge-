@@ -27,3 +27,18 @@ export interface User {
   nome: string;
   email: string;
 }
+
+export type Acabamento = 'FOSCO' | 'BRILHANTE' | 'METALICO' | 'CETIM';
+
+export interface Cor {
+  id: string;
+  nome: string;
+  fornecedor: string;
+  codigo?: string;
+  hex: string;
+  acabamento: Acabamento;
+  estoqueMl: number;
+  estoqueMinimoMl: number;
+  custoMl: number;
+  criadoEm?: string;
+}
