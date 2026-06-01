@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserById, updateUser } from "../services/UserService";
 import { solicitarMudancaEmail } from "../services/AuthService";
-import { FiEye, FiEyeOff, FiArrowLeft } from "react-icons/fi";
-import logo from "../assets/Images/black-logo.png";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function UserProfilePage() {
     const navigate = useNavigate();
@@ -134,32 +133,14 @@ function UserProfilePage() {
 
     if (loading) {
         return (
-            <div className="dashboard-layout">
-                <header className="dashboard-header">
-                    <div className="dashboard-header-inner">
-                        <img src={logo} alt="SynapseForge" className="header-logo" />
-                    </div>
-                </header>
-                <main className="dashboard-main">
-                    <div className="profile-skeleton" />
-                </main>
-            </div>
+            <main className="dashboard-main">
+                <div className="profile-skeleton" />
+            </main>
         );
     }
 
     return (
-        <div className="dashboard-layout">
-            <header className="dashboard-header">
-                <div className="dashboard-header-inner">
-                    <img src={logo} alt="SynapseForge" className="header-logo" />
-                    <button className="filtro-btn" onClick={() => navigate("/dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                        <FiArrowLeft size={14} />
-                        Voltar
-                    </button>
-                </div>
-            </header>
-
-            <main className="dashboard-main">
+        <main className="dashboard-main">
                 <div className="profile-page">
                     <div className="profile-avatar-block">
                         <div className="profile-avatar">{getInitial()}</div>
@@ -294,9 +275,8 @@ function UserProfilePage() {
                             Um email de confirmação será enviado para o novo endereço. O email só muda após a confirmação.
                         </p>
                     </form>
-                </div>
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }
 

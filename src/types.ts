@@ -9,6 +9,8 @@ export interface Pedido {
   imagensReferencia?: string[];
   status: PedidoStatus;
   prazo: string;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface EventData {
