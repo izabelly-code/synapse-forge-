@@ -87,6 +87,17 @@ function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoC
                 <p className="pedido-descricao">{pedido.descricao}</p>
             )}
 
+            {(pedido.objeto3D || !!pedido.imagensReferencia?.length) && (
+                <div className="pedido-modelagem">
+                    {pedido.objeto3D && (
+                        <p><strong>Objeto 3D:</strong> {pedido.objeto3D}</p>
+                    )}
+                    {!!pedido.imagensReferencia?.length && (
+                        <p><strong>Referências:</strong> {pedido.imagensReferencia.join(", ")}</p>
+                    )}
+                </div>
+            )}
+
             <ProgressBar status={pedido.status} />
 
             <div className="pedido-card-footer">

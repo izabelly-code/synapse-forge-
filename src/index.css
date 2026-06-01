@@ -215,6 +215,23 @@ body {
   box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
 }
 
+.input-group input[type="file"] {
+  cursor: pointer;
+  color: var(--on-surface-variant);
+}
+
+.input-group input[type="file"]::file-selector-button {
+  border: none;
+  border-radius: 9999px;
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  margin-right: 0.75rem;
+  padding: 0.5rem 0.875rem;
+}
+
 .input-wrapper {
   position: relative;
   display: flex;
@@ -626,6 +643,24 @@ body {
   margin: 0;
 }
 
+.pedido-modelagem {
+  background: var(--surface-container-low);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.pedido-modelagem p {
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.pedido-modelagem p + p {
+  margin-top: 0.375rem;
+}
+
 /* ===== PROGRESS BAR ===== */
 .pedido-progress {
   display: flex;
@@ -782,14 +817,19 @@ body {
   box-shadow: var(--shadow-ambient);
   width: 100%;
   max-width: 460px;
-  padding: 2rem;
+  max-height: calc(100dvh - 2rem);
+  padding: 1.5rem 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -822,6 +862,16 @@ body {
   background: var(--surface-container);
 }
 
+.modal-card form {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.modal-card .input-group {
+  margin-bottom: 0.75rem;
+}
+
 /* Textarea — mesma aparência dos inputs */
 .input-group textarea {
   padding: 0.75rem 1rem;
@@ -834,6 +884,7 @@ body {
   font-size: 0.9375rem;
   width: 100%;
   resize: vertical;
+  min-height: 5.25rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -849,10 +900,22 @@ body {
   font-size: 0.75rem;
 }
 
+.file-current {
+  color: var(--on-surface-variant);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .modal-actions {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+  padding: 1rem 0 1.5rem;
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
 }
 
 .modal-actions .button {

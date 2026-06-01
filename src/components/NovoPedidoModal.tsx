@@ -15,6 +15,8 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
     const [projeto, setProjeto] = useState(pedido?.projeto ?? "");
     const [descricao, setDescricao] = useState(pedido?.descricao ?? "");
     const [prazo, setPrazo] = useState(pedido?.prazo ?? "");
+    const [objeto3D, setObjeto3D] = useState<File | null>(null);
+    const [imagensReferencia, setImagensReferencia] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState("");
 
@@ -26,13 +28,18 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
 
         if (!cliente.trim()) return setErro("Informe o nome do cliente.");
         if (!projeto.trim()) return setErro("Informe o nome do projeto.");
+        if (!descricao.trim()) return setErro("Informe a descrição da modelagem e produção.");
+        if (!editando && !objeto3D) return setErro("Envie o objeto 3D.");
+        if (!editando && imagensReferencia.length === 0) return setErro("Envie pelo menos uma imagem de referência.");
         if (!prazo) return setErro("Informe o prazo.");
 
         const data = {
             cliente: cliente.trim(),
             projeto: projeto.trim(),
-            descricao: descricao.trim() || undefined,
+            descricao: descricao.trim(),
             prazo,
+            objeto3D,
+            imagensReferencia,
         };
 
         try {
@@ -53,10 +60,9 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-
                 <div className="modal-header">
                     <h2>{editando ? "Editar Pedido" : "Novo Pedido"}</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">✕</button>
+                    <button className="modal-close" onClick={onClose} aria-label="Fechar">×</button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -84,15 +90,46 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="descricao">
-                            Descrição <span className="label-opcional">(opcional)</span>
-                        </label>
+                        <label htmlFor="descricao">Descrição</label>
                         <textarea
                             id="descricao"
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
-                            placeholder="Detalhes do pedido..."
+                            placeholder="Detalhes de modelagem e produção..."
                             rows={3}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="objeto3D">
+                            Upload do objeto 3D {editando && <span className="label-opcional">(opcional)</span>}
+                        </label>
+                        {pedido?.objeto3D && (
+                            <p className="file-current">Arquivo atual: {pedido.objeto3D}</p>
+                        )}
+                        <input
+                            id="objeto3D"
+                            type="file"
+                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="imagensReferencia">
+                            Upload de imagens de referência {editando && <span className="label-opcional">(opcional)</span>}
+                        </label>
+                        {!!pedido?.imagensReferencia?.length && (
+                            <p className="file-current">
+                                Imagens atuais: {pedido.imagensReferencia.join(", ")}
+                            </p>
+                        )}
+                        <input
+                            id="imagensReferencia"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => setImagensReferencia(Array.from(e.target.files ?? []))}
                         />
                     </div>
 
@@ -116,7 +153,6 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     );
