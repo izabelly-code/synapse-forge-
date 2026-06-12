@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PaletaCoresPage from "./pages/PaletaCoresPage";
+import CalculadoraMisturaPage from "./pages/CalculadoraMisturaPage";
 import MateriaisPage from "./pages/MateriaisPage";
 import RecoveryPage from "./pages/RecoveryPage";
 import Calendar from "./pages/Calendar";
@@ -28,6 +29,7 @@ function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/paleta-cores" element={<PaletaCoresPage />} />
+          <Route path="/calculadora-mistura" element={<CalculadoraMisturaPage />} />
           <Route path="/materiais" element={<MateriaisPage />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/perfil" element={<UserProfilePage />} />

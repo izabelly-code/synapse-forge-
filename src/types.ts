@@ -44,3 +44,24 @@ export interface Cor {
   custoMl: number;
   criadoEm?: string;
 }
+
+export interface ItemMistura {
+  corId: string;
+  nome?: string;
+  fornecedor?: string;
+  hex?: string;
+  proporcao: number;
+  volumeMl?: number;
+  custo?: number;
+}
+
+export interface Mistura {
+  id: string;
+  nome: string;
+  itens: ItemMistura[];
+  volumeMl: number;
+  hexResultado: string;
+  custoEstimado: number;
+  criadoEm?: string;
+  atualizadoEm?: string;
+}
