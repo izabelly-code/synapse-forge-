@@ -2856,9 +2856,23 @@ html {
   color: var(--on-surface);
 }
 
-.mistura-volume .cor-modal-select {
-  padding-top: 0.45rem;
-  padding-bottom: 0.45rem;
+.mistura-volume-menu .filtro-action {
+  width: 100%;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+}
+
+.mistura-volume-menu .filtro-dropdown {
+  left: 0;
+  right: 0;
+  min-width: 0;
+}
+
+.mistura-volume-menu .filtro-option {
+  width: 100%;
+  font-size: 0.875rem;
 }
 
 .mistura-custo {

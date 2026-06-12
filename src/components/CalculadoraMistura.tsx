@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiPlus, FiTrash2, FiRotateCcw, FiCopy, FiCheck, FiCheckCircle,
     FiAlertCircle, FiSave, FiDroplet, FiChevronDown,
@@ -42,6 +42,18 @@ function CalculadoraMistura() {
     const [salvando, setSalvando] = useState(false);
     const [salvoMsg, setSalvoMsg] = useState("");
     const [copiado, setCopiado] = useState<"" | "hex" | "rgb">("");
+    const [volumeMenuAberto, setVolumeMenuAberto] = useState(false);
+
+    const volumeMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!volumeMenuAberto) return;
+        function onClick(e: MouseEvent) {
+            if (volumeMenuRef.current && !volumeMenuRef.current.contains(e.target as Node)) setVolumeMenuAberto(false);
+        }
+        document.addEventListener("mousedown", onClick);
+        return () => document.removeEventListener("mousedown", onClick);
+    }, [volumeMenuAberto]);
 
     useEffect(() => {
         getCores()
@@ -319,18 +331,35 @@ function CalculadoraMistura() {
                         <div className="mistura-preview-codigos">
                             <div className="mistura-preview-codigo">
                                 <span className="mistura-metric-label">Volume alvo</span>
-                                <div className="mistura-select-wrap mistura-volume">
-                                    <select
-                                        className="cor-modal-select"
-                                        value={volumeMl}
-                                        onChange={(e) => { setVolumeMl(Number(e.target.value)); setSalvoMsg(""); }}
+                                <div className="filtro-menu mistura-volume-menu" ref={volumeMenuRef}>
+                                    <button
+                                        type="button"
+                                        className="filtro-action"
+                                        aria-haspopup="menu"
+                                        aria-expanded={volumeMenuAberto}
                                         aria-label="Volume alvo da mistura"
+                                        onClick={() => setVolumeMenuAberto((aberto) => !aberto)}
                                     >
-                                        {VOLUMES.map((v) => (
-                                            <option key={v} value={v}>{formatarMl(v)}</option>
-                                        ))}
-                                    </select>
-                                    <FiChevronDown size={15} className="mistura-select-chev" />
+                                        {formatarMl(volumeMl)}
+                                        <FiChevronDown size={15} className="filtro-action-chev" />
+                                    </button>
+                                    {volumeMenuAberto && (
+                                        <div className="filtro-dropdown" role="menu">
+                                            {VOLUMES.map((v) => (
+                                                <button
+                                                    key={v}
+                                                    type="button"
+                                                    role="menuitemradio"
+                                                    aria-checked={volumeMl === v}
+                                                    className={`filtro-option ${volumeMl === v ? "selected" : ""}`}
+                                                    onClick={() => { setVolumeMl(v); setSalvoMsg(""); setVolumeMenuAberto(false); }}
+                                                >
+                                                    {formatarMl(v)}
+                                                    {volumeMl === v && <FiCheck size={15} />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="mistura-preview-codigo">
