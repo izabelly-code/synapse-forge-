@@ -29,3 +29,39 @@ export interface User {
   nome: string;
   email: string;
 }
+
+export type Acabamento = 'FOSCO' | 'BRILHANTE' | 'METALICO' | 'CETIM';
+
+export interface Cor {
+  id: string;
+  nome: string;
+  fornecedor: string;
+  codigo?: string;
+  hex: string;
+  acabamento: Acabamento;
+  estoqueMl: number;
+  estoqueMinimoMl: number;
+  custoMl: number;
+  criadoEm?: string;
+}
+
+export interface ItemMistura {
+  corId: string;
+  nome?: string;
+  fornecedor?: string;
+  hex?: string;
+  proporcao: number;
+  volumeMl?: number;
+  custo?: number;
+}
+
+export interface Mistura {
+  id: string;
+  nome: string;
+  itens: ItemMistura[];
+  volumeMl: number;
+  hexResultado: string;
+  custoEstimado: number;
+  criadoEm?: string;
+  atualizadoEm?: string;
+}
