@@ -71,6 +71,9 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             const msg = error instanceof Error ? error.message : "";
             if (msg === "EMAIL_NAO_CONFIRMADO") {
                 setErro("Confirme seu email antes de entrar. Verifique sua caixa de entrada.");
+            } else if (msg.startsWith("CONTA_BLOQUEADA")) {
+                const minutos = Number(msg.split(":")[1]) || 15;
+                setErro(`Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em ${minutos} minuto${minutos > 1 ? "s" : ""} ou redefina sua senha.`);
             } else {
                 setErro("Não foi possível entrar. Verifique seus dados.");
             }
