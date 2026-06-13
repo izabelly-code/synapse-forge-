@@ -113,12 +113,13 @@ interface PedidoRowProps {
     onRegredir: (id: string) => void;
     onDeletar: (id: string) => void;
     onEditar: (pedido: Pedido) => void;
+    onAbrir: (pedido: Pedido) => void;
     loading: boolean;
     index?: number;
     justAdvanced?: boolean;
 }
 
-function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onEditar, loading, index = 0, justAdvanced = false }: PedidoRowProps) {
+function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onEditar, onAbrir, loading, index = 0, justAdvanced = false }: PedidoRowProps) {
     const finalizado = pedido.status === "FINALIZADO";
     const naPrimeiraEtapa = pedido.status === "MODELAGEM";
     const restante = finalizado ? null : tempoRestante(pedido.prazo);
@@ -149,7 +150,19 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onEditar, loading
     }
 
     return (
-        <div className={`pedido-row ${justAdvanced ? "is-advancing" : ""}`} style={{ "--row-index": index } as React.CSSProperties}>
+        <div
+            className={`pedido-row ${justAdvanced ? "is-advancing" : ""}`}
+            style={{ "--row-index": index } as React.CSSProperties}
+            role="button"
+            tabIndex={0}
+            onClick={() => onAbrir(pedido)}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onAbrir(pedido);
+                }
+            }}
+        >
             <div className="cell cell-ref">
                 <span className="row-ref">{refCurta(pedido.id)}</span>
             </div>
@@ -192,7 +205,12 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onEditar, loading
             </div>
 
             <div className="cell cell-acoes">
-                <div className="kebab-wrap" ref={menuRef}>
+                <div
+                    className="kebab-wrap"
+                    ref={menuRef}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                >
                     <button
                         type="button"
                         className="kebab-btn"

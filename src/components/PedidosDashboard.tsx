@@ -7,6 +7,7 @@ import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../ser
 import { getCached, setCached } from "../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
+import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../types";
 
 interface Filtro {
@@ -79,6 +80,7 @@ function PedidosDashboard() {
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoEditando, setPedidoEditando] = useState<Pedido | null>(null);
+    const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
     const [notifAberto, setNotifAberto] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
@@ -261,6 +263,12 @@ function PedidosDashboard() {
                     pedido={pedidoEditando ?? undefined}
                     onClose={() => { setModalAberto(false); setPedidoEditando(null); }}
                     onCriado={() => { setModalAberto(false); setPedidoEditando(null); fetchPedidos(); }}
+                />
+            )}
+            {pedidoDetalheId && (
+                <PedidoDetalheModal
+                    pedidoId={pedidoDetalheId}
+                    onClose={() => setPedidoDetalheId(null)}
                 />
             )}
 
@@ -485,6 +493,7 @@ function PedidosDashboard() {
                                 onRegredir={handleRegredir}
                                 onDeletar={handleDeletar}
                                 onEditar={setPedidoEditando}
+                                onAbrir={(p) => setPedidoDetalheId(p.id)}
                                 loading={loadingIds.has(pedido.id)}
                                 justAdvanced={recemAvancado === pedido.id}
                             />
