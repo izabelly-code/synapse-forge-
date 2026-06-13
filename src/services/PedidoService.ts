@@ -49,26 +49,31 @@ export async function regredirStatus(id: string): Promise<Pedido> {
     return response.json();
 }
 
-interface CriarPedidoData {
+export interface PedidoFormData {
     cliente: string;
     projeto: string;
     descricao: string;
     prazo: string;
+    status?: PedidoStatus;
     objeto3D?: File | null;
     imagensReferencia?: File[];
+    removerObjeto3D?: boolean;
+    imagensRemover?: string[];
 }
 
-function hasUploads(data: CriarPedidoData): boolean {
+function hasUploads(data: PedidoFormData): boolean {
     return !!data.objeto3D || !!data.imagensReferencia?.length;
 }
 
-function toFormData(data: CriarPedidoData): FormData {
+function toFormData(data: PedidoFormData): FormData {
     const formData = new FormData();
 
     formData.append("cliente", data.cliente);
     formData.append("projeto", data.projeto);
     formData.append("descricao", data.descricao);
     formData.append("prazo", data.prazo);
+    if (data.status) formData.append("status", data.status);
+    formData.append("removerObjeto3D", String(!!data.removerObjeto3D));
 
     if (data.objeto3D) {
         formData.append("objeto3D", data.objeto3D);
@@ -77,11 +82,14 @@ function toFormData(data: CriarPedidoData): FormData {
     data.imagensReferencia?.forEach((imagem) => {
         formData.append("imagensReferencia", imagem);
     });
+    data.imagensRemover?.forEach((id) => {
+        formData.append("imagensRemover", id);
+    });
 
     return formData;
 }
 
-export async function criarPedido(data: CriarPedidoData): Promise<Pedido> {
+export async function criarPedido(data: PedidoFormData): Promise<Pedido> {
     const uploads = hasUploads(data);
     const response = await fetch(API_URL, {
         method: "POST",
@@ -92,12 +100,11 @@ export async function criarPedido(data: CriarPedidoData): Promise<Pedido> {
     return response.json();
 }
 
-export async function editarPedido(id: string, data: CriarPedidoData): Promise<Pedido> {
-    const uploads = hasUploads(data);
+export async function editarPedido(id: string, data: PedidoFormData): Promise<Pedido> {
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
-        headers: uploads ? getAuthHeader() : getHeaders(),
-        body: uploads ? toFormData(data) : JSON.stringify(data),
+        headers: getAuthHeader(),
+        body: toFormData(data),
     });
     if (!response.ok) throw new Error("Falha ao editar pedido");
     return response.json();
@@ -164,7 +171,8 @@ export async function baixarObjeto3D(pedidoId: string, downloadFileName?: string
 
     const disposition = response.headers.get("Content-Disposition");
     let finalFileName = parseContentDispositionFileName(disposition) || downloadFileName || "objeto3d";
-    finalFileName = finalFileName.split(/[\\/]/).at(-1) || "objeto3d";
+    const fileNameParts = finalFileName.split(/[\\/]/);
+    finalFileName = fileNameParts[fileNameParts.length - 1] || "objeto3d";
 
     if (!finalFileName.includes(".")) {
         const extension = extensionFromMimeType(blob.type) || ".obj";
