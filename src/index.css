@@ -1060,10 +1060,16 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease;
+  cursor: pointer;
 }
 
 .pedido-row:hover {
   box-shadow: var(--shadow-md);
+}
+
+.pedido-row:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 
@@ -1693,6 +1699,242 @@ body {
 
 .btn-secondary:hover {
   background: var(--surface-container);
+}
+
+
+/* ===== DETALHE DO PEDIDO ===== */
+.pedido-detalhe-modal {
+  max-width: 860px;
+  padding: 1.5rem;
+}
+
+.pedido-detalhe-header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--outline-variant);
+  padding-bottom: 1rem;
+}
+
+.pedido-detalhe-kicker {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pedido-detalhe-content,
+.pedido-detalhe-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pedido-detalhe-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pedido-detalhe-ref {
+  color: var(--on-surface-variant);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pedido-detalhe-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.pedido-detalhe-info {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 0.125rem 0.625rem;
+  align-items: center;
+  padding: 0.875rem;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-detalhe-info svg {
+  grid-row: 1 / span 2;
+  color: var(--primary);
+}
+
+.pedido-detalhe-info span {
+  color: var(--on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.pedido-detalhe-info strong {
+  min-width: 0;
+  color: var(--on-surface);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.pedido-detalhe-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pedido-detalhe-section h3 {
+  margin: 0;
+  color: var(--on-background);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.pedido-detalhe-section p {
+  margin: 0;
+  color: var(--on-surface-variant);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.pedido-arquivo-3d {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-arquivo-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius);
+  background: rgba(251, 74, 20, 0.1);
+  color: var(--primary);
+}
+
+.pedido-arquivo-3d div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.pedido-arquivo-3d strong {
+  color: var(--on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pedido-arquivo-3d span {
+  color: var(--on-surface-variant);
+  font-size: 0.78rem;
+}
+
+.pedido-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.pedido-download-btn:hover {
+  filter: brightness(0.94);
+}
+
+.pedido-download-btn:active {
+  transform: scale(0.98);
+}
+
+.pedido-download-btn:disabled {
+  cursor: wait;
+  filter: grayscale(0.25);
+  opacity: 0.7;
+}
+
+.pedido-download-error {
+  margin: 0.625rem 0 0;
+  color: var(--error, #b3261e);
+  font-size: 0.82rem;
+}
+
+.pedido-imagens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.pedido-imagem-link {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-imagem-link img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.pedido-imagem-link:hover img {
+  transform: scale(1.03);
+}
+
+.pedido-detalhe-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem;
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-detalhe-gallery-skeleton {
+  height: 220px;
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  .pedido-detalhe-modal {
+    padding: 1.25rem;
+  }
+
+  .pedido-detalhe-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-arquivo-3d {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .pedido-download-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }
 
 
