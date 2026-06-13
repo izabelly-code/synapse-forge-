@@ -1,24 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { criarPedido, editarPedido } from "../services/PedidoService";
-import { Pedido } from "../types";
+import { criarPedido } from "../services/PedidoService";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
     onCriado: () => void;
-    pedido?: Pedido;
 }
 
 type CampoErro = "cliente" | "projeto" | "prazo";
 type Erros = Partial<Record<CampoErro, string>>;
 
-function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
-    const editando = !!pedido;
-
-    const [cliente, setCliente] = useState(pedido?.cliente ?? "");
-    const [projeto, setProjeto] = useState(pedido?.projeto ?? "");
-    const [descricao, setDescricao] = useState(pedido?.descricao ?? "");
-    const [prazo, setPrazo] = useState(pedido?.prazo ?? "");
+function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
+    const [cliente, setCliente] = useState("");
+    const [projeto, setProjeto] = useState("");
+    const [descricao, setDescricao] = useState("");
+    const [prazo, setPrazo] = useState("");
     const [objeto3D, setObjeto3D] = useState<File | null>(null);
     const [imagensReferencia, setImagensReferencia] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
@@ -85,14 +81,10 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
 
         try {
             setLoading(true);
-            if (editando) {
-                await editarPedido(pedido!.id, data);
-            } else {
-                await criarPedido(data);
-            }
+            await criarPedido(data);
             onCriado();
         } catch {
-            setErroEnvio(editando ? "Erro ao salvar pedido. Tente novamente." : "Erro ao criar pedido. Tente novamente.");
+            setErroEnvio("Erro ao criar pedido. Tente novamente.");
         } finally {
             setLoading(false);
         }
@@ -108,7 +100,7 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header">
-                    <h2 id="modal-titulo">{editando ? "Editar Pedido" : "Novo Pedido"}</h2>
+                    <h2 id="modal-titulo">Novo Pedido</h2>
                     <button className="modal-close" onClick={onClose} aria-label="Fechar">
                         <FiX size={18} />
                     </button>
@@ -165,11 +157,8 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
 
                     <div className="input-group">
                         <label htmlFor="objeto3D">
-                            Upload do objeto 3D {editando && <span className="label-opcional">(opcional)</span>}
+                            Upload do objeto 3D
                         </label>
-                        {pedido?.objeto3D && (
-                            <p className="file-current">Arquivo atual: {pedido.objeto3D}</p>
-                        )}
                         <input
                             id="objeto3D"
                             type="file"
@@ -180,13 +169,8 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
 
                     <div className="input-group">
                         <label htmlFor="imagensReferencia">
-                            Upload de imagens de referência {editando && <span className="label-opcional">(opcional)</span>}
+                            Upload de imagens de referência
                         </label>
-                        {!!pedido?.imagensReferencia?.length && (
-                            <p className="file-current">
-                                Imagens atuais: {pedido.imagensReferencia.join(", ")}
-                            </p>
-                        )}
                         <input
                             id="imagensReferencia"
                             type="file"
@@ -205,7 +189,7 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                             className={erros.prazo ? "input-error" : ""}
                             value={prazo}
                             onChange={(e) => { setPrazo(e.target.value); limparErro("prazo"); }}
-                            min={editando ? undefined : hoje}
+                            min={hoje}
                             aria-invalid={!!erros.prazo}
                             aria-describedby={erros.prazo ? "prazo-erro" : undefined}
                         />
@@ -219,7 +203,7 @@ function NovoPedidoModal({ onClose, onCriado, pedido }: NovoPedidoModalProps) {
                             Cancelar
                         </button>
                         <button type="submit" className="button" disabled={loading}>
-                            {loading ? (editando ? "Salvando..." : "Criando...") : (editando ? "Salvar" : "Criar Pedido")}
+                            {loading ? "Criando..." : "Criar Pedido"}
                         </button>
                     </div>
                 </form>

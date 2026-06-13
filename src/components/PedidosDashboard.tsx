@@ -79,7 +79,6 @@ function PedidosDashboard() {
     const [fetching, setFetching] = useState(initialCached === undefined);
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
-    const [pedidoEditando, setPedidoEditando] = useState<Pedido | null>(null);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
     const [notifAberto, setNotifAberto] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
@@ -258,17 +257,19 @@ function PedidosDashboard() {
 
     return (
         <>
-            {(modalAberto || pedidoEditando) && (
+            {modalAberto && (
                 <NovoPedidoModal
-                    pedido={pedidoEditando ?? undefined}
-                    onClose={() => { setModalAberto(false); setPedidoEditando(null); }}
-                    onCriado={() => { setModalAberto(false); setPedidoEditando(null); fetchPedidos(); }}
+                    onClose={() => setModalAberto(false)}
+                    onCriado={() => { setModalAberto(false); fetchPedidos(); }}
                 />
             )}
             {pedidoDetalheId && (
                 <PedidoDetalheModal
                     pedidoId={pedidoDetalheId}
                     onClose={() => setPedidoDetalheId(null)}
+                    onUpdated={(atualizado) => {
+                        updatePedidos((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
+                    }}
                 />
             )}
 
@@ -317,7 +318,7 @@ function PedidosDashboard() {
                                                     <li key={p.id}>
                                                         <button
                                                             className="notif-item"
-                                                            onClick={() => { setPedidoEditando(p); setNotifAberto(false); }}
+                                                            onClick={() => { setPedidoDetalheId(p.id); setNotifAberto(false); }}
                                                         >
                                                             <span className="notif-item-projeto">{p.projeto}</span>
                                                             <span className="notif-item-cliente">{p.cliente}</span>
@@ -492,7 +493,6 @@ function PedidosDashboard() {
                                 onAvancar={handleAvancar}
                                 onRegredir={handleRegredir}
                                 onDeletar={handleDeletar}
-                                onEditar={setPedidoEditando}
                                 onAbrir={(p) => setPedidoDetalheId(p.id)}
                                 loading={loadingIds.has(pedido.id)}
                                 justAdvanced={recemAvancado === pedido.id}

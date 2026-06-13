@@ -1875,6 +1875,240 @@ body {
   font-size: 0.82rem;
 }
 
+.pedido-detalhe-modal.is-editing {
+  max-width: 920px;
+}
+
+.pedido-detalhe-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.pedido-edit-btn,
+.pedido-upload-btn,
+.pedido-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.pedido-edit-btn {
+  padding: 0.55rem 0.8rem;
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.pedido-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pedido-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.pedido-edit-form .input-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--outline-variant);
+  border-radius: var(--radius);
+  outline: none;
+  background: var(--surface);
+  color: var(--on-background);
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.pedido-edit-form .input-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+}
+
+.pedido-edit-error {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius);
+  background: var(--error-container);
+  color: var(--error-color);
+  font-size: 0.875rem;
+}
+
+.pedido-edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--outline-variant);
+}
+
+.pedido-edit-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pedido-edit-section-title h3 {
+  margin: 0 0 0.2rem;
+  color: var(--on-background);
+  font-size: 0.95rem;
+}
+
+.pedido-edit-section-title span {
+  color: var(--on-surface-variant);
+  font-size: 0.78rem;
+}
+
+.pedido-upload-btn {
+  width: fit-content;
+  padding: 0.6rem 0.8rem;
+  background: rgba(251, 74, 20, 0.1);
+  color: var(--primary);
+}
+
+.pedido-upload-btn input {
+  display: none;
+}
+
+.pedido-edit-file {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-edit-file.is-new {
+  border-color: rgba(251, 74, 20, 0.35);
+}
+
+.pedido-edit-file > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.pedido-edit-file strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pedido-edit-file > div span {
+  color: var(--on-surface-variant);
+  font-size: 0.76rem;
+}
+
+.pedido-remove-btn {
+  padding: 0.55rem 0.7rem;
+  background: var(--error-container);
+  color: var(--error-color);
+}
+
+.pedido-removal-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius);
+  background: var(--error-container);
+  color: var(--error-color);
+  font-size: 0.82rem;
+}
+
+.pedido-removal-notice button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pedido-edit-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.pedido-edit-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-edit-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pedido-edit-image.is-removed img {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+.pedido-edit-image.is-new {
+  border-color: rgba(251, 74, 20, 0.4);
+}
+
+.pedido-edit-image > span {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.pedido-edit-image button {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.55rem;
+  border: none;
+  border-radius: var(--radius);
+  background: rgba(31, 26, 30, 0.82);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pedido-edit-image button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pedido-edit-actions {
+  margin-top: 0;
+  padding-bottom: 0;
+}
+
 .pedido-imagens-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -1934,6 +2168,23 @@ body {
   .pedido-download-btn {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .pedido-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-edit-section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pedido-edit-file {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .pedido-edit-file .pedido-remove-btn {
+    grid-column: 1 / -1;
   }
 }
 

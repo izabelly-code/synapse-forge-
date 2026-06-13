@@ -7,6 +7,7 @@ export interface Pedido {
   descricao?: string;
   objeto3DFileId?: string;
   imagensReferenciaFileIds?: string[];
+  imagensReferenciaIds?: string[];
   status: PedidoStatus;
   prazo: string;
   criadoEm?: string;
