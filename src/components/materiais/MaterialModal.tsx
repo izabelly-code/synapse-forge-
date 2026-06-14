@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { criarMaterial, editarMaterial } from "../services/MaterialService";
-import { Material } from "../models/Material";
+import { criarMaterial, editarMaterial } from "../../services/MaterialService";
+import { Material } from "../../models/Material";
 
 interface MaterialModalProps {
     material?: Material;

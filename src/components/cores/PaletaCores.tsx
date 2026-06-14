@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiSearch, FiChevronDown, FiCheck, FiList, FiGrid, FiDroplet,
 } from "react-icons/fi";
-import { getCores, deletarCor } from "../services/CorService";
-import { getCached, setCached } from "../services/cache";
+import { getCores, deletarCor } from "../../services/CorService";
+import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
 import NovaCorModal from "./NovaCorModal";
-import { Cor, Acabamento } from "../types";
+import { Cor, Acabamento } from "../../types";
 
 const CACHE_KEY = "cores:all";
 

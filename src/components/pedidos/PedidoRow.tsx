@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck, FiMoreVertical } from 'react-icons/fi';
-import { Pedido, PedidoStatus } from '../types';
+import { Pedido, PedidoStatus } from '../../types';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 

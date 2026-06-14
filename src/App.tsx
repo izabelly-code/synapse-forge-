@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Hero from "./components/sections/Hero";
-import DashboardLayout from "./components/DashboardLayout";
+import Hero from "./components/landing/Hero";
+import DashboardLayout from "./components/layout/DashboardLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -13,6 +13,7 @@ import UserProfilePage from "./pages/UserProfilePage";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/materiais" element={<MateriaisPage />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/perfil" element={<UserProfilePage />} />
+          <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
