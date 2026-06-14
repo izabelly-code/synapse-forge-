@@ -1,6 +1,6 @@
-import EventService from '../services/EventService';
-import { getUserById, searchUsersByName } from '../services/UserService';
-import { EventData, User } from '../types';
+import EventService from '../../services/EventService';
+import { getUserById, searchUsersByName } from '../../services/UserService';
+import { EventData, User } from '../../types';
 import React, { useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import './EventoModal.css';

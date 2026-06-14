@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { FiInbox } from "react-icons/fi";
-import { getMateriais, inativarMaterial } from "../services/MaterialService";
+import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
-import { Material } from "../models/Material";
+import { Material } from "../../models/Material";
 
 const moedaBR = new Intl.NumberFormat("pt-BR", {
     style: "currency",

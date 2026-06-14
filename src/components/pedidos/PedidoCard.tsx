@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiTrash2, FiEdit2 } from 'react-icons/fi';
-import { Pedido, PedidoStatus } from '../types';
-import { gerarOrdemServico } from '../services/PedidoService';
+import { Pedido, PedidoStatus } from '../../types';
+import { gerarOrdemServico } from '../../services/PedidoService';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 

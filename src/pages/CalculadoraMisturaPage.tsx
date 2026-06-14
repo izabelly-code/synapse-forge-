@@ -1,4 +1,4 @@
-import CalculadoraMistura from "../components/CalculadoraMistura";
+import CalculadoraMistura from "../components/cores/CalculadoraMistura";
 
 function CalculadoraMisturaPage() {
     return <CalculadoraMistura />;

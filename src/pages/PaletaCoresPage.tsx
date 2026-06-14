@@ -1,4 +1,4 @@
-import PaletaCores from "../components/PaletaCores";
+import PaletaCores from "../components/cores/PaletaCores";
 
 function PaletaCoresPage() {
     return <PaletaCores />;

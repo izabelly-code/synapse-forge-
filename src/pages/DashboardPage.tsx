@@ -1,4 +1,4 @@
-import PedidosDashboard from "../components/PedidosDashboard";
+import PedidosDashboard from "../components/pedidos/PedidosDashboard";
 
 function DashboardPage() {
     return <PedidosDashboard />;

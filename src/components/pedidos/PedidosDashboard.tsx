@@ -3,12 +3,12 @@ import {
     FiInbox, FiSearch, FiBell, FiBox, FiActivity, FiClock, FiAlertTriangle, FiCheckCircle,
     FiCalendar, FiChevronDown, FiFilter, FiCheck, FiList, FiGrid,
 } from "react-icons/fi";
-import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../services/PedidoService";
-import { getCached, setCached } from "../services/cache";
+import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
+import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
-import { Pedido, PedidoStatus } from "../types";
+import { Pedido, PedidoStatus } from "../../types";
 
 interface Filtro {
     label: string;
