@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard } from "react-icons/fi";
-import { getUserById } from "../services/UserService";
-import logo from "../assets/Images/black-logo.png";
+import { getUserById } from "../../services/UserService";
+import logo from "../../assets/Images/black-logo.png";
 
 interface NavItem {
     label: string;

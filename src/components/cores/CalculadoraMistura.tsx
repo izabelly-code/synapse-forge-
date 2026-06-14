@@ -3,10 +3,10 @@ import {
     FiPlus, FiTrash2, FiRotateCcw, FiCopy, FiCheck, FiCheckCircle,
     FiAlertCircle, FiSave, FiDroplet, FiChevronDown,
 } from "react-icons/fi";
-import { getCores } from "../services/CorService";
-import { criarMistura } from "../services/MisturaService";
-import { getCached, setCached } from "../services/cache";
-import { Cor } from "../types";
+import { getCores } from "../../services/CorService";
+import { criarMistura } from "../../services/MisturaService";
+import { getCached, setCached } from "../../services/cache";
+import { Cor } from "../../types";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];

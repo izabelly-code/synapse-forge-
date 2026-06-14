@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getUsers } from "../services/UserService";
-import { User } from "../types";
+import { getUsers } from "../../services/UserService";
+import { User } from "../../types";
 
 interface UserListProps {
     onLogout: () => void;

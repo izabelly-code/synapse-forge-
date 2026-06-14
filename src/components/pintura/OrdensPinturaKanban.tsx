@@ -15,22 +15,22 @@ import {
     FiTrash2,
     FiX,
 } from "react-icons/fi";
-import { getCores } from "../services/CorService";
+import { getCores } from "../../services/CorService";
 import {
     atualizarEtapaOrdemPintura,
     criarOrdemPintura,
     editarOrdemPintura,
     excluirOrdemPintura,
     getOrdensPintura,
-} from "../services/OrdemPinturaService";
-import { getPedidos } from "../services/PedidoService";
+} from "../../services/OrdemPinturaService";
+import { getPedidos } from "../../services/PedidoService";
 import {
     Cor,
     EtapaOrdemPintura,
     OrdemPintura,
     Pedido,
     PrioridadeOrdemPintura,
-} from "../types";
+} from "../../types";
 
 interface Coluna {
     etapa: EtapaOrdemPintura;

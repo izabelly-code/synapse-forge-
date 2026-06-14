@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { FiChevronLeft, FiChevronRight, FiAlertTriangle, FiEye, FiUsers, FiClock } from 'react-icons/fi';
 import './Calendar.css';
-import EventoModal from '../components/EventoModal';
+import EventoModal from '../components/calendario/EventoModal';
 import EventService from '../services/EventService';
 import { getUsers } from '../services/UserService';
 import { getCached, setCached } from '../services/cache';

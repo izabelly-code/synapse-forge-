@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import logo from "../assets/Images/white-logo.png";
-import { esqueciSenha } from "../services/AuthService";
+import logo from "../../assets/Images/white-logo.png";
+import { esqueciSenha } from "../../services/AuthService";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;

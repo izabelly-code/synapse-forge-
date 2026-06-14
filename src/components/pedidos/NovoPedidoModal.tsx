@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { criarPedido } from "../services/PedidoService";
+import { criarPedido } from "../../services/PedidoService";
 
 interface NovoPedidoModalProps {
     onClose: () => void;

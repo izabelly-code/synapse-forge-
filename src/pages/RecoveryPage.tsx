@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import PasswordRecovery from "../components/PasswordRecovery";
+import PasswordRecovery from "../components/auth/PasswordRecovery";
 
 function RecoveryPage() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiMoreVertical, FiEdit2, FiTrash2, FiAlertCircle } from "react-icons/fi";
-import { Cor, Acabamento } from "../types";
+import { Cor, Acabamento } from "../../types";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",

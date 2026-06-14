@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { criarCor, editarCor, CorInput } from "../services/CorService";
-import { Cor, Acabamento } from "../types";
+import { criarCor, editarCor, CorInput } from "../../services/CorService";
+import { Cor, Acabamento } from "../../types";
 
 interface NovaCorModalProps {
     onClose: () => void;

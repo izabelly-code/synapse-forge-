@@ -1,4 +1,4 @@
-import OrdensPinturaKanban from "../components/OrdensPinturaKanban";
+import OrdensPinturaKanban from "../components/pintura/OrdensPinturaKanban";
 
 function OrdensPinturaPage() {
     return <OrdensPinturaKanban />;

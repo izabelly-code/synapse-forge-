@@ -11,8 +11,8 @@ import {
     FiUser,
     FiX,
 } from "react-icons/fi";
-import { baixarObjeto3D, editarPedido, getPedido } from "../services/PedidoService";
-import { Pedido, PedidoStatus } from "../types";
+import { baixarObjeto3D, editarPedido, getPedido } from "../../services/PedidoService";
+import { Pedido, PedidoStatus } from "../../types";
 
 const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
