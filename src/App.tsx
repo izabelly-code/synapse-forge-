@@ -13,6 +13,7 @@ import UserProfilePage from "./pages/UserProfilePage";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/materiais" element={<MateriaisPage />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/perfil" element={<UserProfilePage />} />
+          <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -29,6 +29,35 @@ export interface User {
   id: string;
   nome: string;
   email: string;
+  role?: 'ADMIN' | 'GERENTE' | 'TECNICO' | 'CLIENTE';
+}
+
+export type EtapaOrdemPintura =
+  | 'AGUARDANDO'
+  | 'MISTURANDO_TINTA'
+  | 'EM_PINTURA'
+  | 'SECANDO'
+  | 'FINALIZADO'
+  | 'RETRABALHO';
+
+export type PrioridadeOrdemPintura = 'BAIXA' | 'MEDIA' | 'ALTA';
+
+export interface OrdemPintura {
+  id: string;
+  pedidoId: string;
+  pedidoProjeto: string;
+  pedidoCliente: string;
+  corId: string;
+  corNome: string;
+  corHex: string;
+  acabamento?: string;
+  tecnicoNome: string;
+  prioridade: PrioridadeOrdemPintura;
+  prazo: string;
+  etapa: EtapaOrdemPintura;
+  referenciasVisuais: string[];
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export type Acabamento = 'FOSCO' | 'BRILHANTE' | 'METALICO' | 'CETIM';
