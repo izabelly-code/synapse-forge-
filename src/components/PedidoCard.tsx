@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FiTrash2, FiEdit2 } from 'react-icons/fi';
 import { Pedido, PedidoStatus } from '../types';
+import { gerarOrdemServico } from '../services/PedidoService';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -87,16 +88,6 @@ function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoC
                 <p className="pedido-descricao">{pedido.descricao}</p>
             )}
 
-            {(pedido.objeto3D || !!pedido.imagensReferencia?.length) && (
-                <div className="pedido-modelagem">
-                    {pedido.objeto3D && (
-                        <p><strong>Objeto 3D:</strong> {pedido.objeto3D}</p>
-                    )}
-                    {!!pedido.imagensReferencia?.length && (
-                        <p><strong>Referências:</strong> {pedido.imagensReferencia.join(", ")}</p>
-                    )}
-                </div>
-            )}
 
             <ProgressBar status={pedido.status} />
 
@@ -124,6 +115,8 @@ function PedidoCard({ pedido, onAvancar, onDeletar, onEditar, loading }: PedidoC
                     <button className="pedido-edit-btn" onClick={() => onEditar(pedido)} aria-label="Editar pedido">
                         <FiEdit2 size={15} />
                     </button>
+
+
                     {confirmando ? (
                         <div className="delete-confirm">
                             <button className="delete-confirm-btn" onClick={() => onDeletar(pedido.id)}>Sim</button>

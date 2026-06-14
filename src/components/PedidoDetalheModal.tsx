@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import { baixarObjeto3D, editarPedido, getPedido } from "../services/PedidoService";
 import { Pedido, PedidoStatus } from "../types";
+import { gerarOrdemServico } from "../services/PedidoService";
 
 const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
@@ -251,6 +252,15 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                                 Editar
                             </button>
                         )}
+
+                        <button
+                            type="button"
+                            className="pedido-edit-btn"
+                            onClick={() => gerarOrdemServico(pedidoId)}
+                        >
+                            <FiDownload size={15} />
+                            PDF
+                        </button>
                         <button className="modal-close" onClick={onClose} aria-label="Fechar">
                             <FiX size={18} />
                         </button>
