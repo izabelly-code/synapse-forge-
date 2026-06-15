@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard } from "react-icons/fi";
+import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign } from "react-icons/fi";
 import { getUserById } from "../../services/UserService";
 import logo from "../../assets/Images/black-logo.png";
 
@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Paleta de Cores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
     { label: "Calculadora de Mistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
     { label: "Materiais", path: "/materiais", icon: <FiBox size={18} /> },
+    { label: "Orçamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
     { label: "Ordens de Pintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
     { label: "Calendário", path: "/calendar", icon: <FiCalendar size={18} /> },
     { label: "Perfil", path: "/perfil", icon: <FiUser size={18} /> },

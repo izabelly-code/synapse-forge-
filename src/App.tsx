@@ -7,6 +7,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PaletaCoresPage from "./pages/PaletaCoresPage";
 import CalculadoraMisturaPage from "./pages/CalculadoraMisturaPage";
 import MateriaisPage from "./pages/MateriaisPage";
+import OrcamentoPageWrapper from "./pages/OrcamentoPageWrapper";
 import RecoveryPage from "./pages/RecoveryPage";
 import Calendar from "./pages/Calendar";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -37,6 +38,7 @@ function App() {
             <Route path="/paleta-cores" element={<PaletaCoresPage />} />
             <Route path="/calculadora-mistura" element={<CalculadoraMisturaPage />} />
             <Route path="/materiais" element={<MateriaisPage />} />
+            <Route path="/orcamento" element={<OrcamentoPageWrapper />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/perfil" element={<UserProfilePage />} />
             <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />

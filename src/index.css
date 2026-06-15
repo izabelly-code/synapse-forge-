@@ -4258,3 +4258,174 @@ html {
   background: var(--surface-container-low);
   color: var(--on-surface);
 }
+
+
+/* ===== ORCAMENTO ===== */
+.orcamento-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.orcamento-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.orcamento-form-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.orcamento-material-menu {
+  display: block;
+}
+
+.orcamento-material-action {
+  width: 100%;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.orcamento-material-action[aria-expanded="true"] {
+  border-color: var(--primary);
+}
+
+.orcamento-material-menu .filtro-dropdown {
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.orcamento-material-vazio {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.orcamento-preview-card {
+  position: sticky;
+  top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.5rem;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: opacity 0.2s ease;
+}
+
+.orcamento-preview-card.is-calculando {
+  opacity: 0.6;
+}
+
+.orcamento-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  font-size: 0.9375rem;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.orcamento-preview-row + .orcamento-preview-row {
+  border-top: 1px solid var(--outline-variant);
+}
+
+.orcamento-preview-total {
+  font-weight: 600;
+  color: var(--on-background);
+}
+
+.orcamento-preview-final {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1.5px solid var(--outline-variant);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.orcamento-preview-final > span:last-child {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.orcamento-salvar {
+  margin-top: 1.25rem;
+}
+
+.orcamento-sucesso {
+  margin-bottom: 1.5rem;
+  padding: 0.875rem 1.125rem;
+  background: var(--success-container);
+  border-radius: var(--radius);
+  color: var(--success-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.orcamento-historico-head {
+  margin-bottom: 1.5rem;
+}
+
+.orcamento-historico-title {
+  font-size: 1.75rem;
+}
+
+.pedidos-row-head.orcamento-row,
+.pedido-row.orcamento-row {
+  grid-template-columns: minmax(140px, 1.6fr) minmax(90px, 1fr) minmax(150px, 1.2fr) minmax(120px, 1fr);
+}
+
+.pedido-row.orcamento-row {
+  cursor: default;
+  font-size: 0.875rem;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.orcamento-row-preco {
+  font-weight: 700;
+  color: var(--primary);
+  text-align: right;
+}
+
+.pedidos-row-head.orcamento-row > span:last-child {
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .orcamento-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orcamento-preview-card {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .pedidos-row-head.orcamento-row {
+    display: none;
+  }
+
+  .pedido-row.orcamento-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 1rem 1.125rem;
+  }
+
+  .orcamento-row-preco {
+    text-align: left;
+  }
+}
