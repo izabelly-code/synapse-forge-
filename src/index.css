@@ -4188,3 +4188,99 @@ html {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== STATUS / ACCESS SCREENS ===== */
+.status-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--surface-container-lowest);
+}
+
+.status-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 2.75rem 2.25rem;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-logo {
+  height: 38px;
+  width: auto;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+}
+
+.status-code {
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.status-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin: 0 0 0.625rem;
+}
+
+.status-description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+  margin: 0 0 1.75rem;
+}
+
+.status-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.status-button {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.status-button:hover {
+  background: var(--primary-dark);
+}
+
+.status-button-ghost {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.status-button-ghost:hover {
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+}
