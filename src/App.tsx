@@ -16,6 +16,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
+import SessionExpiredPage from "./pages/SessionExpiredPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
         <Route path="/confirmar-mudanca-email" element={<ConfirmEmailMudancaPage />} />
         <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+        <Route path="/sessao-expirada" element={<SessionExpiredPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
