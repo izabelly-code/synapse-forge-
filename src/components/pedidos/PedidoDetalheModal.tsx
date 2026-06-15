@@ -217,7 +217,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
             setImagensRemover(new Set());
             onUpdated?.(atualizado);
         } catch {
-            setErroEdicao("Nao foi possivel salvar as alteracoes.");
+            setErroEdicao("Não foi possível salvar as alterações.");
         } finally {
             setSalvando(false);
         }
@@ -230,7 +230,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         try {
             await baixarObjeto3D(pedido.id);
         } catch (err) {
-            setDownloadError(err instanceof Error ? err.message : "Nao foi possivel baixar o arquivo 3D.");
+            setDownloadError(err instanceof Error ? err.message : "Não foi possível baixar o arquivo 3D.");
         } finally {
             setDownloading(false);
         }
@@ -310,7 +310,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                         </div>
 
                         <div className="input-group">
-                            <label htmlFor="pedido-descricao">Descricao</label>
+                            <label htmlFor="pedido-descricao">Descrição</label>
                             <textarea
                                 id="pedido-descricao"
                                 rows={4}
@@ -469,7 +469,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
 
                         {pedido.descricao && (
                             <div className="pedido-detalhe-section">
-                                <h3>Descricao</h3>
+                                <h3>Descrição</h3>
                                 <p>{pedido.descricao}</p>
                             </div>
                         )}
