@@ -816,7 +816,9 @@ body {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .toolbar-actions {
@@ -1009,7 +1011,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   padding: 1.125rem 1.25rem;
@@ -1120,7 +1122,7 @@ body {
 .pedido-row {
   position: relative;
   min-height: 4.25rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -1514,7 +1516,7 @@ body {
 
 .pedido-row-skeleton {
   height: 66px;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -2254,7 +2256,9 @@ body {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .profile-avatar {
@@ -2273,7 +2277,7 @@ body {
 }
 
 .profile-card {
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   padding: 2rem;
@@ -2322,7 +2326,7 @@ body {
 }
 
 .profile-skeleton {
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   height: 480px;
@@ -2493,14 +2497,8 @@ html {
 }
 
 
-/* Existing dashboard-main still works inside .dashboard-content */
+/* Largura padrao das telas do painel */
 .dashboard-shell .dashboard-main {
-  max-width: 1200px;
-  padding: 2.5rem 2rem;
-}
-
-
-.dashboard-shell .dashboard-main.pedidos-page {
   max-width: 1380px;
   padding: 2.5rem 2.5rem;
 }
@@ -2582,7 +2580,7 @@ html {
 }
 
 .pintura-content {
-  padding: 2rem;
+  padding: 2.5rem 2.5rem;
 }
 
 .pintura-toolbar {
@@ -2689,7 +2687,6 @@ html {
   display: grid;
   grid-template-columns: repeat(6, minmax(185px, 1fr));
   gap: 0.7rem;
-  min-width: 1200px;
   overflow: visible;
 }
 
@@ -3096,7 +3093,9 @@ html {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .pedidos-row-head.material-row,
@@ -3236,7 +3235,7 @@ html {
 
 .cor-card {
   position: relative;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
@@ -3427,7 +3426,7 @@ html {
 
 .cor-row {
   position: relative;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -3488,7 +3487,7 @@ html {
 
 .cor-card-skeleton {
   height: 270px;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -4187,7 +4186,7 @@ html {
   flex-direction: column;
   gap: 0.25rem;
   padding: 1.5rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
