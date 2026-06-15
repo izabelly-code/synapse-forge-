@@ -15,6 +15,7 @@ import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -39,6 +40,8 @@ function App() {
             <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
           </Route>
         </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
