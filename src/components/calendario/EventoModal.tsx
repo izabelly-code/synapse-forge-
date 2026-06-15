@@ -320,11 +320,11 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                             type="button"
                             className="user-suggestion-item"
                             onClick={() => handleSelectUser(user)}
-                            style={{ cursor: 'pointer', padding: '8px 12px', borderBottom: '1px solid #eee', textAlign: 'left', width: '100%', background: 'transparent', border: 'none' }}
+                            style={{ cursor: 'pointer', padding: '8px 12px', borderBottom: '1px solid var(--outline-variant)', textAlign: 'left', width: '100%', background: 'transparent', border: 'none' }}
                           >
                             <strong>{user.nome}</strong>
                             <br />
-                            <small style={{ color: '#666' }}>{user.email}</small>
+                            <small style={{ color: 'var(--on-surface-variant)' }}>{user.email}</small>
                           </button>
                         ))}
                       </div>
