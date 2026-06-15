@@ -2581,124 +2581,8 @@ html {
   color: var(--on-background);
 }
 
-.pintura-topbar {
-  min-height: 78px;
-  padding: 0 2rem;
-  border-bottom: 1px solid var(--outline-variant);
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.pintura-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  color: #3f4149;
-  font-size: 0.82rem;
-}
-
-.pintura-breadcrumb-icon {
-  display: grid;
-  place-items: center;
-  width: 31px;
-  height: 31px;
-  border-radius: 50%;
-  background: #fff0ea;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.pintura-breadcrumb-chevron {
-  color: #a3a5ad;
-  font-size: 1.25rem;
-}
-
-.pintura-breadcrumb strong {
-  color: #19191d;
-}
-
-.pintura-top-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.pintura-top-actions button {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: #666976;
-  cursor: pointer;
-}
-
-.pintura-top-actions button:hover {
-  background: var(--surface-container-low);
-}
-
-.pintura-top-actions button span {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: 700;
-}
-
 .pintura-content {
   padding: 2rem;
-}
-
-.pintura-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-bottom: 1.75rem;
-}
-
-.pintura-heading h1 {
-  margin: 0 0 0.35rem;
-  color: #111216;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(1.7rem, 2.3vw, 2.25rem);
-  letter-spacing: -0.04em;
-}
-
-.pintura-heading p {
-  margin: 0;
-  color: #747781;
-  font-size: 0.82rem;
-}
-
-.pintura-new-order {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-width: 142px;
-  padding: 0.82rem 1.2rem;
-  border: none;
-  border-radius: 999px;
-  background: var(--primary);
-  box-shadow: 0 8px 18px rgba(251, 74, 20, 0.2);
-  color: #fff;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 700;
 }
 
 .pintura-toolbar {
@@ -3191,23 +3075,10 @@ html {
 }
 
 @media (max-width: 700px) {
-  .pintura-topbar {
-    padding: 0 1rem;
-  }
-
-  .pintura-breadcrumb > span:not(.pintura-breadcrumb-icon) {
-    display: none;
-  }
-
   .pintura-content {
     padding: 1.25rem 1rem;
   }
 
-  .pintura-heading {
-    flex-direction: column;
-  }
-
-  .pintura-new-order,
   .pintura-search {
     width: 100%;
   }

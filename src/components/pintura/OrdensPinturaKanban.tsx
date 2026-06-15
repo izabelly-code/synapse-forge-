@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiBell,
     FiCalendar,
@@ -6,9 +6,7 @@ import {
     FiFlag,
     FiEdit2,
     FiGrid,
-    FiHelpCircle,
     FiList,
-    FiPlus,
     FiRefreshCw,
     FiSearch,
     FiMoreVertical,
@@ -248,6 +246,27 @@ function OrdensPinturaKanban() {
     const [arrastandoId, setArrastandoId] = useState<string | null>(null);
     const [colunaAtiva, setColunaAtiva] = useState<EtapaOrdemPintura | null>(null);
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
+    const [notifAberto, setNotifAberto] = useState(false);
+    const notifRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!notifAberto) return;
+        function onClick(e: MouseEvent) {
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
+        }
+        document.addEventListener("mousedown", onClick);
+        return () => document.removeEventListener("mousedown", onClick);
+    }, [notifAberto]);
+
+    const urgentes = useMemo(() => {
+        const hoje = inicioDoDia();
+        return ordens
+            .filter((ordem) => ordem.etapa !== "FINALIZADO")
+            .map((ordem) => ({ ordem, prazo: inicioDoDia(new Date(`${ordem.prazo.slice(0, 10)}T12:00:00`)) }))
+            .filter(({ prazo }) => prazo <= hoje)
+            .sort((a, b) => a.prazo - b.prazo)
+            .map(({ ordem, prazo }) => ({ ordem, atrasada: prazo < hoje }));
+    }, [ordens]);
 
     async function carregar() {
         setLoading(true);
@@ -352,29 +371,57 @@ function OrdensPinturaKanban() {
             )}
 
             <main className="pintura-page">
-                <header className="pintura-topbar">
-                    <div className="pintura-breadcrumb">
-                        <span className="pintura-breadcrumb-icon">A</span>
-                        <span>Pintura e Mistura de Cores</span>
-                        <span className="pintura-breadcrumb-chevron">›</span>
-                        <strong>Kanban de Ordens de Pintura</strong>
-                    </div>
-                    <div className="pintura-top-actions">
-                        <button type="button" aria-label="Notificações"><FiBell size={18} /><span>2</span></button>
-                        <button type="button" aria-label="Ajuda"><FiHelpCircle size={18} /></button>
-                    </div>
-                </header>
-
                 <section className="pintura-content">
-                    <div className="pintura-heading">
+                    <header className="pedidos-toolbar">
                         <div>
-                            <h1>Kanban de Ordens de Pintura</h1>
-                            <p>Acompanhe o fluxo de trabalho das ordens de pintura em cada etapa do processo.</p>
+                            <h1 className="dashboard-title">Kanban de Ordens de Pintura</h1>
+                            <p className="dashboard-subtitle">Acompanhe o fluxo de trabalho das ordens de pintura em cada etapa do processo.</p>
                         </div>
-                        <button type="button" className="pintura-new-order" onClick={() => setModalAberto(true)}>
-                            <FiPlus size={18} /> Nova Ordem
-                        </button>
-                    </div>
+
+                        <div className="toolbar-actions">
+                            <div className="notif-wrap" ref={notifRef}>
+                                <button
+                                    className="icon-button"
+                                    onClick={() => setNotifAberto((v) => !v)}
+                                    aria-label="Notificações"
+                                    aria-expanded={notifAberto}
+                                >
+                                    <FiBell size={18} />
+                                    {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
+                                </button>
+
+                                {notifAberto && (
+                                    <div className="notif-panel" role="menu">
+                                        <div className="notif-panel-head">Atenção necessária</div>
+                                        {urgentes.length === 0 ? (
+                                            <p className="notif-empty">Tudo em dia. Nenhum prazo crítico.</p>
+                                        ) : (
+                                            <ul className="notif-list">
+                                                {urgentes.map(({ ordem, atrasada }) => (
+                                                    <li key={ordem.id}>
+                                                        <button
+                                                            className="notif-item"
+                                                            onClick={() => { setOrdemEditando(ordem); setNotifAberto(false); }}
+                                                        >
+                                                            <span className="notif-item-projeto">{ordem.corNome} · {referenciaCurta(ordem.id)}</span>
+                                                            <span className="notif-item-cliente">{ordem.pedidoProjeto} — {ordem.tecnicoNome}</span>
+                                                            <span className={`notif-item-tag ${atrasada ? "tag-danger" : "tag-warn"}`}>
+                                                                {atrasada ? "Atrasada" : "Vence hoje"}
+                                                            </span>
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
+                                + Nova Ordem
+                            </button>
+                        </div>
+                    </header>
 
                     <div className="pintura-toolbar">
                         <label className="pintura-search">
