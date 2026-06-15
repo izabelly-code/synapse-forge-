@@ -14,6 +14,7 @@ import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import ConfirmEmailMudancaPage from "./pages/ConfirmEmailMudancaPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdensPinturaPage from "./pages/OrdensPinturaPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -27,14 +28,16 @@ function App() {
         <Route path="/confirmar-mudanca-email" element={<ConfirmEmailMudancaPage />} />
         <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
 
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/paleta-cores" element={<PaletaCoresPage />} />
-          <Route path="/calculadora-mistura" element={<CalculadoraMisturaPage />} />
-          <Route path="/materiais" element={<MateriaisPage />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/perfil" element={<UserProfilePage />} />
-          <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/paleta-cores" element={<PaletaCoresPage />} />
+            <Route path="/calculadora-mistura" element={<CalculadoraMisturaPage />} />
+            <Route path="/materiais" element={<MateriaisPage />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/perfil" element={<UserProfilePage />} />
+            <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
