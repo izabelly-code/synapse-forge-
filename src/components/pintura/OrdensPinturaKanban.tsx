@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
     FiBell,
     FiCalendar,
-    FiChevronDown,
     FiFilter,
+    FiFlag,
     FiEdit2,
     FiGrid,
     FiHelpCircle,
@@ -13,8 +13,10 @@ import {
     FiSearch,
     FiMoreVertical,
     FiTrash2,
+    FiUser,
     FiX,
 } from "react-icons/fi";
+import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
     atualizarEtapaOrdemPintura,
@@ -138,14 +140,16 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
 
                     <div className="input-group">
                         <label htmlFor="ordem-pedido">Pedido</label>
-                        <select id="ordem-pedido" value={pedidoId} onChange={(e) => setPedidoId(e.target.value)}>
-                            <option value="">Selecione um pedido</option>
-                            {pedidos.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                    {referenciaCurta(item.id)} - {item.projeto} / {item.cliente}
-                                </option>
-                            ))}
-                        </select>
+                        <Select
+                            id="ordem-pedido"
+                            value={pedidoId}
+                            onChange={setPedidoId}
+                            placeholder="Selecione um pedido"
+                            options={pedidos.map((item) => ({
+                                value: item.id,
+                                label: `${referenciaCurta(item.id)} - ${item.projeto} / ${item.cliente}`,
+                            }))}
+                        />
                     </div>
 
                     {pedido && (
@@ -169,12 +173,13 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                     <div className="pintura-modal-grid">
                         <div className="input-group">
                             <label htmlFor="ordem-cor">Cor</label>
-                            <select id="ordem-cor" value={corId} onChange={(e) => setCorId(e.target.value)}>
-                                <option value="">Selecione a cor</option>
-                                {cores.map((item) => (
-                                    <option key={item.id} value={item.id}>{item.nome}</option>
-                                ))}
-                            </select>
+                            <Select
+                                id="ordem-cor"
+                                value={corId}
+                                onChange={setCorId}
+                                placeholder="Selecione a cor"
+                                options={cores.map((item) => ({ value: item.id, label: item.nome }))}
+                            />
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-tecnico">Tecnico</label>
@@ -187,15 +192,16 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-prioridade">Prioridade</label>
-                            <select
+                            <Select
                                 id="ordem-prioridade"
                                 value={prioridade}
-                                onChange={(e) => setPrioridade(e.target.value as PrioridadeOrdemPintura)}
-                            >
-                                <option value="BAIXA">Baixa</option>
-                                <option value="MEDIA">Media</option>
-                                <option value="ALTA">Alta</option>
-                            </select>
+                                onChange={(v) => setPrioridade(v as PrioridadeOrdemPintura)}
+                                options={[
+                                    { value: "BAIXA", label: "Baixa" },
+                                    { value: "MEDIA", label: "Media" },
+                                    { value: "ALTA", label: "Alta" },
+                                ]}
+                            />
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-prazo">Prazo</label>
@@ -380,36 +386,45 @@ function OrdensPinturaKanban() {
                             <FiSearch size={17} />
                         </label>
                         <button type="button" className="pintura-filter-static"><FiFilter size={16} /> Filtros</button>
-                        <label className="pintura-select">
-                            <span>Tecnico:</span>
-                            <select value={tecnicoFiltro} onChange={(e) => setTecnicoFiltro(e.target.value)}>
-                                <option value="">Todos</option>
-                                {Array.from(new Set(ordens.map((ordem) => ordem.tecnicoNome)))
+                        <Select
+                            variant="filter"
+                            label="Tecnico"
+                            icon={<FiUser size={15} />}
+                            value={tecnicoFiltro}
+                            onChange={setTecnicoFiltro}
+                            options={[
+                                { value: "", label: "Todos" },
+                                ...Array.from(new Set(ordens.map((ordem) => ordem.tecnicoNome)))
                                     .filter(Boolean)
                                     .sort((a, b) => a.localeCompare(b))
-                                    .map((tecnico) => <option key={tecnico} value={tecnico}>{tecnico}</option>)}
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
-                        <label className="pintura-select">
-                            <span>Prioridade:</span>
-                            <select value={prioridadeFiltro} onChange={(e) => setPrioridadeFiltro(e.target.value)}>
-                                <option value="">Todas</option>
-                                <option value="ALTA">Alta</option>
-                                <option value="MEDIA">Media</option>
-                                <option value="BAIXA">Baixa</option>
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
-                        <label className="pintura-select">
-                            <span>Data:</span>
-                            <select value={dataFiltro} onChange={(e) => setDataFiltro(e.target.value as FiltroData)}>
-                                <option value="TODAS">Todas</option>
-                                <option value="HOJE">Hoje</option>
-                                <option value="ATRASADAS">Atrasadas</option>
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
+                                    .map((tecnico) => ({ value: tecnico, label: tecnico })),
+                            ]}
+                        />
+                        <Select
+                            variant="filter"
+                            label="Prioridade"
+                            icon={<FiFlag size={15} />}
+                            value={prioridadeFiltro}
+                            onChange={setPrioridadeFiltro}
+                            options={[
+                                { value: "", label: "Todas" },
+                                { value: "ALTA", label: "Alta" },
+                                { value: "MEDIA", label: "Media" },
+                                { value: "BAIXA", label: "Baixa" },
+                            ]}
+                        />
+                        <Select
+                            variant="filter"
+                            label="Data"
+                            icon={<FiCalendar size={15} />}
+                            value={dataFiltro}
+                            onChange={(v) => setDataFiltro(v as FiltroData)}
+                            options={[
+                                { value: "TODAS", label: "Todas" },
+                                { value: "HOJE", label: "Hoje" },
+                                { value: "ATRASADAS", label: "Atrasadas" },
+                            ]}
+                        />
                         <div className="pintura-toolbar-spacer" />
                         <span className="pintura-updated">
                             {atualizadoEm ? "Atualizado agora ha pouco" : "Carregando..."}

@@ -7,6 +7,7 @@ import { getCores } from "../../services/CorService";
 import { criarMistura } from "../../services/MisturaService";
 import { getCached, setCached } from "../../services/cache";
 import { Cor } from "../../types";
+import Select from "../ui/Select";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];
@@ -225,18 +226,15 @@ function CalculadoraMistura() {
                                                 />
                                                 <div className="mistura-linha-cor">
                                                     <div className="mistura-select-wrap">
-                                                        <select
-                                                            className="cor-modal-select"
+                                                        <Select
                                                             value={linha.corId}
-                                                            onChange={(e) => atualizarLinha(linha.key, { corId: e.target.value })}
-                                                            aria-label="Cor da paleta"
-                                                        >
-                                                            {!linha.corId && <option value="">Selecione uma cor</option>}
-                                                            {cores.filter((c) => c.id === linha.corId || !usadas.has(c.id)).map((c) => (
-                                                                <option key={c.id} value={c.id}>{c.nome}</option>
-                                                            ))}
-                                                        </select>
-                                                        <FiChevronDown size={15} className="mistura-select-chev" />
+                                                            onChange={(v) => atualizarLinha(linha.key, { corId: v })}
+                                                            ariaLabel="Cor da paleta"
+                                                            placeholder="Selecione uma cor"
+                                                            options={cores
+                                                                .filter((c) => c.id === linha.corId || !usadas.has(c.id))
+                                                                .map((c) => ({ value: c.id, label: c.nome }))}
+                                                        />
                                                     </div>
                                                     {cor && <span className="mistura-linha-fornecedor">{cor.fornecedor}</span>}
                                                 </div>

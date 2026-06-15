@@ -20,6 +20,7 @@ import {
 } from "../../services/PedidoService";
 
 import { Pedido, PedidoStatus } from "../../types";
+import Select from "../ui/Select";
 
 const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
@@ -299,11 +300,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                             </div>
                             <div className="input-group">
                                 <label htmlFor="pedido-status">Etapa</label>
-                                <select id="pedido-status" value={status} onChange={(e) => setStatus(e.target.value as PedidoStatus)}>
-                                    {STATUS_OPTIONS.map((opcao) => (
-                                        <option key={opcao} value={opcao}>{STATUS_LABELS[opcao]}</option>
-                                    ))}
-                                </select>
+                                <Select
+                                    id="pedido-status"
+                                    value={status}
+                                    onChange={(v) => setStatus(v as PedidoStatus)}
+                                    options={STATUS_OPTIONS.map((opcao) => ({ value: opcao, label: STATUS_LABELS[opcao] }))}
+                                />
                             </div>
                         </div>
 

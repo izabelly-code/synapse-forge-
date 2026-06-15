@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
+import Select from "../ui/Select";
 
 interface NovaCorModalProps {
     onClose: () => void;
@@ -202,16 +203,12 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
                     <div className="input-group">
                         <label htmlFor="acabamento">Acabamento</label>
-                        <select
+                        <Select
                             id="acabamento"
-                            className="cor-modal-select"
                             value={acabamento}
-                            onChange={(e) => setAcabamento(e.target.value as Acabamento)}
-                        >
-                            {ACABAMENTOS.map((a) => (
-                                <option key={a.value} value={a.value}>{a.label}</option>
-                            ))}
-                        </select>
+                            onChange={(v) => setAcabamento(v as Acabamento)}
+                            options={ACABAMENTOS}
+                        />
                         <span className="input-hint" />
                     </div>
 
