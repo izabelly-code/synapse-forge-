@@ -3604,6 +3604,22 @@ html {
   height: 64px;
   border-radius: var(--radius);
   border: 1px solid var(--outline-variant);
+  cursor: pointer;
+}
+
+.cor-modal-swatch-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2px 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: rgba(31, 26, 30, 0.55);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
 }
 
 .cor-modal-color-input {
@@ -3617,6 +3633,31 @@ html {
 
 .cor-modal-hex {
   flex: 1;
+}
+
+.cor-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.875rem;
+}
+
+.cor-preset {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--outline-variant);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.cor-preset:hover {
+  transform: scale(1.12);
+}
+
+.cor-preset.is-active {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
 }
 
 @media (max-width: 768px) {
