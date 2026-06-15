@@ -323,11 +323,11 @@
   padding: 10px 12px !important;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .user-suggestion-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--surface-container-low);
 }
 
 .user-suggestion-item:last-child {

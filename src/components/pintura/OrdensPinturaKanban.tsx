@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
     FiBell,
     FiCalendar,
-    FiChevronDown,
     FiFilter,
+    FiFlag,
     FiEdit2,
     FiGrid,
     FiHelpCircle,
@@ -13,8 +13,10 @@ import {
     FiSearch,
     FiMoreVertical,
     FiTrash2,
+    FiUser,
     FiX,
 } from "react-icons/fi";
+import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
     atualizarEtapaOrdemPintura,
@@ -49,7 +51,7 @@ const COLUNAS: Coluna[] = [
 
 const PRIORIDADE_LABEL: Record<PrioridadeOrdemPintura, string> = {
     BAIXA: "Baixa",
-    MEDIA: "Media",
+    MEDIA: "Média",
     ALTA: "Alta",
 };
 
@@ -66,7 +68,7 @@ function rotuloPrazo(prazo: string): string {
     const data = new Date(ano, mes - 1, dia);
     const diferenca = Math.round((inicioDoDia(data) - inicioDoDia()) / 86_400_000);
     if (diferenca === 0) return "Hoje";
-    if (diferenca === 1) return "Amanha";
+    if (diferenca === 1) return "Amanhã";
     return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
@@ -114,7 +116,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
             await onSave({ pedidoId, corId, tecnico: tecnico.trim(), prioridade, prazo });
             onClose();
         } catch {
-            setErro(editando ? "Nao foi possivel editar a ordem de pintura." : "Nao foi possivel criar a ordem de pintura.");
+            setErro(editando ? "Não foi possível editar a ordem de pintura." : "Não foi possível criar a ordem de pintura.");
         } finally {
             setSalvando(false);
         }
@@ -125,7 +127,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
             <section className="modal-card pintura-order-modal" onClick={(event) => event.stopPropagation()}>
                 <div className="modal-header">
                     <div>
-                        <span className="pintura-modal-kicker">Producao</span>
+                        <span className="pintura-modal-kicker">Produção</span>
                         <h2>{editando ? "Editar Ordem de Pintura" : "Nova Ordem de Pintura"}</h2>
                     </div>
                     <button type="button" className="modal-close" onClick={onClose} aria-label="Fechar">
@@ -138,30 +140,32 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
 
                     <div className="input-group">
                         <label htmlFor="ordem-pedido">Pedido</label>
-                        <select id="ordem-pedido" value={pedidoId} onChange={(e) => setPedidoId(e.target.value)}>
-                            <option value="">Selecione um pedido</option>
-                            {pedidos.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                    {referenciaCurta(item.id)} - {item.projeto} / {item.cliente}
-                                </option>
-                            ))}
-                        </select>
+                        <Select
+                            id="ordem-pedido"
+                            value={pedidoId}
+                            onChange={setPedidoId}
+                            placeholder="Selecione um pedido"
+                            options={pedidos.map((item) => ({
+                                value: item.id,
+                                label: `${referenciaCurta(item.id)} - ${item.projeto} / ${item.cliente}`,
+                            }))}
+                        />
                     </div>
 
                     {pedido && (
                         <div className="pintura-reference-panel">
                             <div>
-                                <span>Referencias do projeto</span>
+                                <span>Referências do projeto</span>
                                 <strong>{pedido.projeto}</strong>
                             </div>
                             {pedido.imagensReferenciaFileIds?.length ? (
                                 <div className="pintura-reference-images">
                                     {pedido.imagensReferenciaFileIds.slice(0, 4).map((imagem, index) => (
-                                        <img key={index} src={imagem} alt={`Referencia ${index + 1}`} />
+                                        <img key={index} src={imagem} alt={`Referência ${index + 1}`} />
                                     ))}
                                 </div>
                             ) : (
-                                <small>Nenhuma imagem de referencia cadastrada.</small>
+                                <small>Nenhuma imagem de referência cadastrada.</small>
                             )}
                         </div>
                     )}
@@ -169,33 +173,35 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                     <div className="pintura-modal-grid">
                         <div className="input-group">
                             <label htmlFor="ordem-cor">Cor</label>
-                            <select id="ordem-cor" value={corId} onChange={(e) => setCorId(e.target.value)}>
-                                <option value="">Selecione a cor</option>
-                                {cores.map((item) => (
-                                    <option key={item.id} value={item.id}>{item.nome}</option>
-                                ))}
-                            </select>
+                            <Select
+                                id="ordem-cor"
+                                value={corId}
+                                onChange={setCorId}
+                                placeholder="Selecione a cor"
+                                options={cores.map((item) => ({ value: item.id, label: item.nome }))}
+                            />
                         </div>
                         <div className="input-group">
-                            <label htmlFor="ordem-tecnico">Tecnico</label>
+                            <label htmlFor="ordem-tecnico">Técnico</label>
                             <input
                                 id="ordem-tecnico"
                                 value={tecnico}
                                 onChange={(e) => setTecnico(e.target.value)}
-                                placeholder="Nome do tecnico"
+                                placeholder="Nome do técnico"
                             />
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-prioridade">Prioridade</label>
-                            <select
+                            <Select
                                 id="ordem-prioridade"
                                 value={prioridade}
-                                onChange={(e) => setPrioridade(e.target.value as PrioridadeOrdemPintura)}
-                            >
-                                <option value="BAIXA">Baixa</option>
-                                <option value="MEDIA">Media</option>
-                                <option value="ALTA">Alta</option>
-                            </select>
+                                onChange={(v) => setPrioridade(v as PrioridadeOrdemPintura)}
+                                options={[
+                                    { value: "BAIXA", label: "Baixa" },
+                                    { value: "MEDIA", label: "Média" },
+                                    { value: "ALTA", label: "Alta" },
+                                ]}
+                            />
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-prazo">Prazo</label>
@@ -216,7 +222,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                     <div className="modal-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
                         <button type="submit" className="button" disabled={salvando}>
-                            {salvando ? "Salvando..." : editando ? "Salvar Alteracoes" : "Criar Ordem"}
+                            {salvando ? "Salvando..." : editando ? "Salvar Alterações" : "Criar Ordem"}
                         </button>
                     </div>
                 </form>
@@ -257,7 +263,7 @@ function OrdensPinturaKanban() {
             setCores(coresData);
             setAtualizadoEm(new Date());
         } catch {
-            setErro("Nao foi possivel carregar as ordens de pintura.");
+            setErro("Não foi possível carregar as ordens de pintura.");
         } finally {
             setLoading(false);
         }
@@ -311,7 +317,7 @@ function OrdensPinturaKanban() {
             setConfirmarExclusaoId(null);
             setAtualizadoEm(new Date());
         } catch {
-            setErro("Nao foi possivel excluir a ordem de pintura.");
+            setErro("Não foi possível excluir a ordem de pintura.");
         }
     }
 
@@ -326,7 +332,7 @@ function OrdensPinturaKanban() {
             setAtualizadoEm(new Date());
         } catch {
             setOrdens((lista) => lista.map((ordem) => ordem.id === id ? atual : ordem));
-            setErro("Nao foi possivel mover a ordem. Tente novamente.");
+            setErro("Não foi possível mover a ordem. Tente novamente.");
         }
     }
 
@@ -354,7 +360,7 @@ function OrdensPinturaKanban() {
                         <strong>Kanban de Ordens de Pintura</strong>
                     </div>
                     <div className="pintura-top-actions">
-                        <button type="button" aria-label="Notificacoes"><FiBell size={18} /><span>2</span></button>
+                        <button type="button" aria-label="Notificações"><FiBell size={18} /><span>2</span></button>
                         <button type="button" aria-label="Ajuda"><FiHelpCircle size={18} /></button>
                     </div>
                 </header>
@@ -375,44 +381,53 @@ function OrdensPinturaKanban() {
                             <input
                                 value={busca}
                                 onChange={(e) => setBusca(e.target.value)}
-                                placeholder="Buscar por pedido, cor ou tecnico..."
+                                placeholder="Buscar por pedido, cor ou técnico..."
                             />
                             <FiSearch size={17} />
                         </label>
                         <button type="button" className="pintura-filter-static"><FiFilter size={16} /> Filtros</button>
-                        <label className="pintura-select">
-                            <span>Tecnico:</span>
-                            <select value={tecnicoFiltro} onChange={(e) => setTecnicoFiltro(e.target.value)}>
-                                <option value="">Todos</option>
-                                {Array.from(new Set(ordens.map((ordem) => ordem.tecnicoNome)))
+                        <Select
+                            variant="filter"
+                            label="Técnico"
+                            icon={<FiUser size={15} />}
+                            value={tecnicoFiltro}
+                            onChange={setTecnicoFiltro}
+                            options={[
+                                { value: "", label: "Todos" },
+                                ...Array.from(new Set(ordens.map((ordem) => ordem.tecnicoNome)))
                                     .filter(Boolean)
                                     .sort((a, b) => a.localeCompare(b))
-                                    .map((tecnico) => <option key={tecnico} value={tecnico}>{tecnico}</option>)}
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
-                        <label className="pintura-select">
-                            <span>Prioridade:</span>
-                            <select value={prioridadeFiltro} onChange={(e) => setPrioridadeFiltro(e.target.value)}>
-                                <option value="">Todas</option>
-                                <option value="ALTA">Alta</option>
-                                <option value="MEDIA">Media</option>
-                                <option value="BAIXA">Baixa</option>
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
-                        <label className="pintura-select">
-                            <span>Data:</span>
-                            <select value={dataFiltro} onChange={(e) => setDataFiltro(e.target.value as FiltroData)}>
-                                <option value="TODAS">Todas</option>
-                                <option value="HOJE">Hoje</option>
-                                <option value="ATRASADAS">Atrasadas</option>
-                            </select>
-                            <FiChevronDown size={14} />
-                        </label>
+                                    .map((tecnico) => ({ value: tecnico, label: tecnico })),
+                            ]}
+                        />
+                        <Select
+                            variant="filter"
+                            label="Prioridade"
+                            icon={<FiFlag size={15} />}
+                            value={prioridadeFiltro}
+                            onChange={setPrioridadeFiltro}
+                            options={[
+                                { value: "", label: "Todas" },
+                                { value: "ALTA", label: "Alta" },
+                                { value: "MEDIA", label: "Média" },
+                                { value: "BAIXA", label: "Baixa" },
+                            ]}
+                        />
+                        <Select
+                            variant="filter"
+                            label="Data"
+                            icon={<FiCalendar size={15} />}
+                            value={dataFiltro}
+                            onChange={(v) => setDataFiltro(v as FiltroData)}
+                            options={[
+                                { value: "TODAS", label: "Todas" },
+                                { value: "HOJE", label: "Hoje" },
+                                { value: "ATRASADAS", label: "Atrasadas" },
+                            ]}
+                        />
                         <div className="pintura-toolbar-spacer" />
                         <span className="pintura-updated">
-                            {atualizadoEm ? "Atualizado agora ha pouco" : "Carregando..."}
+                            {atualizadoEm ? "Atualizado agora há pouco" : "Carregando..."}
                             <button type="button" onClick={carregar} aria-label="Atualizar"><FiRefreshCw size={15} /></button>
                         </span>
                         <div className="pintura-view-toggle">
@@ -479,7 +494,7 @@ function OrdensPinturaKanban() {
                                                             <button
                                                                 type="button"
                                                                 className="pintura-card-menu-btn"
-                                                                aria-label="Acoes da ordem"
+                                                                aria-label="Ações da ordem"
                                                                 onClick={() => {
                                                                     setMenuOrdemId((atual) => atual === ordem.id ? null : ordem.id);
                                                                     setConfirmarExclusaoId(null);
@@ -536,7 +551,7 @@ function OrdensPinturaKanban() {
                                                     </div>
                                                     <div className="pintura-card-footer">
                                                         <div>
-                                                            <span>Tecnico</span>
+                                                            <span>Técnico</span>
                                                             <strong>{ordem.tecnicoNome}</strong>
                                                         </div>
                                                         <div className="pintura-card-tags">

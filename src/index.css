@@ -347,6 +347,71 @@ body {
   font-size: 0.75rem;
 }
 
+/* ===== SELECT (design system) ===== */
+.ui-select {
+  position: relative;
+}
+
+.ui-select-form {
+  width: 100%;
+}
+
+.ui-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--outline-variant);
+  outline: none;
+  background: var(--surface);
+  color: var(--on-background);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ui-select-trigger:hover {
+  border-color: var(--on-surface-variant);
+}
+
+.ui-select-trigger[aria-expanded="true"] {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+}
+
+.ui-select-trigger.is-placeholder .ui-select-value {
+  color: var(--on-surface-variant);
+}
+
+.ui-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-select-form .ui-select-chev {
+  flex-shrink: 0;
+  color: var(--on-surface-variant);
+  transition: transform 0.15s ease;
+}
+
+.ui-select-trigger[aria-expanded="true"] .ui-select-chev {
+  transform: rotate(180deg);
+}
+
+.ui-select-form .ui-select-panel {
+  left: 0;
+  right: 0;
+  min-width: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
 
 /* Inline error message in forms */
 .error {
@@ -1918,23 +1983,6 @@ body {
   gap: 1rem;
 }
 
-.pedido-edit-form .input-group select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--outline-variant);
-  border-radius: var(--radius);
-  outline: none;
-  background: var(--surface);
-  color: var(--on-background);
-  font-family: inherit;
-  font-size: 0.9375rem;
-}
-
-.pedido-edit-form .input-group select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
-}
-
 .pedido-edit-error {
   margin: 0;
   padding: 0.75rem 0.875rem;
@@ -2529,8 +2577,8 @@ html {
 /* ===== KANBAN DE ORDENS DE PINTURA ===== */
 .pintura-page {
   min-height: 100vh;
-  background: #fbfbfc;
-  color: #19191d;
+  background: var(--surface-container-low);
+  color: var(--on-background);
 }
 
 .pintura-topbar {
@@ -2683,16 +2731,15 @@ html {
 .pintura-search svg {
   position: absolute;
   right: 0.85rem;
-  color: #8f929c;
+  color: var(--on-surface-variant);
 }
 
 .pintura-filter-static,
-.pintura-select,
 .pintura-view-toggle {
   min-height: 40px;
   border: 1px solid var(--outline-variant);
   border-radius: 0.55rem;
-  background: #fff;
+  background: var(--surface);
 }
 
 .pintura-filter-static {
@@ -2700,39 +2747,16 @@ html {
   align-items: center;
   gap: 0.45rem;
   padding: 0 0.9rem;
-  color: #545762;
+  color: var(--on-surface-variant);
   font-family: inherit;
   font-size: 0.76rem;
   cursor: default;
 }
 
-.pintura-select {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0 2rem 0 0.75rem;
-  color: #6d7079;
-  white-space: nowrap;
-  font-size: 0.72rem;
-}
-
-.pintura-select select {
-  border: none;
-  outline: none;
-  appearance: none;
-  background: transparent;
-  color: #292b32;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.pintura-select svg {
-  position: absolute;
-  right: 0.65rem;
-  pointer-events: none;
+.pintura-toolbar .ui-select-filter .filtro-action {
+  min-height: 40px;
+  border-radius: 0.55rem;
+  font-size: 0.76rem;
 }
 
 .pintura-toolbar-spacer {
@@ -3083,22 +3107,6 @@ html {
   text-transform: uppercase;
 }
 
-.pintura-order-modal .input-group select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--outline-variant);
-  border-radius: var(--radius);
-  outline: none;
-  background: var(--surface);
-  color: var(--on-background);
-  font-family: inherit;
-  font-size: 0.9rem;
-}
-
-.pintura-order-modal .input-group select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
-}
 
 .pintura-modal-grid {
   display: grid;
@@ -3651,26 +3659,6 @@ html {
   flex: 1;
 }
 
-.cor-modal-select {
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
-  outline: none;
-  background: var(--surface);
-  color: var(--on-background);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
-  width: 100%;
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.cor-modal-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
-}
-
-
 @media (max-width: 768px) {
   .cores-filtros {
     align-items: stretch;
@@ -3849,20 +3837,6 @@ html {
 
 .mistura-select-wrap {
   position: relative;
-}
-
-.mistura-select-wrap .cor-modal-select {
-  width: 100%;
-  padding-right: 2rem;
-}
-
-.mistura-select-chev {
-  position: absolute;
-  right: 0.625rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--on-surface-variant);
-  pointer-events: none;
 }
 
 .mistura-linha-prop {
