@@ -96,7 +96,13 @@ export async function criarPedido(data: PedidoFormData): Promise<Pedido> {
         headers: uploads ? getAuthHeader() : getHeaders(),
         body: uploads ? toFormData(data) : JSON.stringify(data),
     });
-    if (!response.ok) throw new Error("Falha ao criar pedido");
+    if (!response.ok) {
+        const texto = await response.text().catch(() => "");
+        if (response.status === 413 || /maximum upload size|size exceeded|too large/i.test(texto)) {
+            throw new Error("Arquivo muito grande para enviar. Use imagens menores.");
+        }
+        throw new Error("Falha ao criar pedido");
+    }
     return response.json();
 }
 

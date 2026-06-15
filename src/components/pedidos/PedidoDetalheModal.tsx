@@ -21,6 +21,7 @@ import {
 
 import { Pedido, PedidoStatus } from "../../types";
 import Select from "../ui/Select";
+import ImageLightbox from "../ui/ImageLightbox";
 
 const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
@@ -63,6 +64,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
     const [erroEdicao, setErroEdicao] = useState("");
     const [downloading, setDownloading] = useState(false);
     const [downloadError, setDownloadError] = useState("");
+    const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
@@ -237,6 +239,8 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
     }
 
     return (
+        <>
+        {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
                 className={`modal-card pedido-detalhe-modal ${editando ? "is-editing" : ""}`}
@@ -499,16 +503,15 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                             {imagensAtuais.length > 0 ? (
                                 <div className="pedido-imagens-grid">
                                     {imagensAtuais.map((imagem, index) => (
-                                        <a
+                                        <button
                                             key={imagem.id || index}
+                                            type="button"
                                             className="pedido-imagem-link"
-                                            href={imagem.src}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            aria-label={`Abrir imagem ${index + 1}`}
+                                            onClick={() => setZoomSrc(imagem.src)}
+                                            aria-label={`Ampliar imagem ${index + 1}`}
                                         >
                                             <img src={imagem.src} alt={`Referencia ${index + 1} do pedido ${pedido.projeto}`} />
-                                        </a>
+                                        </button>
                                     ))}
                                 </div>
                             ) : (
@@ -519,6 +522,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                 )}
             </section>
         </div>
+        </>
     );
 }
 
