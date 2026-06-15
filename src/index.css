@@ -296,6 +296,93 @@ body {
   padding: 0.5rem 0.875rem;
 }
 
+.img-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.img-preview {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
+}
+
+.img-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: zoom-in;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(31, 26, 30, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.lightbox-img {
+  max-width: min(92vw, 1100px);
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: default;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.img-preview-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(31, 26, 30, 0.7);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.img-preview-remove:hover {
+  background: var(--error-color);
+}
+
 .input-wrapper {
   position: relative;
   display: flex;
@@ -816,7 +903,9 @@ body {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .toolbar-actions {
@@ -1009,7 +1098,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   padding: 1.125rem 1.25rem;
@@ -1120,7 +1209,7 @@ body {
 .pedido-row {
   position: relative;
   min-height: 4.25rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -1514,7 +1603,7 @@ body {
 
 .pedido-row-skeleton {
   height: 66px;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -2165,11 +2254,14 @@ body {
 
 .pedido-imagem-link {
   display: block;
+  width: 100%;
+  padding: 0;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   background: var(--surface-container-lowest);
+  cursor: zoom-in;
 }
 
 .pedido-imagem-link img {
@@ -2254,7 +2346,9 @@ body {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .profile-avatar {
@@ -2273,7 +2367,7 @@ body {
 }
 
 .profile-card {
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   padding: 2rem;
@@ -2322,7 +2416,7 @@ body {
 }
 
 .profile-skeleton {
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   height: 480px;
@@ -2493,14 +2587,8 @@ html {
 }
 
 
-/* Existing dashboard-main still works inside .dashboard-content */
+/* Largura padrao das telas do painel */
 .dashboard-shell .dashboard-main {
-  max-width: 1200px;
-  padding: 2.5rem 2rem;
-}
-
-
-.dashboard-shell .dashboard-main.pedidos-page {
   max-width: 1380px;
   padding: 2.5rem 2.5rem;
 }
@@ -2582,7 +2670,7 @@ html {
 }
 
 .pintura-content {
-  padding: 2rem;
+  padding: 2.5rem 2.5rem;
 }
 
 .pintura-toolbar {
@@ -2689,7 +2777,6 @@ html {
   display: grid;
   grid-template-columns: repeat(6, minmax(185px, 1fr));
   gap: 0.7rem;
-  min-width: 1200px;
   overflow: visible;
 }
 
@@ -3096,7 +3183,9 @@ html {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .pedidos-row-head.material-row,
@@ -3236,7 +3325,7 @@ html {
 
 .cor-card {
   position: relative;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
@@ -3427,7 +3516,7 @@ html {
 
 .cor-row {
   position: relative;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -3488,7 +3577,7 @@ html {
 
 .cor-card-skeleton {
   height: 270px;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -3515,6 +3604,22 @@ html {
   height: 64px;
   border-radius: var(--radius);
   border: 1px solid var(--outline-variant);
+  cursor: pointer;
+}
+
+.cor-modal-swatch-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2px 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: rgba(31, 26, 30, 0.55);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
 }
 
 .cor-modal-color-input {
@@ -3528,6 +3633,31 @@ html {
 
 .cor-modal-hex {
   flex: 1;
+}
+
+.cor-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.875rem;
+}
+
+.cor-preset {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--outline-variant);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.cor-preset:hover {
+  transform: scale(1.12);
+}
+
+.cor-preset.is-active {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
 }
 
 @media (max-width: 768px) {
@@ -4187,7 +4317,7 @@ html {
   flex-direction: column;
   gap: 0.25rem;
   padding: 1.5rem;
-  background: var(--surface-container-lowest);
+  background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);

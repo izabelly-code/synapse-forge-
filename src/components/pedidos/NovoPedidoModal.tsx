@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
 import { criarPedido } from "../../services/PedidoService";
+import ImageLightbox from "../ui/ImageLightbox";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -20,6 +21,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<Erros>({});
     const [erroEnvio, setErroEnvio] = useState("");
+    const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
     const clienteRef = useRef<HTMLInputElement>(null);
     const projetoRef = useRef<HTMLInputElement>(null);
@@ -39,6 +41,29 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
             document.body.style.overflow = overflowAnterior;
         };
     }, [onClose]);
+
+    const previews = useMemo(
+        () => imagensReferencia.map((file) => ({ file, url: URL.createObjectURL(file) })),
+        [imagensReferencia]
+    );
+
+    useEffect(() => {
+        return () => previews.forEach((p) => URL.revokeObjectURL(p.url));
+    }, [previews]);
+
+    function adicionarImagens(novas: FileList | null) {
+        if (!novas) return;
+        const selecionadas = Array.from(novas).filter((f) => f.type.startsWith("image/"));
+        setImagensReferencia((prev) => {
+            const chaves = new Set(prev.map((f) => `${f.name}-${f.size}`));
+            const unicas = selecionadas.filter((f) => !chaves.has(`${f.name}-${f.size}`));
+            return [...prev, ...unicas];
+        });
+    }
+
+    function removerImagem(index: number) {
+        setImagensReferencia((prev) => prev.filter((_, i) => i !== index));
+    }
 
     function limparErro(campo: CampoErro) {
         setErros((prev) => {
@@ -83,14 +108,18 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
             setLoading(true);
             await criarPedido(data);
             onCriado();
-        } catch {
-            setErroEnvio("Erro ao criar pedido. Tente novamente.");
+        } catch (error) {
+            setErroEnvio(error instanceof Error && error.message !== "Falha ao criar pedido"
+                ? error.message
+                : "Erro ao criar pedido. Tente novamente.");
         } finally {
             setLoading(false);
         }
     }
 
     return (
+        <>
+        {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <div
                 className="modal-card"
@@ -169,15 +198,42 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
                     <div className="input-group">
                         <label htmlFor="imagensReferencia">
-                            Upload de imagens de referência
+                            Imagens de referência
                         </label>
                         <input
                             id="imagensReferencia"
                             type="file"
                             accept="image/*"
                             multiple
-                            onChange={(e) => setImagensReferencia(Array.from(e.target.files ?? []))}
+                            onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
                         />
+                        {previews.length > 0 && (
+                            <div className="img-preview-grid">
+                                {previews.map((p, i) => (
+                                    <div key={`${p.file.name}-${p.file.size}-${i}`} className="img-preview">
+                                        <img
+                                            src={p.url}
+                                            alt={p.file.name}
+                                            onClick={() => setZoomSrc(p.url)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => { if (e.key === "Enter") setZoomSrc(p.url); }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="img-preview-remove"
+                                            onClick={() => removerImagem(i)}
+                                            aria-label={`Remover ${p.file.name}`}
+                                        >
+                                            <FiX size={12} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <span className="input-hint">
+                            {previews.length > 0 && `${previews.length} imagem${previews.length > 1 ? "ns" : ""} selecionada${previews.length > 1 ? "s" : ""}`}
+                        </span>
                     </div>
 
                     <div className="input-group">
@@ -209,6 +265,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                 </form>
             </div>
         </div>
+        </>
     );
 }
 

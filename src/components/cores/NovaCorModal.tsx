@@ -10,7 +10,7 @@ interface NovaCorModalProps {
     cor?: Cor;
 }
 
-type CampoErro = "nome" | "fornecedor" | "estoqueMl" | "custoMl";
+type CampoErro = "nome" | "fornecedor" | "estoqueMl" | "custoMl" | "hex";
 type Erros = Partial<Record<CampoErro, string>>;
 
 const ACABAMENTOS: { value: Acabamento; label: string }[] = [
@@ -19,6 +19,25 @@ const ACABAMENTOS: { value: Acabamento; label: string }[] = [
     { value: "METALICO", label: "Metálico" },
     { value: "CETIM", label: "Cetim" },
 ];
+
+const HEX_REGEX = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/;
+
+const CORES_PRESET = [
+    "#FB4A14", "#E63946", "#F4A261", "#E9C46A", "#2A9D8F",
+    "#264653", "#1D3557", "#6D597A", "#000000", "#FFFFFF",
+];
+
+function isHexValido(valor: string): boolean {
+    return HEX_REGEX.test(valor);
+}
+
+function normalizarHex(valor: string): string {
+    const v = valor.trim();
+    if (/^#[0-9A-Fa-f]{3}$/.test(v)) {
+        return `#${v[1]}${v[1]}${v[2]}${v[2]}${v[3]}${v[3]}`.toUpperCase();
+    }
+    return v.toUpperCase();
+}
 
 function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
     const editando = !!cor;
@@ -39,6 +58,9 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
     const fornecedorRef = useRef<HTMLInputElement>(null);
     const estoqueRef = useRef<HTMLInputElement>(null);
     const custoRef = useRef<HTMLInputElement>(null);
+    const hexRef = useRef<HTMLInputElement>(null);
+
+    const hexSeguro = isHexValido(hex) ? normalizarHex(hex) : "#FB4A14";
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -62,9 +84,21 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
         });
     }
 
+    function handleHexChange(valor: string) {
+        const limpo = "#" + valor.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 6);
+        setHex(limpo);
+        limparErro("hex");
+    }
+
+    function selecionarCor(valor: string) {
+        setHex(valor.toUpperCase());
+        limparErro("hex");
+    }
+
     function validar(): Erros {
         const e: Erros = {};
         if (!nome.trim()) e.nome = "Informe o nome da cor.";
+        if (!isHexValido(hex)) e.hex = "Código HEX inválido. Use o formato #RRGGBB.";
         if (!fornecedor.trim()) e.fornecedor = "Informe o fornecedor.";
         if (estoqueMl === "" || Number(estoqueMl) < 0) e.estoqueMl = "Informe um estoque válido.";
         if (custoMl === "" || Number(custoMl) < 0) e.custoMl = "Informe um custo válido.";
@@ -79,6 +113,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
         if (Object.keys(novosErros).length > 0) {
             setErros(novosErros);
             if (novosErros.nome) nomeRef.current?.focus();
+            else if (novosErros.hex) hexRef.current?.focus();
             else if (novosErros.fornecedor) fornecedorRef.current?.focus();
             else if (novosErros.estoqueMl) estoqueRef.current?.focus();
             else if (novosErros.custoMl) custoRef.current?.focus();
@@ -89,7 +124,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
             nome: nome.trim(),
             fornecedor: fornecedor.trim(),
             codigo: codigo.trim() || undefined,
-            hex,
+            hex: normalizarHex(hex),
             acabamento,
             estoqueMl: Number(estoqueMl),
             estoqueMinimoMl: Number(estoqueMinimoMl) || 0,
@@ -131,26 +166,47 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                     {erroEnvio && <p className="error">{erroEnvio}</p>}
 
                     <div className="cor-modal-topo">
-                        <div className="cor-modal-swatch-wrap">
-                            <span className="cor-modal-swatch" style={{ background: hex }} aria-hidden="true" />
+                        <div className="cor-modal-swatch-wrap" title="Clique para escolher a cor">
+                            <span className="cor-modal-swatch" style={{ background: hexSeguro }} aria-hidden="true" />
+                            <span className="cor-modal-swatch-hint">Escolher</span>
                             <input
                                 type="color"
                                 className="cor-modal-color-input"
-                                value={hex}
-                                onChange={(e) => setHex(e.target.value)}
-                                aria-label="Selecionar cor"
+                                value={hexSeguro.toLowerCase()}
+                                onChange={(e) => selecionarCor(e.target.value)}
+                                aria-label="Selecionar cor com a roda de cores"
                             />
                         </div>
                         <div className="input-group cor-modal-hex">
                             <label htmlFor="hex">Cor (HEX)</label>
                             <input
                                 id="hex"
+                                ref={hexRef}
+                                className={erros.hex ? "input-error" : ""}
                                 value={hex}
-                                onChange={(e) => setHex(e.target.value)}
+                                onChange={(e) => handleHexChange(e.target.value)}
                                 placeholder="#FB4A14"
+                                maxLength={7}
+                                spellCheck={false}
+                                aria-invalid={!!erros.hex}
                             />
-                            <span className="input-hint" />
+                            <span className="input-hint">
+                                {erros.hex && <span className="error-text">{erros.hex}</span>}
+                            </span>
                         </div>
+                    </div>
+
+                    <div className="cor-presets" role="group" aria-label="Cores predefinidas">
+                        {CORES_PRESET.map((c) => (
+                            <button
+                                key={c}
+                                type="button"
+                                className={`cor-preset ${hexSeguro === c ? "is-active" : ""}`}
+                                style={{ background: c }}
+                                onClick={() => selecionarCor(c)}
+                                aria-label={`Usar a cor ${c}`}
+                            />
+                        ))}
                     </div>
 
                     <div className="input-group">
