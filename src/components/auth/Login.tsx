@@ -147,8 +147,8 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                                 aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
                             >
                                 {showSenha
-                                    ? <FiEyeOff className="text-gray-700" />
-                                    : <FiEye className="text-gray-700" />}
+                                    ? <FiEyeOff />
+                                    : <FiEye />}
                             </button>
                         </div>
 
