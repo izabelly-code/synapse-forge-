@@ -13,7 +13,7 @@
   font-weight: 600;
   background: var(--error-container);
   color: var(--error-color);
-  border: 1px solid rgba(179, 38, 30, 0.15);
+  border: 1px solid color-mix(in srgb, var(--color-error) 15%, transparent);
 }
 
 .calendar-layout {
@@ -154,8 +154,8 @@
 }
 
 .calendar-day.today {
-  border-color: rgba(251, 74, 20, 0.35);
-  background: rgba(251, 74, 20, 0.08);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .calendar-day.selected {
