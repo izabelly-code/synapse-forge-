@@ -2773,7 +2773,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: 0.55rem;
   outline: none;
-  background: #fff;
+  background: var(--surface);
   color: var(--on-surface);
   font-family: inherit;
   font-size: 0.78rem;
@@ -2818,7 +2818,7 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #92949c;
+  color: var(--color-text-subtle);
   white-space: nowrap;
   font-size: 0.68rem;
 }
@@ -2828,7 +2828,7 @@ html {
   place-items: center;
   border: none;
   background: transparent;
-  color: #8a8d96;
+  color: var(--color-text-subtle);
   cursor: pointer;
 }
 
@@ -2844,11 +2844,11 @@ html {
   border: none;
   border-radius: 0.4rem;
   background: transparent;
-  color: #8b8e97;
+  color: var(--color-text-subtle);
 }
 
 .pintura-view-toggle button.active {
-  background: #fff1eb;
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
   color: var(--primary);
 }
 
@@ -2868,13 +2868,13 @@ html {
   overflow: hidden;
   border: 1px solid var(--outline-variant);
   border-radius: 0.75rem;
-  background: #fafafa;
+  background: var(--surface-container-lowest);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .pintura-column.is-drop-target {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .pintura-column > header {
@@ -2898,18 +2898,18 @@ html {
   height: 20px;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  color: #6b6e77;
+  background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+  color: var(--color-text-subtle);
   font-size: 0.63rem;
   font-weight: 700;
 }
 
-.tone-waiting > header { background: #f3f3f5; color: #44464f; }
-.tone-mixing > header { background: #eef6ff; color: #2f69a7; }
-.tone-painting > header { background: #fff6df; color: #b87112; }
-.tone-drying > header { background: #f6efff; color: #8052aa; }
-.tone-done > header { background: #eef9f0; color: #3b8a4d; }
-.tone-rework > header { background: #fff0f0; color: #d34949; }
+.tone-waiting > header { background: #f3f3f5; color: var(--color-text-muted); }
+.tone-mixing > header { background: color-mix(in srgb, var(--color-info) 8%, var(--color-surface)); color: var(--color-info); }
+.tone-painting > header { background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface)); color: var(--color-warning); }
+.tone-drying > header { background: color-mix(in srgb, var(--color-violet) 8%, var(--color-surface)); color: var(--color-violet); }
+.tone-done > header { background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface)); color: var(--color-success); }
+.tone-rework > header { background: color-mix(in srgb, var(--color-error) 8%, var(--color-surface)); color: var(--color-error); }
 
 .pintura-column-body {
   display: flex;
@@ -2921,17 +2921,17 @@ html {
 
 .pintura-card {
   padding: 0.78rem;
-  border: 1px solid rgba(67, 70, 86, 0.12);
+  border: 1px solid var(--color-border);
   border-radius: 0.65rem;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(24, 25, 30, 0.035);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   cursor: grab;
   user-select: none;
   transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .pintura-card:hover {
-  box-shadow: 0 5px 16px rgba(24, 25, 30, 0.08);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -2944,7 +2944,7 @@ html {
 }
 
 .pintura-card-ref {
-  color: #24252b;
+  color: var(--color-text);
   font-size: 0.76rem;
 }
 
@@ -2969,7 +2969,7 @@ html {
   border: none;
   border-radius: 0.4rem;
   background: transparent;
-  color: #8b8e97;
+  color: var(--color-text-subtle);
   cursor: pointer;
 }
 
@@ -2990,7 +2990,7 @@ html {
   padding: 0.35rem;
   border: 1px solid var(--outline-variant);
   border-radius: 0.55rem;
-  background: #fff;
+  background: var(--surface);
   box-shadow: var(--shadow-md);
 }
 
@@ -3004,7 +3004,7 @@ html {
   border: none;
   border-radius: 0.4rem;
   background: transparent;
-  color: #4b4d55;
+  color: var(--color-text-muted);
   cursor: pointer;
   font-family: inherit;
   font-size: 0.72rem;
@@ -3022,7 +3022,7 @@ html {
 
 .pintura-card-menu > span {
   padding: 0.35rem 0.4rem;
-  color: #55575f;
+  color: var(--color-text-muted);
   font-size: 0.68rem;
   font-weight: 600;
 }
@@ -3064,7 +3064,7 @@ html {
 
 .pintura-card-color strong {
   overflow: hidden;
-  color: #34353b;
+  color: var(--color-text);
   font-size: 0.68rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3072,7 +3072,7 @@ html {
 
 .pintura-card-color small {
   overflow: hidden;
-  color: #94969e;
+  color: var(--color-text-subtle);
   font-size: 0.58rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3093,13 +3093,13 @@ html {
 }
 
 .pintura-card-footer > div:first-child span {
-  color: #9a9ca4;
+  color: var(--color-text-subtle);
   font-size: 0.55rem;
 }
 
 .pintura-card-footer > div:first-child strong {
   overflow: hidden;
-  color: #55575f;
+  color: var(--color-text-muted);
   font-size: 0.61rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3125,13 +3125,13 @@ html {
 }
 
 .pintura-date-tag {
-  background: #fff3ea;
-  color: #ef762c;
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+  color: var(--color-primary);
 }
 
-.prioridade-alta { background: #ffeded; color: #e64b4b; }
-.prioridade-media { background: #fff6dc; color: #bd851e; }
-.prioridade-baixa { background: #eaf7ed; color: #45945a; }
+.prioridade-alta { background: color-mix(in srgb, var(--color-error) 8%, var(--color-surface)); color: var(--color-error); }
+.prioridade-media { background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface)); color: var(--color-warning); }
+.prioridade-baixa { background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface)); color: var(--color-success); }
 
 .pintura-loading {
   display: grid;
@@ -3139,8 +3139,8 @@ html {
   min-height: 420px;
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  background: #fff;
-  color: #777a84;
+  background: var(--surface);
+  color: var(--color-text-subtle);
 }
 
 .pintura-order-modal {
@@ -3442,7 +3442,7 @@ html {
   bottom: 0.75rem;
   padding: 0.1875rem 0.5rem;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.85);
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   font-size: 0.6875rem;
@@ -3458,7 +3458,7 @@ html {
 }
 
 .cor-card-kebab .kebab-btn {
-  background: rgba(255, 255, 255, 0.85);
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: var(--on-surface);
@@ -3472,7 +3472,7 @@ html {
 }
 
 .cor-card-kebab .kebab-btn:hover {
-  background: #fff;
+  background: var(--surface);
 }
 
 .cor-card-body {
@@ -3693,7 +3693,7 @@ html {
   bottom: 0;
   padding: 2px 0;
   border-radius: 0 0 var(--radius) var(--radius);
-  background: rgba(31, 26, 30, 0.55);
+  background: var(--scrim-strong);
   color: var(--on-primary);
   font-size: 0.625rem;
   font-weight: 600;
