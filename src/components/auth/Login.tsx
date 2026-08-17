@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { login } from "../../services/AuthService";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import logo from "../../assets/Images/white-logo.png";
@@ -10,6 +11,8 @@ interface LoginProps {
 }
 
 function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
+
+    const { t, i18n } = useTranslation();
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -43,19 +46,19 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
         setErro("");
 
         if (!email) {
-            setErro("Digite seu email.");
+            setErro(t("login.errorEmailRequired"));
             emailRef.current?.focus();
             return;
         }
 
         if (!validarEmail(email)) {
-            setErro("Email inválido.");
+            setErro(t("login.errorEmailInvalid"));
             emailRef.current?.focus();
             return;
         }
 
         if (!senha) {
-            setErro("Digite sua senha.");
+            setErro(t("login.errorPasswordRequired"));
             senhaRef.current?.focus();
             return;
         }
@@ -70,12 +73,12 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
         } catch (error) {
             const msg = error instanceof Error ? error.message : "";
             if (msg === "EMAIL_NAO_CONFIRMADO") {
-                setErro("Confirme seu email antes de entrar. Verifique sua caixa de entrada.");
+                setErro(t("login.errorEmailNotConfirmed"));
             } else if (msg.startsWith("CONTA_BLOQUEADA")) {
                 const minutos = Number(msg.split(":")[1]) || 15;
-                setErro(`Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em ${minutos} minuto${minutos > 1 ? "s" : ""} ou redefina sua senha.`);
+                setErro(t("login.errorAccountLocked", { count: minutos }));
             } else {
-                setErro("Não foi possível entrar. Verifique seus dados.");
+                setErro(t("login.errorGeneric"));
             }
             senhaRef.current?.focus();
         } finally {
@@ -90,11 +93,11 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             <div className="left-side">
                 <div className="left-overlay"></div>
 
-                <img src={logo} alt="Logo SynapseForge" className="logo" />
+                <img src={logo} alt={t("login.logoAlt")} className="logo" />
 
                 <div className="left-content">
-                    <h1>Bem-vindo a Synapse Forge!</h1>
-                    <p>Gerencie sua conta de forma simples e segura.</p>
+                    <h1>{t("login.welcomeTitle")}</h1>
+                    <p>{t("login.welcomeSubtitle")}</p>
                 </div>
             </div>
 
@@ -102,38 +105,57 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             <div className="right-side">
                 <form className="card" onSubmit={handleLogin}>
 
-                    <h2>Login</h2>
+                    {/* IDIOMA */}
+                    <div className="lang-switch" role="group" aria-label="Idioma / Language">
+                        <button
+                            type="button"
+                            className={i18n.language === "pt-BR" ? "active" : ""}
+                            onClick={() => i18n.changeLanguage("pt-BR")}
+                        >
+                            PT
+                        </button>
+                        <span aria-hidden="true">|</span>
+                        <button
+                            type="button"
+                            className={i18n.language === "en-US" ? "active" : ""}
+                            onClick={() => i18n.changeLanguage("en-US")}
+                        >
+                            EN
+                        </button>
+                    </div>
+
+                    <h2>{t("login.title")}</h2>
 
                     {/* ERRO */}
                     {erro && <p className="error">{erro}</p>}
 
                     {/* EMAIL */}
                     <div className="input-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">{t("login.emailLabel")}</label>
                         <input
                             ref={emailRef}
                             id="email"
                             type="email"
-                            placeholder="Digite seu email"
+                            placeholder={t("login.emailPlaceholder")}
                             value={email}
                             onChange={(e) => handleEmailChange(e.target.value)}
                             className={!emailValido ? "input-error" : ""}
                         />
                         {!emailValido && (
-                            <span className="error-text">Email inválido</span>
+                            <span className="error-text">{t("login.emailInvalid")}</span>
                         )}
                     </div>
 
                     {/* SENHA */}
                     <div className="input-group">
-                        <label htmlFor="senha">Senha</label>
+                        <label htmlFor="senha">{t("login.passwordLabel")}</label>
 
                         <div className="input-wrapper">
                             <input
                                 ref={senhaRef}
                                 id="senha"
                                 type={showSenha ? "text" : "password"}
-                                placeholder="Digite sua senha"
+                                placeholder={t("login.passwordPlaceholder")}
                                 value={senha}
                                 onChange={(e) => setSenha(e.target.value)}
                                 onKeyUp={handleCapsLock}
@@ -144,7 +166,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                                 type="button"
                                 className="input-icon"
                                 onClick={() => setShowSenha(!showSenha)}
-                                aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
+                                aria-label={showSenha ? t("login.hidePassword") : t("login.showPassword")}
                             >
                                 {showSenha
                                     ? <FiEyeOff />
@@ -153,7 +175,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                         </div>
 
                         {capsLock && (
-                            <span className="warning-text">Caps Lock ativado</span>
+                            <span className="warning-text">{t("login.capsLock")}</span>
                         )}
                     </div>
 
@@ -163,7 +185,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                         type="submit"
                         disabled={loading}
                     >
-                        {loading ? "Entrando..." : "Entrar"}
+                        {loading ? t("login.submitting") : t("login.submit")}
                     </button>
 
                     {/* LINKS */}
@@ -172,7 +194,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                         className="register-link"
                         onClick={goToRegister}
                     >
-                        Não tem conta? Cadastre-se
+                        {t("login.registerLink")}
                     </button>
 
                     <button
@@ -180,7 +202,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                         className="forgot-password-link"
                         onClick={goToRecovery}
                     >
-                        Esqueci minha senha
+                        {t("login.forgotPassword")}
                     </button>
 
                 </form>
