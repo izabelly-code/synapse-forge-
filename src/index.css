@@ -23,6 +23,9 @@
   --color-success: #1a7f3c;
   --color-warning: #b87112;
   --color-error: #B3261E;
+  --color-text-subtle: #8b8e97;  /* texto terciário (metadados, timestamps) */
+  --color-info: #2f69a7;         /* categoria informativa (kanban: misturando) */
+  --color-violet: #8052aa;       /* categoria neutra-destaque (kanban: secando) */
 
   /* Derivados */
   --focus-ring: color-mix(in srgb, var(--color-primary) 12%, transparent);
@@ -109,6 +112,9 @@
   --color-success: #4cc38a;
   --color-warning: #d9a054;
   --color-error: #ff6369;
+  --color-text-subtle: #7d808d;
+  --color-info: #6ea3dc;
+  --color-violet: #b08ae0;
 
   --scrim: rgba(0, 0, 0, 0.6);
   --scrim-strong: rgba(0, 0, 0, 0.85);
@@ -446,7 +452,7 @@ body {
   height: 18px;
   border: none;
   border-radius: 50%;
-  background: rgba(31, 26, 30, 0.7);
+  background: var(--scrim-strong);
   color: #fff;
   cursor: pointer;
   padding: 0;
@@ -1515,7 +1521,7 @@ body {
 }
 
 .step-check {
-  color: #fff;
+  color: var(--on-primary);
   opacity: 0;
   transform: scale(0);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -1542,7 +1548,7 @@ body {
   letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
-  color: rgba(67, 70, 86, 0.4);
+  color: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
 }
 
 .step.done .step-label { color: var(--on-surface-variant); }
@@ -2044,7 +2050,7 @@ body {
   width: 42px;
   height: 42px;
   border-radius: var(--radius);
-  background: rgba(251, 74, 20, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
   color: var(--primary);
 }
 
@@ -2183,7 +2189,7 @@ body {
 .pedido-upload-btn {
   width: fit-content;
   padding: 0.6rem 0.8rem;
-  background: rgba(251, 74, 20, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
   color: var(--primary);
 }
 
@@ -2203,7 +2209,7 @@ body {
 }
 
 .pedido-edit-file.is-new {
-  border-color: rgba(251, 74, 20, 0.35);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
 .pedido-edit-file > div {
@@ -2277,7 +2283,7 @@ body {
 }
 
 .pedido-edit-image.is-new {
-  border-color: rgba(251, 74, 20, 0.4);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .pedido-edit-image > span {
@@ -2480,7 +2486,7 @@ body {
 }
 
 .profile-email-pendente {
-  background: rgba(251, 74, 20, 0.08);
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
   border-radius: var(--radius);
   padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
