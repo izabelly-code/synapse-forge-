@@ -1,0 +1,27 @@
+{
+    "login": {
+        "welcomeTitle": "Bem-vindo a Synapse Forge!",
+        "welcomeSubtitle": "Gerencie sua conta de forma simples e segura.",
+        "logoAlt": "Logo SynapseForge",
+        "title": "Login",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Digite seu email",
+        "emailInvalid": "Email inválido",
+        "passwordLabel": "Senha",
+        "passwordPlaceholder": "Digite sua senha",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha",
+        "capsLock": "Caps Lock ativado",
+        "submit": "Entrar",
+        "submitting": "Entrando...",
+        "registerLink": "Não tem conta? Cadastre-se",
+        "forgotPassword": "Esqueci minha senha",
+        "errorEmailRequired": "Digite seu email.",
+        "errorEmailInvalid": "Email inválido.",
+        "errorPasswordRequired": "Digite sua senha.",
+        "errorEmailNotConfirmed": "Confirme seu email antes de entrar. Verifique sua caixa de entrada.",
+        "errorAccountLocked_one": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minuto ou redefina sua senha.",
+        "errorAccountLocked_other": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minutos ou redefina sua senha.",
+        "errorGeneric": "Não foi possível entrar. Verifique seus dados."
+    }
+}
