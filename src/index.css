@@ -1,11 +1,36 @@
 @import "tailwindcss";
 
+/* Variante dark por classe (aplicada em <html class="dark"> pelo ThemeContext) */
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* ===== DESIGN TOKENS ===== */
+
+/* ===== DESIGN TOKENS =====
+   Camada semântica (--color-*): fonte de verdade dos temas claro/escuro.
+   Os tokens legados (padrão M3) abaixo são aliases mantidos por
+   compatibilidade — todo o CSS existente continua funcionando e passa a
+   responder ao tema automaticamente. */
 :root {
+  color-scheme: light;
+
+  /* Semânticos — tema claro */
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f2f6;
+  --color-border: rgba(67, 70, 86, 0.15);
+  --color-text: #1F1A1E;
+  --color-text-muted: #434656;
+  --color-primary: #FB4A14;      /* laranja da marca */
+  --color-success: #1a7f3c;
+  --color-warning: #b87112;
+  --color-error: #B3261E;
+
+  /* Derivados */
+  --focus-ring: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --scrim: rgba(31, 26, 30, 0.4);
+  --scrim-strong: rgba(31, 26, 30, 0.82);
 
   /* Brand — laranja da logo, cor primária de todas as ações */
-  --primary: #FB4A14;
+  --primary: var(--color-primary);
   --primary-dark: #e04310;
   --secondary: #ae2b00;
   --secondary-fixed: #FFDBD1;
@@ -13,34 +38,36 @@
 
 
   /* Aliases para compatibilidade interna */
-  --brand: #FB4A14;
-  --brand-dark: #e04310;
+  --brand: var(--color-primary);
+  --brand-dark: var(--primary-dark);
 
 
   /* Surfaces — tonal layering, no hard borders */
-  --background: #ffffff;
-  --surface: #ffffff;
+  --background: var(--color-bg);
+  --surface: var(--color-surface);
   --surface-container-lowest: #f8f8fa;
-  --surface-container-low: #f2f2f6;
+  --surface-container-low: var(--color-surface-2);
   --surface-container: #ebebf0;
   --surface-container-high: #e4e4ea;
 
 
   /* Text */
-  --on-background: #1F1A1E;
-  --on-surface: #1F1A1E;
-  --on-surface-variant: #434656;
+  --on-background: var(--color-text);
+  --on-surface: var(--color-text);
+  --on-surface-variant: var(--color-text-muted);
 
 
   /* Ghost border — "felt, not seen" */
-  --outline-variant: rgba(67, 70, 86, 0.15);
+  --outline-variant: var(--color-border);
 
 
   /* Status */
-  --error-color: #B3261E;
-  --error-container: rgba(179, 38, 30, 0.08);
-  --success-color: #1a7f3c;
-  --success-container: rgba(26, 127, 60, 0.08);
+  --error-color: var(--color-error);
+  --error-container: color-mix(in srgb, var(--color-error) 8%, transparent);
+  --success-color: var(--color-success);
+  --success-container: color-mix(in srgb, var(--color-success) 8%, transparent);
+  --warning-color: var(--color-warning);
+  --warning-container: color-mix(in srgb, var(--color-warning) 12%, transparent);
 
 
   /* Elevation */
@@ -62,6 +89,52 @@
 
 
   --radius: 0.75rem;
+}
+
+
+/* ===== TEMA ESCURO =====
+   Aplicado via classe .dark no <html> (ThemeContext). Apenas os tokens
+   com valor próprio precisam ser redefinidos — os aliases seguem junto. */
+.dark {
+  color-scheme: dark;
+
+  /* Semânticos — tema escuro */
+  --color-bg: #131317;
+  --color-surface: #1c1c21;
+  --color-surface-2: #26262d;
+  --color-border: rgba(228, 228, 234, 0.14);
+  --color-text: #ececf1;
+  --color-text-muted: #a4a7b5;
+  /* --color-primary mantido: laranja da marca é idêntico nos dois temas */
+  --color-success: #4cc38a;
+  --color-warning: #d9a054;
+  --color-error: #ff6369;
+
+  --scrim: rgba(0, 0, 0, 0.6);
+  --scrim-strong: rgba(0, 0, 0, 0.85);
+
+  /* Legados com valor próprio */
+  --primary-dark: #ff6a3d;             /* hover clareia (em fundo escuro, escurecer some) */
+  --secondary: #ff8f6b;
+  --secondary-fixed: #48200f;
+  --surface-container-lowest: #17171c;
+  --surface-container: #2b2b32;
+  --surface-container-high: #34343c;
+
+  /* Sombras um pouco mais fortes para leitura em fundo escuro */
+  --shadow-sm:
+    0 1px 1px -0.5px rgba(0, 0, 0, 0.2),
+    0 3px 3px -1.5px rgba(0, 0, 0, 0.2);
+  --shadow:
+    0 1px 1px -0.5px rgba(0, 0, 0, 0.2),
+    0 3px 3px -1.5px rgba(0, 0, 0, 0.2),
+    0 6px 6px -3px rgba(0, 0, 0, 0.2),
+    0 12px 12px -6px rgba(0, 0, 0, 0.2),
+    0 24px 24px -12px rgba(0, 0, 0, 0.2);
+  --shadow-md:
+    0 1px 2px -0.5px rgba(0, 0, 0, 0.25),
+    0 3px 4px -1.5px rgba(0, 0, 0, 0.25),
+    0 6px 8px -3px rgba(0, 0, 0, 0.25);
 }
 
 
@@ -276,7 +349,7 @@ body {
 
 .input-group input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .input-group input[type="file"] {
@@ -329,7 +402,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: rgba(31, 26, 30, 0.82);
+  background: var(--scrim-strong);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -404,7 +477,7 @@ body {
 
 .input-wrapper input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .input-icon {
@@ -468,7 +541,7 @@ body {
 
 .ui-select-trigger[aria-expanded="true"] {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .ui-select-trigger.is-placeholder .ui-select-value {
@@ -562,7 +635,7 @@ body {
 
 .button:hover:not(:disabled) {
   filter: brightness(0.9);
-  box-shadow: 0 2px 8px rgba(251, 74, 20, 0.2);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .button:active:not(:disabled) {
@@ -804,7 +877,7 @@ body {
 }
 
 .filtro-btn.filtro-ativo .filtro-count {
-  background: rgba(251, 74, 20, 0.12);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   color: var(--primary);
 }
 
@@ -942,7 +1015,7 @@ body {
 
 .pedidos-search input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .search-kbd {
@@ -991,7 +1064,7 @@ body {
   padding: 0 0.25rem;
   border-radius: var(--radius);
   background: var(--error-color);
-  color: #fff;
+  color: var(--on-primary);
   font-size: 0.625rem;
   font-weight: 700;
   display: flex;
@@ -1116,8 +1189,8 @@ body {
 }
 
 .stat-neutral { background: var(--surface-container); color: var(--on-surface); }
-.stat-brand   { background: rgba(251, 74, 20, 0.12); color: var(--primary); }
-.stat-warn    { background: rgba(174, 43, 0, 0.12); color: var(--secondary); }
+.stat-brand   { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--primary); }
+.stat-warn    { background: var(--warning-container); color: var(--warning-color); }
 .stat-danger  { background: var(--error-container); color: var(--error-color); }
 .stat-success { background: var(--success-container); color: var(--success-color); }
 
@@ -1703,7 +1776,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(31, 26, 30, 0.4);
+  background: var(--scrim);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
@@ -1803,7 +1876,7 @@ body {
 
 .input-group textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .label-opcional {
@@ -2025,7 +2098,7 @@ body {
 
 .pedido-download-error {
   margin: 0.625rem 0 0;
-  color: var(--error, #b3261e);
+  color: var(--error-color);
   font-size: 0.82rem;
 }
 
@@ -2229,7 +2302,7 @@ body {
   padding: 0.4rem 0.55rem;
   border: none;
   border-radius: var(--radius);
-  background: rgba(31, 26, 30, 0.82);
+  background: var(--scrim-strong);
   color: #fff;
   cursor: pointer;
   font-size: 0.72rem;
@@ -3291,7 +3364,7 @@ html {
 
 .cores-search input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .cores-filtros .cores-filtros-left {
@@ -3615,7 +3688,7 @@ html {
   padding: 2px 0;
   border-radius: 0 0 var(--radius) var(--radius);
   background: rgba(31, 26, 30, 0.55);
-  color: #fff;
+  color: var(--on-primary);
   font-size: 0.625rem;
   font-weight: 600;
   text-align: center;

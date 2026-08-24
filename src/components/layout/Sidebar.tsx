@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign } from "react-icons/fi";
+import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon } from "react-icons/fi";
 import { getUserById } from "../../services/UserService";
-import logo from "../../assets/Images/black-logo.png";
+import { useTheme } from "../../contexts/ThemeContext";
+import logoDark from "../../assets/Images/black-logo.png";
+import logoLight from "../../assets/Images/white-logo.png";
 
 interface NavItem {
     label: string;
@@ -24,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { theme, toggleTheme } = useTheme();
 
     const [nome, setNome] = useState(() => localStorage.getItem("userNome") ?? "");
     const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
@@ -59,7 +62,7 @@ function Sidebar() {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <img src={logo} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
+                <img src={theme === "dark" ? logoLight : logoDark} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
             </div>
 
             <div className="sidebar-user">
@@ -86,6 +89,16 @@ function Sidebar() {
                     );
                 })}
             </nav>
+
+            <button
+                type="button"
+                className="sidebar-nav-item sidebar-theme-toggle"
+                onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+            >
+                <span className="sidebar-nav-icon">{theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}</span>
+                <span>{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
+            </button>
 
             <button type="button" className="sidebar-logout" onClick={handleLogout}>
                 <span className="sidebar-nav-icon"><FiLogOut size={18} /></span>
