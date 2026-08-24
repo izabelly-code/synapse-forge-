@@ -189,11 +189,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} />, tone: "neutral" },
-        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} />, tone: "brand" },
-        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} />, tone: "warn" },
-        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} />, tone: "danger" },
-        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={20} />, tone: "neutral" },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={20} />, tone: "brand" },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={20} />, tone: "warn" },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={20} />, tone: "danger" },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={20} />, tone: "success" },
     ];
 
     async function handleDeletar(id: string) {
@@ -290,7 +290,7 @@ function PedidosDashboard() {
                                 aria-label={t("pedidos.dashboard.notificationsAria")}
                                 aria-expanded={notifAberto}
                             >
-                                <Notification03Icon size={18} />
+                                <Notification03Icon size={20} />
                                 {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
                             </button>
 
@@ -386,9 +386,9 @@ function PedidosDashboard() {
                                 aria-expanded={menuAberto === "periodo"}
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
                             >
-                                <Calendar03Icon size={15} />
+                                <Calendar03Icon size={16} />
                                 {t(PERIODO_I18N[periodo])}
-                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={16} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "periodo" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -402,7 +402,7 @@ function PedidosDashboard() {
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
                                             {t(PERIODO_I18N[k])}
-                                            {periodo === k && <Tick02Icon size={15} />}
+                                            {periodo === k && <Tick02Icon size={16} />}
                                         </button>
                                     ))}
                                 </div>
@@ -417,7 +417,7 @@ function PedidosDashboard() {
                                 aria-expanded={menuAberto === "filtros"}
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
                             >
-                                <FilterIcon size={15} />
+                                <FilterIcon size={16} />
                                 {t("pedidos.dashboard.filtersButton")}
                             </button>
                             {menuAberto === "filtros" && (
@@ -432,7 +432,7 @@ function PedidosDashboard() {
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {t(ORDENACAO_I18N[k])}
-                                            {ordenacao === k && <Tick02Icon size={15} />}
+                                            {ordenacao === k && <Tick02Icon size={16} />}
                                         </button>
                                     ))}
                                 </div>
@@ -451,7 +451,7 @@ function PedidosDashboard() {
                     </div>
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                        <span className="pedidos-empty-icon"><InboxIcon size={24} /></span>
                         <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
                         <p className="empty-sub">
                             {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
