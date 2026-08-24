@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiPlus, FiTrash2, FiRotateCcw, FiCopy, FiCheck, FiCheckCircle,
-    FiAlertCircle, FiSave, FiDroplet, FiChevronDown,
-} from "react-icons/fi";
+import { Add01Icon, AlertCircleIcon, ArrowDown01Icon, CheckmarkCircle02Icon, Copy01Icon, Delete02Icon, DropletIcon, FloppyDiskIcon, RotateLeft01Icon, Tick02Icon } from "hugeicons-react";
 import { getCores } from "../../services/CorService";
 import { criarMistura } from "../../services/MisturaService";
 import { getCached, setCached } from "../../services/cache";
@@ -186,7 +183,7 @@ function CalculadoraMistura() {
                             <div className="mistura-card-acoes">
                                 {linhas.length > 0 && (
                                     <button type="button" className="btn-secondary mistura-btn-limpar" onClick={limparTudo}>
-                                        <FiRotateCcw size={15} />
+                                        <RotateLeft01Icon size={15} />
                                         Limpar tudo
                                     </button>
                                 )}
@@ -196,7 +193,7 @@ function CalculadoraMistura() {
                                     onClick={adicionarLinha}
                                     disabled={cores.length === 0 || linhas.length >= cores.length}
                                 >
-                                    <FiPlus size={16} />
+                                    <Add01Icon size={16} />
                                     Adicionar cor
                                 </button>
                             </div>
@@ -204,7 +201,7 @@ function CalculadoraMistura() {
 
                         {linhas.length === 0 ? (
                             <div className="pedidos-empty mistura-empty">
-                                <span className="pedidos-empty-icon"><FiDroplet size={28} /></span>
+                                <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
                                 <p className="empty-title">Nenhuma cor na mistura</p>
                                 <p className="empty-sub">
                                     {cores.length === 0
@@ -268,7 +265,7 @@ function CalculadoraMistura() {
                                                     onClick={() => removerLinha(linha.key)}
                                                     aria-label="Remover cor da mistura"
                                                 >
-                                                    <FiTrash2 size={16} />
+                                                    <Delete02Icon size={16} />
                                                 </button>
                                             </div>
                                         );
@@ -279,7 +276,7 @@ function CalculadoraMistura() {
                                     <span className="mistura-total-label">Total</span>
                                     <span className="mistura-total-valor">
                                         {total.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
-                                        {totalOk ? <FiCheckCircle size={17} /> : <FiAlertCircle size={17} />}
+                                        {totalOk ? <CheckmarkCircle02Icon size={17} /> : <AlertCircleIcon size={17} />}
                                     </span>
                                     <span className="mistura-total-dica">A soma das proporções deve ser 100%.</span>
                                 </div>
@@ -308,7 +305,7 @@ function CalculadoraMistura() {
                                     <strong>{hexResultado ?? "—"}</strong>
                                     {hexResultado && (
                                         <button type="button" onClick={() => copiar(hexResultado, "hex")} aria-label="Copiar HEX">
-                                            {copiado === "hex" ? <FiCheck size={15} /> : <FiCopy size={15} />}
+                                            {copiado === "hex" ? <Tick02Icon size={15} /> : <Copy01Icon size={15} />}
                                         </button>
                                     )}
                                 </div>
@@ -319,7 +316,7 @@ function CalculadoraMistura() {
                                     <strong>{rgbResultado ?? "—"}</strong>
                                     {rgbResultado && (
                                         <button type="button" onClick={() => copiar(rgbResultado, "rgb")} aria-label="Copiar RGB">
-                                            {copiado === "rgb" ? <FiCheck size={15} /> : <FiCopy size={15} />}
+                                            {copiado === "rgb" ? <Tick02Icon size={15} /> : <Copy01Icon size={15} />}
                                         </button>
                                     )}
                                 </div>
@@ -339,7 +336,7 @@ function CalculadoraMistura() {
                                         onClick={() => setVolumeMenuAberto((aberto) => !aberto)}
                                     >
                                         {formatarMl(volumeMl)}
-                                        <FiChevronDown size={15} className="filtro-action-chev" />
+                                        <ArrowDown01Icon size={15} className="filtro-action-chev" />
                                     </button>
                                     {volumeMenuAberto && (
                                         <div className="filtro-dropdown" role="menu">
@@ -353,7 +350,7 @@ function CalculadoraMistura() {
                                                     onClick={() => { setVolumeMl(v); setSalvoMsg(""); setVolumeMenuAberto(false); }}
                                                 >
                                                     {formatarMl(v)}
-                                                    {volumeMl === v && <FiCheck size={15} />}
+                                                    {volumeMl === v && <Tick02Icon size={15} />}
                                                 </button>
                                             ))}
                                         </div>
@@ -374,7 +371,7 @@ function CalculadoraMistura() {
                             disabled={!podeSalvar}
                             onClick={handleSalvar}
                         >
-                            <FiSave size={16} />
+                            <FloppyDiskIcon size={16} />
                             {salvando ? "Salvando..." : "Salvar fórmula"}
                         </button>
                     </div>

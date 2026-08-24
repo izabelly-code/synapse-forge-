@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiInbox } from "react-icons/fi";
+import { InboxIcon } from "hugeicons-react";
 import { getOrcamentos } from "../../services/OrcamentoService";
 import { Orcamento } from "../../models/Orcamento";
 
@@ -59,7 +59,7 @@ function OrcamentoHistorico() {
                 </div>
             ) : orcamentos.length === 0 ? (
                 <div className="pedidos-empty">
-                    <span className="pedidos-empty-icon"><FiInbox size={28} /></span>
+                    <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
                     <p className="empty-title">Nenhum orçamento salvo ainda</p>
                     <p className="empty-sub">Calcule e salve um orçamento para vê-lo aqui.</p>
                 </div>

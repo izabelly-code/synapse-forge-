@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { Cancel01Icon } from "hugeicons-react";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
 import Select from "../ui/Select";
@@ -158,7 +158,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                 <div className="modal-header">
                     <h2 id="cor-modal-titulo">{editando ? "Editar cor" : "Nova cor"}</h2>
                     <button className="modal-close" onClick={onClose} aria-label="Fechar">
-                        <FiX size={18} />
+                        <Cancel01Icon size={18} />
                     </button>
                 </div>
 

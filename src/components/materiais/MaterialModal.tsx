@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { Cancel01Icon } from "hugeicons-react";
 import { criarMaterial, editarMaterial } from "../../services/MaterialService";
 import { Material } from "../../models/Material";
 
@@ -111,7 +111,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                 <div className="modal-header">
                     <h2 id="modal-titulo">{editando ? "Editar Material" : "Novo Material"}</h2>
                     <button className="modal-close" onClick={onClose} aria-label="Fechar">
-                        <FiX size={18} />
+                        <Cancel01Icon size={18} />
                     </button>
                 </div>
 

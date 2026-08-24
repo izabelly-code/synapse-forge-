@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { login } from "../../services/AuthService";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
 
 interface LoginProps {
@@ -169,8 +169,8 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                                 aria-label={showSenha ? t("login.hidePassword") : t("login.showPassword")}
                             >
                                 {showSenha
-                                    ? <FiEyeOff />
-                                    : <FiEye />}
+                                    ? <ViewOffSlashIcon />
+                                    : <ViewIcon />}
                             </button>
                         </div>
 

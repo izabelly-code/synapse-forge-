@@ -1,16 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiBox,
-    FiCalendar,
-    FiDownload,
-    FiEdit2,
-    FiFile,
-    FiImage,
-    FiPlus,
-    FiTrash2,
-    FiUser,
-    FiX,
-} from "react-icons/fi";
+import { Add01Icon, Calendar03Icon, Cancel01Icon, CubeIcon, Delete02Icon, Download01Icon, File01Icon, Image02Icon, PencilEdit02Icon, UserIcon } from "hugeicons-react";
 
 import {
     baixarObjeto3D,
@@ -288,7 +277,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                     <div className="pedido-detalhe-header-actions">
                         {pedido && !editando && (
                             <button type="button" className="pedido-edit-btn" onClick={() => iniciarEdicao(pedido)}>
-                                <FiEdit2 size={15} />
+                                <PencilEdit02Icon size={15} />
                                 {t("pedidos.detalhe.edit")}
                             </button>
                         )}
@@ -298,11 +287,11 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             className="pedido-edit-btn"
                             onClick={() => gerarOrdemServico(pedidoId)}
                         >
-                            <FiDownload size={15} />
+                            <Download01Icon size={15} />
                             {t("pedidos.detalhe.pdf")}
                         </button>
                         <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
-                            <FiX size={18} />
+                            <Cancel01Icon size={18} />
                         </button>
                     </div>
                 </div>
@@ -400,26 +389,26 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
                             {pedido.objeto3DFileId && !removerObjeto3D && !objeto3D && (
                                 <div className="pedido-edit-file">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
                                         <strong>{t("pedidos.detalhe.object3dCurrent")}</strong>
                                         <span>{t("pedidos.detalhe.object3dKeepHint")}</span>
                                     </div>
                                     <button type="button" className="pedido-remove-btn" onClick={() => setRemoverObjeto3D(true)}>
-                                        <FiTrash2 size={15} /> {t("pedidos.detalhe.object3dRemove")}
+                                        <Delete02Icon size={15} /> {t("pedidos.detalhe.object3dRemove")}
                                     </button>
                                 </div>
                             )}
 
                             {objeto3D && (
                                 <div className="pedido-edit-file is-new">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
                                         <strong>{objeto3D.name}</strong>
                                         <span>{t("pedidos.detalhe.object3dNew")}</span>
                                     </div>
                                     <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
-                                        <FiX size={15} /> {t("pedidos.form.removeFile")}
+                                        <Cancel01Icon size={15} /> {t("pedidos.form.removeFile")}
                                     </button>
                                 </div>
                             )}
@@ -432,7 +421,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             )}
 
                             <label className="pedido-upload-btn">
-                                <FiPlus size={16} />
+                                <Add01Icon size={16} />
                                 {pedido.objeto3DFileId ? t("pedidos.detalhe.object3dSelectNew") : t("pedidos.detalhe.object3dAdd")}
                                 <input
                                     type="file"
@@ -454,7 +443,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     <span>{t("pedidos.detalhe.imagesSectionHint")}</span>
                                 </div>
                                 <label className="pedido-upload-btn">
-                                    <FiPlus size={16} />
+                                    <Add01Icon size={16} />
                                     {t("pedidos.detalhe.imagesAdd")}
                                     <input
                                         type="file"
@@ -487,7 +476,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                                     onClick={() => alternarRemocaoImagem(imagem.id)}
                                                     disabled={!imagem.id}
                                                 >
-                                                    {removida ? t("pedidos.detalhe.undo") : <><FiTrash2 size={14} /> {t("pedidos.detalhe.imageDelete")}</>}
+                                                    {removida ? t("pedidos.detalhe.undo") : <><Delete02Icon size={14} /> {t("pedidos.detalhe.imageDelete")}</>}
                                                 </button>
                                             </div>
                                         );
@@ -507,13 +496,13 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                                 type="button"
                                                 onClick={() => retirarNovaImagem(id)}
                                             >
-                                                <FiX size={14} /> {t("pedidos.form.removeFile")}
+                                                <Cancel01Icon size={14} /> {t("pedidos.form.removeFile")}
                                             </button>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty"><FiImage size={16} /> {t("pedidos.detalhe.imagesEmpty")}</p>
+                                <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.imagesEmpty")}</p>
                             )}
                         </div>
 
@@ -537,17 +526,17 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
                         <div className="pedido-detalhe-info-grid">
                             <div className="pedido-detalhe-info">
-                                <FiUser size={17} />
+                                <UserIcon size={17} />
                                 <span>{t("pedidos.form.clientLabel")}</span>
                                 <strong>{pedido.cliente}</strong>
                             </div>
                             <div className="pedido-detalhe-info">
-                                <FiCalendar size={17} />
+                                <Calendar03Icon size={17} />
                                 <span>{t("pedidos.form.deadlineLabel")}</span>
                                 <strong>{formatPrazoLongo(pedido.prazo)}</strong>
                             </div>
                             <div className="pedido-detalhe-info">
-                                <FiBox size={17} />
+                                <CubeIcon size={17} />
                                 <span>{t("pedidos.form.projectLabel")}</span>
                                 <strong>{pedido.projeto}</strong>
                             </div>
@@ -564,13 +553,13 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>
                             {pedido.objeto3DFileId ? (
                                 <div className="pedido-arquivo-3d">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
                                         <strong>{t("pedidos.detalhe.viewObject3dName")}</strong>
                                         <span>{t("pedidos.detalhe.viewObject3dHint")}</span>
                                     </div>
                                     <button type="button" className="pedido-download-btn" onClick={handleDownloadObjeto3D} disabled={downloading}>
-                                        <FiDownload size={16} />
+                                        <Download01Icon size={16} />
                                         {downloading ? t("pedidos.detalhe.downloading") : t("pedidos.detalhe.download")}
                                     </button>
                                 </div>
@@ -597,7 +586,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     ))}
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty"><FiImage size={16} /> {t("pedidos.detalhe.viewImagesEmpty")}</p>
+                                <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.viewImagesEmpty")}</p>
                             )}
                         </div>
                     </div>

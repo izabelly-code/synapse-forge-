@@ -1,19 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiBell,
-    FiCalendar,
-    FiFilter,
-    FiFlag,
-    FiEdit2,
-    FiGrid,
-    FiList,
-    FiRefreshCw,
-    FiSearch,
-    FiMoreVertical,
-    FiTrash2,
-    FiUser,
-    FiX,
-} from "react-icons/fi";
+import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, Notification03Icon, PencilEdit02Icon, RefreshIcon, Search01Icon, UserIcon } from "hugeicons-react";
 import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
@@ -129,7 +115,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                         <h2>{editando ? "Editar Ordem de Pintura" : "Nova Ordem de Pintura"}</h2>
                     </div>
                     <button type="button" className="modal-close" onClick={onClose} aria-label="Fechar">
-                        <FiX size={18} />
+                        <Cancel01Icon size={18} />
                     </button>
                 </div>
 
@@ -386,7 +372,7 @@ function OrdensPinturaKanban() {
                                     aria-label="Notificações"
                                     aria-expanded={notifAberto}
                                 >
-                                    <FiBell size={18} />
+                                    <Notification03Icon size={18} />
                                     {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
                                 </button>
 
@@ -430,13 +416,13 @@ function OrdensPinturaKanban() {
                                 onChange={(e) => setBusca(e.target.value)}
                                 placeholder="Buscar por pedido, cor ou técnico..."
                             />
-                            <FiSearch size={17} />
+                            <Search01Icon size={17} />
                         </label>
-                        <button type="button" className="pintura-filter-static"><FiFilter size={16} /> Filtros</button>
+                        <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> Filtros</button>
                         <Select
                             variant="filter"
                             label="Técnico"
-                            icon={<FiUser size={15} />}
+                            icon={<UserIcon size={15} />}
                             value={tecnicoFiltro}
                             onChange={setTecnicoFiltro}
                             options={[
@@ -450,7 +436,7 @@ function OrdensPinturaKanban() {
                         <Select
                             variant="filter"
                             label="Prioridade"
-                            icon={<FiFlag size={15} />}
+                            icon={<Flag02Icon size={15} />}
                             value={prioridadeFiltro}
                             onChange={setPrioridadeFiltro}
                             options={[
@@ -463,7 +449,7 @@ function OrdensPinturaKanban() {
                         <Select
                             variant="filter"
                             label="Data"
-                            icon={<FiCalendar size={15} />}
+                            icon={<Calendar03Icon size={15} />}
                             value={dataFiltro}
                             onChange={(v) => setDataFiltro(v as FiltroData)}
                             options={[
@@ -475,11 +461,11 @@ function OrdensPinturaKanban() {
                         <div className="pintura-toolbar-spacer" />
                         <span className="pintura-updated">
                             {atualizadoEm ? "Atualizado agora há pouco" : "Carregando..."}
-                            <button type="button" onClick={carregar} aria-label="Atualizar"><FiRefreshCw size={15} /></button>
+                            <button type="button" onClick={carregar} aria-label="Atualizar"><RefreshIcon size={15} /></button>
                         </span>
                         <div className="pintura-view-toggle">
-                            <button type="button" className="active" aria-label="Kanban"><FiGrid size={17} /></button>
-                            <button type="button" aria-label="Lista"><FiList size={17} /></button>
+                            <button type="button" className="active" aria-label="Kanban"><GridViewIcon size={17} /></button>
+                            <button type="button" aria-label="Lista"><LeftToRightListBulletIcon size={17} /></button>
                         </div>
                     </div>
 
@@ -547,7 +533,7 @@ function OrdensPinturaKanban() {
                                                                     setConfirmarExclusaoId(null);
                                                                 }}
                                                             >
-                                                                <FiMoreVertical size={15} />
+                                                                <MoreVerticalIcon size={15} />
                                                             </button>
                                                             {menuOrdemId === ordem.id && (
                                                                 <div className="pintura-card-menu">
@@ -574,14 +560,14 @@ function OrdensPinturaKanban() {
                                                                                     setMenuOrdemId(null);
                                                                                 }}
                                                                             >
-                                                                                <FiEdit2 size={14} /> Editar
+                                                                                <PencilEdit02Icon size={14} /> Editar
                                                                             </button>
                                                                             <button
                                                                                 type="button"
                                                                                 className="danger"
                                                                                 onClick={() => setConfirmarExclusaoId(ordem.id)}
                                                                             >
-                                                                                <FiTrash2 size={14} /> Excluir
+                                                                                <Delete02Icon size={14} /> Excluir
                                                                             </button>
                                                                         </>
                                                                     )}
@@ -602,7 +588,7 @@ function OrdensPinturaKanban() {
                                                             <strong>{ordem.tecnicoNome}</strong>
                                                         </div>
                                                         <div className="pintura-card-tags">
-                                                            <span className="pintura-date-tag"><FiCalendar size={11} /> {rotuloPrazo(ordem.prazo)}</span>
+                                                            <span className="pintura-date-tag"><Calendar03Icon size={11} /> {rotuloPrazo(ordem.prazo)}</span>
                                                             <span className={`pintura-priority prioridade-${ordem.prioridade.toLowerCase()}`}>
                                                                 {PRIORIDADE_LABEL[ordem.prioridade]}
                                                             </span>

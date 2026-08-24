@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiChevronDown, FiCheck } from "react-icons/fi";
+import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
 import { getMateriais } from "../../services/MaterialService";
 import { calcularOrcamento, salvarOrcamento } from "../../services/OrcamentoService";
 import { Material } from "../../models/Material";
@@ -171,7 +171,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                 onClick={() => setMenuAberto((m) => !m)}
                             >
                                 {materialSelecionado ? materialSelecionado.nome : "Selecione um material"}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto && (
                                 <div className="filtro-dropdown" role="menu">
@@ -188,7 +188,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                                 onClick={() => selecionarMaterial(m.id)}
                                             >
                                                 {m.nome}
-                                                {materialId === m.id && <FiCheck size={15} />}
+                                                {materialId === m.id && <Tick02Icon size={15} />}
                                             </button>
                                         ))
                                     )}

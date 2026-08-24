@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiInbox } from "react-icons/fi";
+import { InboxIcon } from "hugeicons-react";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
@@ -82,7 +82,7 @@ function MateriaisDashboard() {
                     </div>
                 ) : materiais.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><FiInbox size={28} /></span>
+                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
                         <p className="empty-title">Nenhum material cadastrado</p>
                         <p className="empty-sub">Cadastre o primeiro material para começar.</p>
                         <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>

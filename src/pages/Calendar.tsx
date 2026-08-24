@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { FiChevronLeft, FiChevronRight, FiAlertTriangle, FiEye, FiUsers, FiClock } from 'react-icons/fi';
+import { Alert02Icon, ArrowLeft01Icon, ArrowRight01Icon, Clock01Icon, UserMultiple02Icon, ViewIcon } from "hugeicons-react";
 import './Calendar.css';
 import EventoModal from '../components/calendario/EventoModal';
 import EventService from '../services/EventService';
@@ -227,20 +227,20 @@ function Calendar() {
         </button>
       </header>
 
-      {erro && <div className="calendar-error"><FiAlertTriangle size={16} /> {erro}</div>}
+      {erro && <div className="calendar-error"><Alert02Icon size={16} /> {erro}</div>}
 
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
             <div className="month-navigator">
               <button className="nav-arrow" onClick={handlePrevMonth} aria-label="Mês anterior">
-                <FiChevronLeft size={18} />
+                <ArrowLeft01Icon size={18} />
               </button>
               <div>
                 <h2>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {currentYear}</h2>
               </div>
               <button className="nav-arrow" onClick={handleNextMonth} aria-label="Próximo mês">
-                <FiChevronRight size={18} />
+                <ArrowRight01Icon size={18} />
               </button>
             </div>
           </div>
@@ -307,19 +307,19 @@ function Calendar() {
                       <p className="event-card-meta">{event.descricao || 'Sem descrição'}</p>
                       {event.horarioInicio && (
                         <p className="event-card-time">
-                          <FiClock size={12} />
+                          <Clock01Icon size={12} />
                           {event.horarioInicio}{event.horarioFim ? ` - ${event.horarioFim}` : ''}
                         </p>
                       )}
                       {event.participantes && event.participantes.length > 0 && (
                         <p className="event-card-participants">
-                          <FiUsers size={12} />
+                          <UserMultiple02Icon size={12} />
                           {event.participantes.map((id) => nomesParticipantes[id] || id).join(', ')}
                         </p>
                       )}
                     </div>
                     <button className="event-card-action" onClick={() => selecionarEvento(event)}>
-                      <FiEye size={14} /> Ver / editar
+                      <ViewIcon size={14} /> Ver / editar
                     </button>
                   </div>
                 ))

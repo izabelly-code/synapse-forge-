@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { register } from "../../services/AuthService";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
 
 interface RegisterProps {
@@ -305,7 +305,7 @@ function Register({ onRegister }: RegisterProps) {
                                     className="input-icon"
                                     onClick={() => setShowSenha(!showSenha)}
                                 >
-                                    {showSenha ? <FiEyeOff /> : <FiEye />}
+                                    {showSenha ? <ViewOffSlashIcon /> : <ViewIcon />}
                                 </button>
                             </div>
                             <span className="input-hint">

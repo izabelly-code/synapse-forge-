@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiMoreVertical, FiEdit2, FiTrash2, FiAlertCircle } from "react-icons/fi";
+import { AlertCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon } from "hugeicons-react";
 import { Cor, Acabamento } from "../../types";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
@@ -54,7 +54,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 aria-expanded={menuAberto}
                 onClick={() => setMenuAberto((v) => !v)}
             >
-                <FiMoreVertical size={18} />
+                <MoreVerticalIcon size={18} />
             </button>
             {menuAberto && (
                 <div className="kebab-menu" role="menu">
@@ -77,14 +77,14 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                                 className="kebab-item"
                                 onClick={() => { setMenuAberto(false); onEditar(cor); }}
                             >
-                                <FiEdit2 size={15} /> Editar
+                                <PencilEdit02Icon size={15} /> Editar
                             </button>
                             <button
                                 type="button"
                                 className="kebab-item kebab-danger"
                                 onClick={() => setConfirmando(true)}
                             >
-                                <FiTrash2 size={15} /> Excluir
+                                <Delete02Icon size={15} /> Excluir
                             </button>
                         </>
                     )}
@@ -113,7 +113,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <div className="cor-row-acoes">
                     {baixo && (
                         <span className="cor-estoque-baixo" title="Estoque abaixo do mínimo">
-                            <FiAlertCircle size={12} /> Estoque baixo
+                            <AlertCircleIcon size={12} /> Estoque baixo
                         </span>
                     )}
                     {menu}
@@ -136,7 +136,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                     </div>
                     {baixo && (
                         <span className="cor-estoque-baixo" title="Estoque abaixo do mínimo">
-                            <FiAlertCircle size={12} /> Estoque baixo
+                            <AlertCircleIcon size={12} /> Estoque baixo
                         </span>
                     )}
                 </div>

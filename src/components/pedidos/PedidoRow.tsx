@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck, FiMoreVertical, FiEdit2 } from 'react-icons/fi';
+import { ArrowLeft02Icon, ArrowRight02Icon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Pedido, PedidoStatus } from '../../types';
@@ -85,7 +85,7 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
                             </span>
                         )}
                         <span className="step-node">
-                            <FiCheck className="step-check" size={13} />
+                            <Tick02Icon className="step-check" size={13} />
                             <span className="step-dot" />
                         </span>
                         <span className="step-label">{t(`pedidos.status.${s}`)}</span>
@@ -172,7 +172,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                 {finalizado ? (
                     <>
                         <span className="row-prazo row-prazo-done">
-                            <FiCheck size={14} />
+                            <Tick02Icon size={14} />
                             {t("pedidos.status.FINALIZADO")}
                         </span>
                         <span className="row-prazo-sub">{tempoRelativo(pedido.atualizadoEm, t)}</span>
@@ -209,7 +209,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((o) => !o)}
                     >
-                        <FiMoreVertical size={18} />
+                        <MoreVerticalIcon size={18} />
                     </button>
 
                     {menuOpen && (
@@ -218,19 +218,19 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                                 <>
                                     {!finalizado && (
                                         <button className="kebab-item" role="menuitem" disabled={loading} onClick={() => { onAvancar(pedido.id); fecharMenu(); }}>
-                                            <FiArrowRight size={15} /> {t("pedidos.row.advanceStage")}
+                                            <ArrowRight02Icon size={15} /> {t("pedidos.row.advanceStage")}
                                         </button>
                                     )}
                                     {!naPrimeiraEtapa && (
                                         <button className="kebab-item" role="menuitem" disabled={loading} onClick={() => { onRegredir(pedido.id); fecharMenu(); }}>
-                                            <FiArrowLeft size={15} /> {t("pedidos.row.regressStage")}
+                                            <ArrowLeft02Icon size={15} /> {t("pedidos.row.regressStage")}
                                         </button>
                                     )}
                                     <button className="kebab-item" role="menuitem" onClick={() => { onEditar(pedido); fecharMenu(); }}>
-                                        <FiEdit2 size={15} /> {t("pedidos.row.editOrder")}
+                                        <PencilEdit02Icon size={15} /> {t("pedidos.row.editOrder")}
                                     </button>
                                     <button className="kebab-item kebab-danger" role="menuitem" onClick={() => setConfirmDel(true)}>
-                                        <FiTrash2 size={15} /> {t("pedidos.row.delete")}
+                                        <Delete02Icon size={15} /> {t("pedidos.row.delete")}
                                     </button>
                                 </>
                             ) : (
