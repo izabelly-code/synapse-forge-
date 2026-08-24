@@ -24,6 +24,24 @@
         "errorAccountLocked_other": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minutos ou redefina sua senha.",
         "errorGeneric": "Não foi possível entrar. Verifique seus dados."
     },
+    "sidebar": {
+        "pedidos": "Pedidos",
+        "paletaCores": "Paleta de Cores",
+        "calculadoraMistura": "Calculadora de Mistura",
+        "materiais": "Materiais",
+        "orcamento": "Orçamento",
+        "ordensPintura": "Ordens de Pintura",
+        "calendario": "Calendário",
+        "perfil": "Perfil",
+        "userFallback": "Usuário",
+        "themeToLight": "Tema claro",
+        "themeToDark": "Tema escuro",
+        "themeToLightAria": "Ativar tema claro",
+        "themeToDarkAria": "Ativar tema escuro",
+        "language": "Idioma",
+        "languageAria": "Idioma / Language",
+        "logout": "Sair"
+    },
     "pedidos": {
         "status": {
             "MODELAGEM": "Modelagem",

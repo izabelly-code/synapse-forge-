@@ -1,32 +1,34 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon } from "react-icons/fi";
+import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon, FiGlobe } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { getUserById } from "../../services/UserService";
 import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 
 interface NavItem {
-    label: string;
+    labelKey: string;
     path: string;
     icon: React.ReactNode;
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { label: "Pedidos", path: "/dashboard", icon: <FiPackage size={18} /> },
-    { label: "Paleta de Cores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
-    { label: "Calculadora de Mistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
-    { label: "Materiais", path: "/materiais", icon: <FiBox size={18} /> },
-    { label: "Orçamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
-    { label: "Ordens de Pintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
-    { label: "Calendário", path: "/calendar", icon: <FiCalendar size={18} /> },
-    { label: "Perfil", path: "/perfil", icon: <FiUser size={18} /> },
+    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <FiPackage size={18} /> },
+    { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
+    { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
+    { labelKey: "sidebar.materiais", path: "/materiais", icon: <FiBox size={18} /> },
+    { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
+    { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
+    { labelKey: "sidebar.calendario", path: "/calendar", icon: <FiCalendar size={18} /> },
+    { labelKey: "sidebar.perfil", path: "/perfil", icon: <FiUser size={18} /> },
 ];
 
 function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { theme, toggleTheme } = useTheme();
+    const { t, i18n } = useTranslation();
 
     const [nome, setNome] = useState(() => localStorage.getItem("userNome") ?? "");
     const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
@@ -68,7 +70,7 @@ function Sidebar() {
             <div className="sidebar-user">
                 <div className="sidebar-avatar">{getInitial()}</div>
                 <div className="sidebar-user-info">
-                    <span className="sidebar-user-name">{nome || "Usuário"}</span>
+                    <span className="sidebar-user-name">{nome || t("sidebar.userFallback")}</span>
                     {email && <span className="sidebar-user-email">{email}</span>}
                 </div>
             </div>
@@ -84,7 +86,7 @@ function Sidebar() {
                             onClick={() => navigate(item.path)}
                         >
                             <span className="sidebar-nav-icon">{item.icon}</span>
-                            <span>{item.label}</span>
+                            <span>{t(item.labelKey)}</span>
                         </button>
                     );
                 })}
@@ -94,15 +96,37 @@ function Sidebar() {
                 type="button"
                 className="sidebar-nav-item sidebar-theme-toggle"
                 onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+                aria-label={theme === "dark" ? t("sidebar.themeToLightAria") : t("sidebar.themeToDarkAria")}
             >
                 <span className="sidebar-nav-icon">{theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}</span>
-                <span>{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
+                <span>{theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}</span>
             </button>
+
+            <div className="sidebar-lang" role="group" aria-label={t("sidebar.languageAria")}>
+                <span className="sidebar-nav-icon"><FiGlobe size={18} /></span>
+                <span className="sidebar-lang-label">{t("sidebar.language")}</span>
+                <span className="sidebar-lang-switch">
+                    <button
+                        type="button"
+                        className={i18n.language === "pt-BR" ? "active" : ""}
+                        onClick={() => i18n.changeLanguage("pt-BR")}
+                    >
+                        PT
+                    </button>
+                    <span aria-hidden="true">|</span>
+                    <button
+                        type="button"
+                        className={i18n.language === "en-US" ? "active" : ""}
+                        onClick={() => i18n.changeLanguage("en-US")}
+                    >
+                        EN
+                    </button>
+                </span>
+            </div>
 
             <button type="button" className="sidebar-logout" onClick={handleLogout}>
                 <span className="sidebar-nav-icon"><FiLogOut size={18} /></span>
-                <span>Sair</span>
+                <span>{t("sidebar.logout")}</span>
             </button>
         </aside>
     );

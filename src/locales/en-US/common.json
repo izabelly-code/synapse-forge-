@@ -24,6 +24,24 @@
         "errorAccountLocked_other": "Account temporarily locked due to too many attempts. Try again in {{count}} minutes or reset your password.",
         "errorGeneric": "Could not sign in. Check your credentials."
     },
+    "sidebar": {
+        "pedidos": "Orders",
+        "paletaCores": "Color Palette",
+        "calculadoraMistura": "Mix Calculator",
+        "materiais": "Materials",
+        "orcamento": "Budget",
+        "ordensPintura": "Paint Orders",
+        "calendario": "Calendar",
+        "perfil": "Profile",
+        "userFallback": "User",
+        "themeToLight": "Light theme",
+        "themeToDark": "Dark theme",
+        "themeToLightAria": "Switch to light theme",
+        "themeToDarkAria": "Switch to dark theme",
+        "language": "Language",
+        "languageAria": "Idioma / Language",
+        "logout": "Sign out"
+    },
     "pedidos": {
         "status": {
             "MODELAGEM": "Modeling",
