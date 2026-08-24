@@ -1270,6 +1270,7 @@ body {
 }
 
 .pedidos-grid .pedido-row {
+  position: relative;
   grid-template-columns: 1fr;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
@@ -1294,8 +1295,13 @@ body {
 }
 
 .pedidos-grid .cell-acoes {
-  justify-content: flex-start;
-  flex-wrap: wrap;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+.pedidos-grid .cell-ref {
+  padding-right: 2.25rem;
 }
 
 .pedidos-row-head,
