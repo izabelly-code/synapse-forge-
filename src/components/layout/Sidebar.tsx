@@ -102,27 +102,15 @@ function Sidebar() {
                 <span>{theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}</span>
             </button>
 
-            <div className="sidebar-lang" role="group" aria-label={t("sidebar.languageAria")}>
+            <button
+                type="button"
+                className="sidebar-nav-item sidebar-lang-toggle"
+                onClick={() => i18n.changeLanguage(i18n.language === "pt-BR" ? "en-US" : "pt-BR")}
+                aria-label={t("sidebar.languageAria")}
+            >
                 <span className="sidebar-nav-icon"><FiGlobe size={18} /></span>
-                <span className="sidebar-lang-label">{t("sidebar.language")}</span>
-                <span className="sidebar-lang-switch">
-                    <button
-                        type="button"
-                        className={i18n.language === "pt-BR" ? "active" : ""}
-                        onClick={() => i18n.changeLanguage("pt-BR")}
-                    >
-                        PT
-                    </button>
-                    <span aria-hidden="true">|</span>
-                    <button
-                        type="button"
-                        className={i18n.language === "en-US" ? "active" : ""}
-                        onClick={() => i18n.changeLanguage("en-US")}
-                    >
-                        EN
-                    </button>
-                </span>
-            </div>
+                <span>{i18n.language === "pt-BR" ? t("sidebar.langEnglish") : t("sidebar.langPortuguese")}</span>
+            </button>
 
             <button type="button" className="sidebar-logout" onClick={handleLogout}>
                 <span className="sidebar-nav-icon"><FiLogOut size={18} /></span>

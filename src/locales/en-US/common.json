@@ -38,8 +38,9 @@
         "themeToDark": "Dark theme",
         "themeToLightAria": "Switch to light theme",
         "themeToDarkAria": "Switch to dark theme",
-        "language": "Language",
-        "languageAria": "Idioma / Language",
+        "langEnglish": "English",
+        "langPortuguese": "Português",
+        "languageAria": "Mudar idioma / Change language",
         "logout": "Sign out"
     },
     "pedidos": {
