@@ -12,20 +12,33 @@
 :root {
   color-scheme: light;
 
-  /* Semânticos — tema claro */
+  /* Semânticos — tema claro (spec de polimento 24/08: neutros frios, bordas sutis) */
   --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-surface-2: #f2f2f6;
-  --color-border: rgba(67, 70, 86, 0.15);
-  --color-text: #1F1A1E;
-  --color-text-muted: #434656;
+  --color-border: #F5F5F5;          /* cards e divisores */
+  --color-border-strong: #E5E5E5;   /* controles interativos (inputs, botões com contorno) */
+  --color-text: #262626;
+  --color-text-muted: #737373;
   --color-primary: #FB4A14;      /* laranja da marca */
-  --color-success: #1a7f3c;
+  --color-success: #16A34A;
   --color-warning: #b87112;
-  --color-error: #B3261E;
-  --color-text-subtle: #8b8e97;  /* texto terciário (metadados, timestamps) */
-  --color-info: #2f69a7;         /* categoria informativa (kanban: misturando) */
+  --color-error: #F87171;
+  --color-text-subtle: #A3A3A3;  /* texto terciário (metadados, timestamps) */
+  --color-info: #3B82F6;         /* categoria informativa (kanban: misturando) */
   --color-violet: #8052aa;       /* categoria neutra-destaque (kanban: secando) */
+
+  /* Tipografia — escala da spec (família única: Inter) */
+  --type-title: 600 1.5rem/2rem 'Inter', sans-serif;          /* 24/32 */
+  --type-medium-title: 600 1rem/1.25rem 'Inter', sans-serif;  /* 16/20 */
+  --type-body: 400 0.875rem/1.25rem 'Inter', sans-serif;      /* 14/20 */
+  --type-label: 500 0.75rem/1rem 'Inter', sans-serif;         /* 12/16 */
+  --type-caption: 400 0.75rem/1rem 'Inter', sans-serif;       /* 12/16 */
+
+  /* Controles — spec */
+  --control-h: 2.25rem;       /* botões: 36px */
+  --radius-pill: 50px;
+  --badge-h: 1.25rem;         /* badges: 20px */
 
   /* Derivados */
   --focus-ring: color-mix(in srgb, var(--color-primary) 12%, transparent);
@@ -106,6 +119,7 @@
   --color-surface: #1c1c21;
   --color-surface-2: #26262d;
   --color-border: rgba(228, 228, 234, 0.14);
+  --color-border-strong: rgba(228, 228, 234, 0.22);
   --color-text: #ececf1;
   --color-text-muted: #a4a7b5;
   /* --color-primary mantido: laranja da marca é idêntico nos dois temas */
@@ -377,7 +391,7 @@ body {
 .input-group input {
   padding: 0.75rem 1rem;
   border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  border: 1.5px solid var(--color-border-strong);
   outline: none;
   background: var(--surface);
   color: var(--on-background);
@@ -659,16 +673,20 @@ body {
 /* ===== BUTTONS ===== */
 /* Primary — high-gloss pill with jewel-like gradient */
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 0.8125rem 1.5rem;
+  height: var(--control-h);
+  padding: 0 0.75rem;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   letter-spacing: 0.01em;
   transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -787,22 +805,19 @@ body {
 .btn-novo-pedido {
   width: auto;
   white-space: nowrap;
-  padding: 0.75rem 1.5rem;
+  padding: 0 1rem;
 }
 
 
-/* Editorial display heading */
 .dashboard-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 800;
+  font: var(--type-title);
   color: var(--on-background);
-  margin: 0 0 0.375rem;
-  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.01em;
 }
 
 .dashboard-subtitle {
-  font-size: 0.9375rem;
+  font: var(--type-body);
   color: var(--on-surface-variant);
   margin: 0;
 }
@@ -873,9 +888,10 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4375rem 0.75rem 0.4375rem 0.875rem;
-  border-radius: var(--radius);
-  border: 1.5px solid transparent;
+  height: var(--control-h);
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
   background: transparent;
   color: var(--on-surface-variant);
   font-family: 'Inter', sans-serif;
@@ -904,21 +920,22 @@ body {
 
 
 .filtro-count {
-  min-width: 1.25rem;
+  min-width: var(--badge-h);
+  height: var(--badge-h);
   padding: 0 0.375rem;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--surface-container);
   color: var(--on-surface-variant);
   font-size: 0.6875rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;
-  line-height: 1.25rem;
+  line-height: var(--badge-h);
 }
 
 .filtro-btn.filtro-ativo .filtro-count {
-  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-  color: var(--primary);
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
 
 
@@ -930,9 +947,10 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4375rem 0.875rem;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  height: var(--control-h);
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
   background: var(--surface);
   color: var(--on-surface);
   font-family: 'Inter', sans-serif;
@@ -1042,9 +1060,10 @@ body {
 
 .pedidos-search input {
   width: 250px;
-  padding: 0.5625rem 2.75rem 0.5625rem 2.25rem;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  height: var(--control-h);
+  padding: 0 2.75rem 0 2.25rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
@@ -1076,10 +1095,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  width: var(--control-h);
+  height: var(--control-h);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
   background: var(--surface);
   color: var(--on-surface-variant);
   cursor: pointer;
@@ -1102,7 +1121,7 @@ body {
   min-width: 1.05rem;
   height: 1.05rem;
   padding: 0 0.25rem;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--error-color);
   color: var(--on-primary);
   font-size: 0.625rem;
@@ -1189,10 +1208,13 @@ body {
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: center;
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-h);
   font-size: 0.625rem;
   font-weight: 700;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius);
+  padding: 0 0.375rem;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
 }
 
@@ -1214,8 +1236,8 @@ body {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  padding: 1.125rem 1.25rem;
-  box-shadow: var(--shadow-card);
+  padding: 0.75rem;
+  box-shadow: none;
 }
 
 .stat-icon {
@@ -1237,18 +1259,14 @@ body {
 }
 
 .stat-value {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.625rem;
-  font-weight: 800;
-  line-height: 1.1;
+  font: var(--type-title);
   color: var(--on-background);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font: var(--type-label);
   color: var(--on-surface-variant);
 }
 
@@ -1954,15 +1972,19 @@ body {
 /* Secondary button — surface-integrated */
 .btn-secondary {
   flex: 1;
-  padding: 0.8125rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h);
+  padding: 0 0.75rem;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--surface-container-high);
   color: var(--on-surface);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   transition: background 0.15s ease;
 }
 
