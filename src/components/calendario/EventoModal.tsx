@@ -2,7 +2,7 @@ import EventService from '../../services/EventService';
 import { getUserById, searchUsersByName } from '../../services/UserService';
 import { EventData, User } from '../../types';
 import React, { useEffect, useState } from 'react';
-import { FiX } from 'react-icons/fi';
+import { Cancel01Icon } from "hugeicons-react";
 import './EventoModal.css';
 
 interface EventoModalProps {
@@ -235,7 +235,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         <div className="evento-modal-header">
           <h2 className="evento-modal-titulo">{modalTitle}</h2>
           <button className="evento-modal-close" onClick={onClose} aria-label="Fechar">
-            <FiX size={18} />
+            <Cancel01Icon size={18} />
           </button>
         </div>
 
@@ -345,7 +345,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                       <span key={`${nome}-${index}`} className="participant-chip">
                         {nome}
                         <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover ${nome}`}>
-                          <FiX size={12} />
+                          <Cancel01Icon size={12} />
                         </button>
                       </span>
                     ))
@@ -354,7 +354,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                       <span key={`${id}-${index}`} className="participant-chip">
                         {id}
                         <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover participante`}>
-                          <FiX size={12} />
+                          <Cancel01Icon size={12} />
                         </button>
                       </span>
                     ))

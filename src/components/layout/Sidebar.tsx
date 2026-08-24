@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon, FiGlobe, FiCheck } from "react-icons/fi";
+import { Calendar03Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getUserById } from "../../services/UserService";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -14,14 +14,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <FiPackage size={18} /> },
-    { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
-    { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
-    { labelKey: "sidebar.materiais", path: "/materiais", icon: <FiBox size={18} /> },
-    { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
-    { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
-    { labelKey: "sidebar.calendario", path: "/calendar", icon: <FiCalendar size={18} /> },
-    { labelKey: "sidebar.perfil", path: "/perfil", icon: <FiUser size={18} /> },
+    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
+    { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
+    { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
+    { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
+    { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
+    { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
+    { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
+    { labelKey: "sidebar.perfil", path: "/perfil", icon: <UserIcon size={18} /> },
 ];
 
 const LANGUAGES = [
@@ -118,7 +118,7 @@ function Sidebar() {
                     aria-label={theme === "dark" ? t("sidebar.themeToLightAria") : t("sidebar.themeToDarkAria")}
                     title={theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}
                 >
-                    {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
+                    {theme === "dark" ? <Sun03Icon size={18} /> : <Moon02Icon size={18} />}
                 </button>
 
                 <div className="sidebar-lang-wrap" ref={langMenuRef}>
@@ -131,7 +131,7 @@ function Sidebar() {
                         aria-haspopup="menu"
                         aria-expanded={langMenuAberto}
                     >
-                        <FiGlobe size={18} />
+                        <Globe02Icon size={18} />
                     </button>
 
                     {langMenuAberto && (
@@ -146,7 +146,7 @@ function Sidebar() {
                                     onClick={() => { i18n.changeLanguage(lang.code); setLangMenuAberto(false); }}
                                 >
                                     {t(lang.labelKey)}
-                                    {i18n.language === lang.code && <FiCheck size={15} />}
+                                    {i18n.language === lang.code && <Tick02Icon size={15} />}
                                 </button>
                             ))}
                         </div>
@@ -155,7 +155,7 @@ function Sidebar() {
             </div>
 
             <button type="button" className="sidebar-logout" onClick={handleLogout}>
-                <span className="sidebar-nav-icon"><FiLogOut size={18} /></span>
+                <span className="sidebar-nav-icon"><Logout03Icon size={18} /></span>
                 <span>{t("sidebar.logout")}</span>
             </button>
         </aside>

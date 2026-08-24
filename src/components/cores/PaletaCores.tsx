@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiSearch, FiChevronDown, FiCheck, FiList, FiGrid, FiDroplet,
-} from "react-icons/fi";
+import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Search01Icon, Tick02Icon } from "hugeicons-react";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
@@ -187,7 +185,7 @@ function PaletaCores() {
                 </header>
 
                 <div className="cores-search">
-                    <FiSearch size={18} className="search-icon" />
+                    <Search01Icon size={18} className="search-icon" />
                     <input
                         ref={buscaRef}
                         type="text"
@@ -209,7 +207,7 @@ function PaletaCores() {
                                 onClick={() => setMenuAberto((m) => (m === "fornecedor" ? null : "fornecedor"))}
                             >
                                 {fornecedorLabel}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "fornecedor" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -221,7 +219,7 @@ function PaletaCores() {
                                         onClick={() => { setFornecedor(""); setMenuAberto(null); }}
                                     >
                                         Todos
-                                        {fornecedor === "" && <FiCheck size={15} />}
+                                        {fornecedor === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {fornecedores.map((f) => (
                                         <button
@@ -233,7 +231,7 @@ function PaletaCores() {
                                             onClick={() => { setFornecedor(f); setMenuAberto(null); }}
                                         >
                                             {f}
-                                            {fornecedor === f && <FiCheck size={15} />}
+                                            {fornecedor === f && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -249,7 +247,7 @@ function PaletaCores() {
                                 onClick={() => setMenuAberto((m) => (m === "estoque" ? null : "estoque"))}
                             >
                                 {ESTOQUE_LABELS[estoque]}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "estoque" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -263,7 +261,7 @@ function PaletaCores() {
                                             onClick={() => { setEstoque(k); setMenuAberto(null); }}
                                         >
                                             {ESTOQUE_LABELS[k]}
-                                            {estoque === k && <FiCheck size={15} />}
+                                            {estoque === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -279,7 +277,7 @@ function PaletaCores() {
                                 onClick={() => setMenuAberto((m) => (m === "acabamento" ? null : "acabamento"))}
                             >
                                 {acabamentoLabel}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "acabamento" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -291,7 +289,7 @@ function PaletaCores() {
                                         onClick={() => { setAcabamento(""); setMenuAberto(null); }}
                                     >
                                         Todos
-                                        {acabamento === "" && <FiCheck size={15} />}
+                                        {acabamento === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {acabamentos.map((a) => (
                                         <button
@@ -303,7 +301,7 @@ function PaletaCores() {
                                             onClick={() => { setAcabamento(a); setMenuAberto(null); }}
                                         >
                                             {ACABAMENTO_LABEL[a]}
-                                            {acabamento === a && <FiCheck size={15} />}
+                                            {acabamento === a && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -327,7 +325,7 @@ function PaletaCores() {
                                 onClick={() => setMenuAberto((m) => (m === "ordenacao" ? null : "ordenacao"))}
                             >
                                 Ordenar: {ORDENACAO_LABELS[ordenacao]}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "ordenacao" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -341,7 +339,7 @@ function PaletaCores() {
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {ORDENACAO_LABELS[k]}
-                                            {ordenacao === k && <FiCheck size={15} />}
+                                            {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -356,7 +354,7 @@ function PaletaCores() {
                                 aria-pressed={view === "grid"}
                                 aria-label="Visualizar em grade"
                             >
-                                <FiGrid size={16} />
+                                <GridViewIcon size={16} />
                             </button>
                             <button
                                 type="button"
@@ -365,7 +363,7 @@ function PaletaCores() {
                                 aria-pressed={view === "list"}
                                 aria-label="Visualizar em lista"
                             >
-                                <FiList size={16} />
+                                <LeftToRightListBulletIcon size={16} />
                             </button>
                         </div>
                     </div>
@@ -381,7 +379,7 @@ function PaletaCores() {
                     </div>
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><FiDroplet size={28} /></span>
+                        <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
                         <p className="empty-title">Nenhuma cor encontrada</p>
                         <p className="empty-sub">
                             {filtrosAtivos ? "Tente ajustar a busca ou os filtros." : "Cadastre a primeira cor para começar a paleta."}

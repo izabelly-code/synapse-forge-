@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { FiX } from "react-icons/fi";
+import { Cancel01Icon } from "hugeicons-react";
 
 interface ImageLightboxProps {
     src: string;
@@ -22,7 +22,7 @@ function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
     return (
         <div className="lightbox-overlay" onClick={onClose} role="dialog" aria-modal="true">
             <button type="button" className="lightbox-close" onClick={onClose} aria-label="Fechar">
-                <FiX size={22} />
+                <Cancel01Icon size={22} />
             </button>
             <img
                 className="lightbox-img"

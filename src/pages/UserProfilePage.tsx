@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserById, updateUser } from "../services/UserService";
 import { solicitarMudancaEmail } from "../services/AuthService";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 
 function UserProfilePage() {
     const navigate = useNavigate();
@@ -183,7 +183,7 @@ function UserProfilePage() {
                                     placeholder="••••••••"
                                 />
                                 <button type="button" className="input-icon" onClick={() => setShowSenhaAtual(!showSenhaAtual)}>
-                                    {showSenhaAtual ? <FiEyeOff /> : <FiEye />}
+                                    {showSenhaAtual ? <ViewOffSlashIcon /> : <ViewIcon />}
                                 </button>
                             </div>
                         </div>
@@ -200,7 +200,7 @@ function UserProfilePage() {
                                         placeholder="••••••••"
                                     />
                                     <button type="button" className="input-icon" onClick={() => setShowNovaSenha(!showNovaSenha)}>
-                                        {showNovaSenha ? <FiEyeOff /> : <FiEye />}
+                                        {showNovaSenha ? <ViewOffSlashIcon /> : <ViewIcon />}
                                     </button>
                                 </div>
                             </div>
@@ -217,7 +217,7 @@ function UserProfilePage() {
                                         className={confirmarSenha && novaSenha !== confirmarSenha ? "input-error" : ""}
                                     />
                                     <button type="button" className="input-icon" onClick={() => setShowConfirmar(!showConfirmar)}>
-                                        {showConfirmar ? <FiEyeOff /> : <FiEye />}
+                                        {showConfirmar ? <ViewOffSlashIcon /> : <ViewIcon />}
                                     </button>
                                 </div>
                                 {confirmarSenha && novaSenha !== confirmarSenha && (

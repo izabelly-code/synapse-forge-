@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiFile, FiPlus, FiX } from "react-icons/fi";
+import { Add01Icon, Cancel01Icon, File01Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
@@ -134,7 +134,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                 <div className="modal-header">
                     <h2 id="modal-titulo">{t("pedidos.novo.title")}</h2>
                     <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
-                        <FiX size={18} />
+                        <Cancel01Icon size={18} />
                     </button>
                 </div>
 
@@ -192,19 +192,19 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
                         {objeto3D && (
                             <div className="pedido-edit-file is-new">
-                                <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                 <div>
                                     <strong>{objeto3D.name}</strong>
                                     <span>{t("pedidos.novo.object3dSelected")}</span>
                                 </div>
                                 <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
-                                    <FiX size={15} /> {t("pedidos.form.removeFile")}
+                                    <Cancel01Icon size={15} /> {t("pedidos.form.removeFile")}
                                 </button>
                             </div>
                         )}
 
                         <label className="pedido-upload-btn">
-                            <FiPlus size={16} />
+                            <Add01Icon size={16} />
                             {objeto3D ? t("pedidos.novo.object3dReplace") : t("pedidos.novo.object3dAdd")}
                             <input
                                 type="file"
@@ -235,7 +235,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                                             onClick={() => removerImagem(i)}
                                             aria-label={t("pedidos.novo.removeImageAria", { name: p.file.name })}
                                         >
-                                            <FiX size={14} /> {t("pedidos.form.removeFile")}
+                                            <Cancel01Icon size={14} /> {t("pedidos.form.removeFile")}
                                         </button>
                                     </div>
                                 ))}
@@ -243,7 +243,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                         )}
 
                         <label className="pedido-upload-btn">
-                            <FiPlus size={16} />
+                            <Add01Icon size={16} />
                             {t("pedidos.novo.imagesAdd")}
                             <input
                                 type="file"

@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiInbox, FiSearch, FiBell, FiBox, FiActivity, FiClock, FiAlertTriangle, FiCheckCircle,
-    FiCalendar, FiChevronDown, FiFilter, FiCheck, FiList, FiGrid,
-} from "react-icons/fi";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, Search01Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -192,11 +189,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <FiBox size={18} />, tone: "neutral" },
-        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <FiActivity size={18} />, tone: "brand" },
-        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <FiClock size={18} />, tone: "warn" },
-        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <FiAlertTriangle size={18} />, tone: "danger" },
-        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <FiCheckCircle size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} />, tone: "neutral" },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} />, tone: "brand" },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} />, tone: "warn" },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} />, tone: "danger" },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} />, tone: "success" },
     ];
 
     async function handleDeletar(id: string) {
@@ -274,7 +271,7 @@ function PedidosDashboard() {
 
                     <div className="toolbar-actions">
                         <div className="pedidos-search">
-                            <FiSearch size={16} className="search-icon" />
+                            <Search01Icon size={16} className="search-icon" />
                             <input
                                 ref={buscaRef}
                                 type="text"
@@ -293,7 +290,7 @@ function PedidosDashboard() {
                                 aria-label={t("pedidos.dashboard.notificationsAria")}
                                 aria-expanded={notifAberto}
                             >
-                                <FiBell size={18} />
+                                <Notification03Icon size={18} />
                                 {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
                             </button>
 
@@ -368,7 +365,7 @@ function PedidosDashboard() {
                                 aria-pressed={view === "list"}
                                 aria-label={t("pedidos.dashboard.viewList")}
                             >
-                                <FiList size={16} />
+                                <LeftToRightListBulletIcon size={16} />
                             </button>
                             <button
                                 type="button"
@@ -377,7 +374,7 @@ function PedidosDashboard() {
                                 aria-pressed={view === "grid"}
                                 aria-label={t("pedidos.dashboard.viewGrid")}
                             >
-                                <FiGrid size={16} />
+                                <GridViewIcon size={16} />
                             </button>
                         </div>
 
@@ -389,9 +386,9 @@ function PedidosDashboard() {
                                 aria-expanded={menuAberto === "periodo"}
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
                             >
-                                <FiCalendar size={15} />
+                                <Calendar03Icon size={15} />
                                 {t(PERIODO_I18N[periodo])}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "periodo" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -405,7 +402,7 @@ function PedidosDashboard() {
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
                                             {t(PERIODO_I18N[k])}
-                                            {periodo === k && <FiCheck size={15} />}
+                                            {periodo === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -420,7 +417,7 @@ function PedidosDashboard() {
                                 aria-expanded={menuAberto === "filtros"}
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
                             >
-                                <FiFilter size={15} />
+                                <FilterIcon size={15} />
                                 {t("pedidos.dashboard.filtersButton")}
                             </button>
                             {menuAberto === "filtros" && (
@@ -435,7 +432,7 @@ function PedidosDashboard() {
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {t(ORDENACAO_I18N[k])}
-                                            {ordenacao === k && <FiCheck size={15} />}
+                                            {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -454,7 +451,7 @@ function PedidosDashboard() {
                     </div>
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><FiInbox size={28} /></span>
+                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
                         <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
                         <p className="empty-sub">
                             {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}

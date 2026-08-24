@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { FiCheck, FiChevronDown } from "react-icons/fi";
+import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
 
 export interface SelectOption {
     label: string;
@@ -74,7 +74,7 @@ function Select({
                 ) : (
                     <span className="ui-select-value">{textoSelecionado}</span>
                 )}
-                <FiChevronDown size={15} className="filtro-action-chev ui-select-chev" />
+                <ArrowDown01Icon size={15} className="filtro-action-chev ui-select-chev" />
             </button>
 
             {aberto && (
@@ -89,7 +89,7 @@ function Select({
                             onClick={() => { onChange(o.value); setAberto(false); }}
                         >
                             {o.label}
-                            {value === o.value && <FiCheck size={15} />}
+                            {value === o.value && <Tick02Icon size={15} />}
                         </button>
                     ))}
                 </div>
