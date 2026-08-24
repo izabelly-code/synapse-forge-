@@ -332,7 +332,8 @@ body {
 }
 
 .lang-switch button.active {
-  color: var(--color-primary);
+  background: var(--surface-container);
+  color: var(--color-text);
 }
 
 
