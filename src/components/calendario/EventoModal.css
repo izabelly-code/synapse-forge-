@@ -1,7 +1,7 @@
 .evento-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(31, 26, 30, 0.4);
+  background: var(--scrim);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
@@ -132,7 +132,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 
@@ -220,7 +220,7 @@
 .detalhe-id {
   font-family: monospace;
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--color-text-subtle);
   word-break: break-all;
 }
 
@@ -253,7 +253,7 @@
 
 .btn-primary:hover {
   filter: brightness(0.95);
-  box-shadow: 0 2px 8px rgba(251, 74, 20, 0.2);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .btn-secondary {
@@ -335,12 +335,12 @@
 }
 
 .user-suggestion-item strong {
-  color: #1f2937;
+  color: var(--color-text);
   display: block;
 }
 
 .user-suggestion-item small {
-  color: #6b7280;
+  color: var(--color-text-muted);
   display: block;
   margin-top: 4px;
 }
