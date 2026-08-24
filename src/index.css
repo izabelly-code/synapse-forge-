@@ -1226,13 +1226,9 @@ body {
   height: 2.5rem;
   border-radius: var(--radius);
   flex-shrink: 0;
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
-
-.stat-neutral { background: var(--surface-container); color: var(--on-surface); }
-.stat-brand   { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--primary); }
-.stat-warn    { background: var(--warning-container); color: var(--warning-color); }
-.stat-danger  { background: var(--error-container); color: var(--error-color); }
-.stat-success { background: var(--success-container); color: var(--success-color); }
 
 .stat-body {
   display: flex;

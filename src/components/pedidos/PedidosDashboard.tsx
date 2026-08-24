@@ -189,11 +189,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} />, tone: "neutral" },
-        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} />, tone: "brand" },
-        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} />, tone: "warn" },
-        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} />, tone: "danger" },
-        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} /> },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} /> },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} /> },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} /> },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} /> },
     ];
 
     async function handleDeletar(id: string) {
@@ -333,7 +333,7 @@ function PedidosDashboard() {
                 <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
                     {statCards.map((s) => (
                         <div key={s.key} className="stat-card">
-                            <span className={`stat-icon stat-${s.tone}`}>{s.icon}</span>
+                            <span className="stat-icon">{s.icon}</span>
                             <div className="stat-body">
                                 <span className="stat-value">{s.value}</span>
                                 <span className="stat-label">{s.label}</span>
