@@ -38,8 +38,8 @@
         "themeToDark": "Tema escuro",
         "themeToLightAria": "Ativar tema claro",
         "themeToDarkAria": "Ativar tema escuro",
-        "langEnglish": "English",
-        "langPortuguese": "Português",
+        "langEnglish": "English (US)",
+        "langPortuguese": "Português (Brasil)",
         "languageAria": "Mudar idioma / Change language",
         "logout": "Sair"
     },
