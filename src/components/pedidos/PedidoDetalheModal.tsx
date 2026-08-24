@@ -47,6 +47,7 @@ interface PedidoDetalheModalProps {
     pedidoId: string;
     onClose: () => void;
     onUpdated?: (pedido: Pedido) => void;
+    abrirEmEdicao?: boolean;
 }
 
 interface NovaImagem {
@@ -55,7 +56,7 @@ interface NovaImagem {
     url: string;
 }
 
-function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModalProps) {
+function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = false }: PedidoDetalheModalProps) {
     const [pedido, setPedido] = useState<Pedido | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -85,7 +86,10 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
             setError("");
             try {
                 const data = await getPedido(pedidoId);
-                if (active) setPedido(data);
+                if (active) {
+                    setPedido(data);
+                    if (abrirEmEdicao) iniciarEdicao(data);
+                }
             } catch {
                 if (active) setError("Erro ao carregar os dados do pedido.");
             } finally {
@@ -158,13 +162,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         atualizarNovasImagens(novasImagensRef.current.filter((imagem) => imagem.id !== id));
     }
 
-    function iniciarEdicao() {
-        if (!pedido) return;
-        setCliente(pedido.cliente);
-        setProjeto(pedido.projeto);
-        setDescricao(pedido.descricao ?? "");
-        setPrazo(pedido.prazo.slice(0, 10));
-        setStatus(pedido.status);
+    function iniciarEdicao(alvo: Pedido) {
+        setCliente(alvo.cliente);
+        setProjeto(alvo.projeto);
+        setDescricao(alvo.descricao ?? "");
+        setPrazo(alvo.prazo.slice(0, 10));
+        setStatus(alvo.status);
         setObjeto3D(null);
         setRemoverObjeto3D(false);
         limparNovasImagens();
@@ -258,7 +261,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                     </div>
                     <div className="pedido-detalhe-header-actions">
                         {pedido && !editando && (
-                            <button type="button" className="pedido-edit-btn" onClick={iniciarEdicao}>
+                            <button type="button" className="pedido-edit-btn" onClick={() => iniciarEdicao(pedido)}>
                                 <FiEdit2 size={15} />
                                 Editar
                             </button>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck, FiMoreVertical } from 'react-icons/fi';
+import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck, FiMoreVertical, FiEdit2 } from 'react-icons/fi';
 import { Pedido, PedidoStatus } from '../../types';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
@@ -113,12 +113,13 @@ interface PedidoRowProps {
     onRegredir: (id: string) => void;
     onDeletar: (id: string) => void;
     onAbrir: (pedido: Pedido) => void;
+    onEditar: (pedido: Pedido) => void;
     loading: boolean;
     index?: number;
     justAdvanced?: boolean;
 }
 
-function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, loading, index = 0, justAdvanced = false }: PedidoRowProps) {
+function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar, loading, index = 0, justAdvanced = false }: PedidoRowProps) {
     const finalizado = pedido.status === "FINALIZADO";
     const naPrimeiraEtapa = pedido.status === "MODELAGEM";
     const restante = finalizado ? null : tempoRestante(pedido.prazo);
@@ -235,6 +236,9 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, loading,
                                             <FiArrowLeft size={15} /> Regredir etapa
                                         </button>
                                     )}
+                                    <button className="kebab-item" role="menuitem" onClick={() => { onEditar(pedido); fecharMenu(); }}>
+                                        <FiEdit2 size={15} /> Editar pedido
+                                    </button>
                                     <button className="kebab-item kebab-danger" role="menuitem" onClick={() => setConfirmDel(true)}>
                                         <FiTrash2 size={15} /> Excluir
                                     </button>

@@ -80,6 +80,7 @@ function PedidosDashboard() {
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
+    const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
     const [notifAberto, setNotifAberto] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
@@ -266,7 +267,8 @@ function PedidosDashboard() {
             {pedidoDetalheId && (
                 <PedidoDetalheModal
                     pedidoId={pedidoDetalheId}
-                    onClose={() => setPedidoDetalheId(null)}
+                    abrirEmEdicao={detalheEmEdicao}
+                    onClose={() => { setPedidoDetalheId(null); setDetalheEmEdicao(false); }}
                     onUpdated={(atualizado) => {
                         updatePedidos((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
                     }}
@@ -493,7 +495,8 @@ function PedidosDashboard() {
                                 onAvancar={handleAvancar}
                                 onRegredir={handleRegredir}
                                 onDeletar={handleDeletar}
-                                onAbrir={(p) => setPedidoDetalheId(p.id)}
+                                onAbrir={(p) => { setDetalheEmEdicao(false); setPedidoDetalheId(p.id); }}
+                                onEditar={(p) => { setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
                                 loading={loadingIds.has(pedido.id)}
                                 justAdvanced={recemAvancado === pedido.id}
                             />
