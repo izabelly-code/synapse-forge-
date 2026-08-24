@@ -2746,7 +2746,8 @@ html {
 }
 
 .sidebar-lang-option.selected {
-  color: var(--color-primary);
+  background: var(--surface-container);
+  color: var(--on-surface);
   font-weight: 600;
 }
 
