@@ -29,6 +29,9 @@ flowchart LR
     E["🎨 Estoque & Cores"]
     ADM["⚙️ Admin"]
 
+    D --> D1["Visão geral: pedidos em andamento, próximos eventos, alertas"]
+    D --> D2["Dashboard customizável (futuro)"]
+
     P --> P1["Pedidos de clientes (atual /dashboard)"]
     P --> P2["Ordens de Pintura (kanban)"]
     P --> P3["Logística & Entrega — SYN-44*"]
