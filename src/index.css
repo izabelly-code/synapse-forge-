@@ -2720,6 +2720,7 @@ html {
   z-index: 30;
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
 .sidebar-lang-option {
