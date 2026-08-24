@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, ClipboardIcon, CubeIcon, DeliveryBox01Icon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon } from "hugeicons-react";
+import { Calendar03Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getUserById } from "../../services/UserService";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -14,10 +14,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <DeliveryBox01Icon size={18} /> },
+    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
     { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
     { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
-    { labelKey: "sidebar.materiais", path: "/materiais", icon: <CubeIcon size={18} /> },
+    { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
     { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
     { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
     { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
