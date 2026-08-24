@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     FiBox,
     FiCalendar,
@@ -25,7 +25,7 @@ import ImageLightbox from "../ui/ImageLightbox";
 
 const STATUS_LABELS: Record<PedidoStatus, string> = {
     MODELAGEM: "Modelagem",
-    IMPRESSAO: "Impressao",
+    IMPRESSAO: "Impressão",
     PINTURA: "Pintura",
     ACABAMENTO: "Acabamento",
     FINALIZADO: "Finalizado",
@@ -56,6 +56,9 @@ interface NovaImagem {
     url: string;
 }
 
+type CampoErro = "cliente" | "projeto" | "prazo";
+type Erros = Partial<Record<CampoErro, string>>;
+
 function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = false }: PedidoDetalheModalProps) {
     const [pedido, setPedido] = useState<Pedido | null>(null);
     const [loading, setLoading] = useState(true);
@@ -76,7 +79,37 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [removerObjeto3D, setRemoverObjeto3D] = useState(false);
     const [novasImagens, setNovasImagens] = useState<NovaImagem[]>([]);
     const [imagensRemover, setImagensRemover] = useState<Set<string>>(new Set());
+    const [erros, setErros] = useState<Erros>({});
     const novasImagensRef = useRef<NovaImagem[]>([]);
+
+    const clienteRef = useRef<HTMLInputElement>(null);
+    const projetoRef = useRef<HTMLInputElement>(null);
+    const prazoRef = useRef<HTMLInputElement>(null);
+
+    const atualizarNovasImagens = useCallback((proximas: NovaImagem[]) => {
+        novasImagensRef.current = proximas;
+        setNovasImagens(proximas);
+    }, []);
+
+    const limparNovasImagens = useCallback(() => {
+        novasImagensRef.current.forEach(({ url }) => URL.revokeObjectURL(url));
+        atualizarNovasImagens([]);
+    }, [atualizarNovasImagens]);
+
+    const iniciarEdicao = useCallback((alvo: Pedido) => {
+        setCliente(alvo.cliente);
+        setProjeto(alvo.projeto);
+        setDescricao(alvo.descricao ?? "");
+        setPrazo(alvo.prazo.slice(0, 10));
+        setStatus(alvo.status);
+        setObjeto3D(null);
+        setRemoverObjeto3D(false);
+        limparNovasImagens();
+        setImagensRemover(new Set());
+        setErroEdicao("");
+        setErros({});
+        setEditando(true);
+    }, [limparNovasImagens]);
 
     useEffect(() => {
         let active = true;
@@ -99,7 +132,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
         fetchPedido();
         return () => { active = false; };
-    }, [pedidoId]);
+    }, [pedidoId, abrirEmEdicao, iniciarEdicao]);
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -132,21 +165,13 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         };
     }, []);
 
-    function atualizarNovasImagens(proximas: NovaImagem[]) {
-        novasImagensRef.current = proximas;
-        setNovasImagens(proximas);
-    }
-
-    function limparNovasImagens() {
-        novasImagensRef.current.forEach(({ url }) => URL.revokeObjectURL(url));
-        atualizarNovasImagens([]);
-    }
-
     function adicionarImagens(files: FileList | null) {
         if (!files?.length) return;
 
+        const chaves = new Set(novasImagensRef.current.map(({ arquivo }) => `${arquivo.name}-${arquivo.size}`));
         const selecionadas = Array.from(files)
             .filter((arquivo) => arquivo.type.startsWith("image/"))
+            .filter((arquivo) => !chaves.has(`${arquivo.name}-${arquivo.size}`))
             .map((arquivo) => ({
                 id: `${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${crypto.randomUUID()}`,
                 arquivo,
@@ -162,26 +187,30 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         atualizarNovasImagens(novasImagensRef.current.filter((imagem) => imagem.id !== id));
     }
 
-    function iniciarEdicao(alvo: Pedido) {
-        setCliente(alvo.cliente);
-        setProjeto(alvo.projeto);
-        setDescricao(alvo.descricao ?? "");
-        setPrazo(alvo.prazo.slice(0, 10));
-        setStatus(alvo.status);
-        setObjeto3D(null);
-        setRemoverObjeto3D(false);
-        limparNovasImagens();
-        setImagensRemover(new Set());
-        setErroEdicao("");
-        setEditando(true);
-    }
-
     function cancelarEdicao() {
         setEditando(false);
         setErroEdicao("");
+        setErros({});
         setObjeto3D(null);
         limparNovasImagens();
         setImagensRemover(new Set());
+    }
+
+    function limparErro(campo: CampoErro) {
+        setErros((prev) => {
+            if (!prev[campo]) return prev;
+            const next = { ...prev };
+            delete next[campo];
+            return next;
+        });
+    }
+
+    function validar(): Erros {
+        const e: Erros = {};
+        if (!cliente.trim()) e.cliente = "Informe o nome do cliente.";
+        if (!projeto.trim()) e.projeto = "Informe o nome do projeto.";
+        if (!prazo) e.prazo = "Informe o prazo.";
+        return e;
     }
 
     function alternarRemocaoImagem(id: string) {
@@ -196,8 +225,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
     async function handleSalvar(e: React.FormEvent) {
         e.preventDefault();
-        if (!pedido || !cliente.trim() || !projeto.trim() || !prazo) {
-            setErroEdicao("Preencha cliente, projeto e prazo.");
+        if (!pedido) return;
+
+        const novosErros = validar();
+        if (Object.keys(novosErros).length > 0) {
+            setErros(novosErros);
+            if (novosErros.cliente) clienteRef.current?.focus();
+            else if (novosErros.projeto) projetoRef.current?.focus();
+            else if (novosErros.prazo) prazoRef.current?.focus();
             return;
         }
 
@@ -295,15 +330,52 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                         <div className="pedido-edit-grid">
                             <div className="input-group">
                                 <label htmlFor="pedido-cliente">Cliente</label>
-                                <input id="pedido-cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} />
+                                <input
+                                    id="pedido-cliente"
+                                    ref={clienteRef}
+                                    className={erros.cliente ? "input-error" : ""}
+                                    value={cliente}
+                                    onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
+                                    placeholder="Nome do cliente"
+                                    aria-invalid={!!erros.cliente}
+                                    aria-describedby={erros.cliente ? "pedido-cliente-erro" : undefined}
+                                    autoFocus
+                                />
+                                <span className="input-hint" id="pedido-cliente-erro">
+                                    {erros.cliente && <span className="error-text">{erros.cliente}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
                                 <label htmlFor="pedido-projeto">Projeto</label>
-                                <input id="pedido-projeto" value={projeto} onChange={(e) => setProjeto(e.target.value)} />
+                                <input
+                                    id="pedido-projeto"
+                                    ref={projetoRef}
+                                    className={erros.projeto ? "input-error" : ""}
+                                    value={projeto}
+                                    onChange={(e) => { setProjeto(e.target.value); limparErro("projeto"); }}
+                                    placeholder="Nome do projeto"
+                                    aria-invalid={!!erros.projeto}
+                                    aria-describedby={erros.projeto ? "pedido-projeto-erro" : undefined}
+                                />
+                                <span className="input-hint" id="pedido-projeto-erro">
+                                    {erros.projeto && <span className="error-text">{erros.projeto}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
                                 <label htmlFor="pedido-prazo">Prazo</label>
-                                <input id="pedido-prazo" type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
+                                <input
+                                    id="pedido-prazo"
+                                    ref={prazoRef}
+                                    type="date"
+                                    className={erros.prazo ? "input-error" : ""}
+                                    value={prazo}
+                                    onChange={(e) => { setPrazo(e.target.value); limparErro("prazo"); }}
+                                    aria-invalid={!!erros.prazo}
+                                    aria-describedby={erros.prazo ? "pedido-prazo-erro" : undefined}
+                                />
+                                <span className="input-hint" id="pedido-prazo-erro">
+                                    {erros.prazo && <span className="error-text">{erros.prazo}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
                                 <label htmlFor="pedido-status">Etapa</label>
@@ -323,6 +395,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 rows={4}
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
+                                placeholder="Detalhes do pedido, referências, acabamento desejado..."
                             />
                         </div>
 
@@ -339,7 +412,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
                                     <div>
                                         <strong>Objeto 3D atual</strong>
-                                        <span>O arquivo sera preservado se nenhuma acao for feita.</span>
+                                        <span>O arquivo será preservado se nenhuma ação for feita.</span>
                                     </div>
                                     <button type="button" className="pedido-remove-btn" onClick={() => setRemoverObjeto3D(true)}>
                                         <FiTrash2 size={15} /> Remover
@@ -362,7 +435,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
                             {removerObjeto3D && !objeto3D && (
                                 <div className="pedido-removal-notice">
-                                    O objeto atual sera excluido ao salvar.
+                                    O objeto atual será excluído ao salvar.
                                     <button type="button" onClick={() => setRemoverObjeto3D(false)}>Desfazer</button>
                                 </div>
                             )}
@@ -380,13 +453,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     }}
                                 />
                             </label>
+                            <span className="input-hint">Formatos aceitos: STL, OBJ, FBX, GLB, GLTF, 3MF</span>
                         </div>
 
                         <div className="pedido-edit-section">
                             <div className="pedido-edit-section-title">
                                 <div>
-                                    <h3>Imagens de referencia</h3>
-                                    <span>Remova imagens atuais ou acrescente novas.</span>
+                                    <h3>Imagens de referência</h3>
+                                    <span>Remova imagens atuais ou acrescente novas. Clique numa imagem para ampliar.</span>
                                 </div>
                                 <label className="pedido-upload-btn">
                                     <FiPlus size={16} />
@@ -409,7 +483,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                         const removida = imagensRemover.has(imagem.id);
                                         return (
                                             <div key={imagem.id || index} className={`pedido-edit-image ${removida ? "is-removed" : ""}`}>
-                                                <img src={imagem.src} alt={`Referencia atual ${index + 1}`} />
+                                                <img
+                                                    src={imagem.src}
+                                                    alt={`Referência atual ${index + 1}`}
+                                                    onClick={() => setZoomSrc(imagem.src)}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => { if (e.key === "Enter") setZoomSrc(imagem.src); }}
+                                                />
                                                 <button
                                                     type="button"
                                                     onClick={() => alternarRemocaoImagem(imagem.id)}
@@ -422,7 +503,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     })}
                                     {novasImagens.map(({ id, url }, index) => (
                                         <div key={id} className="pedido-edit-image is-new">
-                                            <img src={url} alt={`Nova referencia ${index + 1}`} />
+                                            <img
+                                                src={url}
+                                                alt={`Nova referência ${index + 1}`}
+                                                onClick={() => setZoomSrc(url)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => { if (e.key === "Enter") setZoomSrc(url); }}
+                                            />
                                             <span>Nova</span>
                                             <button
                                                 type="button"
@@ -443,7 +531,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 Cancelar
                             </button>
                             <button type="submit" className="button" disabled={salvando}>
-                                {salvando ? "Salvando..." : "Salvar alteracoes"}
+                                {salvando ? "Salvando..." : "Salvar alterações"}
                             </button>
                         </div>
                     </form>
@@ -488,7 +576,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
                                     <div>
                                         <strong>Objeto 3D do pedido</strong>
-                                        <span>Arquivo do modelo enviado para producao</span>
+                                        <span>Arquivo do modelo enviado para produção</span>
                                     </div>
                                     <button type="button" className="pedido-download-btn" onClick={handleDownloadObjeto3D} disabled={downloading}>
                                         <FiDownload size={16} />
@@ -502,7 +590,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                         </div>
 
                         <div className="pedido-detalhe-section">
-                            <h3>Imagens de referencia</h3>
+                            <h3>Imagens de referência</h3>
                             {imagensAtuais.length > 0 ? (
                                 <div className="pedido-imagens-grid">
                                     {imagensAtuais.map((imagem, index) => (
@@ -513,12 +601,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                             onClick={() => setZoomSrc(imagem.src)}
                                             aria-label={`Ampliar imagem ${index + 1}`}
                                         >
-                                            <img src={imagem.src} alt={`Referencia ${index + 1} do pedido ${pedido.projeto}`} />
+                                            <img src={imagem.src} alt={`Referência ${index + 1} do pedido ${pedido.projeto}`} />
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty"><FiImage size={16} /> Nenhuma imagem de referencia foi enviada.</p>
+                                <p className="pedido-detalhe-empty"><FiImage size={16} /> Nenhuma imagem de referência foi enviada.</p>
                             )}
                         </div>
                     </div>
