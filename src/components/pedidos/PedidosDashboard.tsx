@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, CubeIcon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, Search01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, Search01Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -189,7 +189,7 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <CubeIcon size={18} />, tone: "neutral" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} />, tone: "neutral" },
         { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} />, tone: "brand" },
         { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} />, tone: "warn" },
         { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} />, tone: "danger" },
