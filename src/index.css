@@ -2363,7 +2363,9 @@ body {
 
 .pedido-edit-actions {
   margin-top: 0;
-  padding-bottom: 0;
+  /* cobre a faixa de padding inferior do modal, senão o conteúdo rolado aparece sob os botões */
+  margin-bottom: -1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .pedido-imagens-grid {
@@ -2415,6 +2417,11 @@ body {
 @media (max-width: 768px) {
   .pedido-detalhe-modal {
     padding: 1.25rem;
+  }
+
+  .pedido-edit-actions {
+    margin-bottom: -1.25rem;
+    padding-bottom: 1.25rem;
   }
 
   .pedido-detalhe-info-grid {
