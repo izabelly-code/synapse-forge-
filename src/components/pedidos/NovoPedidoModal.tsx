@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { FiFile, FiPlus, FiX } from "react-icons/fi";
 import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
 
@@ -79,6 +79,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         if (!cliente.trim()) e.cliente = "Informe o nome do cliente.";
         if (!projeto.trim()) e.projeto = "Informe o nome do projeto.";
         if (!prazo) e.prazo = "Informe o prazo.";
+        else if (prazo < hoje) e.prazo = "O prazo não pode ser anterior a hoje.";
         return e;
     }
 
@@ -185,32 +186,40 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="objeto3D">
-                            Upload do objeto 3D
+                        <label>Objeto 3D</label>
+
+                        {objeto3D && (
+                            <div className="pedido-edit-file is-new">
+                                <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                <div>
+                                    <strong>{objeto3D.name}</strong>
+                                    <span>Arquivo selecionado</span>
+                                </div>
+                                <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
+                                    <FiX size={15} /> Retirar
+                                </button>
+                            </div>
+                        )}
+
+                        <label className="pedido-upload-btn">
+                            <FiPlus size={16} />
+                            {objeto3D ? "Selecionar outro objeto" : "Adicionar objeto 3D"}
+                            <input
+                                type="file"
+                                accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                                onChange={(e) => { setObjeto3D(e.target.files?.[0] ?? null); e.target.value = ""; }}
+                            />
                         </label>
-                        <input
-                            id="objeto3D"
-                            type="file"
-                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
-                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
-                        />
+                        <span className="input-hint">Formatos aceitos: STL, OBJ, FBX, GLB, GLTF, 3MF</span>
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="imagensReferencia">
-                            Imagens de referência
-                        </label>
-                        <input
-                            id="imagensReferencia"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
-                        />
+                        <label>Imagens de referência</label>
+
                         {previews.length > 0 && (
-                            <div className="img-preview-grid">
+                            <div className="pedido-edit-images">
                                 {previews.map((p, i) => (
-                                    <div key={`${p.file.name}-${p.file.size}-${i}`} className="img-preview">
+                                    <div key={`${p.file.name}-${p.file.size}-${i}`} className="pedido-edit-image is-new">
                                         <img
                                             src={p.url}
                                             alt={p.file.name}
@@ -221,18 +230,28 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                                         />
                                         <button
                                             type="button"
-                                            className="img-preview-remove"
                                             onClick={() => removerImagem(i)}
                                             aria-label={`Remover ${p.file.name}`}
                                         >
-                                            <FiX size={12} />
+                                            <FiX size={14} /> Retirar
                                         </button>
                                     </div>
                                 ))}
                             </div>
                         )}
+
+                        <label className="pedido-upload-btn">
+                            <FiPlus size={16} />
+                            Adicionar imagens
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
+                            />
+                        </label>
                         <span className="input-hint">
-                            {previews.length > 0 && `${previews.length} imagem${previews.length > 1 ? "ns" : ""} selecionada${previews.length > 1 ? "s" : ""}`}
+                            {previews.length > 0 && `${previews.length} imagem${previews.length > 1 ? "ns" : ""} selecionada${previews.length > 1 ? "s" : ""} — clique para ampliar`}
                         </span>
                     </div>
 
