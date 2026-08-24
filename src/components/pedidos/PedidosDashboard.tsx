@@ -3,6 +3,7 @@ import {
     FiInbox, FiSearch, FiBell, FiBox, FiActivity, FiClock, FiAlertTriangle, FiCheckCircle,
     FiCalendar, FiChevronDown, FiFilter, FiCheck, FiList, FiGrid,
 } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
@@ -10,35 +11,23 @@ import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
 
-interface Filtro {
-    label: string;
-    value: PedidoStatus | "";
-}
-
-const FILTROS: Filtro[] = [
-    { label: "Todos", value: "" },
-    { label: "Modelagem", value: "MODELAGEM" },
-    { label: "Impressão", value: "IMPRESSAO" },
-    { label: "Pintura", value: "PINTURA" },
-    { label: "Acabamento", value: "ACABAMENTO" },
-    { label: "Finalizado", value: "FINALIZADO" },
-];
+const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
 const CACHE_KEY = "pedidos:all";
 
 type PeriodoKey = "all" | "semana" | "mes" | "atrasados";
-const PERIODO_LABELS: Record<PeriodoKey, string> = {
-    all: "Todos os prazos",
-    semana: "Próx. 7 dias",
-    mes: "Este mês",
-    atrasados: "Atrasados",
+const PERIODO_I18N: Record<PeriodoKey, string> = {
+    all: "pedidos.dashboard.periodAll",
+    semana: "pedidos.dashboard.periodWeek",
+    mes: "pedidos.dashboard.periodMonth",
+    atrasados: "pedidos.dashboard.periodLate",
 };
 
 type OrdKey = "recentes" | "prazo-asc" | "prazo-desc";
-const ORDENACAO_LABELS: Record<OrdKey, string> = {
-    recentes: "Padrão",
-    "prazo-asc": "Prazo: mais próximo",
-    "prazo-desc": "Prazo: mais distante",
+const ORDENACAO_I18N: Record<OrdKey, string> = {
+    recentes: "pedidos.dashboard.sortDefault",
+    "prazo-asc": "pedidos.dashboard.sortDeadlineAsc",
+    "prazo-desc": "pedidos.dashboard.sortDeadlineDesc",
 };
 
 function startOfToday(): number {
@@ -71,6 +60,7 @@ function ehAtrasado(prazo: string): boolean {
 }
 
 function PedidosDashboard() {
+    const { t } = useTranslation();
     const initialCached = getCached<Pedido[]>(CACHE_KEY);
     const [pedidos, setPedidos] = useState<Pedido[]>(initialCached ?? []);
     const [filtro, setFiltro] = useState<PedidoStatus | "">("");
@@ -115,7 +105,7 @@ function PedidosDashboard() {
         try {
             updatePedidos(await getPedidos());
         } catch {
-            setError("Erro ao carregar pedidos. Verifique se o servidor está rodando.");
+            setError(t("pedidos.dashboard.errorLoad"));
         } finally {
             setFetching(false);
         }
@@ -202,11 +192,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: "Total de Pedidos", value: stats.total, icon: <FiBox size={18} />, tone: "neutral" },
-        { key: "producao", label: "Em Produção", value: stats.emProducao, icon: <FiActivity size={18} />, tone: "brand" },
-        { key: "hoje", label: "Prazo Hoje", value: stats.hoje, icon: <FiClock size={18} />, tone: "warn" },
-        { key: "atrasados", label: "Atrasados", value: stats.atrasados, icon: <FiAlertTriangle size={18} />, tone: "danger" },
-        { key: "finalizados", label: "Finalizados", value: stats.finalizados, icon: <FiCheckCircle size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <FiBox size={18} />, tone: "neutral" },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <FiActivity size={18} />, tone: "brand" },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <FiClock size={18} />, tone: "warn" },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <FiAlertTriangle size={18} />, tone: "danger" },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <FiCheckCircle size={18} />, tone: "success" },
     ];
 
     async function handleDeletar(id: string) {
@@ -214,7 +204,7 @@ function PedidosDashboard() {
             await deletarPedido(id);
             updatePedidos((prev) => prev.filter((p) => p.id !== id));
         } catch {
-            setError("Falha ao deletar pedido.");
+            setError(t("pedidos.dashboard.errorDelete"));
         }
     }
 
@@ -227,7 +217,7 @@ function PedidosDashboard() {
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
         } catch {
-            setError("Falha ao avançar status.");
+            setError(t("pedidos.dashboard.errorAdvance"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -246,7 +236,7 @@ function PedidosDashboard() {
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
         } catch {
-            setError("Falha ao regredir status.");
+            setError(t("pedidos.dashboard.errorRegress"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -278,8 +268,8 @@ function PedidosDashboard() {
             <main className="dashboard-main pedidos-page">
                 <header className="pedidos-toolbar">
                     <div>
-                        <h1 className="dashboard-title">Produção</h1>
-                        <p className="dashboard-subtitle">Acompanhe todos os pedidos em produção</p>
+                        <h1 className="dashboard-title">{t("pedidos.dashboard.title")}</h1>
+                        <p className="dashboard-subtitle">{t("pedidos.dashboard.subtitle")}</p>
                     </div>
 
                     <div className="toolbar-actions">
@@ -288,10 +278,10 @@ function PedidosDashboard() {
                             <input
                                 ref={buscaRef}
                                 type="text"
-                                placeholder="Buscar cliente ou projeto..."
+                                placeholder={t("pedidos.dashboard.searchPlaceholder")}
                                 value={busca}
                                 onChange={(e) => setBusca(e.target.value)}
-                                aria-label="Buscar pedidos"
+                                aria-label={t("pedidos.dashboard.searchAria")}
                             />
                             <kbd className="search-kbd">⌘K</kbd>
                         </div>
@@ -300,7 +290,7 @@ function PedidosDashboard() {
                             <button
                                 className="icon-button"
                                 onClick={() => setNotifAberto((v) => !v)}
-                                aria-label="Notificações"
+                                aria-label={t("pedidos.dashboard.notificationsAria")}
                                 aria-expanded={notifAberto}
                             >
                                 <FiBell size={18} />
@@ -309,9 +299,9 @@ function PedidosDashboard() {
 
                             {notifAberto && (
                                 <div className="notif-panel" role="menu">
-                                    <div className="notif-panel-head">Atenção necessária</div>
+                                    <div className="notif-panel-head">{t("pedidos.dashboard.notifTitle")}</div>
                                     {urgentes.length === 0 ? (
-                                        <p className="notif-empty">Tudo em dia. Nenhum prazo crítico.</p>
+                                        <p className="notif-empty">{t("pedidos.dashboard.notifEmpty")}</p>
                                     ) : (
                                         <ul className="notif-list">
                                             {urgentes.map((p) => {
@@ -325,7 +315,7 @@ function PedidosDashboard() {
                                                             <span className="notif-item-projeto">{p.projeto}</span>
                                                             <span className="notif-item-cliente">{p.cliente}</span>
                                                             <span className={`notif-item-tag ${atrasado ? "tag-danger" : "tag-warn"}`}>
-                                                                {atrasado ? "Atrasado" : "Vence hoje"}
+                                                                {atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday")}
                                                             </span>
                                                         </button>
                                                     </li>
@@ -338,12 +328,12 @@ function PedidosDashboard() {
                         </div>
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + Novo Pedido
+                            {t("pedidos.dashboard.newOrder")}
                         </button>
                     </div>
                 </header>
 
-                <section className="stat-cards" aria-label="Resumo da produção">
+                <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
                     {statCards.map((s) => (
                         <div key={s.key} className="stat-card">
                             <span className={`stat-icon stat-${s.tone}`}>{s.icon}</span>
@@ -357,26 +347,26 @@ function PedidosDashboard() {
 
                 <div className="filtros-bar">
                     <div className="filtros-tabs">
-                        {FILTROS.map((f) => (
+                        {FILTRO_VALUES.map((valor) => (
                             <button
-                                key={f.value}
-                                className={`filtro-btn ${filtro === f.value ? "filtro-ativo" : ""}`}
-                                onClick={() => setFiltro(f.value)}
+                                key={valor}
+                                className={`filtro-btn ${filtro === valor ? "filtro-ativo" : ""}`}
+                                onClick={() => setFiltro(valor)}
                             >
-                                {f.label}
-                                <span className="filtro-count">{counts[f.value] ?? 0}</span>
+                                {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
+                                <span className="filtro-count">{counts[valor] ?? 0}</span>
                             </button>
                         ))}
                     </div>
 
                     <div className="filtros-actions">
-                        <div className="view-toggle" role="group" aria-label="Modo de visualização">
+                        <div className="view-toggle" role="group" aria-label={t("pedidos.dashboard.viewModeAria")}>
                             <button
                                 type="button"
                                 className={`view-btn ${view === "list" ? "is-active" : ""}`}
                                 onClick={() => alternarView("list")}
                                 aria-pressed={view === "list"}
-                                aria-label="Visualizar em lista"
+                                aria-label={t("pedidos.dashboard.viewList")}
                             >
                                 <FiList size={16} />
                             </button>
@@ -385,7 +375,7 @@ function PedidosDashboard() {
                                 className={`view-btn ${view === "grid" ? "is-active" : ""}`}
                                 onClick={() => alternarView("grid")}
                                 aria-pressed={view === "grid"}
-                                aria-label="Visualizar em grade"
+                                aria-label={t("pedidos.dashboard.viewGrid")}
                             >
                                 <FiGrid size={16} />
                             </button>
@@ -400,12 +390,12 @@ function PedidosDashboard() {
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
                             >
                                 <FiCalendar size={15} />
-                                {PERIODO_LABELS[periodo]}
+                                {t(PERIODO_I18N[periodo])}
                                 <FiChevronDown size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "periodo" && (
                                 <div className="filtro-dropdown" role="menu">
-                                    {(Object.keys(PERIODO_LABELS) as PeriodoKey[]).map((k) => (
+                                    {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
@@ -414,7 +404,7 @@ function PedidosDashboard() {
                                             className={`filtro-option ${periodo === k ? "selected" : ""}`}
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
-                                            {PERIODO_LABELS[k]}
+                                            {t(PERIODO_I18N[k])}
                                             {periodo === k && <FiCheck size={15} />}
                                         </button>
                                     ))}
@@ -431,11 +421,11 @@ function PedidosDashboard() {
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
                             >
                                 <FiFilter size={15} />
-                                Filtros
+                                {t("pedidos.dashboard.filtersButton")}
                             </button>
                             {menuAberto === "filtros" && (
                                 <div className="filtro-dropdown" role="menu">
-                                    {(Object.keys(ORDENACAO_LABELS) as OrdKey[]).map((k) => (
+                                    {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
@@ -444,7 +434,7 @@ function PedidosDashboard() {
                                             className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
-                                            {ORDENACAO_LABELS[k]}
+                                            {t(ORDENACAO_I18N[k])}
                                             {ordenacao === k && <FiCheck size={15} />}
                                         </button>
                                     ))}
@@ -465,13 +455,13 @@ function PedidosDashboard() {
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
                         <span className="pedidos-empty-icon"><FiInbox size={28} /></span>
-                        <p className="empty-title">Nenhum pedido encontrado</p>
+                        <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
                         <p className="empty-sub">
-                            {busca ? "Tente outro termo de busca." : filtro ? "Nenhum pedido nesta etapa por enquanto." : "Crie o primeiro pedido para começar."}
+                            {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
                         </p>
                         {!filtro && !busca && (
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                + Novo Pedido
+                                {t("pedidos.dashboard.newOrder")}
                             </button>
                         )}
                     </div>
@@ -479,11 +469,11 @@ function PedidosDashboard() {
                     <div className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
                         {view === "list" && (
                             <div className="pedidos-row-head" aria-hidden="true">
-                                <span>Pedido</span>
-                                <span>Cliente</span>
-                                <span>Projeto</span>
-                                <span>Prazo</span>
-                                <span>Progresso</span>
+                                <span>{t("pedidos.dashboard.headOrder")}</span>
+                                <span>{t("pedidos.dashboard.headClient")}</span>
+                                <span>{t("pedidos.dashboard.headProject")}</span>
+                                <span>{t("pedidos.dashboard.headDeadline")}</span>
+                                <span>{t("pedidos.dashboard.headProgress")}</span>
                                 <span />
                             </div>
                         )}

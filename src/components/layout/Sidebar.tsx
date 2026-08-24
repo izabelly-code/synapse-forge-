@@ -1,35 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon } from "react-icons/fi";
+import { FiPackage, FiCalendar, FiUser, FiLogOut, FiDroplet, FiBox, FiSliders, FiClipboard, FiDollarSign, FiSun, FiMoon, FiGlobe, FiCheck } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { getUserById } from "../../services/UserService";
 import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 
 interface NavItem {
-    label: string;
+    labelKey: string;
     path: string;
     icon: React.ReactNode;
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { label: "Pedidos", path: "/dashboard", icon: <FiPackage size={18} /> },
-    { label: "Paleta de Cores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
-    { label: "Calculadora de Mistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
-    { label: "Materiais", path: "/materiais", icon: <FiBox size={18} /> },
-    { label: "Orçamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
-    { label: "Ordens de Pintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
-    { label: "Calendário", path: "/calendar", icon: <FiCalendar size={18} /> },
-    { label: "Perfil", path: "/perfil", icon: <FiUser size={18} /> },
+    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <FiPackage size={18} /> },
+    { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <FiDroplet size={18} /> },
+    { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <FiSliders size={18} /> },
+    { labelKey: "sidebar.materiais", path: "/materiais", icon: <FiBox size={18} /> },
+    { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <FiDollarSign size={18} /> },
+    { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <FiClipboard size={18} /> },
+    { labelKey: "sidebar.calendario", path: "/calendar", icon: <FiCalendar size={18} /> },
+    { labelKey: "sidebar.perfil", path: "/perfil", icon: <FiUser size={18} /> },
+];
+
+const LANGUAGES = [
+    { code: "pt-BR", labelKey: "sidebar.langPortuguese" },
+    { code: "en-US", labelKey: "sidebar.langEnglish" },
 ];
 
 function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { theme, toggleTheme } = useTheme();
+    const { t, i18n } = useTranslation();
 
     const [nome, setNome] = useState(() => localStorage.getItem("userNome") ?? "");
     const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
+    const [langMenuAberto, setLangMenuAberto] = useState(false);
+    const langMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!langMenuAberto) return;
+        function onClick(e: MouseEvent) {
+            if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
+                setLangMenuAberto(false);
+            }
+        }
+        document.addEventListener("mousedown", onClick);
+        return () => document.removeEventListener("mousedown", onClick);
+    }, [langMenuAberto]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -68,7 +88,7 @@ function Sidebar() {
             <div className="sidebar-user">
                 <div className="sidebar-avatar">{getInitial()}</div>
                 <div className="sidebar-user-info">
-                    <span className="sidebar-user-name">{nome || "Usuário"}</span>
+                    <span className="sidebar-user-name">{nome || t("sidebar.userFallback")}</span>
                     {email && <span className="sidebar-user-email">{email}</span>}
                 </div>
             </div>
@@ -84,25 +104,59 @@ function Sidebar() {
                             onClick={() => navigate(item.path)}
                         >
                             <span className="sidebar-nav-icon">{item.icon}</span>
-                            <span>{item.label}</span>
+                            <span>{t(item.labelKey)}</span>
                         </button>
                     );
                 })}
             </nav>
 
-            <button
-                type="button"
-                className="sidebar-nav-item sidebar-theme-toggle"
-                onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
-            >
-                <span className="sidebar-nav-icon">{theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}</span>
-                <span>{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
-            </button>
+            <div className="sidebar-controls">
+                <button
+                    type="button"
+                    className="sidebar-icon-btn"
+                    onClick={toggleTheme}
+                    aria-label={theme === "dark" ? t("sidebar.themeToLightAria") : t("sidebar.themeToDarkAria")}
+                    title={theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}
+                >
+                    {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
+                </button>
+
+                <div className="sidebar-lang-wrap" ref={langMenuRef}>
+                    <button
+                        type="button"
+                        className={`sidebar-icon-btn ${langMenuAberto ? "is-open" : ""}`}
+                        onClick={() => setLangMenuAberto((o) => !o)}
+                        aria-label={t("sidebar.languageAria")}
+                        title={t("sidebar.languageAria")}
+                        aria-haspopup="menu"
+                        aria-expanded={langMenuAberto}
+                    >
+                        <FiGlobe size={18} />
+                    </button>
+
+                    {langMenuAberto && (
+                        <div className="sidebar-lang-menu" role="menu">
+                            {LANGUAGES.map((lang) => (
+                                <button
+                                    key={lang.code}
+                                    type="button"
+                                    role="menuitemradio"
+                                    aria-checked={i18n.language === lang.code}
+                                    className={`sidebar-lang-option ${i18n.language === lang.code ? "selected" : ""}`}
+                                    onClick={() => { i18n.changeLanguage(lang.code); setLangMenuAberto(false); }}
+                                >
+                                    {t(lang.labelKey)}
+                                    {i18n.language === lang.code && <FiCheck size={15} />}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             <button type="button" className="sidebar-logout" onClick={handleLogout}>
                 <span className="sidebar-nav-icon"><FiLogOut size={18} /></span>
-                <span>Sair</span>
+                <span>{t("sidebar.logout")}</span>
             </button>
         </aside>
     );

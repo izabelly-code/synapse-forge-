@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiFile, FiPlus, FiX } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
 
@@ -12,6 +13,7 @@ type CampoErro = "cliente" | "projeto" | "prazo";
 type Erros = Partial<Record<CampoErro, string>>;
 
 function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
+    const { t } = useTranslation();
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
@@ -76,10 +78,10 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     function validar(): Erros {
         const e: Erros = {};
-        if (!cliente.trim()) e.cliente = "Informe o nome do cliente.";
-        if (!projeto.trim()) e.projeto = "Informe o nome do projeto.";
-        if (!prazo) e.prazo = "Informe o prazo.";
-        else if (prazo < hoje) e.prazo = "O prazo não pode ser anterior a hoje.";
+        if (!cliente.trim()) e.cliente = t("pedidos.form.errorClient");
+        if (!projeto.trim()) e.projeto = t("pedidos.form.errorProject");
+        if (!prazo) e.prazo = t("pedidos.form.errorDeadline");
+        else if (prazo < hoje) e.prazo = t("pedidos.form.errorDeadlinePast");
         return e;
     }
 
@@ -112,7 +114,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         } catch (error) {
             setErroEnvio(error instanceof Error && error.message !== "Falha ao criar pedido"
                 ? error.message
-                : "Erro ao criar pedido. Tente novamente.");
+                : t("pedidos.novo.errorSubmit"));
         } finally {
             setLoading(false);
         }
@@ -130,8 +132,8 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header">
-                    <h2 id="modal-titulo">Novo Pedido</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">
+                    <h2 id="modal-titulo">{t("pedidos.novo.title")}</h2>
+                    <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                         <FiX size={18} />
                     </button>
                 </div>
@@ -140,14 +142,14 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     {erroEnvio && <p className="error">{erroEnvio}</p>}
 
                     <div className="input-group">
-                        <label htmlFor="cliente">Cliente</label>
+                        <label htmlFor="cliente">{t("pedidos.form.clientLabel")}</label>
                         <input
                             id="cliente"
                             ref={clienteRef}
                             className={erros.cliente ? "input-error" : ""}
                             value={cliente}
                             onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
-                            placeholder="Nome do cliente"
+                            placeholder={t("pedidos.form.clientPlaceholder")}
                             aria-invalid={!!erros.cliente}
                             aria-describedby={erros.cliente ? "cliente-erro" : undefined}
                             autoFocus
@@ -158,14 +160,14 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="projeto">Projeto</label>
+                        <label htmlFor="projeto">{t("pedidos.form.projectLabel")}</label>
                         <input
                             id="projeto"
                             ref={projetoRef}
                             className={erros.projeto ? "input-error" : ""}
                             value={projeto}
                             onChange={(e) => { setProjeto(e.target.value); limparErro("projeto"); }}
-                            placeholder="Nome do projeto"
+                            placeholder={t("pedidos.form.projectPlaceholder")}
                             aria-invalid={!!erros.projeto}
                             aria-describedby={erros.projeto ? "projeto-erro" : undefined}
                         />
@@ -175,46 +177,46 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="descricao">Descrição</label>
+                        <label htmlFor="descricao">{t("pedidos.form.descriptionLabel")}</label>
                         <textarea
                             id="descricao"
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
-                            placeholder="Detalhes do pedido, referências, acabamento desejado..."
+                            placeholder={t("pedidos.form.descriptionPlaceholder")}
                             rows={3}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label>Objeto 3D</label>
+                        <label>{t("pedidos.novo.object3dLabel")}</label>
 
                         {objeto3D && (
                             <div className="pedido-edit-file is-new">
                                 <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
                                 <div>
                                     <strong>{objeto3D.name}</strong>
-                                    <span>Arquivo selecionado</span>
+                                    <span>{t("pedidos.novo.object3dSelected")}</span>
                                 </div>
                                 <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
-                                    <FiX size={15} /> Retirar
+                                    <FiX size={15} /> {t("pedidos.form.removeFile")}
                                 </button>
                             </div>
                         )}
 
                         <label className="pedido-upload-btn">
                             <FiPlus size={16} />
-                            {objeto3D ? "Selecionar outro objeto" : "Adicionar objeto 3D"}
+                            {objeto3D ? t("pedidos.novo.object3dReplace") : t("pedidos.novo.object3dAdd")}
                             <input
                                 type="file"
                                 accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
                                 onChange={(e) => { setObjeto3D(e.target.files?.[0] ?? null); e.target.value = ""; }}
                             />
                         </label>
-                        <span className="input-hint">Formatos aceitos: STL, OBJ, FBX, GLB, GLTF, 3MF</span>
+                        <span className="input-hint">{t("pedidos.form.object3dFormats")}</span>
                     </div>
 
                     <div className="input-group">
-                        <label>Imagens de referência</label>
+                        <label>{t("pedidos.novo.imagesLabel")}</label>
 
                         {previews.length > 0 && (
                             <div className="pedido-edit-images">
@@ -231,9 +233,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                                         <button
                                             type="button"
                                             onClick={() => removerImagem(i)}
-                                            aria-label={`Remover ${p.file.name}`}
+                                            aria-label={t("pedidos.novo.removeImageAria", { name: p.file.name })}
                                         >
-                                            <FiX size={14} /> Retirar
+                                            <FiX size={14} /> {t("pedidos.form.removeFile")}
                                         </button>
                                     </div>
                                 ))}
@@ -242,7 +244,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
                         <label className="pedido-upload-btn">
                             <FiPlus size={16} />
-                            Adicionar imagens
+                            {t("pedidos.novo.imagesAdd")}
                             <input
                                 type="file"
                                 accept="image/*"
@@ -251,12 +253,12 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                             />
                         </label>
                         <span className="input-hint">
-                            {previews.length > 0 && `${previews.length} imagem${previews.length > 1 ? "ns" : ""} selecionada${previews.length > 1 ? "s" : ""} — clique para ampliar`}
+                            {previews.length > 0 && t("pedidos.novo.imagesCount", { count: previews.length })}
                         </span>
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="prazo">Prazo</label>
+                        <label htmlFor="prazo">{t("pedidos.form.deadlineLabel")}</label>
                         <input
                             id="prazo"
                             ref={prazoRef}
@@ -275,10 +277,10 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
                     <div className="modal-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
-                            Cancelar
+                            {t("pedidos.form.cancel")}
                         </button>
                         <button type="submit" className="button" disabled={loading}>
-                            {loading ? "Criando..." : "Criar Pedido"}
+                            {loading ? t("pedidos.novo.submitting") : t("pedidos.novo.submit")}
                         </button>
                     </div>
                 </form>
