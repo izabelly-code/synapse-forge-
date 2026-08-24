@@ -372,7 +372,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <label htmlFor="pedido-descricao">{t("pedidos.form.descriptionLabel")}</label>
                             <textarea
                                 id="pedido-descricao"
-                                rows={4}
+                                rows={3}
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
                                 placeholder={t("pedidos.form.descriptionPlaceholder")}

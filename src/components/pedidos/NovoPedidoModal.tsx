@@ -205,7 +205,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                         <label htmlFor="descricao">{t("pedidos.form.descriptionLabel")}</label>
                         <textarea
                             id="descricao"
-                            rows={4}
+                            rows={3}
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
                             placeholder={t("pedidos.form.descriptionPlaceholder")}
