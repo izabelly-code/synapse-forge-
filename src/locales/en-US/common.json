@@ -1,0 +1,27 @@
+{
+    "login": {
+        "welcomeTitle": "Welcome to Synapse Forge!",
+        "welcomeSubtitle": "Manage your account simply and securely.",
+        "logoAlt": "SynapseForge logo",
+        "title": "Sign in",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Enter your email",
+        "emailInvalid": "Invalid email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "capsLock": "Caps Lock is on",
+        "submit": "Sign in",
+        "submitting": "Signing in...",
+        "registerLink": "Don't have an account? Sign up",
+        "forgotPassword": "Forgot my password",
+        "errorEmailRequired": "Enter your email.",
+        "errorEmailInvalid": "Invalid email.",
+        "errorPasswordRequired": "Enter your password.",
+        "errorEmailNotConfirmed": "Confirm your email before signing in. Check your inbox.",
+        "errorAccountLocked_one": "Account temporarily locked due to too many attempts. Try again in {{count}} minute or reset your password.",
+        "errorAccountLocked_other": "Account temporarily locked due to too many attempts. Try again in {{count}} minutes or reset your password.",
+        "errorGeneric": "Could not sign in. Check your credentials."
+    }
+}
