@@ -3,6 +3,7 @@ import { Cancel01Icon } from "hugeicons-react";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
 import Select from "../ui/Select";
+import { cn } from "../../utils/cn";
 
 interface NovaCorModalProps {
     onClose: () => void;
@@ -201,7 +202,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                             <button
                                 key={c}
                                 type="button"
-                                className={`cor-preset ${hexSeguro === c ? "is-active" : ""}`}
+                                className={cn("cor-preset", hexSeguro === c && "is-active")}
                                 style={{ background: c }}
                                 onClick={() => selecionarCor(c)}
                                 aria-label={`Usar a cor ${c}`}

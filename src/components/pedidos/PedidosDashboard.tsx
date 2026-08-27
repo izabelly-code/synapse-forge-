@@ -7,6 +7,7 @@ import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
+import { cn } from "../../utils/cn";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -311,7 +312,7 @@ function PedidosDashboard() {
                                                         >
                                                             <span className="notif-item-projeto">{p.projeto}</span>
                                                             <span className="notif-item-cliente">{p.cliente}</span>
-                                                            <span className={`notif-item-tag ${atrasado ? "tag-danger" : "tag-warn"}`}>
+                                                            <span className={cn("notif-item-tag", atrasado ? "tag-danger" : "tag-warn")}>
                                                                 {atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday")}
                                                             </span>
                                                         </button>
@@ -347,7 +348,7 @@ function PedidosDashboard() {
                         {FILTRO_VALUES.map((valor) => (
                             <button
                                 key={valor}
-                                className={`filtro-btn ${filtro === valor ? "filtro-ativo" : ""}`}
+                                className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
                                 onClick={() => setFiltro(valor)}
                             >
                                 {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
@@ -360,7 +361,7 @@ function PedidosDashboard() {
                         <div className="view-toggle" role="group" aria-label={t("pedidos.dashboard.viewModeAria")}>
                             <button
                                 type="button"
-                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
+                                className={cn("view-btn", view === "list" && "is-active")}
                                 onClick={() => alternarView("list")}
                                 aria-pressed={view === "list"}
                                 aria-label={t("pedidos.dashboard.viewList")}
@@ -369,7 +370,7 @@ function PedidosDashboard() {
                             </button>
                             <button
                                 type="button"
-                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
+                                className={cn("view-btn", view === "grid" && "is-active")}
                                 onClick={() => alternarView("grid")}
                                 aria-pressed={view === "grid"}
                                 aria-label={t("pedidos.dashboard.viewGrid")}
@@ -381,7 +382,7 @@ function PedidosDashboard() {
                         <div className="filtro-menu" ref={periodoRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${periodo !== "all" ? "is-active" : ""}`}
+                                className={cn("filtro-action", periodo !== "all" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "periodo"}
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
@@ -398,7 +399,7 @@ function PedidosDashboard() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={periodo === k}
-                                            className={`filtro-option ${periodo === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", periodo === k && "selected")}
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
                                             {t(PERIODO_I18N[k])}
@@ -412,7 +413,7 @@ function PedidosDashboard() {
                         <div className="filtro-menu" ref={filtrosRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${ordenacao !== "recentes" ? "is-active" : ""}`}
+                                className={cn("filtro-action", ordenacao !== "recentes" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "filtros"}
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
@@ -428,7 +429,7 @@ function PedidosDashboard() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={ordenacao === k}
-                                            className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {t(ORDENACAO_I18N[k])}

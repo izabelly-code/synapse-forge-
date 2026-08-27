@@ -6,6 +6,7 @@ import { getUserById } from "../../services/UserService";
 import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
+import { cn } from "../../utils/cn";
 
 interface NavItem {
     labelKey: string;
@@ -100,7 +101,7 @@ function Sidebar() {
                         <button
                             key={item.path}
                             type="button"
-                            className={`sidebar-nav-item ${active ? "active" : ""}`}
+                            className={cn("sidebar-nav-item", active && "active")}
                             onClick={() => navigate(item.path)}
                         >
                             <span className="sidebar-nav-icon">{item.icon}</span>
@@ -124,7 +125,7 @@ function Sidebar() {
                 <div className="sidebar-lang-wrap" ref={langMenuRef}>
                     <button
                         type="button"
-                        className={`sidebar-icon-btn ${langMenuAberto ? "is-open" : ""}`}
+                        className={cn("sidebar-icon-btn", langMenuAberto && "is-open")}
                         onClick={() => setLangMenuAberto((o) => !o)}
                         aria-label={t("sidebar.languageAria")}
                         title={t("sidebar.languageAria")}
@@ -142,7 +143,7 @@ function Sidebar() {
                                     type="button"
                                     role="menuitemradio"
                                     aria-checked={i18n.language === lang.code}
-                                    className={`sidebar-lang-option ${i18n.language === lang.code ? "selected" : ""}`}
+                                    className={cn("sidebar-lang-option", i18n.language === lang.code && "selected")}
                                     onClick={() => { i18n.changeLanguage(lang.code); setLangMenuAberto(false); }}
                                 >
                                     {t(lang.labelKey)}

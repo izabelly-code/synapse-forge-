@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Pedido, PedidoStatus } from '../../types';
 import { formatDate } from '../../utils/format';
+import { cn } from '../../utils/cn';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -66,7 +67,7 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
 
     return (
         <div
-            className={`stepper ${finalizado ? "completo" : ""}`}
+            className={cn("stepper", finalizado && "completo")}
             role="progressbar"
             aria-valuenow={currentIndex + 1}
             aria-valuemin={1}
@@ -78,9 +79,9 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
                 const isCurrent = i === currentIndex && !finalizado;
                 const estado = isDone ? "done" : isCurrent ? "current" : "todo";
                 return (
-                    <div key={s} className={`step ${estado}`}>
+                    <div key={s} className={cn("step", estado)}>
                         {i > 0 && (
-                            <span className={`step-line ${i <= currentIndex ? "filled" : ""}`}>
+                            <span className={cn("step-line", i <= currentIndex && "filled")}>
                                 <span className="step-line-fill" />
                             </span>
                         )}
@@ -141,7 +142,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
 
     return (
         <div
-            className={`pedido-row ${justAdvanced ? "is-advancing" : ""}`}
+            className={cn("pedido-row", justAdvanced && "is-advancing")}
             style={{ "--row-index": index } as React.CSSProperties}
             role="button"
             tabIndex={0}
@@ -179,11 +180,11 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                     </>
                 ) : (
                     <>
-                        <span className={`row-prazo ${prazoClasse}`}>
+                        <span className={cn("row-prazo", prazoClasse)}>
                             {mostrarDot && <span className="urgente-dot" aria-hidden="true" />}
                             {formatDate(dataLocal(pedido.prazo), { day: "2-digit", month: "short" })}
                         </span>
-                        <span className={`row-prazo-sub ${tom === "atrasado" ? "sub-atrasado" : tom === "urgente" ? "sub-urgente" : ""}`}>
+                        <span className={cn("row-prazo-sub", tom === "atrasado" && "sub-atrasado", tom === "urgente" && "sub-urgente")}>
                             {restante!.texto}
                         </span>
                     </>

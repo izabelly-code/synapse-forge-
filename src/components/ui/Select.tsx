@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
+import { cn } from "../../utils/cn";
 
 export interface SelectOption {
     label: string;
@@ -54,14 +55,14 @@ function Select({
     const textoSelecionado = selecionada?.label ?? placeholder;
 
     return (
-        <div className={`ui-select ui-select-${variant}`} ref={ref}>
+        <div className={cn("ui-select", `ui-select-${variant}`)} ref={ref}>
             <button
                 type="button"
                 id={id}
                 className={
                     variant === "filter"
-                        ? `filtro-action ${filtroAtivo ? "is-active" : ""}`
-                        : `ui-select-trigger ${!selecionada ? "is-placeholder" : ""}`
+                        ? cn("filtro-action", filtroAtivo && "is-active")
+                        : cn("ui-select-trigger", !selecionada && "is-placeholder")
                 }
                 aria-haspopup="listbox"
                 aria-expanded={aberto}
@@ -85,7 +86,7 @@ function Select({
                             type="button"
                             role="option"
                             aria-selected={value === o.value}
-                            className={`filtro-option ${value === o.value ? "selected" : ""}`}
+                            className={cn("filtro-option", value === o.value && "selected")}
                             onClick={() => { onChange(o.value); setAberto(false); }}
                         >
                             {o.label}

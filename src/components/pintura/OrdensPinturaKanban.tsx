@@ -10,6 +10,7 @@ import {
     getOrdensPintura,
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
+import { cn } from "../../utils/cn";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -391,7 +392,7 @@ function OrdensPinturaKanban() {
                                                         >
                                                             <span className="notif-item-projeto">{ordem.corNome} · {referenciaCurta(ordem.id)}</span>
                                                             <span className="notif-item-cliente">{ordem.pedidoProjeto} — {ordem.tecnicoNome}</span>
-                                                            <span className={`notif-item-tag ${atrasada ? "tag-danger" : "tag-warn"}`}>
+                                                            <span className={cn("notif-item-tag", atrasada ? "tag-danger" : "tag-warn")}>
                                                                 {atrasada ? "Atrasada" : "Vence hoje"}
                                                             </span>
                                                         </button>
@@ -480,7 +481,7 @@ function OrdensPinturaKanban() {
                                 return (
                                     <section
                                         key={coluna.etapa}
-                                        className={`pintura-column tone-${coluna.tone} ${colunaAtiva === coluna.etapa ? "is-drop-target" : ""}`}
+                                        className={cn("pintura-column", `tone-${coluna.tone}`, colunaAtiva === coluna.etapa && "is-drop-target")}
                                         onDragOver={(event) => {
                                             event.preventDefault();
                                             event.dataTransfer.dropEffect = "move";
@@ -505,7 +506,7 @@ function OrdensPinturaKanban() {
                                             {itens.map((ordem) => (
                                                 <article
                                                     key={ordem.id}
-                                                    className={`pintura-card ${arrastandoId === ordem.id ? "is-dragging" : ""}`}
+                                                    className={cn("pintura-card", arrastandoId === ordem.id && "is-dragging")}
                                                     draggable={menuOrdemId !== ordem.id}
                                                     onDragStart={(event) => {
                                                         event.dataTransfer.setData("text/plain", ordem.id);
@@ -589,7 +590,7 @@ function OrdensPinturaKanban() {
                                                         </div>
                                                         <div className="pintura-card-tags">
                                                             <span className="pintura-date-tag"><Calendar03Icon size={11} /> {rotuloPrazo(ordem.prazo)}</span>
-                                                            <span className={`pintura-priority prioridade-${ordem.prioridade.toLowerCase()}`}>
+                                                            <span className={cn("pintura-priority", `prioridade-${ordem.prioridade.toLowerCase()}`)}>
                                                                 {PRIORIDADE_LABEL[ordem.prioridade]}
                                                             </span>
                                                         </div>

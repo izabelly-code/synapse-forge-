@@ -6,6 +6,7 @@ import EventService from '../services/EventService';
 import { getUsers } from '../services/UserService';
 import { getCached, setCached } from '../services/cache';
 import { EventData } from '../types';
+import { cn } from '../utils/cn';
 
 type EventDataWithBackendId = EventData & {
   _id?: string | number;
@@ -266,7 +267,7 @@ function Calendar() {
               return (
                 <button
                   key={dateStr}
-                  className={`calendar-day ${isCurrentDay ? 'today' : ''} ${selectedDate === dateStr ? 'selected' : ''}`}
+                  className={cn('calendar-day', isCurrentDay && 'today', selectedDate === dateStr && 'selected')}
                   onClick={() => handleDayClick(day)}
                   aria-label={`Dia ${day}`}
                 >

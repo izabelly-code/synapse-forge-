@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AlertCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon } from "hugeicons-react";
 import { Cor, Acabamento } from "../../types";
+import { cn } from "../../utils/cn";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",
@@ -104,7 +105,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <span className="cor-chip-acabamento">{ACABAMENTO_LABEL[cor.acabamento]}</span>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Estoque</span>
-                    <span className={`cor-metric-value ${baixo ? "is-baixo" : ""}`}>{formatarMl(cor.estoqueMl)} ml</span>
+                    <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
                 </div>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Custo/ml</span>
@@ -143,7 +144,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <div className="cor-meta">
                     <div className="cor-meta-item">
                         <span className="cor-metric-label">Estoque</span>
-                        <span className={`cor-metric-value ${baixo ? "is-baixo" : ""}`}>{formatarMl(cor.estoqueMl)} ml</span>
+                        <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
                     </div>
                     <div className="cor-meta-item cor-meta-custo">
                         <span className="cor-metric-label">Custo/ml</span>

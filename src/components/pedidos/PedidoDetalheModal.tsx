@@ -13,6 +13,7 @@ import { Pedido, PedidoStatus } from "../../types";
 import Select from "../ui/Select";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatDate } from "../../utils/format";
+import { cn } from "../../utils/cn";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -261,7 +262,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
-                className={`modal-card pedido-detalhe-modal ${editando ? "is-editing" : ""}`}
+                className={cn("modal-card pedido-detalhe-modal", editando && "is-editing")}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="pedido-detalhe-titulo"
@@ -462,7 +463,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     {imagensAtuais.map((imagem, index) => {
                                         const removida = imagensRemover.has(imagem.id);
                                         return (
-                                            <div key={imagem.id || index} className={`pedido-edit-image ${removida ? "is-removed" : ""}`}>
+                                            <div key={imagem.id || index} className={cn("pedido-edit-image", removida && "is-removed")}>
                                                 <img
                                                     src={imagem.src}
                                                     alt={t("pedidos.detalhe.imageCurrentAlt", { index: index + 1 })}
@@ -518,7 +519,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                 ) : pedido && (
                     <div className="pedido-detalhe-content">
                         <div className="pedido-detalhe-meta">
-                            <span className={`pedido-chip ${pedido.status === "FINALIZADO" ? "chip-done" : "chip-active"}`}>
+                            <span className={cn("pedido-chip", pedido.status === "FINALIZADO" ? "chip-done" : "chip-active")}>
                                 {t(`pedidos.status.${pedido.status}`)}
                             </span>
                             <span className="pedido-detalhe-ref">#{pedido.id.replace(/[^a-zA-Z0-9]/g, "").slice(-5).toUpperCase()}</span>

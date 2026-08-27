@@ -5,6 +5,7 @@ import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
 import NovaCorModal from "./NovaCorModal";
 import { Cor, Acabamento } from "../../types";
+import { cn } from "../../utils/cn";
 
 const CACHE_KEY = "cores:all";
 
@@ -201,7 +202,7 @@ function PaletaCores() {
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${fornecedor ? "is-active" : ""}`}
+                                className={cn("filtro-action", fornecedor && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "fornecedor"}
                                 onClick={() => setMenuAberto((m) => (m === "fornecedor" ? null : "fornecedor"))}
@@ -215,7 +216,7 @@ function PaletaCores() {
                                         type="button"
                                         role="menuitemradio"
                                         aria-checked={fornecedor === ""}
-                                        className={`filtro-option ${fornecedor === "" ? "selected" : ""}`}
+                                        className={cn("filtro-option", fornecedor === "" && "selected")}
                                         onClick={() => { setFornecedor(""); setMenuAberto(null); }}
                                     >
                                         Todos
@@ -227,7 +228,7 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={fornecedor === f}
-                                            className={`filtro-option ${fornecedor === f ? "selected" : ""}`}
+                                            className={cn("filtro-option", fornecedor === f && "selected")}
                                             onClick={() => { setFornecedor(f); setMenuAberto(null); }}
                                         >
                                             {f}
@@ -241,7 +242,7 @@ function PaletaCores() {
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${estoque !== "all" ? "is-active" : ""}`}
+                                className={cn("filtro-action", estoque !== "all" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "estoque"}
                                 onClick={() => setMenuAberto((m) => (m === "estoque" ? null : "estoque"))}
@@ -257,7 +258,7 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={estoque === k}
-                                            className={`filtro-option ${estoque === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", estoque === k && "selected")}
                                             onClick={() => { setEstoque(k); setMenuAberto(null); }}
                                         >
                                             {ESTOQUE_LABELS[k]}
@@ -271,7 +272,7 @@ function PaletaCores() {
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${acabamento ? "is-active" : ""}`}
+                                className={cn("filtro-action", acabamento && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "acabamento"}
                                 onClick={() => setMenuAberto((m) => (m === "acabamento" ? null : "acabamento"))}
@@ -285,7 +286,7 @@ function PaletaCores() {
                                         type="button"
                                         role="menuitemradio"
                                         aria-checked={acabamento === ""}
-                                        className={`filtro-option ${acabamento === "" ? "selected" : ""}`}
+                                        className={cn("filtro-option", acabamento === "" && "selected")}
                                         onClick={() => { setAcabamento(""); setMenuAberto(null); }}
                                     >
                                         Todos
@@ -297,7 +298,7 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={acabamento === a}
-                                            className={`filtro-option ${acabamento === a ? "selected" : ""}`}
+                                            className={cn("filtro-option", acabamento === a && "selected")}
                                             onClick={() => { setAcabamento(a); setMenuAberto(null); }}
                                         >
                                             {ACABAMENTO_LABEL[a]}
@@ -335,7 +336,7 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={ordenacao === k}
-                                            className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {ORDENACAO_LABELS[k]}
@@ -349,7 +350,7 @@ function PaletaCores() {
                         <div className="view-toggle" role="group" aria-label="Modo de visualização">
                             <button
                                 type="button"
-                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
+                                className={cn("view-btn", view === "grid" && "is-active")}
                                 onClick={() => alternarView("grid")}
                                 aria-pressed={view === "grid"}
                                 aria-label="Visualizar em grade"
@@ -358,7 +359,7 @@ function PaletaCores() {
                             </button>
                             <button
                                 type="button"
-                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
+                                className={cn("view-btn", view === "list" && "is-active")}
                                 onClick={() => alternarView("list")}
                                 aria-pressed={view === "list"}
                                 aria-label="Visualizar em lista"

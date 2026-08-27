@@ -5,6 +5,7 @@ import { criarMistura } from "../../services/MisturaService";
 import { getCached, setCached } from "../../services/cache";
 import { Cor } from "../../types";
 import Select from "../ui/Select";
+import { cn } from "../../utils/cn";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];
@@ -272,7 +273,7 @@ function CalculadoraMistura() {
                                     })}
                                 </div>
 
-                                <div className={`mistura-total ${totalOk ? "is-ok" : "is-erro"}`}>
+                                <div className={cn("mistura-total", totalOk ? "is-ok" : "is-erro")}>
                                     <span className="mistura-total-label">Total</span>
                                     <span className="mistura-total-valor">
                                         {total.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
@@ -346,7 +347,7 @@ function CalculadoraMistura() {
                                                     type="button"
                                                     role="menuitemradio"
                                                     aria-checked={volumeMl === v}
-                                                    className={`filtro-option ${volumeMl === v ? "selected" : ""}`}
+                                                    className={cn("filtro-option", volumeMl === v && "selected")}
                                                     onClick={() => { setVolumeMl(v); setSalvoMsg(""); setVolumeMenuAberto(false); }}
                                                 >
                                                     {formatarMl(v)}
