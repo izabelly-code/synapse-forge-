@@ -8,6 +8,7 @@ import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -125,25 +126,17 @@ function PedidosDashboard() {
         return () => document.removeEventListener("keydown", onKey);
     }, []);
 
-    useEffect(() => {
-        if (!notifAberto) return;
-        function onClick(e: MouseEvent) {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [notifAberto]);
+    useDismissable({
+        enabled: notifAberto,
+        refs: notifRef,
+        onDismiss: () => setNotifAberto(false),
+    });
 
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            const t = e.target as Node;
-            if (periodoRef.current?.contains(t) || filtrosRef.current?.contains(t)) return;
-            setMenuAberto(null);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto !== null,
+        refs: [periodoRef, filtrosRef],
+        onDismiss: () => setMenuAberto(null),
+    });
 
     const counts = useMemo(() => {
         const base: Record<string, number> = { "": pedidos.length };

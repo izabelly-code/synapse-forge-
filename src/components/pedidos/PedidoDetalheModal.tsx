@@ -14,6 +14,8 @@ import Select from "../ui/Select";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatDate } from "../../utils/format";
 import { cn } from "../../utils/cn";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -115,24 +117,15 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         return () => { active = false; };
     }, [pedidoId, abrirEmEdicao, iniciarEdicao, t]);
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key !== "Escape") return;
-            if (editando) {
-                setEditando(false);
-                setErroEdicao("");
-            } else {
-                onClose();
-            }
+    useEscapeKey(() => {
+        if (editando) {
+            setEditando(false);
+            setErroEdicao("");
+        } else {
+            onClose();
         }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [editando, onClose]);
+    });
+    useBodyScrollLock();
 
     const imagensAtuais = useMemo(() => {
         const fontes = pedido?.imagensReferenciaFileIds ?? [];

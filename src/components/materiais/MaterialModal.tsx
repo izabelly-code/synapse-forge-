@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Cancel01Icon } from "hugeicons-react";
 import { criarMaterial, editarMaterial } from "../../services/MaterialService";
 import { Material } from "../../models/Material";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface MaterialModalProps {
     material?: Material;
@@ -29,18 +31,8 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
     const densidadeRef = useRef<HTMLInputElement>(null);
     const precoRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose();
-        }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [onClose]);
+    useEscapeKey(onClose);
+    useBodyScrollLock();
 
     function limparErro(campo: CampoErro) {
         setErros((prev) => {

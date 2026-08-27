@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowLeft02Icon, ArrowRight02Icon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Pedido, PedidoStatus } from '../../types';
 import { formatDate } from '../../utils/format';
 import { cn } from '../../utils/cn';
+import { useDismissable } from '../../hooks/useDismissable';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -123,22 +124,16 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
     const [confirmDel, setConfirmDel] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!menuOpen) return;
-        function onClick(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuOpen(false);
-                setConfirmDel(false);
-            }
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuOpen]);
-
     function fecharMenu() {
         setMenuOpen(false);
         setConfirmDel(false);
     }
+
+    useDismissable({
+        enabled: menuOpen,
+        refs: menuRef,
+        onDismiss: fecharMenu,
+    });
 
     return (
         <div

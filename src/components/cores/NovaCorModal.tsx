@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Cancel01Icon } from "hugeicons-react";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
 import Select from "../ui/Select";
 import { cn } from "../../utils/cn";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface NovaCorModalProps {
     onClose: () => void;
@@ -63,18 +65,8 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
     const hexSeguro = isHexValido(hex) ? normalizarHex(hex) : "#FB4A14";
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose();
-        }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [onClose]);
+    useEscapeKey(onClose);
+    useBodyScrollLock();
 
     function limparErro(campo: CampoErro) {
         setErros((prev) => {

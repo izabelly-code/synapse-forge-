@@ -3,6 +3,8 @@ import { Add01Icon, Cancel01Icon, File01Icon, Image02Icon } from "hugeicons-reac
 import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -31,18 +33,8 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     const hoje = new Date().toISOString().split("T")[0];
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose();
-        }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [onClose]);
+    useEscapeKey(onClose);
+    useBodyScrollLock();
 
     const previews = useMemo(
         () => imagensReferencia.map((file) => ({ file, url: URL.createObjectURL(file) })),

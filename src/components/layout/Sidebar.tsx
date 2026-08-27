@@ -7,6 +7,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 interface NavItem {
     labelKey: string;
@@ -41,16 +42,11 @@ function Sidebar() {
     const [langMenuAberto, setLangMenuAberto] = useState(false);
     const langMenuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!langMenuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
-                setLangMenuAberto(false);
-            }
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [langMenuAberto]);
+    useDismissable({
+        enabled: langMenuAberto,
+        refs: langMenuRef,
+        onDismiss: () => setLangMenuAberto(false),
+    });
 
     useEffect(() => {
         const token = localStorage.getItem("token");

@@ -11,6 +11,7 @@ import {
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -236,14 +237,11 @@ function OrdensPinturaKanban() {
     const [notifAberto, setNotifAberto] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!notifAberto) return;
-        function onClick(e: MouseEvent) {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [notifAberto]);
+    useDismissable({
+        enabled: notifAberto,
+        refs: notifRef,
+        onDismiss: () => setNotifAberto(false),
+    });
 
     const urgentes = useMemo(() => {
         const hoje = inicioDoDia();

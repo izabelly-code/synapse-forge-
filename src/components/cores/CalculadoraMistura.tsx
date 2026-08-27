@@ -6,6 +6,7 @@ import { getCached, setCached } from "../../services/cache";
 import { Cor } from "../../types";
 import Select from "../ui/Select";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];
@@ -45,14 +46,11 @@ function CalculadoraMistura() {
 
     const volumeMenuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!volumeMenuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (volumeMenuRef.current && !volumeMenuRef.current.contains(e.target as Node)) setVolumeMenuAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [volumeMenuAberto]);
+    useDismissable({
+        enabled: volumeMenuAberto,
+        refs: volumeMenuRef,
+        onDismiss: () => setVolumeMenuAberto(false),
+    });
 
     useEffect(() => {
         getCores()

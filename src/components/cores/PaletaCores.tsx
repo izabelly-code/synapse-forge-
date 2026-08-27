@@ -6,6 +6,7 @@ import CorCard from "./CorCard";
 import NovaCorModal from "./NovaCorModal";
 import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const CACHE_KEY = "cores:all";
 
@@ -85,14 +86,11 @@ function PaletaCores() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (barraRef.current && !barraRef.current.contains(e.target as Node)) setMenuAberto(null);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto !== null,
+        refs: barraRef,
+        onDismiss: () => setMenuAberto(null),
+    });
 
     const fornecedores = useMemo(
         () => Array.from(new Set(cores.map((c) => c.fornecedor))).sort((a, b) => a.localeCompare(b, "pt-BR")),

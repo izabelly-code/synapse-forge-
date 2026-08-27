@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AlertCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon } from "hugeicons-react";
 import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",
@@ -33,17 +34,14 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
 
     const baixo = cor.estoqueMl < cor.estoqueMinimoMl;
 
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuAberto(false);
-                setConfirmando(false);
-            }
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto,
+        refs: menuRef,
+        onDismiss: () => {
+            setMenuAberto(false);
+            setConfirmando(false);
+        },
+    });
 
     const menu = (
         <div className="kebab-wrap" ref={menuRef}>
