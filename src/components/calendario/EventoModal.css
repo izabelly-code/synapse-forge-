@@ -9,7 +9,7 @@
   justify-content: center;
   z-index: var(--z-modal-top);
   padding: var(--space-4);
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn var(--duration-base) var(--ease-standard);
 }
 
 @keyframes fadeIn {
@@ -30,7 +30,7 @@
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  animation: slideUp 0.3s ease;
+  animation: slideUp var(--duration-slow) var(--ease-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -83,7 +83,7 @@
   justify-content: center;
   border-radius: var(--radius);
   flex-shrink: 0;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .evento-modal-close:hover {
@@ -126,7 +126,7 @@
   font-size: var(--text-lg);
   font-family: 'Inter', sans-serif;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .form-group input:focus,
@@ -241,7 +241,7 @@
   font-family: 'Inter', sans-serif;
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: filter 0.2s ease, background 0.15s ease, box-shadow 0.2s ease;
+  transition: filter var(--duration-base) var(--ease-standard), background var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
   font-size: var(--text-lg);
   outline: none;
 }
@@ -322,7 +322,7 @@
 .user-suggestion-item {
   padding: var(--space-2-5) var(--space-3) !important;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration-base) var(--ease-standard);
   border-bottom: 1px solid var(--outline-variant);
 }
 

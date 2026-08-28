@@ -119,6 +119,7 @@
   --duration-slow: 0.3s;     /* entrada de modal, progresso de etapas */
   --duration-slower: 0.4s;   /* entrada de linhas de lista */
   --duration-pulse: 1.5s;    /* loop dos skeletons */
+  --stagger-step: 35ms;      /* atraso somado por item em listas escalonadas */
   --ease-standard: ease;
   --ease-in-out: ease-in-out;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -435,7 +436,7 @@ body {
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .lang-switch button:hover {
@@ -495,7 +496,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-lg);
   width: 100%;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .input-group input:focus {
@@ -580,7 +581,7 @@ body {
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .lightbox-close:hover {
@@ -623,7 +624,7 @@ body {
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
   font-size: var(--text-lg);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .input-wrapper input:focus {
@@ -641,7 +642,7 @@ body {
   align-items: center;
   color: var(--on-surface-variant);
   opacity: 0.6;
-  transition: opacity 0.15s;
+  transition: opacity var(--duration-fast);
   padding: 0;
 }
 
@@ -683,7 +684,7 @@ body {
   font-size: var(--text-lg);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .ui-select-trigger:hover {
@@ -708,7 +709,7 @@ body {
 .ui-select-form .ui-select-chev {
   flex-shrink: 0;
   color: var(--on-surface-variant);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .ui-select-trigger[aria-expanded="true"] .ui-select-chev {
@@ -785,7 +786,7 @@ body {
   font-weight: var(--weight-semibold);
   font-size: var(--text-base);
   letter-spacing: 0.01em;
-  transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  transition: filter var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
 
 .button:hover:not(:disabled) {
@@ -822,7 +823,7 @@ body {
   font: inherit;
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
   text-decoration: none;
 }
 
@@ -966,7 +967,7 @@ body {
   color: var(--on-surface-variant);
   border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .view-btn:hover {
@@ -995,7 +996,7 @@ body {
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 
 .filtro-btn:hover {
@@ -1055,7 +1056,7 @@ body {
   font-weight: var(--weight-medium);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .filtro-action:hover {
@@ -1069,7 +1070,7 @@ body {
 
 .filtro-action .filtro-action-chev {
   color: var(--on-surface-variant);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 
 .filtro-action[aria-expanded="true"] .filtro-action-chev {
@@ -1105,7 +1106,7 @@ body {
   color: var(--on-surface);
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .filtro-option:hover {
@@ -1166,7 +1167,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-base);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .pedidos-search input:focus {
@@ -1199,7 +1200,7 @@ body {
   background: var(--surface);
   color: var(--on-surface-variant);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .icon-button:hover {
@@ -1278,7 +1279,7 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .notif-item:hover {
@@ -1443,7 +1444,7 @@ body {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--duration-base) var(--ease-standard);
   cursor: pointer;
 }
 
@@ -1460,7 +1461,9 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .pedido-row.is-advancing .step.current .step-node,
   .pedido-row.is-advancing .step.done:last-of-type .step-node {
-    animation: step-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    /* fora da escala: 0.55s é o tempo do "pop" de conclusão de etapa; encurtar
+       para --duration-slower (0.4s) descaracterizaria o gesto */
+    animation: step-pop 0.55s var(--ease-out-expo);
   }
 }
 
@@ -1474,8 +1477,8 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .pedido-row {
     opacity: 0;
-    animation: pedido-row-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: calc(min(var(--row-index, 0), 10) * 35ms);
+    animation: pedido-row-in var(--duration-slower) var(--ease-out-expo) forwards;
+    animation-delay: calc(min(var(--row-index, 0), 10) * var(--stagger-step));
   }
 }
 
@@ -1634,7 +1637,7 @@ body {
   background: var(--primary);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.45s ease, background 0.3s ease;
+  transition: transform var(--duration-slower) var(--ease-standard), background var(--duration-slow) var(--ease-standard);
 }
 
 .step-line.filled .step-line-fill { transform: scaleX(1); }
@@ -1653,7 +1656,7 @@ body {
   justify-content: center;
   background: var(--surface-container-lowest);
   border: 2px solid var(--surface-container-high);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background var(--duration-slow) var(--ease-standard), border-color var(--duration-slow) var(--ease-standard);
 }
 
 .step.done .step-node {
@@ -1675,7 +1678,7 @@ body {
   color: var(--on-primary);
   opacity: 0;
   transform: scale(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard);
 }
 
 .step.done .step-check { opacity: 1; transform: scale(1); }
@@ -1688,7 +1691,7 @@ body {
   background: var(--primary);
   opacity: 0;
   transform: scale(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard);
 }
 
 .step.current .step-dot { opacity: 1; transform: scale(1); }
@@ -1734,7 +1737,7 @@ body {
   color: var(--on-surface-variant);
   opacity: 0.6;
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
 }
 
 .kebab-btn:hover {
@@ -1773,7 +1776,7 @@ body {
   color: var(--on-surface);
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .kebab-item:hover { background: var(--surface-container-low); }
@@ -1837,7 +1840,7 @@ body {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite;
 }
 
 @keyframes pulse {
@@ -1958,11 +1961,11 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   .modal-overlay {
-    animation: modal-overlay-in 0.2s ease forwards;
+    animation: modal-overlay-in var(--duration-base) var(--ease-standard) forwards;
   }
 
   .modal-card {
-    animation: modal-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: modal-card-in var(--duration-slow) var(--ease-out-expo) forwards;
   }
 }
 
@@ -2006,7 +2009,7 @@ body {
   cursor: pointer;
   font-size: var(--text-md);
   color: var(--on-surface-variant);
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
 }
 
@@ -2028,7 +2031,7 @@ body {
   width: 100%;
   resize: vertical;
   min-height: 5.25rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .input-group textarea:focus {
@@ -2082,7 +2085,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-weight: var(--weight-semibold);
   font-size: var(--text-base);
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .btn-secondary:hover {
@@ -2240,7 +2243,7 @@ body {
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
   text-decoration: none;
-  transition: filter 0.15s ease, transform 0.15s ease;
+  transition: filter var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
 }
 
 .pedido-download-btn:hover {
@@ -2512,7 +2515,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-base) var(--ease-standard);
 }
 
 .pedido-imagem-link:hover img {
@@ -2532,7 +2535,7 @@ body {
   height: 220px;
   border-radius: var(--radius);
   background: var(--surface-container-lowest);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite;
 }
 
 @media (max-width: 768px) {
@@ -2664,7 +2667,7 @@ body {
   border-radius: var(--radius);
   height: 480px;
   max-width: 900px;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite;
 }
 
 
@@ -2711,7 +2714,7 @@ html {
 .sidebar-logo {
   height: 56px;
   width: auto;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--duration-slow) var(--ease-spring);
 }
 
 .sidebar-user {
@@ -2783,7 +2786,7 @@ html {
   font-weight: var(--weight-medium);
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .sidebar-nav-item:hover,
@@ -2822,7 +2825,7 @@ html {
   border-radius: var(--radius);
   color: var(--on-surface-variant);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .sidebar-icon-btn:hover,
@@ -2868,7 +2871,7 @@ html {
   font-weight: var(--weight-medium);
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .sidebar-lang-option:hover {
@@ -3109,7 +3112,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   background: var(--surface-container-lowest);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .pintura-column.is-drop-target {
@@ -3167,7 +3170,7 @@ html {
   box-shadow: var(--shadow-sm);
   cursor: grab;
   user-select: none;
-  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .pintura-card:hover {
@@ -3535,7 +3538,7 @@ html {
   font-family: 'Inter', sans-serif;
   font-weight: var(--weight-semibold);
   font-size: var(--text-md);
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .btn-acao-pequeno:hover {
@@ -3605,7 +3608,7 @@ html {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-lg);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .cores-search input:focus {
@@ -3627,7 +3630,7 @@ html {
   font-weight: var(--weight-semibold);
   cursor: pointer;
   border-radius: var(--radius);
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .cores-limpar:hover {
@@ -3650,7 +3653,7 @@ html {
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .cor-card:hover {
@@ -3665,8 +3668,8 @@ html {
   .cor-card,
   .cor-row {
     opacity: 0;
-    animation: pedido-row-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: calc(min(var(--row-index, 0), 12) * 35ms);
+    animation: pedido-row-in var(--duration-slower) var(--ease-out-expo) forwards;
+    animation-delay: calc(min(var(--row-index, 0), 12) * var(--stagger-step));
   }
 }
 
@@ -3703,7 +3706,7 @@ html {
   -webkit-backdrop-filter: blur(8px);
   color: var(--on-surface);
   opacity: 0;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
 
 .cor-card:hover .cor-card-kebab .kebab-btn,
@@ -3839,7 +3842,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .cor-row:hover {
@@ -3900,7 +3903,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite;
 }
 
 
@@ -3968,7 +3971,7 @@ html {
   border: 1px solid var(--outline-variant);
   padding: 0;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .cor-preset:hover {
@@ -4102,7 +4105,7 @@ html {
   font-size: var(--text-lg);
   color: var(--on-surface);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 
 .mistura-nome-wrap input:focus {
@@ -4203,7 +4206,7 @@ html {
   background: transparent;
   color: var(--on-surface-variant);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .mistura-linha-remover:hover {
@@ -4259,7 +4262,7 @@ html {
   border-radius: var(--radius);
   border: 1px solid var(--outline-variant);
   margin-bottom: var(--space-4);
-  transition: background 0.25s ease;
+  transition: background var(--duration-base) var(--ease-standard);
 }
 
 .mistura-preview-swatch span {
@@ -4319,7 +4322,7 @@ html {
   color: var(--on-surface-variant);
   cursor: pointer;
   flex: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .mistura-codigo-valor button:hover {
@@ -4554,7 +4557,7 @@ html {
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 
 .status-button:hover {
@@ -4571,7 +4574,7 @@ html {
   font-size: var(--text-base);
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
 .status-button-ghost:hover {
@@ -4640,7 +4643,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .orcamento-preview-card.is-calculando {
