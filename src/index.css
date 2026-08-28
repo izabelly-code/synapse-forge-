@@ -521,13 +521,6 @@ body {
   padding: var(--space-2) var(--space-3-5);
 }
 
-.img-preview-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-2-5);
-}
-
 .img-preview {
   position: relative;
   width: 72px;
@@ -586,26 +579,6 @@ body {
 
 .lightbox-close:hover {
   background: rgba(255, 255, 255, 0.28);
-}
-
-.img-preview-remove {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border: none;
-  border-radius: 50%;
-  background: var(--scrim-strong);
-  color: #fff;
-  cursor: pointer;
-  padding: 0;
-}
-
-.img-preview-remove:hover {
-  background: var(--error-color);
 }
 
 .input-wrapper {
