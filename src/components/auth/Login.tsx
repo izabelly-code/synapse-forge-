@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { login } from "../../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
+import LinkButton from "../ui/LinkButton";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -189,21 +190,13 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                     </button>
 
                     {/* LINKS */}
-                    <button
-                        type="button"
-                        className="register-link"
-                        onClick={goToRegister}
-                    >
+                    <LinkButton onClick={goToRegister}>
                         {t("login.registerLink")}
-                    </button>
+                    </LinkButton>
 
-                    <button
-                        type="button"
-                        className="forgot-password-link"
-                        onClick={goToRecovery}
-                    >
+                    <LinkButton onClick={goToRecovery}>
                         {t("login.forgotPassword")}
-                    </button>
+                    </LinkButton>
 
                 </form>
             </div>

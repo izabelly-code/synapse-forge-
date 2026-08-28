@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import logo from "../../assets/Images/white-logo.png";
 import { esqueciSenha } from "../../services/AuthService";
+import LinkButton from "../ui/LinkButton";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -130,16 +131,14 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                                 Não encontrou o email? Verifique sua caixa de spam.
                             </p>
 
-                            <button
-                                type="button"
-                                className="resend-link"
+                            <LinkButton
                                 onClick={handleReenviar}
                                 disabled={timer > 0 || loading}
                             >
                                 {timer > 0
                                     ? `Reenviar em ${timer}s`
                                     : "Reenviar email"}
-                            </button>
+                            </LinkButton>
                         </div>
                     )}
 
@@ -173,13 +172,9 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                     </button>
 
                     {/* VOLTAR */}
-                    <button
-                        type="button"
-                        className="login-link"
-                        onClick={goToLogin}
-                    >
+                    <LinkButton onClick={goToLogin}>
                         Voltar ao login
-                    </button>
+                    </LinkButton>
 
                 </form>
             </div>

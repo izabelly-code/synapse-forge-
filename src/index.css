@@ -806,12 +806,8 @@ body {
 
 
 /* ===== LINK-STYLE BUTTONS ===== */
-.link,
-.register-link,
-.resend-link,
-.login-link,
-.forgot-password-link,
-.forgot-link {
+/* Classe única do componente <LinkButton />. */
+.link {
   display: block;
   margin: var(--space-3-5) auto 0;
   text-align: center;
@@ -827,12 +823,7 @@ body {
   text-decoration: none;
 }
 
-.link:hover,
-.register-link:hover,
-.resend-link:hover,
-.login-link:hover,
-.forgot-password-link:hover,
-.forgot-link:hover {
+.link:hover {
   color: var(--brand-dark);
   text-decoration: underline;
 }
