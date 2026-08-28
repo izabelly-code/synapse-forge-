@@ -2718,6 +2718,19 @@ html {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+
+  /* Escada de estados dos itens de navegação, escopada na Sidebar: hover é
+     sempre um degrau mais fraco que o selecionado. No claro a escada desce
+     a partir do branco; no escuro ela sobe a partir da superfície (que é
+     mais clara que o fundo), então cada tema usa dois degraus diferentes
+     da mesma rampa de surfaces. */
+  --nav-item-hover: var(--surface-container-low);
+  --nav-item-active: var(--surface-container);
+}
+
+.dark .sidebar {
+  --nav-item-hover: var(--surface-container);
+  --nav-item-active: var(--surface-container-high);
 }
 
 .sidebar-brand {
@@ -2781,11 +2794,50 @@ html {
   white-space: nowrap;
 }
 
+/* ---- Navegação em 5 áreas (SYN-74, mapa SYN-53) ----
+   Agrupamento PLANO: a hierarquia vem do espaçamento entre seções e do rótulo
+   de área, não de interação — nada colapsa, nenhum estado para lembrar. */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-05);
+  gap: var(--space-4);  /* separa as áreas por respiro, sem divisores */
   flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Rótulo da área: microtipografia, não clicável. Fica em text-subtle e sobe
+   para on-surface-variant na área que contém a rota atual — pista discreta de
+   "onde estou" sem gastar cor de marca. */
+.sidebar-nav-group-label {
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.sidebar-nav-group.is-current .sidebar-nav-group-label {
+  color: var(--on-surface-variant);
+}
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-05);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .sidebar-nav-item,
@@ -2806,16 +2858,44 @@ html {
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
-.sidebar-nav-item:hover,
+.sidebar-nav-item {
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);  /* = calc(var(--radius) - 2px): pílula um pouco menos redonda que os cards */
+}
+
+.sidebar-nav-item:hover {
+  background: var(--nav-item-hover);
+  color: var(--on-surface);
+}
+
 .sidebar-logout:hover {
   background: var(--surface-container-low);
   color: var(--on-surface);
 }
 
+.sidebar-nav-item:focus-visible,
+.sidebar-logout:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+/* Seleção neutra (fundo + peso do texto); o laranja aparece SÓ no ícone. */
 .sidebar-nav-item.active {
-  background: var(--surface-container);
+  background: var(--nav-item-active);
   color: var(--on-surface);
   font-weight: var(--weight-semibold);
+}
+
+.sidebar-nav-item.active .sidebar-nav-icon {
+  color: var(--primary);
+}
+
+.sidebar-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-nav-icon {
@@ -2824,6 +2904,8 @@ html {
   justify-content: center;
   width: 20px;
   flex-shrink: 0;
+  color: inherit;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .sidebar-controls {
@@ -2923,6 +3005,11 @@ html {
   .sidebar-logo:hover {
     transform: none;
   }
+  .sidebar-nav-item,
+  .sidebar-nav-icon,
+  .sidebar-nav-group-label {
+    transition: none;
+  }
 }
 
 
@@ -2973,17 +3060,34 @@ html {
     display: none;
   }
 
+  /* Na barra horizontal não cabe rótulo de área: o agrupamento passa a ser
+     comunicado só pelo espaço maior entre os blocos de itens. */
   .sidebar-nav {
     flex-direction: row;
+    align-items: center;
     flex: 1;
-    gap: var(--space-1);
+    gap: var(--space-4);
     overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  .sidebar-nav-group-label {
+    display: none;
+  }
+
+  .sidebar-nav-list {
+    flex-direction: row;
+    gap: var(--space-1);
   }
 
   .sidebar-nav-item,
   .sidebar-logout {
     white-space: nowrap;
     padding: var(--space-2) var(--space-3);
+  }
+
+  .sidebar-nav-item {
+    padding: 0 var(--space-3);
   }
 
   .sidebar-logout {

@@ -16,15 +16,56 @@ interface NavItem {
     icon: React.ReactNode;
 }
 
-const NAV_ITEMS: NavItem[] = [
-    { labelKey: "sidebar.pedidos", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
-    { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
-    { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
-    { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
-    { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
-    { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
-    { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
-    { labelKey: "sidebar.perfil", path: "/perfil", icon: <UserIcon size={18} /> },
+interface NavGroup {
+    /** Identificador estável — vira o id do heading que rotula a seção. */
+    id: string;
+    labelKey: string;
+    items: NavItem[];
+}
+
+/**
+ * Taxonomia das 5 áreas do mapa SYN-53 (docs/syn-53-mapa-menu.md).
+ * Agrupamento é só visual: todos os itens ficam sempre visíveis, sem expandir/colapsar.
+ */
+const NAV_GROUPS: NavGroup[] = [
+    {
+        id: "pedidos",
+        labelKey: "sidebar.areaPedidos",
+        items: [
+            { labelKey: "sidebar.pedidosClientes", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
+            { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
+        ],
+    },
+    {
+        id: "orcamentos",
+        labelKey: "sidebar.areaOrcamentos",
+        items: [
+            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
+        ],
+    },
+    {
+        id: "agenda",
+        labelKey: "sidebar.areaAgenda",
+        items: [
+            { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
+        ],
+    },
+    {
+        id: "estoque",
+        labelKey: "sidebar.areaEstoqueCores",
+        items: [
+            { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
+            { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
+            { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
+        ],
+    },
+    {
+        id: "admin",
+        labelKey: "sidebar.areaAdmin",
+        items: [
+            { labelKey: "sidebar.perfil", path: "/perfil", icon: <UserIcon size={18} /> },
+        ],
+    },
 ];
 
 const LANGUAGES = [
@@ -91,19 +132,36 @@ function Sidebar() {
                 </div>
             </div>
 
-            <nav className="sidebar-nav">
-                {NAV_ITEMS.map((item) => {
-                    const active = location.pathname === item.path;
+            <nav className="sidebar-nav" aria-label={t("sidebar.navAria")}>
+                {NAV_GROUPS.map((group) => {
+                    const headingId = `sidebar-area-${group.id}`;
+                    const grupoAtivo = group.items.some((item) => item.path === location.pathname);
                     return (
-                        <button
-                            key={item.path}
-                            type="button"
-                            className={cn("sidebar-nav-item", active && "active")}
-                            onClick={() => navigate(item.path)}
+                        <section
+                            key={group.id}
+                            className={cn("sidebar-nav-group", grupoAtivo && "is-current")}
+                            aria-labelledby={headingId}
                         >
-                            <span className="sidebar-nav-icon">{item.icon}</span>
-                            <span>{t(item.labelKey)}</span>
-                        </button>
+                            <h2 className="sidebar-nav-group-label" id={headingId}>{t(group.labelKey)}</h2>
+                            <ul className="sidebar-nav-list">
+                                {group.items.map((item) => {
+                                    const active = location.pathname === item.path;
+                                    return (
+                                        <li key={item.path}>
+                                            <button
+                                                type="button"
+                                                className={cn("sidebar-nav-item", active && "active")}
+                                                aria-current={active ? "page" : undefined}
+                                                onClick={() => navigate(item.path)}
+                                            >
+                                                <span className="sidebar-nav-icon">{item.icon}</span>
+                                                <span className="sidebar-nav-label">{t(item.labelKey)}</span>
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </section>
                     );
                 })}
             </nav>

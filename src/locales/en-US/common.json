@@ -25,7 +25,14 @@
     "errorGeneric": "Could not sign in. Check your credentials."
   },
   "sidebar": {
+    "navAria": "Main navigation",
+    "areaPedidos": "Orders",
+    "areaOrcamentos": "Budgets",
+    "areaAgenda": "Schedule",
+    "areaEstoqueCores": "Stock & Colors",
+    "areaAdmin": "Admin",
     "pedidos": "Orders",
+    "pedidosClientes": "Customer orders",
     "paletaCores": "Color Palette",
     "calculadoraMistura": "Mix Calculator",
     "materiais": "Materials",

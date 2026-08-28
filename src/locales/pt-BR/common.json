@@ -25,7 +25,14 @@
     "errorGeneric": "Não foi possível entrar. Verifique seus dados."
   },
   "sidebar": {
+    "navAria": "Navegação principal",
+    "areaPedidos": "Pedidos",
+    "areaOrcamentos": "Orçamentos",
+    "areaAgenda": "Agenda",
+    "areaEstoqueCores": "Estoque & Cores",
+    "areaAdmin": "Admin",
     "pedidos": "Pedidos",
+    "pedidosClientes": "Pedidos de clientes",
     "paletaCores": "Paleta de Cores",
     "calculadoraMistura": "Calculadora de Mistura",
     "materiais": "Materiais",
