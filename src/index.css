@@ -140,6 +140,18 @@
 
   /* Derivados */
   --focus-ring: color-mix(in srgb, var(--color-primary) 12%, transparent);
+
+  /* ---- State layers (hover / pressed) ----
+     Véu translúcido derivado da TINTA do tema, não de uma surface fixa: por
+     isso escurece no claro e clareia no escuro sozinho, e nunca cai na mesma
+     cor do fundo do contexto (o bug de "hover transparente" que aparecia ao
+     usar --surface-container-low, que é justamente o fundo do dashboard).
+     6% / 11% dão ~13-15 pontos de delta sobre qualquer surface da rampa —
+     perceptível sem virar um bloco de cor. Em elementos que já têm fundo
+     próprio em repouso, compor com color-mix sobre esse fundo em vez de
+     substituí-lo. */
+  --state-hover: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --state-active: color-mix(in srgb, var(--color-text) 11%, transparent);
   --scrim: rgba(31, 26, 30, 0.4);
   --scrim-strong: rgba(31, 26, 30, 0.82);
 
@@ -445,11 +457,11 @@ body {
 }
 
 .lang-switch button:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
 }
 
 .lang-switch button.active {
-  background: var(--surface-container);
+  background: var(--state-active);
   color: var(--color-text);
 }
 
@@ -1030,7 +1042,7 @@ body {
 }
 
 .filtro-action:hover {
-  background: var(--surface-container-low);
+  background: color-mix(in srgb, var(--color-text) 6%, var(--surface));
 }
 
 .filtro-action.is-active {
@@ -1080,7 +1092,7 @@ body {
 }
 
 .filtro-option:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
 }
 
 .filtro-option.selected {
@@ -1219,7 +1231,7 @@ body {
 }
 
 .icon-button:hover {
-  background: var(--surface-container-low);
+  background: color-mix(in srgb, var(--color-text) 6%, var(--surface));
   color: var(--on-surface);
 }
 
@@ -1298,7 +1310,7 @@ body {
 }
 
 .notif-item:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
 }
 
 .notif-item-projeto {
@@ -1518,7 +1530,12 @@ body {
   gap: var(--space-2-5);
 }
 
+
+
+
 .row-avatar {
+  /* sombra leve na inicial: o recorte do gradiente pode cair em área clara */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   width: 32px;
   height: 32px;
   border-radius: var(--radius);
@@ -1526,6 +1543,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* faixas diagonais difusas alternando laranja da marca e claros quentes */
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1757,7 +1775,7 @@ body {
 
 .kebab-btn:hover {
   opacity: 1;
-  background: var(--surface-container-low);
+  background: var(--state-hover);
 }
 
 .kebab-menu {
@@ -1794,7 +1812,7 @@ body {
   transition: background var(--duration-fast) var(--ease-standard);
 }
 
-.kebab-item:hover { background: var(--surface-container-low); }
+.kebab-item:hover { background: var(--state-hover); }
 .kebab-item.kebab-danger { color: var(--error-color); }
 
 .kebab-item:disabled {
@@ -2029,7 +2047,7 @@ body {
 }
 
 .modal-close:hover {
-  background: var(--surface-container);
+  background: color-mix(in srgb, var(--color-text) 8%, var(--surface-container-high));
 }
 
 
@@ -2104,7 +2122,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: var(--surface-container);
+  background: color-mix(in srgb, var(--color-text) 8%, var(--surface-container-high));
 }
 
 
@@ -2613,9 +2631,12 @@ body {
 }
 
 .profile-avatar {
+  /* sombra leve na inicial: o recorte do gradiente pode cair em área clara */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   width: 64px;
   height: 64px;
   border-radius: var(--radius);
+  /* faixas diagonais difusas alternando laranja da marca e claros quentes */
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -2710,6 +2731,10 @@ html {
 
 .sidebar {
   position: sticky;
+  /* sticky cria stacking context: sem z-index, o painel do sino (z-popover)
+     fica preso abaixo do conteúdo que vem depois no DOM. --z-menu cobre as
+     barras sticky do conteúdo (--z-sticky) sem passar dos modais. */
+  z-index: var(--z-menu);
   top: 0;
   height: 100vh;
   background: var(--surface);
@@ -2747,19 +2772,44 @@ html {
   transition: transform var(--duration-slow) var(--ease-spring);
 }
 
-.sidebar-user {
+.sidebar-account {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2-5) var(--space-3);
+  padding: var(--space-2-5) var(--space-2-5) var(--space-2-5) var(--space-3);
   border-radius: var(--radius);
   background: var(--surface-container-lowest);
 }
 
+.sidebar-account .sidebar-user-info {
+  flex: 1;
+}
+
+/* O botão de sair vive dentro do cartão da conta: quadrado compacto no canto,
+   área clicável pouco maior que o ícone. Seletor descendente de propósito: o
+   botão também carrega .sidebar-icon-btn, que é declarada DEPOIS neste arquivo
+   (flex: 1 + raio maior) e venceria no empate de especificidade, esticando o
+   botão em pílula larga. */
+.sidebar-account .sidebar-account-logout {
+  flex: 0 0 auto;
+  width: var(--space-7);
+  height: var(--space-7);
+  padding: 0;
+  border-radius: var(--radius-xs);
+}
+
+.sidebar-account .sidebar-account-logout:hover {
+  background: var(--error-container);
+  color: var(--error-color);
+}
+
 .sidebar-avatar {
+  /* sombra leve na inicial: o recorte do gradiente pode cair em área clara */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   width: 34px;
   height: 34px;
   border-radius: var(--radius);
+  /* faixas diagonais difusas alternando laranja da marca e claros quentes */
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -2840,8 +2890,7 @@ html {
   list-style: none;
 }
 
-.sidebar-nav-item,
-.sidebar-logout {
+.sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -2870,13 +2919,7 @@ html {
   color: var(--on-surface);
 }
 
-.sidebar-logout:hover {
-  background: var(--surface-container-low);
-  color: var(--on-surface);
-}
-
-.sidebar-nav-item:focus-visible,
-.sidebar-logout:focus-visible {
+.sidebar-nav-item:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
 }
@@ -2913,6 +2956,23 @@ html {
   gap: var(--space-2);
 }
 
+.sidebar-controls .notif-wrap {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar-controls .notif-wrap .sidebar-icon-btn {
+  width: 100%;
+}
+
+.notif-wrap--up .notif-panel {
+  top: auto;
+  bottom: calc(100% + var(--space-2));
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .sidebar-icon-btn {
   flex: 1;
   display: flex;
@@ -2929,7 +2989,7 @@ html {
 
 .sidebar-icon-btn:hover,
 .sidebar-icon-btn.is-open {
-  background: var(--surface-container-low);
+  background: var(--nav-item-hover);
   color: var(--on-surface);
 }
 
@@ -2942,7 +3002,8 @@ html {
 .sidebar-lang-menu {
   position: absolute;
   bottom: calc(100% + 0.375rem);
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   min-width: 168px;
   background: var(--surface);
   border: 1px solid var(--outline-variant);
@@ -2974,24 +3035,14 @@ html {
 }
 
 .sidebar-lang-option:hover {
-  background: var(--surface-container-low);
+  background: var(--nav-item-hover);
   color: var(--on-surface);
 }
 
 .sidebar-lang-option.selected {
-  background: var(--surface-container);
+  background: var(--nav-item-active);
   color: var(--on-surface);
   font-weight: var(--weight-semibold);
-}
-
-.sidebar-logout {
-  color: var(--secondary);
-  margin-top: auto;
-}
-
-.sidebar-logout:hover {
-  background: var(--error-container);
-  color: var(--error-color);
 }
 
 .sidebar-logo:hover {
@@ -3049,7 +3100,7 @@ html {
   }
 
   .sidebar-brand,
-  .sidebar-user {
+  .sidebar-account {
     flex-shrink: 0;
     border-bottom: none;
     padding: 0;
@@ -3080,18 +3131,9 @@ html {
     gap: var(--space-1);
   }
 
-  .sidebar-nav-item,
-  .sidebar-logout {
-    white-space: nowrap;
-    padding: var(--space-2) var(--space-3);
-  }
-
   .sidebar-nav-item {
+    white-space: nowrap;
     padding: 0 var(--space-3);
-  }
-
-  .sidebar-logout {
-    margin-top: 0;
   }
 
   .sidebar-logo {
@@ -3316,7 +3358,7 @@ html {
 }
 
 .pintura-card-menu-btn:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
   color: var(--on-surface);
 }
 
@@ -3355,7 +3397,7 @@ html {
 
 .pintura-card-menu > button:hover,
 .pintura-card-menu > div button:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
 }
 
 .pintura-card-menu .danger {
@@ -4650,7 +4692,7 @@ html {
 }
 
 .status-button-ghost:hover {
-  background: var(--surface-container-low);
+  background: var(--state-hover);
   color: var(--on-surface);
 }
 
@@ -4826,4 +4868,49 @@ html {
   .orcamento-row-preco {
     text-align: left;
   }
+}
+
+/* ---- Paletas de avatar (variação por usuário/cliente) ----
+   Mesma receita nas seis: faixas diagonais difusas + duas elipses de warp.
+   A classe é escolhida por hash do usuário em utils/avatarPalette.ts. */
+.avatar-grad-0 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(255, 178, 145, 0.4) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(251, 74, 20, 0.45) 0%, transparent 55%),
+    linear-gradient(135deg, #fd9d76 0%, #fc5a28 30%, #fd8358 55%, var(--brand) 85%, #fc6234 100%);
+}
+
+.avatar-grad-1 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(255, 196, 176, 0.4) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(244, 114, 92, 0.5) 0%, transparent 55%),
+    linear-gradient(135deg, #fba98f 0%, #f2704f 30%, #f89a7c 55%, #ec5f45 85%, #f57e5c 100%);
+}
+
+.avatar-grad-2 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(245, 222, 255, 0.45) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(168, 108, 230, 0.55) 0%, transparent 55%),
+    linear-gradient(135deg, #d3a8f2 0%, #a566e2 30%, #c896ec 55%, #9052d2 85%, #b478e8 100%);
+}
+
+.avatar-grad-3 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(190, 220, 255, 0.4) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(110, 140, 235, 0.55) 0%, transparent 55%),
+    linear-gradient(135deg, #94b8f0 0%, #5f8ce4 30%, #86a5ec 55%, #5a72da 85%, #7a9cea 100%);
+}
+
+.avatar-grad-4 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(190, 240, 225, 0.4) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(52, 168, 150, 0.5) 0%, transparent 55%),
+    linear-gradient(135deg, #7cd4c1 0%, #38ab98 30%, #64c7b4 55%, #2c968a 85%, #4dbba8 100%);
+}
+
+.avatar-grad-5 {
+  background:
+    radial-gradient(150% 80% at 85% 8%, rgba(250, 190, 165, 0.4) 0%, transparent 55%),
+    radial-gradient(130% 90% at 10% 90%, rgba(196, 96, 180, 0.5) 0%, transparent 55%),
+    linear-gradient(135deg, #f8a781 0%, #f0653f 30%, #e88aa8 55%, #b858aa 85%, #e07a63 100%);
 }

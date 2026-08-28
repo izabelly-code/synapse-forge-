@@ -11,7 +11,6 @@ import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
-import NotificationBell from "../ui/NotificationBell";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -151,12 +150,6 @@ function PedidosDashboard() {
         return { total: pedidos.length, emProducao, hoje, atrasados, finalizados };
     }, [pedidos]);
 
-    const urgentes = useMemo(
-        () => pedidos
-            .filter((p) => p.status !== "FINALIZADO" && (ehAtrasado(p.prazo) || ehHoje(p.prazo)))
-            .sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime()),
-        [pedidos]
-    );
 
     const visiveis = useMemo(() => {
         const q = busca.trim().toLowerCase();
@@ -269,22 +262,6 @@ function PedidosDashboard() {
                             trailing={<kbd className="search-kbd">⌘K</kbd>}
                         />
 
-                        <NotificationBell
-                            ariaLabel={t("pedidos.dashboard.notificationsAria")}
-                            panelTitle={t("pedidos.dashboard.notifTitle")}
-                            emptyText={t("pedidos.dashboard.notifEmpty")}
-                            items={urgentes.map((p) => {
-                                const atrasado = ehAtrasado(p.prazo);
-                                return {
-                                    id: p.id,
-                                    title: p.projeto,
-                                    subtitle: p.cliente,
-                                    tone: atrasado ? "danger" : "warn",
-                                    tagLabel: atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
-                                    onSelect: () => setPedidoDetalheId(p.id),
-                                };
-                            })}
-                        />
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
                             <PlusSignIcon size={16} strokeWidth={2.25} />

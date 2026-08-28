@@ -7,8 +7,11 @@ import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 import { cn } from "../../utils/cn";
+import { avatarPalette } from "../../utils/avatarPalette";
 import { useDismissable } from "../../hooks/useDismissable";
+import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import IconButton from "../ui/IconButton";
+import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
 
 interface NavItem {
     labelKey: string;
@@ -29,18 +32,18 @@ interface NavGroup {
  */
 const NAV_GROUPS: NavGroup[] = [
     {
-        id: "orcamentos",
-        labelKey: "sidebar.areaOrcamentos",
-        items: [
-            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
-        ],
-    },
-    {
         id: "pedidos",
         labelKey: "sidebar.areaPedidos",
         items: [
             { labelKey: "sidebar.pedidosClientes", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
             { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
+        ],
+    },
+    {
+        id: "orcamentos",
+        labelKey: "sidebar.areaOrcamentos",
+        items: [
+            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
         ],
     },
     {
@@ -118,18 +121,30 @@ function Sidebar() {
         return nome ? nome.charAt(0).toUpperCase() : "?";
     }
 
+    const { pedidosUrgentes, ordensUrgentes } = useNotificacoesUrgentes();
+    const notificacoes: NotificationItem[] = [
+        ...pedidosUrgentes.map(({ pedido, atrasado }) => ({
+            id: `pedido-${pedido.id}`,
+            title: pedido.projeto,
+            subtitle: pedido.cliente,
+            tone: atrasado ? ("danger" as const) : ("warn" as const),
+            tagLabel: atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+            onSelect: () => navigate("/dashboard"),
+        })),
+        ...ordensUrgentes.map(({ ordem, atrasada }) => ({
+            id: `ordem-${ordem.id}`,
+            title: ordem.corNome,
+            subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
+            tone: atrasada ? ("danger" as const) : ("warn" as const),
+            tagLabel: atrasada ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+            onSelect: () => navigate("/ordens-pintura"),
+        })),
+    ];
+
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
                 <img src={theme === "dark" ? logoLight : logoDark} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
-            </div>
-
-            <div className="sidebar-user">
-                <div className="sidebar-avatar">{getInitial()}</div>
-                <div className="sidebar-user-info">
-                    <span className="sidebar-user-name">{nome || t("sidebar.userFallback")}</span>
-                    {email && <span className="sidebar-user-email">{email}</span>}
-                </div>
             </div>
 
             <nav className="sidebar-nav" aria-label={t("sidebar.navAria")}>
@@ -207,12 +222,33 @@ function Sidebar() {
                         </div>
                     )}
                 </div>
+
+                <NotificationBell
+                    variant="sidebar"
+                    direction="up"
+                    ariaLabel={t("pedidos.dashboard.notificationsAria")}
+                    panelTitle={t("pedidos.dashboard.notifTitle")}
+                    emptyText={t("pedidos.dashboard.notifEmpty")}
+                    items={notificacoes}
+                />
             </div>
 
-            <button type="button" className="sidebar-logout" onClick={handleLogout}>
-                <span className="sidebar-nav-icon"><Logout03Icon size={18} /></span>
-                <span>{t("sidebar.logout")}</span>
-            </button>
+            <div className="sidebar-account">
+                <div className={cn("sidebar-avatar", avatarPalette(email || nome))}>{getInitial()}</div>
+                <div className="sidebar-user-info">
+                    <span className="sidebar-user-name">{nome || t("sidebar.userFallback")}</span>
+                    {email && <span className="sidebar-user-email">{email}</span>}
+                </div>
+                <IconButton
+                    variant="sidebar"
+                    className="sidebar-account-logout"
+                    onClick={handleLogout}
+                    aria-label={t("sidebar.logout")}
+                    title={t("sidebar.logout")}
+                >
+                    <Logout03Icon size={18} />
+                </IconButton>
+            </div>
         </aside>
     );
 }

@@ -13,7 +13,6 @@ import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
 import IconButton from "../ui/IconButton";
 import SearchField from "../ui/SearchField";
-import NotificationBell from "../ui/NotificationBell";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -237,15 +236,6 @@ function OrdensPinturaKanban() {
     const [colunaAtiva, setColunaAtiva] = useState<EtapaOrdemPintura | null>(null);
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
 
-    const urgentes = useMemo(() => {
-        const hoje = inicioDoDia();
-        return ordens
-            .filter((ordem) => ordem.etapa !== "FINALIZADO")
-            .map((ordem) => ({ ordem, prazo: inicioDoDia(new Date(`${ordem.prazo.slice(0, 10)}T12:00:00`)) }))
-            .filter(({ prazo }) => prazo <= hoje)
-            .sort((a, b) => a.prazo - b.prazo)
-            .map(({ ordem, prazo }) => ({ ordem, atrasada: prazo < hoje }));
-    }, [ordens]);
 
     async function carregar() {
         setLoading(true);
@@ -358,19 +348,6 @@ function OrdensPinturaKanban() {
                         </div>
 
                         <div className="toolbar-actions">
-                            <NotificationBell
-                                ariaLabel="Notificações"
-                                panelTitle="Atenção necessária"
-                                emptyText="Tudo em dia. Nenhum prazo crítico."
-                                items={urgentes.map(({ ordem, atrasada }) => ({
-                                    id: ordem.id,
-                                    title: `${ordem.corNome} · ${referenciaCurta(ordem.id)}`,
-                                    subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
-                                    tone: atrasada ? "danger" : "warn",
-                                    tagLabel: atrasada ? "Atrasada" : "Vence hoje",
-                                    onSelect: () => setOrdemEditando(ordem),
-                                }))}
-                            />
 
                             <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
                                 + Nova Ordem
