@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, Notification03Icon, PencilEdit02Icon, RefreshIcon, Search01Icon, UserIcon } from "hugeicons-react";
+import { useEffect, useMemo, useState } from "react";
+import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
 import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
@@ -10,6 +10,10 @@ import {
     getOrdensPintura,
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
+import { cn } from "../../utils/cn";
+import IconButton from "../ui/IconButton";
+import SearchField from "../ui/SearchField";
+import NotificationBell from "../ui/NotificationBell";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -114,9 +118,9 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                         <span className="pintura-modal-kicker">Produção</span>
                         <h2>{editando ? "Editar Ordem de Pintura" : "Nova Ordem de Pintura"}</h2>
                     </div>
-                    <button type="button" className="modal-close" onClick={onClose} aria-label="Fechar">
+                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
                         <Cancel01Icon size={18} />
-                    </button>
+                    </IconButton>
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -232,17 +236,6 @@ function OrdensPinturaKanban() {
     const [arrastandoId, setArrastandoId] = useState<string | null>(null);
     const [colunaAtiva, setColunaAtiva] = useState<EtapaOrdemPintura | null>(null);
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
-    const [notifAberto, setNotifAberto] = useState(false);
-    const notifRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!notifAberto) return;
-        function onClick(e: MouseEvent) {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [notifAberto]);
 
     const urgentes = useMemo(() => {
         const hoje = inicioDoDia();
@@ -365,43 +358,19 @@ function OrdensPinturaKanban() {
                         </div>
 
                         <div className="toolbar-actions">
-                            <div className="notif-wrap" ref={notifRef}>
-                                <button
-                                    className="icon-button"
-                                    onClick={() => setNotifAberto((v) => !v)}
-                                    aria-label="Notificações"
-                                    aria-expanded={notifAberto}
-                                >
-                                    <Notification03Icon size={18} />
-                                    {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                                </button>
-
-                                {notifAberto && (
-                                    <div className="notif-panel" role="menu">
-                                        <div className="notif-panel-head">Atenção necessária</div>
-                                        {urgentes.length === 0 ? (
-                                            <p className="notif-empty">Tudo em dia. Nenhum prazo crítico.</p>
-                                        ) : (
-                                            <ul className="notif-list">
-                                                {urgentes.map(({ ordem, atrasada }) => (
-                                                    <li key={ordem.id}>
-                                                        <button
-                                                            className="notif-item"
-                                                            onClick={() => { setOrdemEditando(ordem); setNotifAberto(false); }}
-                                                        >
-                                                            <span className="notif-item-projeto">{ordem.corNome} · {referenciaCurta(ordem.id)}</span>
-                                                            <span className="notif-item-cliente">{ordem.pedidoProjeto} — {ordem.tecnicoNome}</span>
-                                                            <span className={`notif-item-tag ${atrasada ? "tag-danger" : "tag-warn"}`}>
-                                                                {atrasada ? "Atrasada" : "Vence hoje"}
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                            <NotificationBell
+                                ariaLabel="Notificações"
+                                panelTitle="Atenção necessária"
+                                emptyText="Tudo em dia. Nenhum prazo crítico."
+                                items={urgentes.map(({ ordem, atrasada }) => ({
+                                    id: ordem.id,
+                                    title: `${ordem.corNome} · ${referenciaCurta(ordem.id)}`,
+                                    subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
+                                    tone: atrasada ? "danger" : "warn",
+                                    tagLabel: atrasada ? "Atrasada" : "Vence hoje",
+                                    onSelect: () => setOrdemEditando(ordem),
+                                }))}
+                            />
 
                             <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
                                 + Nova Ordem
@@ -410,14 +379,12 @@ function OrdensPinturaKanban() {
                     </header>
 
                     <div className="pintura-toolbar">
-                        <label className="pintura-search">
-                            <input
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                                placeholder="Buscar por pedido, cor ou técnico..."
-                            />
-                            <Search01Icon size={17} />
-                        </label>
+                        <SearchField
+                            variant="compact"
+                            value={busca}
+                            onChange={setBusca}
+                            placeholder="Buscar por pedido, cor ou técnico..."
+                        />
                         <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> Filtros</button>
                         <Select
                             variant="filter"
@@ -480,7 +447,7 @@ function OrdensPinturaKanban() {
                                 return (
                                     <section
                                         key={coluna.etapa}
-                                        className={`pintura-column tone-${coluna.tone} ${colunaAtiva === coluna.etapa ? "is-drop-target" : ""}`}
+                                        className={cn("pintura-column", `tone-${coluna.tone}`, colunaAtiva === coluna.etapa && "is-drop-target")}
                                         onDragOver={(event) => {
                                             event.preventDefault();
                                             event.dataTransfer.dropEffect = "move";
@@ -505,7 +472,7 @@ function OrdensPinturaKanban() {
                                             {itens.map((ordem) => (
                                                 <article
                                                     key={ordem.id}
-                                                    className={`pintura-card ${arrastandoId === ordem.id ? "is-dragging" : ""}`}
+                                                    className={cn("pintura-card", arrastandoId === ordem.id && "is-dragging")}
                                                     draggable={menuOrdemId !== ordem.id}
                                                     onDragStart={(event) => {
                                                         event.dataTransfer.setData("text/plain", ordem.id);
@@ -589,7 +556,7 @@ function OrdensPinturaKanban() {
                                                         </div>
                                                         <div className="pintura-card-tags">
                                                             <span className="pintura-date-tag"><Calendar03Icon size={11} /> {rotuloPrazo(ordem.prazo)}</span>
-                                                            <span className={`pintura-priority prioridade-${ordem.prioridade.toLowerCase()}`}>
+                                                            <span className={cn("pintura-priority", `prioridade-${ordem.prioridade.toLowerCase()}`)}>
                                                                 {PRIORIDADE_LABEL[ordem.prioridade]}
                                                             </span>
                                                         </div>

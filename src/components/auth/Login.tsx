@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { login } from "../../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
+import LinkButton from "../ui/LinkButton";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -31,9 +32,17 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
         return regex.test(valor);
     }
 
+    // Valida "reward early, punish late": o erro só aparece ao sair do campo,
+    // mas some a cada tecla assim que o e-mail fica válido.
     function handleEmailChange(valor: string) {
         setEmail(valor);
-        setEmailValido(validarEmail(valor) || valor === "");
+        if (!emailValido && (validarEmail(valor) || valor === "")) {
+            setEmailValido(true);
+        }
+    }
+
+    function handleEmailBlur() {
+        setEmailValido(validarEmail(email) || email === "");
     }
 
     function handleCapsLock(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -139,6 +148,7 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                             placeholder={t("login.emailPlaceholder")}
                             value={email}
                             onChange={(e) => handleEmailChange(e.target.value)}
+                            onBlur={handleEmailBlur}
                             className={!emailValido ? "input-error" : ""}
                         />
                         {!emailValido && (
@@ -189,21 +199,13 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                     </button>
 
                     {/* LINKS */}
-                    <button
-                        type="button"
-                        className="register-link"
-                        onClick={goToRegister}
-                    >
+                    <LinkButton onClick={goToRegister}>
                         {t("login.registerLink")}
-                    </button>
+                    </LinkButton>
 
-                    <button
-                        type="button"
-                        className="forgot-password-link"
-                        onClick={goToRecovery}
-                    >
+                    <LinkButton onClick={goToRecovery}>
                         {t("login.forgotPassword")}
-                    </button>
+                    </LinkButton>
 
                 </form>
             </div>

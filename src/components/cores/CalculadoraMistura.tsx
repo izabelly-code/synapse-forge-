@@ -5,6 +5,8 @@ import { criarMistura } from "../../services/MisturaService";
 import { getCached, setCached } from "../../services/cache";
 import { Cor } from "../../types";
 import Select from "../ui/Select";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];
@@ -44,14 +46,11 @@ function CalculadoraMistura() {
 
     const volumeMenuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!volumeMenuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (volumeMenuRef.current && !volumeMenuRef.current.contains(e.target as Node)) setVolumeMenuAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [volumeMenuAberto]);
+    useDismissable({
+        enabled: volumeMenuAberto,
+        refs: volumeMenuRef,
+        onDismiss: () => setVolumeMenuAberto(false),
+    });
 
     useEffect(() => {
         getCores()
@@ -272,7 +271,7 @@ function CalculadoraMistura() {
                                     })}
                                 </div>
 
-                                <div className={`mistura-total ${totalOk ? "is-ok" : "is-erro"}`}>
+                                <div className={cn("mistura-total", totalOk ? "is-ok" : "is-erro")}>
                                     <span className="mistura-total-label">Total</span>
                                     <span className="mistura-total-valor">
                                         {total.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
@@ -346,7 +345,7 @@ function CalculadoraMistura() {
                                                     type="button"
                                                     role="menuitemradio"
                                                     aria-checked={volumeMl === v}
-                                                    className={`filtro-option ${volumeMl === v ? "selected" : ""}`}
+                                                    className={cn("filtro-option", volumeMl === v && "selected")}
                                                     onClick={() => { setVolumeMl(v); setSalvoMsg(""); setVolumeMenuAberto(false); }}
                                                 >
                                                     {formatarMl(v)}

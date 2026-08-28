@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, Search01Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -7,6 +7,11 @@ import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
+import ViewToggle from "../ui/ViewToggle";
+import SearchField from "../ui/SearchField";
+import NotificationBell from "../ui/NotificationBell";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -68,7 +73,6 @@ function PedidosDashboard() {
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
     const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
-    const [notifAberto, setNotifAberto] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "periodo" | "filtros">(null);
@@ -81,7 +85,6 @@ function PedidosDashboard() {
     }
 
     const buscaRef = useRef<HTMLInputElement>(null);
-    const notifRef = useRef<HTMLDivElement>(null);
     const periodoRef = useRef<HTMLDivElement>(null);
     const filtrosRef = useRef<HTMLDivElement>(null);
     const avancoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -124,25 +127,11 @@ function PedidosDashboard() {
         return () => document.removeEventListener("keydown", onKey);
     }, []);
 
-    useEffect(() => {
-        if (!notifAberto) return;
-        function onClick(e: MouseEvent) {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [notifAberto]);
-
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            const t = e.target as Node;
-            if (periodoRef.current?.contains(t) || filtrosRef.current?.contains(t)) return;
-            setMenuAberto(null);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto !== null,
+        refs: [periodoRef, filtrosRef],
+        onDismiss: () => setMenuAberto(null),
+    });
 
     const counts = useMemo(() => {
         const base: Record<string, number> = { "": pedidos.length };
@@ -189,11 +178,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} />, tone: "neutral" },
-        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} />, tone: "brand" },
-        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} />, tone: "warn" },
-        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} />, tone: "danger" },
-        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} /> },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} /> },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} /> },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} /> },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} /> },
     ];
 
     async function handleDeletar(id: string) {
@@ -270,61 +259,35 @@ function PedidosDashboard() {
                     </div>
 
                     <div className="toolbar-actions">
-                        <div className="pedidos-search">
-                            <Search01Icon size={16} className="search-icon" />
-                            <input
-                                ref={buscaRef}
-                                type="text"
-                                placeholder={t("pedidos.dashboard.searchPlaceholder")}
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                                aria-label={t("pedidos.dashboard.searchAria")}
-                            />
-                            <kbd className="search-kbd">⌘K</kbd>
-                        </div>
+                        <SearchField
+                            variant="pill"
+                            inputRef={buscaRef}
+                            value={busca}
+                            onChange={setBusca}
+                            placeholder={t("pedidos.dashboard.searchPlaceholder")}
+                            ariaLabel={t("pedidos.dashboard.searchAria")}
+                            trailing={<kbd className="search-kbd">⌘K</kbd>}
+                        />
 
-                        <div className="notif-wrap" ref={notifRef}>
-                            <button
-                                className="icon-button"
-                                onClick={() => setNotifAberto((v) => !v)}
-                                aria-label={t("pedidos.dashboard.notificationsAria")}
-                                aria-expanded={notifAberto}
-                            >
-                                <Notification03Icon size={18} />
-                                {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                            </button>
-
-                            {notifAberto && (
-                                <div className="notif-panel" role="menu">
-                                    <div className="notif-panel-head">{t("pedidos.dashboard.notifTitle")}</div>
-                                    {urgentes.length === 0 ? (
-                                        <p className="notif-empty">{t("pedidos.dashboard.notifEmpty")}</p>
-                                    ) : (
-                                        <ul className="notif-list">
-                                            {urgentes.map((p) => {
-                                                const atrasado = ehAtrasado(p.prazo);
-                                                return (
-                                                    <li key={p.id}>
-                                                        <button
-                                                            className="notif-item"
-                                                            onClick={() => { setPedidoDetalheId(p.id); setNotifAberto(false); }}
-                                                        >
-                                                            <span className="notif-item-projeto">{p.projeto}</span>
-                                                            <span className="notif-item-cliente">{p.cliente}</span>
-                                                            <span className={`notif-item-tag ${atrasado ? "tag-danger" : "tag-warn"}`}>
-                                                                {atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday")}
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        <NotificationBell
+                            ariaLabel={t("pedidos.dashboard.notificationsAria")}
+                            panelTitle={t("pedidos.dashboard.notifTitle")}
+                            emptyText={t("pedidos.dashboard.notifEmpty")}
+                            items={urgentes.map((p) => {
+                                const atrasado = ehAtrasado(p.prazo);
+                                return {
+                                    id: p.id,
+                                    title: p.projeto,
+                                    subtitle: p.cliente,
+                                    tone: atrasado ? "danger" : "warn",
+                                    tagLabel: atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+                                    onSelect: () => setPedidoDetalheId(p.id),
+                                };
+                            })}
+                        />
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
+                            <PlusSignIcon size={16} strokeWidth={2.25} />
                             {t("pedidos.dashboard.newOrder")}
                         </button>
                     </div>
@@ -333,7 +296,7 @@ function PedidosDashboard() {
                 <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
                     {statCards.map((s) => (
                         <div key={s.key} className="stat-card">
-                            <span className={`stat-icon stat-${s.tone}`}>{s.icon}</span>
+                            <span className="stat-icon">{s.icon}</span>
                             <div className="stat-body">
                                 <span className="stat-value">{s.value}</span>
                                 <span className="stat-label">{s.label}</span>
@@ -347,7 +310,7 @@ function PedidosDashboard() {
                         {FILTRO_VALUES.map((valor) => (
                             <button
                                 key={valor}
-                                className={`filtro-btn ${filtro === valor ? "filtro-ativo" : ""}`}
+                                className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
                                 onClick={() => setFiltro(valor)}
                             >
                                 {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
@@ -357,31 +320,20 @@ function PedidosDashboard() {
                     </div>
 
                     <div className="filtros-actions">
-                        <div className="view-toggle" role="group" aria-label={t("pedidos.dashboard.viewModeAria")}>
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
-                                onClick={() => alternarView("list")}
-                                aria-pressed={view === "list"}
-                                aria-label={t("pedidos.dashboard.viewList")}
-                            >
-                                <LeftToRightListBulletIcon size={16} />
-                            </button>
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
-                                onClick={() => alternarView("grid")}
-                                aria-pressed={view === "grid"}
-                                aria-label={t("pedidos.dashboard.viewGrid")}
-                            >
-                                <GridViewIcon size={16} />
-                            </button>
-                        </div>
+                        <ViewToggle
+                            value={view}
+                            onChange={alternarView}
+                            ariaLabel={t("pedidos.dashboard.viewModeAria")}
+                            options={[
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
+                            ]}
+                        />
 
                         <div className="filtro-menu" ref={periodoRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${periodo !== "all" ? "is-active" : ""}`}
+                                className={cn("filtro-action", periodo !== "all" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "periodo"}
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
@@ -398,7 +350,7 @@ function PedidosDashboard() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={periodo === k}
-                                            className={`filtro-option ${periodo === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", periodo === k && "selected")}
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
                                             {t(PERIODO_I18N[k])}
@@ -412,7 +364,7 @@ function PedidosDashboard() {
                         <div className="filtro-menu" ref={filtrosRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${ordenacao !== "recentes" ? "is-active" : ""}`}
+                                className={cn("filtro-action", ordenacao !== "recentes" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "filtros"}
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
@@ -428,7 +380,7 @@ function PedidosDashboard() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={ordenacao === k}
-                                            className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {t(ORDENACAO_I18N[k])}
@@ -458,6 +410,7 @@ function PedidosDashboard() {
                         </p>
                         {!filtro && !busca && (
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                <PlusSignIcon size={16} strokeWidth={2.25} />
                                 {t("pedidos.dashboard.newOrder")}
                             </button>
                         )}

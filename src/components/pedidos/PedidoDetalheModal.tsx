@@ -13,6 +13,10 @@ import { Pedido, PedidoStatus } from "../../types";
 import Select from "../ui/Select";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatDate } from "../../utils/format";
+import { cn } from "../../utils/cn";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -114,24 +118,15 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         return () => { active = false; };
     }, [pedidoId, abrirEmEdicao, iniciarEdicao, t]);
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key !== "Escape") return;
-            if (editando) {
-                setEditando(false);
-                setErroEdicao("");
-            } else {
-                onClose();
-            }
+    useEscapeKey(() => {
+        if (editando) {
+            setEditando(false);
+            setErroEdicao("");
+        } else {
+            onClose();
         }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [editando, onClose]);
+    });
+    useBodyScrollLock();
 
     const imagensAtuais = useMemo(() => {
         const fontes = pedido?.imagensReferenciaFileIds ?? [];
@@ -261,7 +256,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
-                className={`modal-card pedido-detalhe-modal ${editando ? "is-editing" : ""}`}
+                className={cn("modal-card pedido-detalhe-modal", editando && "is-editing")}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="pedido-detalhe-titulo"
@@ -290,9 +285,9 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <Download01Icon size={15} />
                             {t("pedidos.detalhe.pdf")}
                         </button>
-                        <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
+                        <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                             <Cancel01Icon size={18} />
-                        </button>
+                        </IconButton>
                     </div>
                 </div>
 
@@ -372,7 +367,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <label htmlFor="pedido-descricao">{t("pedidos.form.descriptionLabel")}</label>
                             <textarea
                                 id="pedido-descricao"
-                                rows={4}
+                                rows={3}
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
                                 placeholder={t("pedidos.form.descriptionPlaceholder")}
@@ -462,7 +457,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                     {imagensAtuais.map((imagem, index) => {
                                         const removida = imagensRemover.has(imagem.id);
                                         return (
-                                            <div key={imagem.id || index} className={`pedido-edit-image ${removida ? "is-removed" : ""}`}>
+                                            <div key={imagem.id || index} className={cn("pedido-edit-image", removida && "is-removed")}>
                                                 <img
                                                     src={imagem.src}
                                                     alt={t("pedidos.detalhe.imageCurrentAlt", { index: index + 1 })}
@@ -518,7 +513,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                 ) : pedido && (
                     <div className="pedido-detalhe-content">
                         <div className="pedido-detalhe-meta">
-                            <span className={`pedido-chip ${pedido.status === "FINALIZADO" ? "chip-done" : "chip-active"}`}>
+                            <span className={cn("pedido-chip", pedido.status === "FINALIZADO" ? "chip-done" : "chip-active")}>
                                 {t(`pedidos.status.${pedido.status}`)}
                             </span>
                             <span className="pedido-detalhe-ref">#{pedido.id.replace(/[^a-zA-Z0-9]/g, "").slice(-5).toUpperCase()}</span>

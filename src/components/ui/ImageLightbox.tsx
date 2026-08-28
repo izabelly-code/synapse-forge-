@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { Cancel01Icon } from "hugeicons-react";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface ImageLightboxProps {
     src: string;
@@ -8,16 +8,13 @@ interface ImageLightboxProps {
 }
 
 function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") {
-                e.stopImmediatePropagation();
-                onClose();
-            }
-        }
-        document.addEventListener("keydown", onKey, true);
-        return () => document.removeEventListener("keydown", onKey, true);
-    }, [onClose]);
+    useEscapeKey(
+        (event) => {
+            event.stopImmediatePropagation();
+            onClose();
+        },
+        { capture: true },
+    );
 
     return (
         <div className="lightbox-overlay" onClick={onClose} role="dialog" aria-modal="true">

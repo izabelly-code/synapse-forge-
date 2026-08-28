@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { confirmarEmail } from "../services/AuthService";
 import logo from "../assets/Images/black-logo.png";
+import LinkButton from "../components/ui/LinkButton";
 
 function ConfirmEmailPage() {
     const navigate = useNavigate();
@@ -72,9 +73,9 @@ function ConfirmEmailPage() {
                         <button className="button" onClick={() => navigate("/register")}>
                             Criar nova conta
                         </button>
-                        <button type="button" className="link" onClick={() => navigate("/login")}>
+                        <LinkButton onClick={() => navigate("/login")}>
                             Voltar para o login
-                        </button>
+                        </LinkButton>
                     </div>
                 )}
             </div>

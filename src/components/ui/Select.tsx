@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 export interface SelectOption {
     label: string;
@@ -35,33 +37,24 @@ function Select({
     const selecionada = options.find((o) => o.value === value);
     const filtroAtivo = variant === "filter" && value !== (options[0]?.value ?? "");
 
-    useEffect(() => {
-        if (!aberto) return;
-        function onClick(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) setAberto(false);
-        }
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") setAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        document.addEventListener("keydown", onKey);
-        return () => {
-            document.removeEventListener("mousedown", onClick);
-            document.removeEventListener("keydown", onKey);
-        };
-    }, [aberto]);
+    useDismissable({
+        enabled: aberto,
+        refs: ref,
+        onDismiss: () => setAberto(false),
+        closeOnEscape: true,
+    });
 
     const textoSelecionado = selecionada?.label ?? placeholder;
 
     return (
-        <div className={`ui-select ui-select-${variant}`} ref={ref}>
+        <div className={cn("ui-select", `ui-select-${variant}`)} ref={ref}>
             <button
                 type="button"
                 id={id}
                 className={
                     variant === "filter"
-                        ? `filtro-action ${filtroAtivo ? "is-active" : ""}`
-                        : `ui-select-trigger ${!selecionada ? "is-placeholder" : ""}`
+                        ? cn("filtro-action", filtroAtivo && "is-active")
+                        : cn("ui-select-trigger", !selecionada && "is-placeholder")
                 }
                 aria-haspopup="listbox"
                 aria-expanded={aberto}
@@ -85,7 +78,7 @@ function Select({
                             type="button"
                             role="option"
                             aria-selected={value === o.value}
-                            className={`filtro-option ${value === o.value ? "selected" : ""}`}
+                            className={cn("filtro-option", value === o.value && "selected")}
                             onClick={() => { onChange(o.value); setAberto(false); }}
                         >
                             {o.label}

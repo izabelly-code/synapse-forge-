@@ -4,6 +4,7 @@ import { EventData, User } from '../../types';
 import React, { useEffect, useState } from 'react';
 import { Cancel01Icon } from "hugeicons-react";
 import './EventoModal.css';
+import IconButton from '../ui/IconButton';
 
 interface EventoModalProps {
   evento: Partial<EventData>;
@@ -234,9 +235,9 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         {/* Header */}
         <div className="evento-modal-header">
           <h2 className="evento-modal-titulo">{modalTitle}</h2>
-          <button className="evento-modal-close" onClick={onClose} aria-label="Fechar">
+          <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
             <Cancel01Icon size={18} />
-          </button>
+          </IconButton>
         </div>
 
         {/* Body */}

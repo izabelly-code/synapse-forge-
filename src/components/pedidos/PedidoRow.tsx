@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowLeft02Icon, ArrowRight02Icon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Pedido, PedidoStatus } from '../../types';
 import { formatDate } from '../../utils/format';
+import { cn } from '../../utils/cn';
+import { useDismissable } from '../../hooks/useDismissable';
+import IconButton from '../ui/IconButton';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -66,7 +69,7 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
 
     return (
         <div
-            className={`stepper ${finalizado ? "completo" : ""}`}
+            className={cn("stepper", finalizado && "completo")}
             role="progressbar"
             aria-valuenow={currentIndex + 1}
             aria-valuemin={1}
@@ -78,9 +81,9 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
                 const isCurrent = i === currentIndex && !finalizado;
                 const estado = isDone ? "done" : isCurrent ? "current" : "todo";
                 return (
-                    <div key={s} className={`step ${estado}`}>
+                    <div key={s} className={cn("step", estado)}>
                         {i > 0 && (
-                            <span className={`step-line ${i <= currentIndex ? "filled" : ""}`}>
+                            <span className={cn("step-line", i <= currentIndex && "filled")}>
                                 <span className="step-line-fill" />
                             </span>
                         )}
@@ -122,26 +125,20 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
     const [confirmDel, setConfirmDel] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!menuOpen) return;
-        function onClick(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuOpen(false);
-                setConfirmDel(false);
-            }
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuOpen]);
-
     function fecharMenu() {
         setMenuOpen(false);
         setConfirmDel(false);
     }
 
+    useDismissable({
+        enabled: menuOpen,
+        refs: menuRef,
+        onDismiss: fecharMenu,
+    });
+
     return (
         <div
-            className={`pedido-row ${justAdvanced ? "is-advancing" : ""}`}
+            className={cn("pedido-row", justAdvanced && "is-advancing")}
             style={{ "--row-index": index } as React.CSSProperties}
             role="button"
             tabIndex={0}
@@ -179,11 +176,11 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                     </>
                 ) : (
                     <>
-                        <span className={`row-prazo ${prazoClasse}`}>
+                        <span className={cn("row-prazo", prazoClasse)}>
                             {mostrarDot && <span className="urgente-dot" aria-hidden="true" />}
                             {formatDate(dataLocal(pedido.prazo), { day: "2-digit", month: "short" })}
                         </span>
-                        <span className={`row-prazo-sub ${tom === "atrasado" ? "sub-atrasado" : tom === "urgente" ? "sub-urgente" : ""}`}>
+                        <span className={cn("row-prazo-sub", tom === "atrasado" && "sub-atrasado", tom === "urgente" && "sub-urgente")}>
                             {restante!.texto}
                         </span>
                     </>
@@ -201,16 +198,15 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => e.stopPropagation()}
                 >
-                    <button
-                        type="button"
-                        className="kebab-btn"
+                    <IconButton
+                        variant="kebab"
                         aria-label={t("pedidos.row.moreActions")}
                         aria-haspopup="menu"
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((o) => !o)}
                     >
                         <MoreVerticalIcon size={18} />
-                    </button>
+                    </IconButton>
 
                     {menuOpen && (
                         <div className="kebab-menu" role="menu">
