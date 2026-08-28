@@ -159,7 +159,7 @@
       "notifEmpty": "All on track. No critical deadlines.",
       "tagLate": "Overdue",
       "tagDueToday": "Due today",
-      "newOrder": "+ New Order",
+      "newOrder": "New Order",
       "statsAria": "Production summary",
       "statTotal": "Total Orders",
       "statInProduction": "In Production",

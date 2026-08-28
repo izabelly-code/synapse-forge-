@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -287,6 +287,7 @@ function PedidosDashboard() {
                         />
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
+                            <PlusSignIcon size={16} />
                             {t("pedidos.dashboard.newOrder")}
                         </button>
                     </div>
@@ -409,6 +410,7 @@ function PedidosDashboard() {
                         </p>
                         {!filtro && !busca && (
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                <PlusSignIcon size={16} />
                                 {t("pedidos.dashboard.newOrder")}
                             </button>
                         )}
