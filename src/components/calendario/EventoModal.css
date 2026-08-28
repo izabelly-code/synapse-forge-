@@ -70,25 +70,7 @@
   word-break: break-word;
 }
 
-.evento-modal-close {
-  background: var(--surface-container-high);
-  border: none;
-  color: var(--on-surface-variant);
-  cursor: pointer;
-  padding: 0;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  flex-shrink: 0;
-  transition: background var(--duration-fast) var(--ease-standard);
-}
-
-.evento-modal-close:hover {
-  background: var(--surface-container);
-}
+/* O botão de fechar usa <IconButton variant="modal-close" /> — regra em index.css. */
 
 .evento-modal-body {
   padding: var(--space-6);

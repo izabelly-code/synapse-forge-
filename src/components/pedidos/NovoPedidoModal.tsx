@@ -5,6 +5,7 @@ import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -129,9 +130,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                         <h2 id="modal-titulo">{projeto.trim() || t("pedidos.novo.title")}</h2>
                     </div>
                     <div className="pedido-detalhe-header-actions">
-                        <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
+                        <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                             <Cancel01Icon size={18} />
-                        </button>
+                        </IconButton>
                     </div>
                 </div>
 

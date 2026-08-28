@@ -9,6 +9,7 @@ import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
+import IconButton from "../ui/IconButton";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -278,15 +279,15 @@ function PedidosDashboard() {
                         </div>
 
                         <div className="notif-wrap" ref={notifRef}>
-                            <button
-                                className="icon-button"
+                            <IconButton
+                                variant="toolbar"
                                 onClick={() => setNotifAberto((v) => !v)}
                                 aria-label={t("pedidos.dashboard.notificationsAria")}
                                 aria-expanded={notifAberto}
                             >
                                 <Notification03Icon size={18} />
                                 {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                            </button>
+                            </IconButton>
 
                             {notifAberto && (
                                 <div className="notif-panel" role="menu">

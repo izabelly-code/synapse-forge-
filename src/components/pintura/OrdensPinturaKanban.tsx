@@ -12,6 +12,7 @@ import {
 import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
+import IconButton from "../ui/IconButton";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -116,9 +117,9 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                         <span className="pintura-modal-kicker">Produção</span>
                         <h2>{editando ? "Editar Ordem de Pintura" : "Nova Ordem de Pintura"}</h2>
                     </div>
-                    <button type="button" className="modal-close" onClick={onClose} aria-label="Fechar">
+                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
                         <Cancel01Icon size={18} />
-                    </button>
+                    </IconButton>
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -365,15 +366,15 @@ function OrdensPinturaKanban() {
 
                         <div className="toolbar-actions">
                             <div className="notif-wrap" ref={notifRef}>
-                                <button
-                                    className="icon-button"
+                                <IconButton
+                                    variant="toolbar"
                                     onClick={() => setNotifAberto((v) => !v)}
                                     aria-label="Notificações"
                                     aria-expanded={notifAberto}
                                 >
                                     <Notification03Icon size={18} />
                                     {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                                </button>
+                                </IconButton>
 
                                 {notifAberto && (
                                     <div className="notif-panel" role="menu">

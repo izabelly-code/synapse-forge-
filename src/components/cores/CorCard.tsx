@@ -3,6 +3,7 @@ import { AlertCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon } fro
 import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
+import IconButton from "../ui/IconButton";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",
@@ -45,16 +46,15 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
 
     const menu = (
         <div className="kebab-wrap" ref={menuRef}>
-            <button
-                type="button"
-                className="kebab-btn"
+            <IconButton
+                variant="kebab"
                 aria-label="Ações da cor"
                 aria-haspopup="menu"
                 aria-expanded={menuAberto}
                 onClick={() => setMenuAberto((v) => !v)}
             >
                 <MoreVerticalIcon size={18} />
-            </button>
+            </IconButton>
             {menuAberto && (
                 <div className="kebab-menu" role="menu">
                     {confirmando ? (

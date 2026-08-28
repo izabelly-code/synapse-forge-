@@ -16,6 +16,7 @@ import { formatDate } from "../../utils/format";
 import { cn } from "../../utils/cn";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -284,9 +285,9 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <Download01Icon size={15} />
                             {t("pedidos.detalhe.pdf")}
                         </button>
-                        <button className="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
+                        <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                             <Cancel01Icon size={18} />
-                        </button>
+                        </IconButton>
                     </div>
                 </div>
 

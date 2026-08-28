@@ -6,6 +6,7 @@ import { Pedido, PedidoStatus } from '../../types';
 import { formatDate } from '../../utils/format';
 import { cn } from '../../utils/cn';
 import { useDismissable } from '../../hooks/useDismissable';
+import IconButton from '../ui/IconButton';
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -197,16 +198,15 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => e.stopPropagation()}
                 >
-                    <button
-                        type="button"
-                        className="kebab-btn"
+                    <IconButton
+                        variant="kebab"
                         aria-label={t("pedidos.row.moreActions")}
                         aria-haspopup="menu"
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((o) => !o)}
                     >
                         <MoreVerticalIcon size={18} />
-                    </button>
+                    </IconButton>
 
                     {menuOpen && (
                         <div className="kebab-menu" role="menu">

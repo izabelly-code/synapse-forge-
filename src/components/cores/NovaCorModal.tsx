@@ -6,6 +6,7 @@ import Select from "../ui/Select";
 import { cn } from "../../utils/cn";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 interface NovaCorModalProps {
     onClose: () => void;
@@ -150,9 +151,9 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
             >
                 <div className="modal-header">
                     <h2 id="cor-modal-titulo">{editando ? "Editar cor" : "Nova cor"}</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">
+                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
                         <Cancel01Icon size={18} />
-                    </button>
+                    </IconButton>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>

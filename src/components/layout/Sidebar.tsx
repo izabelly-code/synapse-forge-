@@ -8,6 +8,7 @@ import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
+import IconButton from "../ui/IconButton";
 
 interface NavItem {
     labelKey: string;
@@ -108,20 +109,19 @@ function Sidebar() {
             </nav>
 
             <div className="sidebar-controls">
-                <button
-                    type="button"
-                    className="sidebar-icon-btn"
+                <IconButton
+                    variant="sidebar"
                     onClick={toggleTheme}
                     aria-label={theme === "dark" ? t("sidebar.themeToLightAria") : t("sidebar.themeToDarkAria")}
                     title={theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}
                 >
                     {theme === "dark" ? <Sun03Icon size={18} /> : <Moon02Icon size={18} />}
-                </button>
+                </IconButton>
 
                 <div className="sidebar-lang-wrap" ref={langMenuRef}>
-                    <button
-                        type="button"
-                        className={cn("sidebar-icon-btn", langMenuAberto && "is-open")}
+                    <IconButton
+                        variant="sidebar"
+                        className={cn(langMenuAberto && "is-open")}
                         onClick={() => setLangMenuAberto((o) => !o)}
                         aria-label={t("sidebar.languageAria")}
                         title={t("sidebar.languageAria")}
@@ -129,7 +129,7 @@ function Sidebar() {
                         aria-expanded={langMenuAberto}
                     >
                         <Globe02Icon size={18} />
-                    </button>
+                    </IconButton>
 
                     {langMenuAberto && (
                         <div className="sidebar-lang-menu" role="menu">

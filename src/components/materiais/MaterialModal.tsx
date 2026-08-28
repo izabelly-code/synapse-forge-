@@ -4,6 +4,7 @@ import { criarMaterial, editarMaterial } from "../../services/MaterialService";
 import { Material } from "../../models/Material";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 interface MaterialModalProps {
     material?: Material;
@@ -102,9 +103,9 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
             >
                 <div className="modal-header">
                     <h2 id="modal-titulo">{editando ? "Editar Material" : "Novo Material"}</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">
+                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
                         <Cancel01Icon size={18} />
-                    </button>
+                    </IconButton>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
