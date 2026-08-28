@@ -39,9 +39,17 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
         return regex.test(valor);
     }
 
+    // Valida "reward early, punish late": o erro só aparece ao sair do campo,
+    // mas some a cada tecla assim que o e-mail fica válido.
     function handleEmailChange(valor: string) {
         setEmail(valor);
-        setEmailValido(validarEmail(valor) || valor === "");
+        if (!emailValido && (validarEmail(valor) || valor === "")) {
+            setEmailValido(true);
+        }
+    }
+
+    function handleEmailBlur() {
+        setEmailValido(validarEmail(email) || email === "");
     }
 
     async function enviarEmail() {
@@ -152,6 +160,7 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                             placeholder="Digite seu email"
                             value={email}
                             onChange={(e) => handleEmailChange(e.target.value)}
+                            onBlur={handleEmailBlur}
                             className={!emailValido ? "input-error" : ""}
                             autoComplete="email"
                         />

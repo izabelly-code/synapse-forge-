@@ -227,8 +227,12 @@ function Register({ onRegister }: RegisterProps) {
                             value={email}
                             onChange={(e) => {
                                 setEmail(e.target.value);
-                                setEmailValido(validarEmail(e.target.value) || e.target.value === "");
+                                // o erro só aparece no blur; aqui ele apenas some quando corrigido
+                                if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
+                                    setEmailValido(true);
+                                }
                             }}
+                            onBlur={() => setEmailValido(validarEmail(email) || email === "")}
                             className={!emailValido ? "input-error" : ""}
                             placeholder="Digite seu email"
                         />
