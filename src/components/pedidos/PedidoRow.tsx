@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/format';
 import { cn } from '../../utils/cn';
 import { useDismissable } from '../../hooks/useDismissable';
 import IconButton from '../ui/IconButton';
+import { avatarPalette } from "../../utils/avatarPalette";
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -155,7 +156,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
             </div>
 
             <div className="cell cell-cliente">
-                <span className="row-avatar" aria-hidden="true">{pedido.cliente.charAt(0).toUpperCase()}</span>
+                <span className={cn("row-avatar", avatarPalette(pedido.cliente))} aria-hidden="true">{pedido.cliente.charAt(0).toUpperCase()}</span>
                 <span className="row-cliente-nome">{pedido.cliente}</span>
             </div>
 

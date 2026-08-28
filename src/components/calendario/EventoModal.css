@@ -244,7 +244,7 @@
 }
 
 .btn-secondary:hover {
-  background: var(--surface-container);
+  background: color-mix(in srgb, var(--color-text) 8%, var(--surface-container-high));
 }
 
 .btn-danger {
@@ -309,7 +309,7 @@
 }
 
 .user-suggestion-item:hover {
-  background-color: var(--surface-container-low);
+  background-color: var(--state-hover);
 }
 
 .user-suggestion-item:last-child {

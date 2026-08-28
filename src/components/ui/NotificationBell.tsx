@@ -26,13 +26,17 @@ interface NotificationBellProps {
     emptyText: string;
     /** Nome acessível do sino. */
     ariaLabel: string;
+    /** Variante do botão do sino (padrão: toolbar). */
+    variant?: "toolbar" | "sidebar";
+    /** Direção de abertura do painel (padrão: down). */
+    direction?: "down" | "up";
 }
 
 /**
  * Sino de notificações com contador e painel suspenso, usado nas barras de ação
  * dos dashboards. Guarda o próprio estado de aberto/fechado e fecha ao clicar fora.
  */
-function NotificationBell({ items, panelTitle, emptyText, ariaLabel }: NotificationBellProps) {
+function NotificationBell({ items, panelTitle, emptyText, ariaLabel, variant = "toolbar", direction = "down" }: NotificationBellProps) {
     const [aberto, setAberto] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -43,9 +47,9 @@ function NotificationBell({ items, panelTitle, emptyText, ariaLabel }: Notificat
     });
 
     return (
-        <div className="notif-wrap" ref={ref}>
+        <div className={cn("notif-wrap", direction === "up" && "notif-wrap--up")} ref={ref}>
             <IconButton
-                variant="toolbar"
+                variant={variant}
                 onClick={() => setAberto((v) => !v)}
                 aria-label={ariaLabel}
                 aria-expanded={aberto}

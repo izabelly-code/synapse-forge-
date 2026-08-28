@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getUserById, updateUser } from "../services/UserService";
 import { solicitarMudancaEmail } from "../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
+import { avatarPalette } from "../utils/avatarPalette";
+import { cn } from "../utils/cn";
 
 function UserProfilePage() {
     const navigate = useNavigate();
@@ -143,7 +145,7 @@ function UserProfilePage() {
         <main className="dashboard-main">
                 <div className="profile-page">
                     <div className="profile-avatar-block">
-                        <div className="profile-avatar">{getInitial()}</div>
+                        <div className={cn("profile-avatar", avatarPalette(emailOriginal || nome))}>{getInitial()}</div>
                         <div>
                             <h1 className="dashboard-title" style={{ marginBottom: "0.25rem" }}>{nome}</h1>
                             <p className="dashboard-subtitle">{emailOriginal}</p>
