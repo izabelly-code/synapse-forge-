@@ -28,16 +28,113 @@
   --color-info: #3B82F6;         /* categoria informativa (kanban: misturando) */
   --color-violet: #8052aa;       /* categoria neutra-destaque (kanban: secando) */
 
-  /* Tipografia — escala da spec (família única: Inter) */
-  --type-title: 600 1.5rem/2rem 'Inter', sans-serif;          /* 24/32 */
-  --type-medium-title: 600 1rem/1.25rem 'Inter', sans-serif;  /* 16/20 */
-  --type-body: 400 0.875rem/1.25rem 'Inter', sans-serif;      /* 14/20 */
-  --type-label: 500 0.75rem/1rem 'Inter', sans-serif;         /* 12/16 */
-  --type-caption: 400 0.75rem/1rem 'Inter', sans-serif;       /* 12/16 */
+  /* ---- Tipografia: tamanhos ----
+     Escala derivada dos tamanhos mais usados do app (14/13/12/11/15px).
+     Os --type-* semânticos abaixo são compostos a partir dela. */
+  --text-3xs: 0.5rem;      /*  8px — micro-etiquetas do kanban de pintura */
+  --text-2xs: 0.625rem;    /* 10px */
+  --text-xs: 0.6875rem;    /* 11px */
+  --text-sm: 0.75rem;      /* 12px */
+  --text-md: 0.8125rem;    /* 13px */
+  --text-base: 0.875rem;   /* 14px — tamanho de corpo padrão */
+  --text-lg: 0.9375rem;    /* 15px */
+  --text-xl: 1rem;         /* 16px */
+  --text-2xl: 1.125rem;    /* 18px */
+  /* Display */
+  --text-3xl: 1.25rem;     /* 20px */
+  --text-4xl: 1.5rem;      /* 24px */
+  --text-5xl: 1.75rem;     /* 28px */
+  --text-6xl: 2.25rem;     /* 36px */
+  --text-7xl: 3.25rem;     /* 52px */
+
+  /* ---- Tipografia: pesos ---- */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* ---- Tipografia: entrelinhas (razões) ---- */
+  --leading-none: 1;
+  --leading-tighter: 1.1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* Tipografia — papéis semânticos da spec (família única: Inter) */
+  --type-title: var(--weight-semibold) var(--text-4xl)/2rem 'Inter', sans-serif;          /* 24/32 */
+  --type-medium-title: var(--weight-semibold) var(--text-xl)/1.25rem 'Inter', sans-serif; /* 16/20 */
+  --type-body: var(--weight-regular) var(--text-base)/1.25rem 'Inter', sans-serif;        /* 14/20 */
+  --type-label: var(--weight-medium) var(--text-sm)/1rem 'Inter', sans-serif;             /* 12/16 */
+  --type-caption: var(--weight-regular) var(--text-sm)/1rem 'Inter', sans-serif;          /* 12/16 */
+
+  /* ---- Espaçamento: escala base 4px ----
+     Cobre padding, margin, gap e inset. Nomes = múltiplos de 0.25rem. */
+  --space-0: 0;
+  --space-05: 0.125rem;    /*  2px */
+  --space-1: 0.25rem;      /*  4px */
+  --space-1-5: 0.375rem;   /*  6px */
+  --space-2: 0.5rem;       /*  8px */
+  --space-2-5: 0.625rem;   /* 10px */
+  --space-3: 0.75rem;      /* 12px */
+  --space-3-5: 0.875rem;   /* 14px */
+  --space-4: 1rem;         /* 16px */
+  --space-4-5: 1.125rem;   /* 18px */
+  --space-5: 1.25rem;      /* 20px */
+  --space-6: 1.5rem;       /* 24px */
+  --space-7: 1.75rem;      /* 28px */
+  --space-8: 2rem;         /* 32px */
+  --space-9: 2.25rem;      /* 36px */
+  --space-10: 2.5rem;      /* 40px */
+  --space-11: 2.75rem;     /* 44px */
+  --space-12: 3rem;        /* 48px */
+  --space-16: 4rem;        /* 64px */
+
+  /* ---- Raios ---- */
+  --radius-2xs: 0.25rem;   /*  4px */
+  --radius-xs: 0.375rem;   /*  6px */
+  --radius-sm: 0.5rem;     /*  8px */
+  --radius-md: 0.625rem;   /* 10px */
+  /* --radius (12px) é o padrão e fica declarado no fim deste bloco */
+  --radius-lg: 1.5rem;     /* 24px */
+  --radius-pill: 50px;
+
+  /* ---- Camadas de empilhamento (z-index) ----
+     Ordem crescente; nomear evita a escalada de números mágicos. */
+  --z-behind: 0;           /* trilho atrás dos nós de etapa */
+  --z-base: 1;             /* conteúdo elevado dentro do próprio componente */
+  --z-raised: 2;           /* conteúdo sobre imagem/overlay decorativo */
+  --z-sticky: 10;          /* cabeçalho fixo, linha com menu aberto */
+  --z-menu: 20;            /* menu dentro de um card */
+  --z-dropdown: 30;        /* kebab, seletor de idioma */
+  --z-popover: 50;         /* filtros, painel de notificações */
+  --z-modal: 100;          /* overlay de modal e autocomplete dentro dele */
+  --z-lightbox: 200;       /* visualizador de imagem em tela cheia */
+  --z-modal-top: 1000;     /* fora da escala: overlay do modal do calendário */
+
+  /* ---- Movimento ---- */
+  --duration-fast: 0.15s;    /* hover/foco de controles */
+  --duration-base: 0.2s;     /* borda + sombra, mudanças de elevação */
+  --duration-slow: 0.3s;     /* entrada de modal, progresso de etapas */
+  --duration-slower: 0.4s;   /* entrada de linhas de lista */
+  --duration-pulse: 1.5s;    /* loop dos skeletons */
+  --ease-standard: ease;
+  --ease-in-out: ease-in-out;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Breakpoints (referência) ----
+     Media query em CSS puro NÃO aceita var(); os valores abaixo são o
+     conjunto canônico e devem ser escritos à mão nas @media:
+       480px  (xs)  · telefone pequeno
+       640px  (sm)  · telefone
+       768px  (md)  · tablet retrato / colapso geral
+      1024px  (lg)  · tablet paisagem
+     Exceções documentadas em docs/design-tokens.md (540px, 900px, 1100px). */
 
   /* Controles — spec */
   --control-h: 2.25rem;       /* botões: 36px */
-  --radius-pill: 50px;
   --badge-h: 1.25rem;         /* badges: 20px */
 
   /* Derivados */
@@ -240,16 +337,16 @@ body {
 
 .left-content h1 {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 2.25rem;
-  font-weight: 700;
+  font-size: var(--text-6xl);
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   margin: 0 0 0.75rem;
 }
 
 .left-content p {
   color: rgba(255, 255, 255, 0.75);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--text-xl);
+  line-height: var(--leading-relaxed);
   margin: 0;
 }
 
@@ -308,8 +405,8 @@ body {
 
 .card h2 {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   color: var(--on-background);
   text-align: center;
@@ -325,7 +422,7 @@ body {
   gap: 0.375rem;
   margin-bottom: 0.5rem;
   color: var(--color-text-subtle);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
 }
 
 .lang-switch button {
@@ -335,8 +432,8 @@ body {
   border-radius: calc(var(--radius) / 2);
   color: var(--color-text-muted);
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
 }
@@ -378,13 +475,13 @@ body {
 /* Reserved hint slot — keeps layout stable when validation messages appear */
 .input-hint {
   min-height: 0.95rem;
-  font-size: 0.75rem;
-  line-height: 1.25;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
 }
 
 .input-group label {
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
 }
 
@@ -396,7 +493,7 @@ body {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   width: 100%;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -418,7 +515,7 @@ body {
   color: var(--on-surface);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   margin-right: 0.75rem;
   padding: 0.5rem 0.875rem;
 }
@@ -525,7 +622,7 @@ body {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -558,7 +655,7 @@ body {
 
 .error-text {
   color: var(--error-color);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
 }
 
 /* ===== SELECT (design system) ===== */
@@ -583,7 +680,7 @@ body {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   cursor: pointer;
   text-align: left;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -630,7 +727,7 @@ body {
 /* Inline error message in forms */
 .error {
   color: var(--error-color);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   background: var(--error-container);
   padding: 0.625rem 0.875rem;
   border-radius: var(--radius);
@@ -639,20 +736,20 @@ body {
 
 .warning-text {
   color: var(--secondary);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
 }
 
 
 /* ===== PASSWORD STRENGTH ===== */
-.senha-fraca { color: var(--error-color); font-size: 0.75rem; }
-.senha-media { color: var(--secondary); font-size: 0.75rem; }
-.senha-forte { color: var(--success-color); font-size: 0.75rem; }
+.senha-fraca { color: var(--error-color); font-size: var(--text-sm); }
+.senha-media { color: var(--secondary); font-size: var(--text-sm); }
+.senha-forte { color: var(--success-color); font-size: var(--text-sm); }
 
 
 /* ===== SUCCESS STATES ===== */
 .success {
   color: var(--success-color);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   background: var(--success-container);
   padding: 0.625rem 0.875rem;
   border-radius: var(--radius);
@@ -663,7 +760,7 @@ body {
 }
 
 .spam-tip {
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
   margin-top: 0.375rem;
 }
@@ -685,8 +782,8 @@ body {
   color: var(--on-primary);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
   letter-spacing: 0.01em;
   transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -723,8 +820,8 @@ body {
   border: none;
   padding: 0;
   font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
   transition: color 0.15s ease;
   text-decoration: none;
 }
@@ -782,7 +879,7 @@ body {
 
 .dashboard-header-inner .link {
   margin-top: 0;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .dashboard-main {
@@ -895,8 +992,8 @@ body {
   background: transparent;
   color: var(--on-surface-variant);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
@@ -910,7 +1007,7 @@ body {
   border-color: var(--outline-variant);
   background: var(--surface);
   color: var(--on-surface);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   box-shadow: var(--shadow-sm);
 }
 
@@ -926,8 +1023,8 @@ body {
   border-radius: var(--radius-pill);
   background: var(--surface-container);
   color: var(--on-surface-variant);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
   text-align: center;
   line-height: var(--badge-h);
@@ -954,8 +1051,8 @@ body {
   background: var(--surface);
   color: var(--on-surface);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -1004,7 +1101,7 @@ body {
   background: none;
   border-radius: var(--radius);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface);
   cursor: pointer;
   text-align: left;
@@ -1017,7 +1114,7 @@ body {
 
 .filtro-option.selected {
   color: var(--primary);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 @media (max-width: 640px) {
@@ -1067,7 +1164,7 @@ body {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1081,8 +1178,8 @@ body {
   position: absolute;
   right: 0.5rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   color: var(--on-surface-variant);
   background: var(--surface-container-high);
   border-radius: var(--radius);
@@ -1124,8 +1221,8 @@ body {
   border-radius: var(--radius-pill);
   background: var(--error-color);
   color: var(--on-primary);
-  font-size: 0.625rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1146,8 +1243,8 @@ body {
 }
 
 .notif-panel-head {
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--on-surface-variant);
@@ -1155,7 +1252,7 @@ body {
 }
 
 .notif-empty {
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
   padding: 0.25rem 0.625rem 0.75rem;
   margin: 0;
@@ -1190,8 +1287,8 @@ body {
 
 .notif-item-projeto {
   grid-column: 1;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
   color: var(--on-surface);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1200,7 +1297,7 @@ body {
 
 .notif-item-cliente {
   grid-column: 1;
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--on-surface-variant);
 }
 
@@ -1211,8 +1308,8 @@ body {
   display: inline-flex;
   align-items: center;
   height: var(--badge-h);
-  font-size: 0.625rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
   padding: 0 0.375rem;
   border-radius: var(--radius-pill);
   white-space: nowrap;
@@ -1292,8 +1389,8 @@ body {
 
 .pedidos-grid .cell-label {
   display: inline;
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
   margin-right: 0.5rem;
 }
@@ -1331,8 +1428,8 @@ body {
 
 .pedidos-row-head {
   padding: 0 1.25rem 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--on-surface-variant);
@@ -1391,8 +1488,8 @@ body {
 .cell-label { display: none; }
 
 .row-ref {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
   color: var(--on-surface-variant);
 }
@@ -1414,13 +1511,13 @@ body {
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
 }
 
 .row-cliente-nome {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
   color: var(--on-surface);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1438,8 +1535,8 @@ body {
 
 .row-projeto-nome {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
   color: var(--on-background);
   letter-spacing: -0.01em;
   overflow: hidden;
@@ -1448,7 +1545,7 @@ body {
 }
 
 .row-projeto-desc {
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   color: var(--on-surface-variant);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1466,8 +1563,8 @@ body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
   font-variant-numeric: tabular-nums;
 }
@@ -1476,7 +1573,7 @@ body {
 .row-prazo-done {
   gap: 0.25rem;
   color: var(--success-color);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 
@@ -1489,8 +1586,8 @@ body {
 
 
 .row-prazo-sub {
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
 }
 
@@ -1498,7 +1595,7 @@ body {
 .row-prazo-sub.sub-atrasado { color: var(--error-color); }
 
 .row-prazo.prazo-urgente { color: var(--secondary); }
-.row-prazo.prazo-atrasado { color: var(--error-color); font-weight: 600; }
+.row-prazo.prazo-atrasado { color: var(--error-color); font-weight: var(--weight-semibold); }
 .row-prazo.prazo-atrasado .urgente-dot { background: var(--error-color); }
 
 
@@ -1597,8 +1694,8 @@ body {
 .step.current .step-dot { opacity: 1; transform: scale(1); }
 
 .step-label {
-  font-size: 0.625rem;
-  font-weight: 500;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
   letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
@@ -1606,7 +1703,7 @@ body {
 }
 
 .step.done .step-label { color: var(--on-surface-variant); }
-.step.current .step-label { color: var(--primary); font-weight: 600; }
+.step.current .step-label { color: var(--primary); font-weight: var(--weight-semibold); }
 
 @media (prefers-reduced-motion: reduce) {
   .step-line-fill,
@@ -1672,7 +1769,7 @@ body {
   background: none;
   border-radius: var(--radius);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface);
   cursor: pointer;
   text-align: left;
@@ -1691,7 +1788,7 @@ body {
 
 .kebab-confirm-text {
   padding: 0.375rem 0.625rem;
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   color: var(--on-surface-variant);
 }
 
@@ -1708,8 +1805,8 @@ body {
   border-radius: var(--radius);
   padding: 0.375rem 0.5rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
 }
 
@@ -1764,8 +1861,8 @@ body {
 
   .cell-label {
     display: inline;
-    font-size: 0.6875rem;
-    font-weight: 500;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
     color: var(--on-surface-variant);
     margin-right: 0.5rem;
   }
@@ -1789,7 +1886,7 @@ body {
   background: var(--error-container);
   border-radius: var(--radius);
   color: var(--error-color);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   margin-bottom: 1.5rem;
 }
 
@@ -1815,15 +1912,15 @@ body {
 
 .empty-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
   color: var(--on-surface);
   margin: 1rem 0 0.375rem;
   letter-spacing: -0.01em;
 }
 
 .empty-sub {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
@@ -1889,8 +1986,8 @@ body {
 
 .modal-header h2 {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   color: var(--on-background);
   margin: 0;
@@ -1907,7 +2004,7 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
   transition: background 0.15s ease;
   flex-shrink: 0;
@@ -1927,7 +2024,7 @@ body {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   width: 100%;
   resize: vertical;
   min-height: 5.25rem;
@@ -1940,16 +2037,16 @@ body {
 }
 
 .label-opcional {
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   color: var(--on-surface-variant);
   opacity: 0.6;
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
 }
 
 .file-current {
   color: var(--on-surface-variant);
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -1983,8 +2080,8 @@ body {
   color: var(--on-surface);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
   transition: background 0.15s ease;
 }
 
@@ -2009,8 +2106,8 @@ body {
   display: block;
   margin-bottom: 0.25rem;
   color: var(--primary);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -2031,8 +2128,8 @@ body {
 
 .pedido-detalhe-ref {
   color: var(--on-surface-variant);
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2060,14 +2157,14 @@ body {
 
 .pedido-detalhe-info span {
   color: var(--on-surface-variant);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
 }
 
 .pedido-detalhe-info strong {
   min-width: 0;
   color: var(--on-surface);
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   overflow-wrap: anywhere;
 }
 
@@ -2080,15 +2177,15 @@ body {
 .pedido-detalhe-section h3 {
   margin: 0;
   color: var(--on-background);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
 }
 
 .pedido-detalhe-section p {
   margin: 0;
   color: var(--on-surface-variant);
-  font-size: 0.9rem;
-  line-height: 1.55;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
 }
 
 .pedido-arquivo-3d {
@@ -2128,7 +2225,7 @@ body {
 
 .pedido-arquivo-3d span {
   color: var(--on-surface-variant);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .pedido-download-btn {
@@ -2140,8 +2237,8 @@ body {
   border-radius: var(--radius);
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
   text-decoration: none;
   transition: filter 0.15s ease, transform 0.15s ease;
 }
@@ -2163,7 +2260,7 @@ body {
 .pedido-download-error {
   margin: 0.625rem 0 0;
   color: var(--error-color);
-  font-size: 0.82rem;
+  font-size: var(--text-md);
 }
 
 .pedido-detalhe-modal.is-editing {
@@ -2189,8 +2286,8 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
 }
 
 .pedido-edit-btn {
@@ -2222,7 +2319,7 @@ body {
   border-radius: var(--radius);
   background: var(--error-container);
   color: var(--error-color);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .pedido-edit-section {
@@ -2243,12 +2340,12 @@ body {
 .pedido-edit-section-title h3 {
   margin: 0 0 0.2rem;
   color: var(--on-background);
-  font-size: 0.95rem;
+  font-size: var(--text-lg);
 }
 
 .pedido-edit-section-title span {
   color: var(--on-surface-variant);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .pedido-upload-btn {
@@ -2292,7 +2389,7 @@ body {
 
 .pedido-edit-file > div span {
   color: var(--on-surface-variant);
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
 }
 
 .pedido-remove-btn {
@@ -2310,7 +2407,7 @@ body {
   border-radius: var(--radius);
   background: var(--error-container);
   color: var(--error-color);
-  font-size: 0.82rem;
+  font-size: var(--text-md);
 }
 
 .pedido-removal-notice button {
@@ -2318,7 +2415,7 @@ body {
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .pedido-edit-images {
@@ -2360,8 +2457,8 @@ body {
   border-radius: 999px;
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
 }
 
 .pedido-edit-image button {
@@ -2377,8 +2474,8 @@ body {
   background: var(--scrim-strong);
   color: #fff;
   cursor: pointer;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
 }
 
 .pedido-edit-image button:disabled {
@@ -2504,8 +2601,8 @@ body {
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: var(--text-5xl);
+  font-weight: var(--weight-bold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2522,8 +2619,8 @@ body {
 
 .profile-section-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   color: var(--on-background);
   letter-spacing: -0.01em;
   margin: 0 0 1rem;
@@ -2547,7 +2644,7 @@ body {
 }
 
 .profile-email-atual {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface-variant);
   margin: 0 0 1rem;
 }
@@ -2556,7 +2653,7 @@ body {
   background: color-mix(in srgb, var(--color-primary) 8%, transparent);
   border-radius: var(--radius);
   padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--secondary);
   margin-bottom: 1rem;
 }
@@ -2633,8 +2730,8 @@ html {
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2648,8 +2745,8 @@ html {
 }
 
 .sidebar-user-name {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
   color: var(--on-surface);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2657,7 +2754,7 @@ html {
 }
 
 .sidebar-user-email {
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--on-surface-variant);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2682,8 +2779,8 @@ html {
   border-radius: var(--radius);
   color: var(--on-surface-variant);
   font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -2698,7 +2795,7 @@ html {
 .sidebar-nav-item.active {
   background: var(--surface-container);
   color: var(--on-surface);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .sidebar-nav-icon {
@@ -2767,8 +2864,8 @@ html {
   border-radius: calc(var(--radius) / 1.5);
   color: var(--on-surface-variant);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -2782,7 +2879,7 @@ html {
 .sidebar-lang-option.selected {
   background: var(--surface-container);
   color: var(--on-surface);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .sidebar-logout {
@@ -2919,7 +3016,7 @@ html {
   background: var(--surface);
   color: var(--on-surface);
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
 }
 
 .pintura-search svg {
@@ -2943,14 +3040,14 @@ html {
   padding: 0 0.9rem;
   color: var(--on-surface-variant);
   font-family: inherit;
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
   cursor: default;
 }
 
 .pintura-toolbar .ui-select-filter .filtro-action {
   min-height: 40px;
   border-radius: 0.55rem;
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
 }
 
 .pintura-toolbar-spacer {
@@ -2963,7 +3060,7 @@ html {
   gap: 0.5rem;
   color: var(--color-text-subtle);
   white-space: nowrap;
-  font-size: 0.68rem;
+  font-size: var(--text-xs);
 }
 
 .pintura-updated button {
@@ -3030,8 +3127,8 @@ html {
 
 .pintura-column > header h2 {
   margin: 0;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
 }
 
 .pintura-column > header span {
@@ -3043,8 +3140,8 @@ html {
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-surface) 75%, transparent);
   color: var(--color-text-subtle);
-  font-size: 0.63rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
 }
 
 .tone-waiting > header { background: #f3f3f5; color: var(--color-text-muted); }
@@ -3088,7 +3185,7 @@ html {
 
 .pintura-card-ref {
   color: var(--color-text);
-  font-size: 0.76rem;
+  font-size: var(--text-sm);
 }
 
 .pintura-card-head {
@@ -3150,8 +3247,8 @@ html {
   color: var(--color-text-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 
 .pintura-card-menu > button:hover,
@@ -3166,8 +3263,8 @@ html {
 .pintura-card-menu > span {
   padding: 0.35rem 0.4rem;
   color: var(--color-text-muted);
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 
 .pintura-card-menu > div {
@@ -3179,7 +3276,7 @@ html {
 .pintura-card-menu > div button {
   justify-content: center;
   padding-inline: 0.25rem;
-  font-size: 0.65rem;
+  font-size: var(--text-2xs);
 }
 
 .pintura-card-color {
@@ -3208,7 +3305,7 @@ html {
 .pintura-card-color strong {
   overflow: hidden;
   color: var(--color-text);
-  font-size: 0.68rem;
+  font-size: var(--text-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3216,7 +3313,7 @@ html {
 .pintura-card-color small {
   overflow: hidden;
   color: var(--color-text-subtle);
-  font-size: 0.58rem;
+  font-size: var(--text-2xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3237,13 +3334,13 @@ html {
 
 .pintura-card-footer > div:first-child span {
   color: var(--color-text-subtle);
-  font-size: 0.55rem;
+  font-size: var(--text-3xs);
 }
 
 .pintura-card-footer > div:first-child strong {
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.61rem;
+  font-size: var(--text-2xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3262,8 +3359,8 @@ html {
   gap: 0.2rem;
   padding: 0.25rem 0.34rem;
   border-radius: 0.35rem;
-  font-size: 0.52rem;
-  font-weight: 700;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
   white-space: nowrap;
 }
 
@@ -3294,8 +3391,8 @@ html {
   display: block;
   margin-bottom: 0.2rem;
   color: var(--primary);
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3326,12 +3423,12 @@ html {
 .pintura-reference-panel span,
 .pintura-reference-panel small {
   color: var(--on-surface-variant);
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
 }
 
 .pintura-reference-panel strong {
   color: var(--on-surface);
-  font-size: 0.85rem;
+  font-size: var(--text-md);
 }
 
 .pintura-reference-images {
@@ -3416,7 +3513,7 @@ html {
 }
 
 .pedido-row.material-row {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface);
   font-variant-numeric: tabular-nums;
 }
@@ -3436,8 +3533,8 @@ html {
   color: var(--on-surface);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.8125rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -3506,7 +3603,7 @@ html {
   background: var(--surface);
   color: var(--on-background);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -3526,8 +3623,8 @@ html {
   padding: 0.4375rem 0.5rem;
   color: var(--primary);
   font-family: 'Inter', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   border-radius: var(--radius);
   transition: color 0.15s ease;
@@ -3588,8 +3685,8 @@ html {
   background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   color: var(--on-surface);
   letter-spacing: 0.01em;
 }
@@ -3641,8 +3738,8 @@ html {
 
 .cor-nome {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   color: var(--on-background);
   letter-spacing: -0.01em;
   overflow: hidden;
@@ -3651,7 +3748,7 @@ html {
 }
 
 .cor-fornecedor {
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3667,8 +3764,8 @@ html {
   border-radius: var(--radius);
   background: var(--secondary-fixed);
   color: var(--secondary);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
 
@@ -3692,15 +3789,15 @@ html {
 }
 
 .cor-metric-label {
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
 }
 
 .cor-metric-value {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   color: var(--on-background);
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
@@ -3729,8 +3826,8 @@ html {
 
 .cor-row-head {
   padding: 0 1.25rem 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--on-surface-variant);
@@ -3774,8 +3871,8 @@ html {
   border-radius: var(--radius);
   background: var(--surface-container);
   color: var(--on-surface-variant);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 
 .cor-row-metric {
@@ -3786,7 +3883,7 @@ html {
 }
 
 .cor-row-metric .cor-metric-value {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .cor-row-acoes {
@@ -3838,8 +3935,8 @@ html {
   border-radius: 0 0 var(--radius) var(--radius);
   background: var(--scrim-strong);
   color: var(--on-primary);
-  font-size: 0.625rem;
-  font-weight: 600;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
   text-align: center;
   pointer-events: none;
 }
@@ -3955,8 +4052,8 @@ html {
 }
 
 .mistura-card-head h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
   color: var(--on-surface);
 }
 
@@ -3975,7 +4072,7 @@ html {
 .mistura-btn-limpar {
   flex: none;
   padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .mistura-btn-add:disabled {
@@ -3985,8 +4082,8 @@ html {
 
 .mistura-campo-nome label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
   color: var(--on-surface);
   margin-bottom: 0.375rem;
 }
@@ -4002,7 +4099,7 @@ html {
   border: 1.5px solid var(--outline-variant);
   background: var(--surface);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   color: var(--on-surface);
   outline: none;
   transition: border-color 0.15s ease;
@@ -4017,7 +4114,7 @@ html {
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
 }
 
@@ -4053,7 +4150,7 @@ html {
 }
 
 .mistura-linha-fornecedor {
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: var(--on-surface-variant);
   padding-left: 0.25rem;
 }
@@ -4076,7 +4173,7 @@ html {
   border-radius: 8px;
   background: var(--surface);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   color: var(--on-surface);
   outline: none;
 }
@@ -4086,7 +4183,7 @@ html {
 }
 
 .mistura-linha-prop span {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface-variant);
 }
 
@@ -4125,7 +4222,7 @@ html {
 }
 
 .mistura-total-label {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--on-surface);
 }
 
@@ -4133,8 +4230,8 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
 }
 
 .mistura-total.is-ok .mistura-total-valor {
@@ -4147,7 +4244,7 @@ html {
 
 .mistura-total-dica {
   margin-left: auto;
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
 }
 
@@ -4166,7 +4263,7 @@ html {
 }
 
 .mistura-preview-swatch span {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface-variant);
 }
 
@@ -4189,8 +4286,8 @@ html {
 }
 
 .mistura-metric-label {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--on-surface-variant);
@@ -4204,7 +4301,7 @@ html {
 }
 
 .mistura-codigo-valor strong {
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   color: var(--on-surface);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4233,8 +4330,8 @@ html {
 .mistura-volume-menu .filtro-action {
   width: 100%;
   justify-content: space-between;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   padding: 0.5rem 0.75rem;
 }
 
@@ -4246,12 +4343,12 @@ html {
 
 .mistura-volume-menu .filtro-option {
   width: 100%;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .mistura-custo {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   color: var(--success-color);
 }
 
@@ -4274,8 +4371,8 @@ html {
   border-radius: var(--radius);
   background: var(--success-container);
   color: var(--success-color);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
 }
 
 .mistura-resumo {
@@ -4294,8 +4391,8 @@ html {
 }
 
 .mistura-resumo-head {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--on-surface-variant);
@@ -4304,7 +4401,7 @@ html {
 
 .mistura-resumo-row {
   border-bottom: 1px solid var(--outline-variant);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface);
 }
 
@@ -4339,25 +4436,25 @@ html {
 }
 
 .mistura-resumo-ident strong {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .mistura-resumo-ident small {
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   color: var(--on-surface-variant);
 }
 
 .mistura-resumo-total {
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--on-surface);
 }
 
 .mistura-nota {
   margin-top: 0.875rem;
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: var(--on-surface-variant);
 }
 
@@ -4418,24 +4515,24 @@ html {
 }
 
 .status-code {
-  font-size: 3.25rem;
-  font-weight: 800;
-  line-height: 1;
+  font-size: var(--text-7xl);
+  font-weight: var(--weight-extrabold);
+  line-height: var(--leading-none);
   color: var(--primary);
   letter-spacing: -0.02em;
   margin-bottom: 0.75rem;
 }
 
 .status-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
   color: var(--on-surface);
   margin: 0 0 0.625rem;
 }
 
 .status-description {
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
   color: var(--on-surface-variant);
   margin: 0 0 1.75rem;
 }
@@ -4454,8 +4551,8 @@ html {
   border-radius: 12px;
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -4471,8 +4568,8 @@ html {
   border-radius: 12px;
   background: transparent;
   color: var(--on-surface-variant);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -4510,8 +4607,8 @@ html {
   width: 100%;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
-  font-weight: 400;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
 }
 
 .orcamento-material-action[aria-expanded="true"] {
@@ -4528,7 +4625,7 @@ html {
 
 .orcamento-material-vazio {
   padding: 0.5rem 0.625rem;
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
   color: var(--on-surface-variant);
 }
 
@@ -4556,7 +4653,7 @@ html {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.625rem 0;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   color: var(--on-surface);
   font-variant-numeric: tabular-nums;
 }
@@ -4566,7 +4663,7 @@ html {
 }
 
 .orcamento-preview-total {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--on-background);
 }
 
@@ -4574,12 +4671,12 @@ html {
   margin-top: 0.5rem;
   padding-top: 1rem;
   border-top: 1.5px solid var(--outline-variant);
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
 }
 
 .orcamento-preview-final > span:last-child {
-  font-size: 1.5rem;
+  font-size: var(--text-4xl);
   color: var(--primary);
 }
 
@@ -4593,8 +4690,8 @@ html {
   background: var(--success-container);
   border-radius: var(--radius);
   color: var(--success-color);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
 }
 
 .orcamento-historico-head {
@@ -4602,7 +4699,7 @@ html {
 }
 
 .orcamento-historico-title {
-  font-size: 1.75rem;
+  font-size: var(--text-5xl);
 }
 
 .pedidos-row-head.orcamento-row,
@@ -4612,13 +4709,13 @@ html {
 
 .pedido-row.orcamento-row {
   cursor: default;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--on-surface);
   font-variant-numeric: tabular-nums;
 }
 
 .orcamento-row-preco {
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--primary);
   text-align: right;
 }

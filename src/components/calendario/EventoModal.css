@@ -62,8 +62,8 @@
 .evento-modal-titulo {
   flex: 1;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
   letter-spacing: -0.01em;
   color: var(--on-background);
   margin: 0;
@@ -109,9 +109,9 @@
 }
 
 .form-group label {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   color: var(--on-surface-variant);
-  font-size: 0.8125rem;
+  font-size: var(--text-md);
 }
 
 .form-group input,
@@ -123,7 +123,7 @@
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--on-background);
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -150,7 +150,7 @@
 
 .btn.mini {
   padding: 0.65rem 1rem;
-  font-size: 0.85rem;
+  font-size: var(--text-md);
 }
 
 .participants-list {
@@ -168,7 +168,7 @@
   color: var(--on-surface);
   padding: 0.4rem 0.75rem;
   border-radius: var(--radius);
-  font-size: 0.85rem;
+  font-size: var(--text-md);
 }
 
 .participant-chip button {
@@ -184,7 +184,7 @@
 .no-participants {
   margin: 0;
   color: var(--on-surface-variant);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 /* Detalhes Styles */
@@ -204,22 +204,22 @@
 }
 
 .detalhe-label {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--on-surface-variant);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .detalhe-valor {
   color: var(--on-background);
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   word-break: break-word;
 }
 
 .detalhe-id {
   font-family: monospace;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-subtle);
   word-break: break-all;
 }
@@ -239,10 +239,10 @@
   border: none;
   border-radius: var(--radius);
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: filter 0.2s ease, background 0.15s ease, box-shadow 0.2s ease;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   outline: none;
 }
 
@@ -287,7 +287,7 @@
   }
 
   .evento-modal-titulo {
-    font-size: 1.1rem;
+    font-size: var(--text-2xl);
   }
 
   .evento-modal-body,
