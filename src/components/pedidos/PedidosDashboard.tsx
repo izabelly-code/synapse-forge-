@@ -287,7 +287,7 @@ function PedidosDashboard() {
                         />
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            <PlusSignIcon size={16} />
+                            <PlusSignIcon size={16} strokeWidth={2.25} />
                             {t("pedidos.dashboard.newOrder")}
                         </button>
                     </div>
@@ -410,7 +410,7 @@ function PedidosDashboard() {
                         </p>
                         {!filtro && !busca && (
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                <PlusSignIcon size={16} />
+                                <PlusSignIcon size={16} strokeWidth={2.25} />
                                 {t("pedidos.dashboard.newOrder")}
                             </button>
                         )}
