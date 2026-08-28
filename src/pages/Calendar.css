@@ -22,7 +22,7 @@
   gap: var(--space-4);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .calendar-layout {
     grid-template-columns: 1fr;
   }
@@ -341,7 +341,7 @@
   font-size: var(--text-sm);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .calendar-card-header,
   .panel-header {
     flex-direction: column;

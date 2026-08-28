@@ -2634,6 +2634,8 @@ body {
   gap: var(--space-4);
 }
 
+/* fora do conjunto canônico: 540px é o ponto em que os dois campos de senha
+   deixam de caber lado a lado; 640px quebraria antes do necessário */
 @media (max-width: 540px) {
   .profile-senha-row {
     flex-direction: column;
@@ -2924,6 +2926,9 @@ html {
   padding: var(--space-10) var(--space-10);
 }
 
+/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
+   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
+   de tablets em paisagem */
 @media (max-width: 900px) {
   .dashboard-shell {
     grid-template-columns: 1fr;
@@ -3473,6 +3478,8 @@ html {
   color: var(--on-surface-variant);
 }
 
+/* fora do conjunto canônico: 1100px é ditado pela largura do conteúdo da
+   toolbar (quando os controles deixam de caber numa linha), não pelo device */
 @media (max-width: 1100px) {
   .pintura-toolbar {
     flex-wrap: wrap;
@@ -3483,7 +3490,7 @@ html {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .pintura-content {
     padding: var(--space-5) var(--space-4);
   }
@@ -4461,6 +4468,8 @@ html {
   color: var(--on-surface-variant);
 }
 
+/* fora do conjunto canônico: 1100px é ditado pela largura do conteúdo da
+   toolbar (quando os controles deixam de caber numa linha), não pelo device */
 @media (max-width: 1100px) {
   .mistura-layout {
     grid-template-columns: 1fr;
@@ -4727,6 +4736,9 @@ html {
   text-align: right;
 }
 
+/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
+   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
+   de tablets em paisagem */
 @media (max-width: 900px) {
   .orcamento-form-grid {
     grid-template-columns: 1fr;

@@ -275,7 +275,7 @@
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .evento-modal-content {
     width: 95%;
     max-height: 95vh;
