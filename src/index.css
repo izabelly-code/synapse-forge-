@@ -16,8 +16,8 @@
   --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-surface-2: #f2f2f6;
-  --color-border: #F5F5F5;          /* cards e divisores */
-  --color-border-strong: #E5E5E5;   /* controles interativos (inputs, botões com contorno) */
+  --color-border: rgba(67, 70, 86, 0.15);        /* cards e divisores — "ghost border" visível */
+  --color-border-strong: rgba(67, 70, 86, 0.24); /* controles interativos (inputs, botões com contorno) */
   --color-text: #262626;
   --color-text-muted: #737373;
   --color-primary: #FB4A14;      /* laranja da marca */
