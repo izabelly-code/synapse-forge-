@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, Notification03Icon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
+import { useEffect, useMemo, useState } from "react";
+import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
 import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
@@ -11,9 +11,9 @@ import {
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
-import { useDismissable } from "../../hooks/useDismissable";
 import IconButton from "../ui/IconButton";
 import SearchField from "../ui/SearchField";
+import NotificationBell from "../ui/NotificationBell";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -236,14 +236,6 @@ function OrdensPinturaKanban() {
     const [arrastandoId, setArrastandoId] = useState<string | null>(null);
     const [colunaAtiva, setColunaAtiva] = useState<EtapaOrdemPintura | null>(null);
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
-    const [notifAberto, setNotifAberto] = useState(false);
-    const notifRef = useRef<HTMLDivElement>(null);
-
-    useDismissable({
-        enabled: notifAberto,
-        refs: notifRef,
-        onDismiss: () => setNotifAberto(false),
-    });
 
     const urgentes = useMemo(() => {
         const hoje = inicioDoDia();
@@ -366,43 +358,19 @@ function OrdensPinturaKanban() {
                         </div>
 
                         <div className="toolbar-actions">
-                            <div className="notif-wrap" ref={notifRef}>
-                                <IconButton
-                                    variant="toolbar"
-                                    onClick={() => setNotifAberto((v) => !v)}
-                                    aria-label="Notificações"
-                                    aria-expanded={notifAberto}
-                                >
-                                    <Notification03Icon size={18} />
-                                    {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                                </IconButton>
-
-                                {notifAberto && (
-                                    <div className="notif-panel" role="menu">
-                                        <div className="notif-panel-head">Atenção necessária</div>
-                                        {urgentes.length === 0 ? (
-                                            <p className="notif-empty">Tudo em dia. Nenhum prazo crítico.</p>
-                                        ) : (
-                                            <ul className="notif-list">
-                                                {urgentes.map(({ ordem, atrasada }) => (
-                                                    <li key={ordem.id}>
-                                                        <button
-                                                            className="notif-item"
-                                                            onClick={() => { setOrdemEditando(ordem); setNotifAberto(false); }}
-                                                        >
-                                                            <span className="notif-item-projeto">{ordem.corNome} · {referenciaCurta(ordem.id)}</span>
-                                                            <span className="notif-item-cliente">{ordem.pedidoProjeto} — {ordem.tecnicoNome}</span>
-                                                            <span className={cn("notif-item-tag", atrasada ? "tag-danger" : "tag-warn")}>
-                                                                {atrasada ? "Atrasada" : "Vence hoje"}
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                            <NotificationBell
+                                ariaLabel="Notificações"
+                                panelTitle="Atenção necessária"
+                                emptyText="Tudo em dia. Nenhum prazo crítico."
+                                items={urgentes.map(({ ordem, atrasada }) => ({
+                                    id: ordem.id,
+                                    title: `${ordem.corNome} · ${referenciaCurta(ordem.id)}`,
+                                    subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
+                                    tone: atrasada ? "danger" : "warn",
+                                    tagLabel: atrasada ? "Atrasada" : "Vence hoje",
+                                    onSelect: () => setOrdemEditando(ordem),
+                                }))}
+                            />
 
                             <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
                                 + Nova Ordem

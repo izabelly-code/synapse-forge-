@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -9,9 +9,9 @@ import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
-import IconButton from "../ui/IconButton";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
+import NotificationBell from "../ui/NotificationBell";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -73,7 +73,6 @@ function PedidosDashboard() {
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
     const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
-    const [notifAberto, setNotifAberto] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "periodo" | "filtros">(null);
@@ -86,7 +85,6 @@ function PedidosDashboard() {
     }
 
     const buscaRef = useRef<HTMLInputElement>(null);
-    const notifRef = useRef<HTMLDivElement>(null);
     const periodoRef = useRef<HTMLDivElement>(null);
     const filtrosRef = useRef<HTMLDivElement>(null);
     const avancoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -128,12 +126,6 @@ function PedidosDashboard() {
         document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
     }, []);
-
-    useDismissable({
-        enabled: notifAberto,
-        refs: notifRef,
-        onDismiss: () => setNotifAberto(false),
-    });
 
     useDismissable({
         enabled: menuAberto !== null,
@@ -277,46 +269,22 @@ function PedidosDashboard() {
                             trailing={<kbd className="search-kbd">⌘K</kbd>}
                         />
 
-                        <div className="notif-wrap" ref={notifRef}>
-                            <IconButton
-                                variant="toolbar"
-                                onClick={() => setNotifAberto((v) => !v)}
-                                aria-label={t("pedidos.dashboard.notificationsAria")}
-                                aria-expanded={notifAberto}
-                            >
-                                <Notification03Icon size={18} />
-                                {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                            </IconButton>
-
-                            {notifAberto && (
-                                <div className="notif-panel" role="menu">
-                                    <div className="notif-panel-head">{t("pedidos.dashboard.notifTitle")}</div>
-                                    {urgentes.length === 0 ? (
-                                        <p className="notif-empty">{t("pedidos.dashboard.notifEmpty")}</p>
-                                    ) : (
-                                        <ul className="notif-list">
-                                            {urgentes.map((p) => {
-                                                const atrasado = ehAtrasado(p.prazo);
-                                                return (
-                                                    <li key={p.id}>
-                                                        <button
-                                                            className="notif-item"
-                                                            onClick={() => { setPedidoDetalheId(p.id); setNotifAberto(false); }}
-                                                        >
-                                                            <span className="notif-item-projeto">{p.projeto}</span>
-                                                            <span className="notif-item-cliente">{p.cliente}</span>
-                                                            <span className={cn("notif-item-tag", atrasado ? "tag-danger" : "tag-warn")}>
-                                                                {atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday")}
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        <NotificationBell
+                            ariaLabel={t("pedidos.dashboard.notificationsAria")}
+                            panelTitle={t("pedidos.dashboard.notifTitle")}
+                            emptyText={t("pedidos.dashboard.notifEmpty")}
+                            items={urgentes.map((p) => {
+                                const atrasado = ehAtrasado(p.prazo);
+                                return {
+                                    id: p.id,
+                                    title: p.projeto,
+                                    subtitle: p.cliente,
+                                    tone: atrasado ? "danger" : "warn",
+                                    tagLabel: atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+                                    onSelect: () => setPedidoDetalheId(p.id),
+                                };
+                            })}
+                        />
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
                             {t("pedidos.dashboard.newOrder")}
