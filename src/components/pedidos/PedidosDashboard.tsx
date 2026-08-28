@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, Search01Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, Notification03Icon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
@@ -11,6 +11,7 @@ import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import IconButton from "../ui/IconButton";
 import ViewToggle from "../ui/ViewToggle";
+import SearchField from "../ui/SearchField";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -266,18 +267,15 @@ function PedidosDashboard() {
                     </div>
 
                     <div className="toolbar-actions">
-                        <div className="pedidos-search">
-                            <Search01Icon size={16} className="search-icon" />
-                            <input
-                                ref={buscaRef}
-                                type="text"
-                                placeholder={t("pedidos.dashboard.searchPlaceholder")}
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                                aria-label={t("pedidos.dashboard.searchAria")}
-                            />
-                            <kbd className="search-kbd">⌘K</kbd>
-                        </div>
+                        <SearchField
+                            variant="pill"
+                            inputRef={buscaRef}
+                            value={busca}
+                            onChange={setBusca}
+                            placeholder={t("pedidos.dashboard.searchPlaceholder")}
+                            ariaLabel={t("pedidos.dashboard.searchAria")}
+                            trailing={<kbd className="search-kbd">⌘K</kbd>}
+                        />
 
                         <div className="notif-wrap" ref={notifRef}>
                             <IconButton

@@ -1134,36 +1134,81 @@ body {
   gap: var(--space-2-5);
 }
 
-.pedidos-search {
+/* ===== SEARCH FIELD (componente <SearchField />) ===== */
+/* Base comum às três variantes; cada modificador guarda só o que diverge. */
+.ui-search-field {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.pedidos-search .search-icon {
+.ui-search-field .search-icon {
   position: absolute;
-  left: 0.75rem;
   color: var(--on-surface-variant);
   pointer-events: none;
 }
 
-.pedidos-search input {
+.ui-search-field input {
+  width: 100%;
+  background: var(--surface);
+  color: var(--on-background);
+  outline: none;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.ui-search-field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* pill — barra de ações de Pedidos */
+.ui-search-field--pill .search-icon {
+  left: 0.75rem;
+}
+
+.ui-search-field--pill input {
   width: 250px;
   height: var(--control-h);
   padding: 0 var(--space-11) 0 var(--space-9);
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-border-strong);
-  background: var(--surface);
-  color: var(--on-background);
   font-family: 'Inter', sans-serif;
   font-size: var(--text-base);
-  outline: none;
-  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
-.pedidos-search input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
+/* boxed — busca larga acima da Paleta de Cores */
+.ui-search-field--boxed {
+  margin-bottom: var(--space-4);
+}
+
+.ui-search-field--boxed .search-icon {
+  left: 1rem;
+}
+
+.ui-search-field--boxed input {
+  padding: var(--space-3-5) var(--space-4) var(--space-3-5) var(--space-11);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--outline-variant);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-lg);
+}
+
+/* compact — toolbar do Kanban de Pintura (lupa à direita) */
+.ui-search-field--compact {
+  width: min(330px, 28vw);
+  min-width: 240px;
+}
+
+.ui-search-field--compact .search-icon {
+  right: 0.85rem;
+}
+
+.ui-search-field--compact input {
+  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-3-5);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--text-sm);
 }
 
 .search-kbd {
@@ -1869,8 +1914,8 @@ body {
   .stat-cards { grid-template-columns: repeat(2, 1fr); }
 
   .toolbar-actions { width: 100%; flex-wrap: wrap; }
-  .pedidos-search { flex: 1 1 100%; order: 3; }
-  .pedidos-search input { width: 100%; }
+  .ui-search-field--pill { flex: 1 1 100%; order: 3; }
+  .ui-search-field--pill input { width: 100%; }
 }
 
 
@@ -2998,31 +3043,6 @@ html {
   margin-bottom: var(--space-4);
 }
 
-.pintura-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: min(330px, 28vw);
-  min-width: 240px;
-}
-
-.pintura-search input {
-  width: 100%;
-  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-3-5);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-sm);
-  outline: none;
-  background: var(--surface);
-  color: var(--on-surface);
-  font-family: inherit;
-  font-size: var(--text-sm);
-}
-
-.pintura-search svg {
-  position: absolute;
-  right: 0.85rem;
-  color: var(--on-surface-variant);
-}
 
 .pintura-filter-static,
 .pintura-view-toggle {
@@ -3486,7 +3506,7 @@ html {
     padding: var(--space-5) var(--space-4);
   }
 
-  .pintura-search {
+  .ui-search-field--compact {
     width: 100%;
   }
 
@@ -3582,37 +3602,6 @@ html {
 
 
 /* ===== PALETA DE CORES ===== */
-.cores-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--space-4);
-}
-
-.cores-search .search-icon {
-  position: absolute;
-  left: 1rem;
-  color: var(--on-surface-variant);
-  pointer-events: none;
-}
-
-.cores-search input {
-  width: 100%;
-  padding: var(--space-3-5) var(--space-4) var(--space-3-5) var(--space-11);
-  border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
-  background: var(--surface);
-  color: var(--on-background);
-  font-family: 'Inter', sans-serif;
-  font-size: var(--text-lg);
-  outline: none;
-  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
-}
-
-.cores-search input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
 
 .cores-filtros .cores-filtros-left {
   gap: var(--space-2);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, Notification03Icon, PencilEdit02Icon, RefreshIcon, Search01Icon, UserIcon } from "hugeicons-react";
+import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, Notification03Icon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
 import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
@@ -13,6 +13,7 @@ import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import IconButton from "../ui/IconButton";
+import SearchField from "../ui/SearchField";
 import {
     Cor,
     EtapaOrdemPintura,
@@ -410,14 +411,12 @@ function OrdensPinturaKanban() {
                     </header>
 
                     <div className="pintura-toolbar">
-                        <label className="pintura-search">
-                            <input
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                                placeholder="Buscar por pedido, cor ou técnico..."
-                            />
-                            <Search01Icon size={17} />
-                        </label>
+                        <SearchField
+                            variant="compact"
+                            value={busca}
+                            onChange={setBusca}
+                            placeholder="Buscar por pedido, cor ou técnico..."
+                        />
                         <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> Filtros</button>
                         <Select
                             variant="filter"

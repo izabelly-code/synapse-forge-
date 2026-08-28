@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Search01Icon, Tick02Icon } from "hugeicons-react";
+import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Tick02Icon } from "hugeicons-react";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
@@ -8,6 +8,7 @@ import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
+import SearchField from "../ui/SearchField";
 
 const CACHE_KEY = "cores:all";
 
@@ -184,17 +185,14 @@ function PaletaCores() {
                     </div>
                 </header>
 
-                <div className="cores-search">
-                    <Search01Icon size={18} className="search-icon" />
-                    <input
-                        ref={buscaRef}
-                        type="text"
-                        placeholder="Buscar por nome da cor, fornecedor ou código..."
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        aria-label="Buscar cores"
-                    />
-                </div>
+                <SearchField
+                    variant="boxed"
+                    inputRef={buscaRef}
+                    value={busca}
+                    onChange={setBusca}
+                    placeholder="Buscar por nome da cor, fornecedor ou código..."
+                    ariaLabel="Buscar cores"
+                />
 
                 <div className="filtros-bar cores-filtros" ref={barraRef}>
                     <div className="filtros-tabs cores-filtros-left">
