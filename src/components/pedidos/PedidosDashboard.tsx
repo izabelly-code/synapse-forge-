@@ -10,6 +10,7 @@ import { Pedido, PedidoStatus } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import IconButton from "../ui/IconButton";
+import ViewToggle from "../ui/ViewToggle";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -352,26 +353,15 @@ function PedidosDashboard() {
                     </div>
 
                     <div className="filtros-actions">
-                        <div className="view-toggle" role="group" aria-label={t("pedidos.dashboard.viewModeAria")}>
-                            <button
-                                type="button"
-                                className={cn("view-btn", view === "list" && "is-active")}
-                                onClick={() => alternarView("list")}
-                                aria-pressed={view === "list"}
-                                aria-label={t("pedidos.dashboard.viewList")}
-                            >
-                                <LeftToRightListBulletIcon size={16} />
-                            </button>
-                            <button
-                                type="button"
-                                className={cn("view-btn", view === "grid" && "is-active")}
-                                onClick={() => alternarView("grid")}
-                                aria-pressed={view === "grid"}
-                                aria-label={t("pedidos.dashboard.viewGrid")}
-                            >
-                                <GridViewIcon size={16} />
-                            </button>
-                        </div>
+                        <ViewToggle
+                            value={view}
+                            onChange={alternarView}
+                            ariaLabel={t("pedidos.dashboard.viewModeAria")}
+                            options={[
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
+                            ]}
+                        />
 
                         <div className="filtro-menu" ref={periodoRef}>
                             <button

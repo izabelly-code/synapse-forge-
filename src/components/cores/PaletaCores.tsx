@@ -7,6 +7,7 @@ import NovaCorModal from "./NovaCorModal";
 import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
+import ViewToggle from "../ui/ViewToggle";
 
 const CACHE_KEY = "cores:all";
 
@@ -345,26 +346,15 @@ function PaletaCores() {
                             )}
                         </div>
 
-                        <div className="view-toggle" role="group" aria-label="Modo de visualização">
-                            <button
-                                type="button"
-                                className={cn("view-btn", view === "grid" && "is-active")}
-                                onClick={() => alternarView("grid")}
-                                aria-pressed={view === "grid"}
-                                aria-label="Visualizar em grade"
-                            >
-                                <GridViewIcon size={16} />
-                            </button>
-                            <button
-                                type="button"
-                                className={cn("view-btn", view === "list" && "is-active")}
-                                onClick={() => alternarView("list")}
-                                aria-pressed={view === "list"}
-                                aria-label="Visualizar em lista"
-                            >
-                                <LeftToRightListBulletIcon size={16} />
-                            </button>
-                        </div>
+                        <ViewToggle
+                            value={view}
+                            onChange={alternarView}
+                            ariaLabel="Modo de visualização"
+                            options={[
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: "Visualizar em grade" },
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: "Visualizar em lista" },
+                            ]}
+                        />
                     </div>
                 </div>
 
