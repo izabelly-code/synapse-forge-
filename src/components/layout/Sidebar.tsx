@@ -29,6 +29,13 @@ interface NavGroup {
  */
 const NAV_GROUPS: NavGroup[] = [
     {
+        id: "orcamentos",
+        labelKey: "sidebar.areaOrcamentos",
+        items: [
+            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
+        ],
+    },
+    {
         id: "pedidos",
         labelKey: "sidebar.areaPedidos",
         items: [
@@ -37,10 +44,12 @@ const NAV_GROUPS: NavGroup[] = [
         ],
     },
     {
-        id: "orcamentos",
-        labelKey: "sidebar.areaOrcamentos",
+        id: "estoque",
+        labelKey: "sidebar.areaEstoqueCores",
         items: [
-            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
+            { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
+            { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
+            { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
         ],
     },
     {
@@ -48,15 +57,6 @@ const NAV_GROUPS: NavGroup[] = [
         labelKey: "sidebar.areaAgenda",
         items: [
             { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
-        ],
-    },
-    {
-        id: "estoque",
-        labelKey: "sidebar.areaEstoqueCores",
-        items: [
-            { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
-            { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
-            { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
         ],
     },
     {
