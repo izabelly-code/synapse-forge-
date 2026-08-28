@@ -317,13 +317,13 @@ body {
   top: 20px;
   left: 30px;
   width: 200px;
-  z-index: 2;
+  z-index: var(--z-raised);
   margin: 0;
 }
 
 .left-content {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-raised);
   text-align: center;
   max-width: 600px;
   color: #ffffff;
@@ -510,7 +510,7 @@ body {
 
 .input-group input[type="file"]::file-selector-button {
   border: none;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--surface-container-high);
   color: var(--on-surface);
   cursor: pointer;
@@ -548,7 +548,7 @@ body {
 .lightbox-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: var(--z-lightbox);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -858,7 +858,7 @@ body {
   background: var(--surface);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--z-sticky);
   box-shadow: var(--shadow-card);
 }
 
@@ -1086,7 +1086,7 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-ambient);
   padding: var(--space-1-5);
-  z-index: 50;
+  z-index: var(--z-popover);
   display: flex;
   flex-direction: column;
 }
@@ -1239,7 +1239,7 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-ambient);
   padding: var(--space-2);
-  z-index: 50;
+  z-index: var(--z-popover);
 }
 
 .notif-panel-head {
@@ -1624,7 +1624,7 @@ body {
   height: 2px;
   background: var(--surface-container-high);
   overflow: hidden;
-  z-index: 0;
+  z-index: var(--z-behind);
 }
 
 .step-line-fill {
@@ -1644,7 +1644,7 @@ body {
 
 .step-node {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-base);
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -1752,13 +1752,13 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-ambient);
   padding: var(--space-1-5);
-  z-index: 30;
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
 }
 
 
-.pedido-row:has(.kebab-menu) { z-index: 10; }
+.pedido-row:has(.kebab-menu) { z-index: var(--z-sticky); }
 
 .kebab-item {
   display: flex;
@@ -1939,7 +1939,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: var(--z-modal);
   padding: var(--space-4);
 }
 
@@ -2454,7 +2454,7 @@ body {
   top: 0.5rem;
   left: 0.5rem;
   padding: var(--space-1) var(--space-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--primary);
   color: var(--on-primary);
   font-size: var(--text-xs);
@@ -2847,7 +2847,7 @@ html {
   border-radius: var(--radius);
   box-shadow: var(--shadow-ambient);
   padding: var(--space-1-5);
-  z-index: 30;
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -3011,7 +3011,7 @@ html {
   width: 100%;
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-3-5);
   border: 1px solid var(--outline-variant);
-  border-radius: 0.55rem;
+  border-radius: var(--radius-sm);
   outline: none;
   background: var(--surface);
   color: var(--on-surface);
@@ -3029,7 +3029,7 @@ html {
 .pintura-view-toggle {
   min-height: 40px;
   border: 1px solid var(--outline-variant);
-  border-radius: 0.55rem;
+  border-radius: var(--radius-sm);
   background: var(--surface);
 }
 
@@ -3046,7 +3046,7 @@ html {
 
 .pintura-toolbar .ui-select-filter .filtro-action {
   min-height: 40px;
-  border-radius: 0.55rem;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
 
@@ -3082,7 +3082,7 @@ html {
   place-items: center;
   width: 34px;
   border: none;
-  border-radius: 0.4rem;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--color-text-subtle);
 }
@@ -3107,7 +3107,7 @@ html {
   min-height: 610px;
   overflow: hidden;
   border: 1px solid var(--outline-variant);
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   background: var(--surface-container-lowest);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -3137,7 +3137,7 @@ html {
   min-width: 20px;
   height: 20px;
   padding: 0 var(--space-1-5);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--color-surface) 75%, transparent);
   color: var(--color-text-subtle);
   font-size: var(--text-2xs);
@@ -3162,7 +3162,7 @@ html {
 .pintura-card {
   padding: var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: 0.65rem;
+  border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   cursor: grab;
@@ -3207,7 +3207,7 @@ html {
   width: 25px;
   height: 25px;
   border: none;
-  border-radius: 0.4rem;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--color-text-subtle);
   cursor: pointer;
@@ -3222,14 +3222,14 @@ html {
   position: absolute;
   top: calc(100% + 0.25rem);
   right: 0;
-  z-index: 20;
+  z-index: var(--z-menu);
   display: flex;
   width: 155px;
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-1-5);
   border: 1px solid var(--outline-variant);
-  border-radius: 0.55rem;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   box-shadow: var(--shadow-md);
 }
@@ -3242,7 +3242,7 @@ html {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-2);
   border: none;
-  border-radius: 0.4rem;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -3291,7 +3291,7 @@ html {
   height: 24px;
   flex-shrink: 0;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 0.2rem;
+  border-radius: var(--radius-2xs);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
@@ -3358,7 +3358,7 @@ html {
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-1-5);
-  border-radius: 0.35rem;
+  border-radius: var(--radius-xs);
   font-size: var(--text-3xs);
   font-weight: var(--weight-bold);
   white-space: nowrap;
@@ -3440,7 +3440,7 @@ html {
 .pintura-reference-images img {
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-sm);
   object-fit: cover;
 }
 
@@ -3458,7 +3458,7 @@ html {
   width: 36px;
   height: 36px;
   border: 1px solid var(--outline-variant);
-  border-radius: 0.45rem;
+  border-radius: var(--radius-sm);
 }
 
 .pintura-color-summary div {
@@ -3658,7 +3658,7 @@ html {
 }
 
 .cor-card:has(.kebab-menu) {
-  z-index: 10;
+  z-index: var(--z-sticky);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -3847,7 +3847,7 @@ html {
 }
 
 .cor-row:has(.kebab-menu) {
-  z-index: 10;
+  z-index: var(--z-sticky);
 }
 
 .cor-row-swatch {
@@ -4138,7 +4138,7 @@ html {
 .mistura-linha-swatch {
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--outline-variant);
 }
 
@@ -4170,7 +4170,7 @@ html {
   padding: var(--space-2) var(--space-2);
   text-align: center;
   border: 1.5px solid var(--outline-variant);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   font-family: 'Inter', sans-serif;
   font-size: var(--text-base);
@@ -4199,7 +4199,7 @@ html {
   width: 36px;
   height: 36px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--on-surface-variant);
   cursor: pointer;
@@ -4314,7 +4314,7 @@ html {
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--on-surface-variant);
   cursor: pointer;
@@ -4424,7 +4424,7 @@ html {
 .mistura-resumo-swatch {
   width: 26px;
   height: 26px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--outline-variant);
   flex: none;
 }
@@ -4498,7 +4498,7 @@ html {
   width: 100%;
   max-width: 420px;
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   padding: var(--space-11) var(--space-9);
   box-shadow: var(--shadow-card);
   text-align: center;
@@ -4548,7 +4548,7 @@ html {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--primary);
   color: var(--on-primary);
   font-size: var(--text-lg);
@@ -4565,7 +4565,7 @@ html {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: transparent;
   color: var(--on-surface-variant);
   font-size: var(--text-base);
