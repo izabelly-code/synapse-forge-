@@ -1,44 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiInbox, FiSearch, FiBell, FiBox, FiActivity, FiClock, FiAlertTriangle, FiCheckCircle,
-    FiCalendar, FiChevronDown, FiFilter, FiCheck, FiList, FiGrid,
-} from "react-icons/fi";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
+import ViewToggle from "../ui/ViewToggle";
+import SearchField from "../ui/SearchField";
 
-interface Filtro {
-    label: string;
-    value: PedidoStatus | "";
-}
-
-const FILTROS: Filtro[] = [
-    { label: "Todos", value: "" },
-    { label: "Modelagem", value: "MODELAGEM" },
-    { label: "Impressão", value: "IMPRESSAO" },
-    { label: "Pintura", value: "PINTURA" },
-    { label: "Acabamento", value: "ACABAMENTO" },
-    { label: "Finalizado", value: "FINALIZADO" },
-];
+const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
 const CACHE_KEY = "pedidos:all";
 
 type PeriodoKey = "all" | "semana" | "mes" | "atrasados";
-const PERIODO_LABELS: Record<PeriodoKey, string> = {
-    all: "Todos os prazos",
-    semana: "Próx. 7 dias",
-    mes: "Este mês",
-    atrasados: "Atrasados",
+const PERIODO_I18N: Record<PeriodoKey, string> = {
+    all: "pedidos.dashboard.periodAll",
+    semana: "pedidos.dashboard.periodWeek",
+    mes: "pedidos.dashboard.periodMonth",
+    atrasados: "pedidos.dashboard.periodLate",
 };
 
 type OrdKey = "recentes" | "prazo-asc" | "prazo-desc";
-const ORDENACAO_LABELS: Record<OrdKey, string> = {
-    recentes: "Padrão",
-    "prazo-asc": "Prazo: mais próximo",
-    "prazo-desc": "Prazo: mais distante",
+const ORDENACAO_I18N: Record<OrdKey, string> = {
+    recentes: "pedidos.dashboard.sortDefault",
+    "prazo-asc": "pedidos.dashboard.sortDeadlineAsc",
+    "prazo-desc": "pedidos.dashboard.sortDeadlineDesc",
 };
 
 function startOfToday(): number {
@@ -71,6 +61,7 @@ function ehAtrasado(prazo: string): boolean {
 }
 
 function PedidosDashboard() {
+    const { t } = useTranslation();
     const initialCached = getCached<Pedido[]>(CACHE_KEY);
     const [pedidos, setPedidos] = useState<Pedido[]>(initialCached ?? []);
     const [filtro, setFiltro] = useState<PedidoStatus | "">("");
@@ -80,7 +71,7 @@ function PedidosDashboard() {
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
-    const [notifAberto, setNotifAberto] = useState(false);
+    const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "periodo" | "filtros">(null);
@@ -93,7 +84,6 @@ function PedidosDashboard() {
     }
 
     const buscaRef = useRef<HTMLInputElement>(null);
-    const notifRef = useRef<HTMLDivElement>(null);
     const periodoRef = useRef<HTMLDivElement>(null);
     const filtrosRef = useRef<HTMLDivElement>(null);
     const avancoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -114,7 +104,7 @@ function PedidosDashboard() {
         try {
             updatePedidos(await getPedidos());
         } catch {
-            setError("Erro ao carregar pedidos. Verifique se o servidor está rodando.");
+            setError(t("pedidos.dashboard.errorLoad"));
         } finally {
             setFetching(false);
         }
@@ -136,25 +126,11 @@ function PedidosDashboard() {
         return () => document.removeEventListener("keydown", onKey);
     }, []);
 
-    useEffect(() => {
-        if (!notifAberto) return;
-        function onClick(e: MouseEvent) {
-            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifAberto(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [notifAberto]);
-
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            const t = e.target as Node;
-            if (periodoRef.current?.contains(t) || filtrosRef.current?.contains(t)) return;
-            setMenuAberto(null);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto !== null,
+        refs: [periodoRef, filtrosRef],
+        onDismiss: () => setMenuAberto(null),
+    });
 
     const counts = useMemo(() => {
         const base: Record<string, number> = { "": pedidos.length };
@@ -174,12 +150,6 @@ function PedidosDashboard() {
         return { total: pedidos.length, emProducao, hoje, atrasados, finalizados };
     }, [pedidos]);
 
-    const urgentes = useMemo(
-        () => pedidos
-            .filter((p) => p.status !== "FINALIZADO" && (ehAtrasado(p.prazo) || ehHoje(p.prazo)))
-            .sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime()),
-        [pedidos]
-    );
 
     const visiveis = useMemo(() => {
         const q = busca.trim().toLowerCase();
@@ -201,11 +171,11 @@ function PedidosDashboard() {
     }, [pedidos, filtro, busca, periodo, ordenacao]);
 
     const statCards = [
-        { key: "total", label: "Total de Pedidos", value: stats.total, icon: <FiBox size={18} />, tone: "neutral" },
-        { key: "producao", label: "Em Produção", value: stats.emProducao, icon: <FiActivity size={18} />, tone: "brand" },
-        { key: "hoje", label: "Prazo Hoje", value: stats.hoje, icon: <FiClock size={18} />, tone: "warn" },
-        { key: "atrasados", label: "Atrasados", value: stats.atrasados, icon: <FiAlertTriangle size={18} />, tone: "danger" },
-        { key: "finalizados", label: "Finalizados", value: stats.finalizados, icon: <FiCheckCircle size={18} />, tone: "success" },
+        { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} /> },
+        { key: "producao", label: t("pedidos.dashboard.statInProduction"), value: stats.emProducao, icon: <Activity01Icon size={18} /> },
+        { key: "hoje", label: t("pedidos.dashboard.statDueToday"), value: stats.hoje, icon: <Clock01Icon size={18} /> },
+        { key: "atrasados", label: t("pedidos.dashboard.statLate"), value: stats.atrasados, icon: <Alert02Icon size={18} /> },
+        { key: "finalizados", label: t("pedidos.dashboard.statDone"), value: stats.finalizados, icon: <CheckmarkCircle02Icon size={18} /> },
     ];
 
     async function handleDeletar(id: string) {
@@ -213,7 +183,7 @@ function PedidosDashboard() {
             await deletarPedido(id);
             updatePedidos((prev) => prev.filter((p) => p.id !== id));
         } catch {
-            setError("Falha ao deletar pedido.");
+            setError(t("pedidos.dashboard.errorDelete"));
         }
     }
 
@@ -226,7 +196,7 @@ function PedidosDashboard() {
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
         } catch {
-            setError("Falha ao avançar status.");
+            setError(t("pedidos.dashboard.errorAdvance"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -245,7 +215,7 @@ function PedidosDashboard() {
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
         } catch {
-            setError("Falha ao regredir status.");
+            setError(t("pedidos.dashboard.errorRegress"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -266,7 +236,8 @@ function PedidosDashboard() {
             {pedidoDetalheId && (
                 <PedidoDetalheModal
                     pedidoId={pedidoDetalheId}
-                    onClose={() => setPedidoDetalheId(null)}
+                    abrirEmEdicao={detalheEmEdicao}
+                    onClose={() => { setPedidoDetalheId(null); setDetalheEmEdicao(false); }}
                     onUpdated={(atualizado) => {
                         updatePedidos((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
                     }}
@@ -276,75 +247,33 @@ function PedidosDashboard() {
             <main className="dashboard-main pedidos-page">
                 <header className="pedidos-toolbar">
                     <div>
-                        <h1 className="dashboard-title">Produção</h1>
-                        <p className="dashboard-subtitle">Acompanhe todos os pedidos em produção</p>
+                        <h1 className="dashboard-title">{t("pedidos.dashboard.title")}</h1>
+                        <p className="dashboard-subtitle">{t("pedidos.dashboard.subtitle")}</p>
                     </div>
 
                     <div className="toolbar-actions">
-                        <div className="pedidos-search">
-                            <FiSearch size={16} className="search-icon" />
-                            <input
-                                ref={buscaRef}
-                                type="text"
-                                placeholder="Buscar cliente ou projeto..."
-                                value={busca}
-                                onChange={(e) => setBusca(e.target.value)}
-                                aria-label="Buscar pedidos"
-                            />
-                            <kbd className="search-kbd">⌘K</kbd>
-                        </div>
+                        <SearchField
+                            variant="pill"
+                            inputRef={buscaRef}
+                            value={busca}
+                            onChange={setBusca}
+                            placeholder={t("pedidos.dashboard.searchPlaceholder")}
+                            ariaLabel={t("pedidos.dashboard.searchAria")}
+                            trailing={<kbd className="search-kbd">⌘K</kbd>}
+                        />
 
-                        <div className="notif-wrap" ref={notifRef}>
-                            <button
-                                className="icon-button"
-                                onClick={() => setNotifAberto((v) => !v)}
-                                aria-label="Notificações"
-                                aria-expanded={notifAberto}
-                            >
-                                <FiBell size={18} />
-                                {urgentes.length > 0 && <span className="notif-badge">{urgentes.length}</span>}
-                            </button>
-
-                            {notifAberto && (
-                                <div className="notif-panel" role="menu">
-                                    <div className="notif-panel-head">Atenção necessária</div>
-                                    {urgentes.length === 0 ? (
-                                        <p className="notif-empty">Tudo em dia. Nenhum prazo crítico.</p>
-                                    ) : (
-                                        <ul className="notif-list">
-                                            {urgentes.map((p) => {
-                                                const atrasado = ehAtrasado(p.prazo);
-                                                return (
-                                                    <li key={p.id}>
-                                                        <button
-                                                            className="notif-item"
-                                                            onClick={() => { setPedidoDetalheId(p.id); setNotifAberto(false); }}
-                                                        >
-                                                            <span className="notif-item-projeto">{p.projeto}</span>
-                                                            <span className="notif-item-cliente">{p.cliente}</span>
-                                                            <span className={`notif-item-tag ${atrasado ? "tag-danger" : "tag-warn"}`}>
-                                                                {atrasado ? "Atrasado" : "Vence hoje"}
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    )}
-                                </div>
-                            )}
-                        </div>
 
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + Novo Pedido
+                            <PlusSignIcon size={16} strokeWidth={2.25} />
+                            {t("pedidos.dashboard.newOrder")}
                         </button>
                     </div>
                 </header>
 
-                <section className="stat-cards" aria-label="Resumo da produção">
+                <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
                     {statCards.map((s) => (
                         <div key={s.key} className="stat-card">
-                            <span className={`stat-icon stat-${s.tone}`}>{s.icon}</span>
+                            <span className="stat-icon">{s.icon}</span>
                             <div className="stat-body">
                                 <span className="stat-value">{s.value}</span>
                                 <span className="stat-label">{s.label}</span>
@@ -355,65 +284,54 @@ function PedidosDashboard() {
 
                 <div className="filtros-bar">
                     <div className="filtros-tabs">
-                        {FILTROS.map((f) => (
+                        {FILTRO_VALUES.map((valor) => (
                             <button
-                                key={f.value}
-                                className={`filtro-btn ${filtro === f.value ? "filtro-ativo" : ""}`}
-                                onClick={() => setFiltro(f.value)}
+                                key={valor}
+                                className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
+                                onClick={() => setFiltro(valor)}
                             >
-                                {f.label}
-                                <span className="filtro-count">{counts[f.value] ?? 0}</span>
+                                {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
+                                <span className="filtro-count">{counts[valor] ?? 0}</span>
                             </button>
                         ))}
                     </div>
 
                     <div className="filtros-actions">
-                        <div className="view-toggle" role="group" aria-label="Modo de visualização">
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
-                                onClick={() => alternarView("list")}
-                                aria-pressed={view === "list"}
-                                aria-label="Visualizar em lista"
-                            >
-                                <FiList size={16} />
-                            </button>
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
-                                onClick={() => alternarView("grid")}
-                                aria-pressed={view === "grid"}
-                                aria-label="Visualizar em grade"
-                            >
-                                <FiGrid size={16} />
-                            </button>
-                        </div>
+                        <ViewToggle
+                            value={view}
+                            onChange={alternarView}
+                            ariaLabel={t("pedidos.dashboard.viewModeAria")}
+                            options={[
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
+                            ]}
+                        />
 
                         <div className="filtro-menu" ref={periodoRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${periodo !== "all" ? "is-active" : ""}`}
+                                className={cn("filtro-action", periodo !== "all" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "periodo"}
                                 onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
                             >
-                                <FiCalendar size={15} />
-                                {PERIODO_LABELS[periodo]}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <Calendar03Icon size={15} />
+                                {t(PERIODO_I18N[periodo])}
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "periodo" && (
                                 <div className="filtro-dropdown" role="menu">
-                                    {(Object.keys(PERIODO_LABELS) as PeriodoKey[]).map((k) => (
+                                    {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={periodo === k}
-                                            className={`filtro-option ${periodo === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", periodo === k && "selected")}
                                             onClick={() => { setPeriodo(k); setMenuAberto(null); }}
                                         >
-                                            {PERIODO_LABELS[k]}
-                                            {periodo === k && <FiCheck size={15} />}
+                                            {t(PERIODO_I18N[k])}
+                                            {periodo === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -423,27 +341,27 @@ function PedidosDashboard() {
                         <div className="filtro-menu" ref={filtrosRef}>
                             <button
                                 type="button"
-                                className={`filtro-action ${ordenacao !== "recentes" ? "is-active" : ""}`}
+                                className={cn("filtro-action", ordenacao !== "recentes" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "filtros"}
                                 onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
                             >
-                                <FiFilter size={15} />
-                                Filtros
+                                <FilterIcon size={15} />
+                                {t("pedidos.dashboard.filtersButton")}
                             </button>
                             {menuAberto === "filtros" && (
                                 <div className="filtro-dropdown" role="menu">
-                                    {(Object.keys(ORDENACAO_LABELS) as OrdKey[]).map((k) => (
+                                    {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={ordenacao === k}
-                                            className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
-                                            {ORDENACAO_LABELS[k]}
-                                            {ordenacao === k && <FiCheck size={15} />}
+                                            {t(ORDENACAO_I18N[k])}
+                                            {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -462,14 +380,15 @@ function PedidosDashboard() {
                     </div>
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><FiInbox size={28} /></span>
-                        <p className="empty-title">Nenhum pedido encontrado</p>
+                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                        <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
                         <p className="empty-sub">
-                            {busca ? "Tente outro termo de busca." : filtro ? "Nenhum pedido nesta etapa por enquanto." : "Crie o primeiro pedido para começar."}
+                            {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
                         </p>
                         {!filtro && !busca && (
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                + Novo Pedido
+                                <PlusSignIcon size={16} strokeWidth={2.25} />
+                                {t("pedidos.dashboard.newOrder")}
                             </button>
                         )}
                     </div>
@@ -477,11 +396,11 @@ function PedidosDashboard() {
                     <div className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
                         {view === "list" && (
                             <div className="pedidos-row-head" aria-hidden="true">
-                                <span>Pedido</span>
-                                <span>Cliente</span>
-                                <span>Projeto</span>
-                                <span>Prazo</span>
-                                <span>Progresso</span>
+                                <span>{t("pedidos.dashboard.headOrder")}</span>
+                                <span>{t("pedidos.dashboard.headClient")}</span>
+                                <span>{t("pedidos.dashboard.headProject")}</span>
+                                <span>{t("pedidos.dashboard.headDeadline")}</span>
+                                <span>{t("pedidos.dashboard.headProgress")}</span>
                                 <span />
                             </div>
                         )}
@@ -493,7 +412,8 @@ function PedidosDashboard() {
                                 onAvancar={handleAvancar}
                                 onRegredir={handleRegredir}
                                 onDeletar={handleDeletar}
-                                onAbrir={(p) => setPedidoDetalheId(p.id)}
+                                onAbrir={(p) => { setDetalheEmEdicao(false); setPedidoDetalheId(p.id); }}
+                                onEditar={(p) => { setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
                                 loading={loadingIds.has(pedido.id)}
                                 justAdvanced={recemAvancado === pedido.id}
                             />

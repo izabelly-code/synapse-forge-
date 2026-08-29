@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { redefinirSenha } from "../services/AuthService";
 import logo from "../assets/Images/black-logo.png";
+import LinkButton from "../components/ui/LinkButton";
 
 function ResetPasswordPage() {
     const navigate = useNavigate();
@@ -109,9 +110,9 @@ function ResetPasswordPage() {
                             {loading ? "Redefinindo..." : "Redefinir senha"}
                         </button>
 
-                        <button type="button" className="login-link" onClick={() => navigate("/login")}>
+                        <LinkButton onClick={() => navigate("/login")}>
                             Voltar ao login
-                        </button>
+                        </LinkButton>
                     </form>
                 )}
             </div>

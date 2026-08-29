@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import logo from "../../assets/Images/white-logo.png";
 import { esqueciSenha } from "../../services/AuthService";
+import LinkButton from "../ui/LinkButton";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -38,9 +39,17 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
         return regex.test(valor);
     }
 
+    // Valida "reward early, punish late": o erro só aparece ao sair do campo,
+    // mas some a cada tecla assim que o e-mail fica válido.
     function handleEmailChange(valor: string) {
         setEmail(valor);
-        setEmailValido(validarEmail(valor) || valor === "");
+        if (!emailValido && (validarEmail(valor) || valor === "")) {
+            setEmailValido(true);
+        }
+    }
+
+    function handleEmailBlur() {
+        setEmailValido(validarEmail(email) || email === "");
     }
 
     async function enviarEmail() {
@@ -130,16 +139,14 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                                 Não encontrou o email? Verifique sua caixa de spam.
                             </p>
 
-                            <button
-                                type="button"
-                                className="resend-link"
+                            <LinkButton
                                 onClick={handleReenviar}
                                 disabled={timer > 0 || loading}
                             >
                                 {timer > 0
                                     ? `Reenviar em ${timer}s`
                                     : "Reenviar email"}
-                            </button>
+                            </LinkButton>
                         </div>
                     )}
 
@@ -153,6 +160,7 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                             placeholder="Digite seu email"
                             value={email}
                             onChange={(e) => handleEmailChange(e.target.value)}
+                            onBlur={handleEmailBlur}
                             className={!emailValido ? "input-error" : ""}
                             autoComplete="email"
                         />
@@ -173,13 +181,9 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                     </button>
 
                     {/* VOLTAR */}
-                    <button
-                        type="button"
-                        className="login-link"
-                        onClick={goToLogin}
-                    >
+                    <LinkButton onClick={goToLogin}>
                         Voltar ao login
-                    </button>
+                    </LinkButton>
 
                 </form>
             </div>

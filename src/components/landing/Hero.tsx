@@ -1,5 +1,5 @@
 import blackLogo from "../../assets/Images/black-logo.png";
-import bigLogo from "../../assets/Images/big logo.png";
+import bigLogo from "../../assets/Images/big-logo.png";
 import card1Image from "../../assets/Images/card1.png";
 import card2Image from "../../assets/Images/card2.png";
 import card3Image from "../../assets/Images/card3.png";

@@ -1,16 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiBox,
-    FiCalendar,
-    FiDownload,
-    FiEdit2,
-    FiFile,
-    FiImage,
-    FiPlus,
-    FiTrash2,
-    FiUser,
-    FiX,
-} from "react-icons/fi";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Add01Icon, Calendar03Icon, Cancel01Icon, CubeIcon, Delete02Icon, Download01Icon, File01Icon, Image02Icon, PencilEdit02Icon, UserIcon } from "hugeicons-react";
 
 import {
     baixarObjeto3D,
@@ -19,34 +8,29 @@ import {
     gerarOrdemServico
 } from "../../services/PedidoService";
 
+import { useTranslation } from "react-i18next";
 import { Pedido, PedidoStatus } from "../../types";
 import Select from "../ui/Select";
 import ImageLightbox from "../ui/ImageLightbox";
+import { formatDate } from "../../utils/format";
+import { cn } from "../../utils/cn";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
-const STATUS_LABELS: Record<PedidoStatus, string> = {
-    MODELAGEM: "Modelagem",
-    IMPRESSAO: "Impressao",
-    PINTURA: "Pintura",
-    ACABAMENTO: "Acabamento",
-    FINALIZADO: "Finalizado",
-};
+const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
-const STATUS_OPTIONS = Object.keys(STATUS_LABELS) as PedidoStatus[];
-
-function formatDate(iso: string): string {
+function formatPrazoLongo(iso: string): string {
     const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
     if (Number.isNaN(date.getTime())) return iso;
-    return date.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-    });
+    return formatDate(date, { day: "2-digit", month: "long", year: "numeric" });
 }
 
 interface PedidoDetalheModalProps {
     pedidoId: string;
     onClose: () => void;
     onUpdated?: (pedido: Pedido) => void;
+    abrirEmEdicao?: boolean;
 }
 
 interface NovaImagem {
@@ -55,7 +39,11 @@ interface NovaImagem {
     url: string;
 }
 
-function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModalProps) {
+type CampoErro = "cliente" | "projeto" | "prazo";
+type Erros = Partial<Record<CampoErro, string>>;
+
+function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = false }: PedidoDetalheModalProps) {
+    const { t } = useTranslation();
     const [pedido, setPedido] = useState<Pedido | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -75,7 +63,37 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
     const [removerObjeto3D, setRemoverObjeto3D] = useState(false);
     const [novasImagens, setNovasImagens] = useState<NovaImagem[]>([]);
     const [imagensRemover, setImagensRemover] = useState<Set<string>>(new Set());
+    const [erros, setErros] = useState<Erros>({});
     const novasImagensRef = useRef<NovaImagem[]>([]);
+
+    const clienteRef = useRef<HTMLInputElement>(null);
+    const projetoRef = useRef<HTMLInputElement>(null);
+    const prazoRef = useRef<HTMLInputElement>(null);
+
+    const atualizarNovasImagens = useCallback((proximas: NovaImagem[]) => {
+        novasImagensRef.current = proximas;
+        setNovasImagens(proximas);
+    }, []);
+
+    const limparNovasImagens = useCallback(() => {
+        novasImagensRef.current.forEach(({ url }) => URL.revokeObjectURL(url));
+        atualizarNovasImagens([]);
+    }, [atualizarNovasImagens]);
+
+    const iniciarEdicao = useCallback((alvo: Pedido) => {
+        setCliente(alvo.cliente);
+        setProjeto(alvo.projeto);
+        setDescricao(alvo.descricao ?? "");
+        setPrazo(alvo.prazo.slice(0, 10));
+        setStatus(alvo.status);
+        setObjeto3D(null);
+        setRemoverObjeto3D(false);
+        limparNovasImagens();
+        setImagensRemover(new Set());
+        setErroEdicao("");
+        setErros({});
+        setEditando(true);
+    }, [limparNovasImagens]);
 
     useEffect(() => {
         let active = true;
@@ -85,9 +103,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
             setError("");
             try {
                 const data = await getPedido(pedidoId);
-                if (active) setPedido(data);
+                if (active) {
+                    setPedido(data);
+                    if (abrirEmEdicao) iniciarEdicao(data);
+                }
             } catch {
-                if (active) setError("Erro ao carregar os dados do pedido.");
+                if (active) setError(t("pedidos.detalhe.errorLoad"));
             } finally {
                 if (active) setLoading(false);
             }
@@ -95,26 +116,17 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
 
         fetchPedido();
         return () => { active = false; };
-    }, [pedidoId]);
+    }, [pedidoId, abrirEmEdicao, iniciarEdicao, t]);
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key !== "Escape") return;
-            if (editando) {
-                setEditando(false);
-                setErroEdicao("");
-            } else {
-                onClose();
-            }
+    useEscapeKey(() => {
+        if (editando) {
+            setEditando(false);
+            setErroEdicao("");
+        } else {
+            onClose();
         }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [editando, onClose]);
+    });
+    useBodyScrollLock();
 
     const imagensAtuais = useMemo(() => {
         const fontes = pedido?.imagensReferenciaFileIds ?? [];
@@ -128,21 +140,13 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         };
     }, []);
 
-    function atualizarNovasImagens(proximas: NovaImagem[]) {
-        novasImagensRef.current = proximas;
-        setNovasImagens(proximas);
-    }
-
-    function limparNovasImagens() {
-        novasImagensRef.current.forEach(({ url }) => URL.revokeObjectURL(url));
-        atualizarNovasImagens([]);
-    }
-
     function adicionarImagens(files: FileList | null) {
         if (!files?.length) return;
 
+        const chaves = new Set(novasImagensRef.current.map(({ arquivo }) => `${arquivo.name}-${arquivo.size}`));
         const selecionadas = Array.from(files)
             .filter((arquivo) => arquivo.type.startsWith("image/"))
+            .filter((arquivo) => !chaves.has(`${arquivo.name}-${arquivo.size}`))
             .map((arquivo) => ({
                 id: `${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${crypto.randomUUID()}`,
                 arquivo,
@@ -158,27 +162,30 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         atualizarNovasImagens(novasImagensRef.current.filter((imagem) => imagem.id !== id));
     }
 
-    function iniciarEdicao() {
-        if (!pedido) return;
-        setCliente(pedido.cliente);
-        setProjeto(pedido.projeto);
-        setDescricao(pedido.descricao ?? "");
-        setPrazo(pedido.prazo.slice(0, 10));
-        setStatus(pedido.status);
-        setObjeto3D(null);
-        setRemoverObjeto3D(false);
-        limparNovasImagens();
-        setImagensRemover(new Set());
-        setErroEdicao("");
-        setEditando(true);
-    }
-
     function cancelarEdicao() {
         setEditando(false);
         setErroEdicao("");
+        setErros({});
         setObjeto3D(null);
         limparNovasImagens();
         setImagensRemover(new Set());
+    }
+
+    function limparErro(campo: CampoErro) {
+        setErros((prev) => {
+            if (!prev[campo]) return prev;
+            const next = { ...prev };
+            delete next[campo];
+            return next;
+        });
+    }
+
+    function validar(): Erros {
+        const e: Erros = {};
+        if (!cliente.trim()) e.cliente = t("pedidos.form.errorClient");
+        if (!projeto.trim()) e.projeto = t("pedidos.form.errorProject");
+        if (!prazo) e.prazo = t("pedidos.form.errorDeadline");
+        return e;
     }
 
     function alternarRemocaoImagem(id: string) {
@@ -193,8 +200,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
 
     async function handleSalvar(e: React.FormEvent) {
         e.preventDefault();
-        if (!pedido || !cliente.trim() || !projeto.trim() || !prazo) {
-            setErroEdicao("Preencha cliente, projeto e prazo.");
+        if (!pedido) return;
+
+        const novosErros = validar();
+        if (Object.keys(novosErros).length > 0) {
+            setErros(novosErros);
+            if (novosErros.cliente) clienteRef.current?.focus();
+            else if (novosErros.projeto) projetoRef.current?.focus();
+            else if (novosErros.prazo) prazoRef.current?.focus();
             return;
         }
 
@@ -219,7 +232,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
             setImagensRemover(new Set());
             onUpdated?.(atualizado);
         } catch {
-            setErroEdicao("Não foi possível salvar as alterações.");
+            setErroEdicao(t("pedidos.detalhe.errorSave"));
         } finally {
             setSalvando(false);
         }
@@ -232,7 +245,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         try {
             await baixarObjeto3D(pedido.id);
         } catch (err) {
-            setDownloadError(err instanceof Error ? err.message : "Não foi possível baixar o arquivo 3D.");
+            setDownloadError(err instanceof Error ? err.message : t("pedidos.detalhe.downloadError"));
         } finally {
             setDownloading(false);
         }
@@ -243,7 +256,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
-                className={`modal-card pedido-detalhe-modal ${editando ? "is-editing" : ""}`}
+                className={cn("modal-card pedido-detalhe-modal", editando && "is-editing")}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="pedido-detalhe-titulo"
@@ -251,16 +264,16 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
             >
                 <div className="modal-header pedido-detalhe-header">
                     <div>
-                        <span className="pedido-detalhe-kicker">{editando ? "Editando pedido" : "Pedido"}</span>
+                        <span className="pedido-detalhe-kicker">{editando ? t("pedidos.detalhe.kickerEditing") : t("pedidos.detalhe.kicker")}</span>
                         <h2 id="pedido-detalhe-titulo">
-                            {pedido ? pedido.projeto : "Carregando pedido"}
+                            {pedido ? pedido.projeto : t("pedidos.detalhe.loadingTitle")}
                         </h2>
                     </div>
                     <div className="pedido-detalhe-header-actions">
                         {pedido && !editando && (
-                            <button type="button" className="pedido-edit-btn" onClick={iniciarEdicao}>
-                                <FiEdit2 size={15} />
-                                Editar
+                            <button type="button" className="pedido-edit-btn" onClick={() => iniciarEdicao(pedido)}>
+                                <PencilEdit02Icon size={15} />
+                                {t("pedidos.detalhe.edit")}
                             </button>
                         )}
 
@@ -269,12 +282,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                             className="pedido-edit-btn"
                             onClick={() => gerarOrdemServico(pedidoId)}
                         >
-                            <FiDownload size={15} />
-                            PDF
+                            <Download01Icon size={15} />
+                            {t("pedidos.detalhe.pdf")}
                         </button>
-                        <button className="modal-close" onClick={onClose} aria-label="Fechar">
-                            <FiX size={18} />
-                        </button>
+                        <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
+                            <Cancel01Icon size={18} />
+                        </IconButton>
                     </div>
                 </div>
 
@@ -291,82 +304,120 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
 
                         <div className="pedido-edit-grid">
                             <div className="input-group">
-                                <label htmlFor="pedido-cliente">Cliente</label>
-                                <input id="pedido-cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} />
+                                <label htmlFor="pedido-cliente">{t("pedidos.form.clientLabel")}</label>
+                                <input
+                                    id="pedido-cliente"
+                                    ref={clienteRef}
+                                    className={erros.cliente ? "input-error" : ""}
+                                    value={cliente}
+                                    onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
+                                    placeholder={t("pedidos.form.clientPlaceholder")}
+                                    aria-invalid={!!erros.cliente}
+                                    aria-describedby={erros.cliente ? "pedido-cliente-erro" : undefined}
+                                    autoFocus
+                                />
+                                <span className="input-hint" id="pedido-cliente-erro">
+                                    {erros.cliente && <span className="error-text">{erros.cliente}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
-                                <label htmlFor="pedido-projeto">Projeto</label>
-                                <input id="pedido-projeto" value={projeto} onChange={(e) => setProjeto(e.target.value)} />
+                                <label htmlFor="pedido-projeto">{t("pedidos.form.projectLabel")}</label>
+                                <input
+                                    id="pedido-projeto"
+                                    ref={projetoRef}
+                                    className={erros.projeto ? "input-error" : ""}
+                                    value={projeto}
+                                    onChange={(e) => { setProjeto(e.target.value); limparErro("projeto"); }}
+                                    placeholder={t("pedidos.form.projectPlaceholder")}
+                                    aria-invalid={!!erros.projeto}
+                                    aria-describedby={erros.projeto ? "pedido-projeto-erro" : undefined}
+                                />
+                                <span className="input-hint" id="pedido-projeto-erro">
+                                    {erros.projeto && <span className="error-text">{erros.projeto}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
-                                <label htmlFor="pedido-prazo">Prazo</label>
-                                <input id="pedido-prazo" type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
+                                <label htmlFor="pedido-prazo">{t("pedidos.form.deadlineLabel")}</label>
+                                <input
+                                    id="pedido-prazo"
+                                    ref={prazoRef}
+                                    type="date"
+                                    className={erros.prazo ? "input-error" : ""}
+                                    value={prazo}
+                                    onChange={(e) => { setPrazo(e.target.value); limparErro("prazo"); }}
+                                    aria-invalid={!!erros.prazo}
+                                    aria-describedby={erros.prazo ? "pedido-prazo-erro" : undefined}
+                                />
+                                <span className="input-hint" id="pedido-prazo-erro">
+                                    {erros.prazo && <span className="error-text">{erros.prazo}</span>}
+                                </span>
                             </div>
                             <div className="input-group">
-                                <label htmlFor="pedido-status">Etapa</label>
+                                <label htmlFor="pedido-status">{t("pedidos.form.stageLabel")}</label>
                                 <Select
                                     id="pedido-status"
                                     value={status}
                                     onChange={(v) => setStatus(v as PedidoStatus)}
-                                    options={STATUS_OPTIONS.map((opcao) => ({ value: opcao, label: STATUS_LABELS[opcao] }))}
+                                    options={STATUS_OPTIONS.map((opcao) => ({ value: opcao, label: t(`pedidos.status.${opcao}`) }))}
                                 />
                             </div>
                         </div>
 
                         <div className="input-group">
-                            <label htmlFor="pedido-descricao">Descrição</label>
+                            <label htmlFor="pedido-descricao">{t("pedidos.form.descriptionLabel")}</label>
                             <textarea
                                 id="pedido-descricao"
-                                rows={4}
+                                rows={3}
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
+                                placeholder={t("pedidos.form.descriptionPlaceholder")}
                             />
                         </div>
 
                         <div className="pedido-edit-section">
                             <div className="pedido-edit-section-title">
                                 <div>
-                                    <h3>Objeto 3D</h3>
-                                    <span>Substitua ou remova o arquivo atual.</span>
+                                    <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>
+                                    <span>{t("pedidos.detalhe.object3dSectionHint")}</span>
                                 </div>
                             </div>
 
                             {pedido.objeto3DFileId && !removerObjeto3D && !objeto3D && (
                                 <div className="pedido-edit-file">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
-                                        <strong>Objeto 3D atual</strong>
-                                        <span>O arquivo sera preservado se nenhuma acao for feita.</span>
+                                        <strong>{t("pedidos.detalhe.object3dCurrent")}</strong>
+                                        <span>{t("pedidos.detalhe.object3dKeepHint")}</span>
                                     </div>
                                     <button type="button" className="pedido-remove-btn" onClick={() => setRemoverObjeto3D(true)}>
-                                        <FiTrash2 size={15} /> Remover
+                                        <Delete02Icon size={15} /> {t("pedidos.detalhe.object3dRemove")}
                                     </button>
                                 </div>
                             )}
 
                             {objeto3D && (
                                 <div className="pedido-edit-file is-new">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
                                         <strong>{objeto3D.name}</strong>
-                                        <span>Novo arquivo selecionado</span>
+                                        <span>{t("pedidos.detalhe.object3dNew")}</span>
                                     </div>
                                     <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
-                                        <FiX size={15} /> Retirar
+                                        <Cancel01Icon size={15} /> {t("pedidos.form.removeFile")}
                                     </button>
                                 </div>
                             )}
 
                             {removerObjeto3D && !objeto3D && (
                                 <div className="pedido-removal-notice">
-                                    O objeto atual sera excluido ao salvar.
-                                    <button type="button" onClick={() => setRemoverObjeto3D(false)}>Desfazer</button>
+                                    {t("pedidos.detalhe.object3dRemovalNotice")}
+                                    <button type="button" onClick={() => setRemoverObjeto3D(false)}>{t("pedidos.detalhe.undo")}</button>
                                 </div>
                             )}
 
                             <label className="pedido-upload-btn">
-                                <FiPlus size={16} />
-                                {pedido.objeto3DFileId ? "Selecionar novo objeto" : "Adicionar objeto 3D"}
+                                <Add01Icon size={16} />
+                                {pedido.objeto3DFileId ? t("pedidos.detalhe.object3dSelectNew") : t("pedidos.detalhe.object3dAdd")}
                                 <input
                                     type="file"
                                     accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
@@ -377,17 +428,18 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                                     }}
                                 />
                             </label>
+                            <span className="input-hint">{t("pedidos.form.object3dFormats")}</span>
                         </div>
 
                         <div className="pedido-edit-section">
                             <div className="pedido-edit-section-title">
                                 <div>
-                                    <h3>Imagens de referencia</h3>
-                                    <span>Remova imagens atuais ou acrescente novas.</span>
+                                    <h3>{t("pedidos.detalhe.imagesSectionTitle")}</h3>
+                                    <span>{t("pedidos.detalhe.imagesSectionHint")}</span>
                                 </div>
                                 <label className="pedido-upload-btn">
-                                    <FiPlus size={16} />
-                                    Adicionar imagens
+                                    <Add01Icon size={16} />
+                                    {t("pedidos.detalhe.imagesAdd")}
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -405,101 +457,115 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                                     {imagensAtuais.map((imagem, index) => {
                                         const removida = imagensRemover.has(imagem.id);
                                         return (
-                                            <div key={imagem.id || index} className={`pedido-edit-image ${removida ? "is-removed" : ""}`}>
-                                                <img src={imagem.src} alt={`Referencia atual ${index + 1}`} />
+                                            <div key={imagem.id || index} className={cn("pedido-edit-image", removida && "is-removed")}>
+                                                <img
+                                                    src={imagem.src}
+                                                    alt={t("pedidos.detalhe.imageCurrentAlt", { index: index + 1 })}
+                                                    onClick={() => setZoomSrc(imagem.src)}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => { if (e.key === "Enter") setZoomSrc(imagem.src); }}
+                                                />
                                                 <button
                                                     type="button"
                                                     onClick={() => alternarRemocaoImagem(imagem.id)}
                                                     disabled={!imagem.id}
                                                 >
-                                                    {removida ? "Desfazer" : <><FiTrash2 size={14} /> Excluir</>}
+                                                    {removida ? t("pedidos.detalhe.undo") : <><Delete02Icon size={14} /> {t("pedidos.detalhe.imageDelete")}</>}
                                                 </button>
                                             </div>
                                         );
                                     })}
                                     {novasImagens.map(({ id, url }, index) => (
                                         <div key={id} className="pedido-edit-image is-new">
-                                            <img src={url} alt={`Nova referencia ${index + 1}`} />
-                                            <span>Nova</span>
+                                            <img
+                                                src={url}
+                                                alt={t("pedidos.detalhe.imageNewAlt", { index: index + 1 })}
+                                                onClick={() => setZoomSrc(url)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => { if (e.key === "Enter") setZoomSrc(url); }}
+                                            />
+                                            <span>{t("pedidos.detalhe.imageNewBadge")}</span>
                                             <button
                                                 type="button"
                                                 onClick={() => retirarNovaImagem(id)}
                                             >
-                                                <FiX size={14} /> Retirar
+                                                <Cancel01Icon size={14} /> {t("pedidos.form.removeFile")}
                                             </button>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty"><FiImage size={16} /> Nenhuma imagem adicionada.</p>
+                                <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.imagesEmpty")}</p>
                             )}
                         </div>
 
                         <div className="modal-actions pedido-edit-actions">
                             <button type="button" className="btn-secondary" onClick={cancelarEdicao} disabled={salvando}>
-                                Cancelar
+                                {t("pedidos.form.cancel")}
                             </button>
                             <button type="submit" className="button" disabled={salvando}>
-                                {salvando ? "Salvando..." : "Salvar alteracoes"}
+                                {salvando ? t("pedidos.detalhe.saving") : t("pedidos.detalhe.save")}
                             </button>
                         </div>
                     </form>
                 ) : pedido && (
                     <div className="pedido-detalhe-content">
                         <div className="pedido-detalhe-meta">
-                            <span className={`pedido-chip ${pedido.status === "FINALIZADO" ? "chip-done" : "chip-active"}`}>
-                                {STATUS_LABELS[pedido.status]}
+                            <span className={cn("pedido-chip", pedido.status === "FINALIZADO" ? "chip-done" : "chip-active")}>
+                                {t(`pedidos.status.${pedido.status}`)}
                             </span>
                             <span className="pedido-detalhe-ref">#{pedido.id.replace(/[^a-zA-Z0-9]/g, "").slice(-5).toUpperCase()}</span>
                         </div>
 
                         <div className="pedido-detalhe-info-grid">
                             <div className="pedido-detalhe-info">
-                                <FiUser size={17} />
-                                <span>Cliente</span>
+                                <UserIcon size={17} />
+                                <span>{t("pedidos.form.clientLabel")}</span>
                                 <strong>{pedido.cliente}</strong>
                             </div>
                             <div className="pedido-detalhe-info">
-                                <FiCalendar size={17} />
-                                <span>Prazo</span>
-                                <strong>{formatDate(pedido.prazo)}</strong>
+                                <Calendar03Icon size={17} />
+                                <span>{t("pedidos.form.deadlineLabel")}</span>
+                                <strong>{formatPrazoLongo(pedido.prazo)}</strong>
                             </div>
                             <div className="pedido-detalhe-info">
-                                <FiBox size={17} />
-                                <span>Projeto</span>
+                                <CubeIcon size={17} />
+                                <span>{t("pedidos.form.projectLabel")}</span>
                                 <strong>{pedido.projeto}</strong>
                             </div>
                         </div>
 
                         {pedido.descricao && (
                             <div className="pedido-detalhe-section">
-                                <h3>Descrição</h3>
+                                <h3>{t("pedidos.form.descriptionLabel")}</h3>
                                 <p>{pedido.descricao}</p>
                             </div>
                         )}
 
                         <div className="pedido-detalhe-section">
-                            <h3>Objeto 3D</h3>
+                            <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>
                             {pedido.objeto3DFileId ? (
                                 <div className="pedido-arquivo-3d">
-                                    <span className="pedido-arquivo-icon"><FiFile size={20} /></span>
+                                    <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
                                     <div>
-                                        <strong>Objeto 3D do pedido</strong>
-                                        <span>Arquivo do modelo enviado para producao</span>
+                                        <strong>{t("pedidos.detalhe.viewObject3dName")}</strong>
+                                        <span>{t("pedidos.detalhe.viewObject3dHint")}</span>
                                     </div>
                                     <button type="button" className="pedido-download-btn" onClick={handleDownloadObjeto3D} disabled={downloading}>
-                                        <FiDownload size={16} />
-                                        {downloading ? "Baixando..." : "Baixar"}
+                                        <Download01Icon size={16} />
+                                        {downloading ? t("pedidos.detalhe.downloading") : t("pedidos.detalhe.download")}
                                     </button>
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty">Nenhum objeto 3D foi enviado.</p>
+                                <p className="pedido-detalhe-empty">{t("pedidos.detalhe.viewObject3dEmpty")}</p>
                             )}
                             {downloadError && <p className="pedido-download-error" role="alert">{downloadError}</p>}
                         </div>
 
                         <div className="pedido-detalhe-section">
-                            <h3>Imagens de referencia</h3>
+                            <h3>{t("pedidos.detalhe.imagesSectionTitle")}</h3>
                             {imagensAtuais.length > 0 ? (
                                 <div className="pedido-imagens-grid">
                                     {imagensAtuais.map((imagem, index) => (
@@ -508,14 +574,14 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated }: PedidoDetalheModal
                                             type="button"
                                             className="pedido-imagem-link"
                                             onClick={() => setZoomSrc(imagem.src)}
-                                            aria-label={`Ampliar imagem ${index + 1}`}
+                                            aria-label={t("pedidos.detalhe.zoomImageAria", { index: index + 1 })}
                                         >
-                                            <img src={imagem.src} alt={`Referencia ${index + 1} do pedido ${pedido.projeto}`} />
+                                            <img src={imagem.src} alt={t("pedidos.detalhe.imageAlt", { index: index + 1, project: pedido.projeto })} />
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="pedido-detalhe-empty"><FiImage size={16} /> Nenhuma imagem de referencia foi enviada.</p>
+                                <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.viewImagesEmpty")}</p>
                             )}
                         </div>
                     </div>

@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { FiMoreVertical, FiEdit2, FiTrash2, FiAlertCircle } from "react-icons/fi";
+import { useRef, useState } from "react";
+import { AlertCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon } from "hugeicons-react";
 import { Cor, Acabamento } from "../../types";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
+import IconButton from "../ui/IconButton";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",
@@ -32,30 +35,26 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
 
     const baixo = cor.estoqueMl < cor.estoqueMinimoMl;
 
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuAberto(false);
-                setConfirmando(false);
-            }
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto,
+        refs: menuRef,
+        onDismiss: () => {
+            setMenuAberto(false);
+            setConfirmando(false);
+        },
+    });
 
     const menu = (
         <div className="kebab-wrap" ref={menuRef}>
-            <button
-                type="button"
-                className="kebab-btn"
+            <IconButton
+                variant="kebab"
                 aria-label="Ações da cor"
                 aria-haspopup="menu"
                 aria-expanded={menuAberto}
                 onClick={() => setMenuAberto((v) => !v)}
             >
-                <FiMoreVertical size={18} />
-            </button>
+                <MoreVerticalIcon size={18} />
+            </IconButton>
             {menuAberto && (
                 <div className="kebab-menu" role="menu">
                     {confirmando ? (
@@ -77,14 +76,14 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                                 className="kebab-item"
                                 onClick={() => { setMenuAberto(false); onEditar(cor); }}
                             >
-                                <FiEdit2 size={15} /> Editar
+                                <PencilEdit02Icon size={15} /> Editar
                             </button>
                             <button
                                 type="button"
                                 className="kebab-item kebab-danger"
                                 onClick={() => setConfirmando(true)}
                             >
-                                <FiTrash2 size={15} /> Excluir
+                                <Delete02Icon size={15} /> Excluir
                             </button>
                         </>
                     )}
@@ -104,7 +103,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <span className="cor-chip-acabamento">{ACABAMENTO_LABEL[cor.acabamento]}</span>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Estoque</span>
-                    <span className={`cor-metric-value ${baixo ? "is-baixo" : ""}`}>{formatarMl(cor.estoqueMl)} ml</span>
+                    <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
                 </div>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Custo/ml</span>
@@ -113,7 +112,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <div className="cor-row-acoes">
                     {baixo && (
                         <span className="cor-estoque-baixo" title="Estoque abaixo do mínimo">
-                            <FiAlertCircle size={12} /> Estoque baixo
+                            <AlertCircleIcon size={12} /> Estoque baixo
                         </span>
                     )}
                     {menu}
@@ -136,14 +135,14 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                     </div>
                     {baixo && (
                         <span className="cor-estoque-baixo" title="Estoque abaixo do mínimo">
-                            <FiAlertCircle size={12} /> Estoque baixo
+                            <AlertCircleIcon size={12} /> Estoque baixo
                         </span>
                     )}
                 </div>
                 <div className="cor-meta">
                     <div className="cor-meta-item">
                         <span className="cor-metric-label">Estoque</span>
-                        <span className={`cor-metric-value ${baixo ? "is-baixo" : ""}`}>{formatarMl(cor.estoqueMl)} ml</span>
+                        <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
                     </div>
                     <div className="cor-meta-item cor-meta-custo">
                         <span className="cor-metric-label">Custo/ml</span>

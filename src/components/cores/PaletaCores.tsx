@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-    FiSearch, FiChevronDown, FiCheck, FiList, FiGrid, FiDroplet,
-} from "react-icons/fi";
+import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Tick02Icon } from "hugeicons-react";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
 import NovaCorModal from "./NovaCorModal";
 import { Cor, Acabamento } from "../../types";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
+import ViewToggle from "../ui/ViewToggle";
+import SearchField from "../ui/SearchField";
 
 const CACHE_KEY = "cores:all";
 
@@ -86,14 +88,11 @@ function PaletaCores() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        if (!menuAberto) return;
-        function onClick(e: MouseEvent) {
-            if (barraRef.current && !barraRef.current.contains(e.target as Node)) setMenuAberto(null);
-        }
-        document.addEventListener("mousedown", onClick);
-        return () => document.removeEventListener("mousedown", onClick);
-    }, [menuAberto]);
+    useDismissable({
+        enabled: menuAberto !== null,
+        refs: barraRef,
+        onDismiss: () => setMenuAberto(null),
+    });
 
     const fornecedores = useMemo(
         () => Array.from(new Set(cores.map((c) => c.fornecedor))).sort((a, b) => a.localeCompare(b, "pt-BR")),
@@ -186,30 +185,27 @@ function PaletaCores() {
                     </div>
                 </header>
 
-                <div className="cores-search">
-                    <FiSearch size={18} className="search-icon" />
-                    <input
-                        ref={buscaRef}
-                        type="text"
-                        placeholder="Buscar por nome da cor, fornecedor ou código..."
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        aria-label="Buscar cores"
-                    />
-                </div>
+                <SearchField
+                    variant="boxed"
+                    inputRef={buscaRef}
+                    value={busca}
+                    onChange={setBusca}
+                    placeholder="Buscar por nome da cor, fornecedor ou código..."
+                    ariaLabel="Buscar cores"
+                />
 
                 <div className="filtros-bar cores-filtros" ref={barraRef}>
                     <div className="filtros-tabs cores-filtros-left">
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${fornecedor ? "is-active" : ""}`}
+                                className={cn("filtro-action", fornecedor && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "fornecedor"}
                                 onClick={() => setMenuAberto((m) => (m === "fornecedor" ? null : "fornecedor"))}
                             >
                                 {fornecedorLabel}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "fornecedor" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -217,11 +213,11 @@ function PaletaCores() {
                                         type="button"
                                         role="menuitemradio"
                                         aria-checked={fornecedor === ""}
-                                        className={`filtro-option ${fornecedor === "" ? "selected" : ""}`}
+                                        className={cn("filtro-option", fornecedor === "" && "selected")}
                                         onClick={() => { setFornecedor(""); setMenuAberto(null); }}
                                     >
                                         Todos
-                                        {fornecedor === "" && <FiCheck size={15} />}
+                                        {fornecedor === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {fornecedores.map((f) => (
                                         <button
@@ -229,11 +225,11 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={fornecedor === f}
-                                            className={`filtro-option ${fornecedor === f ? "selected" : ""}`}
+                                            className={cn("filtro-option", fornecedor === f && "selected")}
                                             onClick={() => { setFornecedor(f); setMenuAberto(null); }}
                                         >
                                             {f}
-                                            {fornecedor === f && <FiCheck size={15} />}
+                                            {fornecedor === f && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -243,13 +239,13 @@ function PaletaCores() {
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${estoque !== "all" ? "is-active" : ""}`}
+                                className={cn("filtro-action", estoque !== "all" && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "estoque"}
                                 onClick={() => setMenuAberto((m) => (m === "estoque" ? null : "estoque"))}
                             >
                                 {ESTOQUE_LABELS[estoque]}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "estoque" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -259,11 +255,11 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={estoque === k}
-                                            className={`filtro-option ${estoque === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", estoque === k && "selected")}
                                             onClick={() => { setEstoque(k); setMenuAberto(null); }}
                                         >
                                             {ESTOQUE_LABELS[k]}
-                                            {estoque === k && <FiCheck size={15} />}
+                                            {estoque === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -273,13 +269,13 @@ function PaletaCores() {
                         <div className="filtro-menu">
                             <button
                                 type="button"
-                                className={`filtro-action ${acabamento ? "is-active" : ""}`}
+                                className={cn("filtro-action", acabamento && "is-active")}
                                 aria-haspopup="menu"
                                 aria-expanded={menuAberto === "acabamento"}
                                 onClick={() => setMenuAberto((m) => (m === "acabamento" ? null : "acabamento"))}
                             >
                                 {acabamentoLabel}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "acabamento" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -287,11 +283,11 @@ function PaletaCores() {
                                         type="button"
                                         role="menuitemradio"
                                         aria-checked={acabamento === ""}
-                                        className={`filtro-option ${acabamento === "" ? "selected" : ""}`}
+                                        className={cn("filtro-option", acabamento === "" && "selected")}
                                         onClick={() => { setAcabamento(""); setMenuAberto(null); }}
                                     >
                                         Todos
-                                        {acabamento === "" && <FiCheck size={15} />}
+                                        {acabamento === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {acabamentos.map((a) => (
                                         <button
@@ -299,11 +295,11 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={acabamento === a}
-                                            className={`filtro-option ${acabamento === a ? "selected" : ""}`}
+                                            className={cn("filtro-option", acabamento === a && "selected")}
                                             onClick={() => { setAcabamento(a); setMenuAberto(null); }}
                                         >
                                             {ACABAMENTO_LABEL[a]}
-                                            {acabamento === a && <FiCheck size={15} />}
+                                            {acabamento === a && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
@@ -327,7 +323,7 @@ function PaletaCores() {
                                 onClick={() => setMenuAberto((m) => (m === "ordenacao" ? null : "ordenacao"))}
                             >
                                 Ordenar: {ORDENACAO_LABELS[ordenacao]}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "ordenacao" && (
                                 <div className="filtro-dropdown" role="menu">
@@ -337,37 +333,26 @@ function PaletaCores() {
                                             type="button"
                                             role="menuitemradio"
                                             aria-checked={ordenacao === k}
-                                            className={`filtro-option ${ordenacao === k ? "selected" : ""}`}
+                                            className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
                                             {ORDENACAO_LABELS[k]}
-                                            {ordenacao === k && <FiCheck size={15} />}
+                                            {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
                                 </div>
                             )}
                         </div>
 
-                        <div className="view-toggle" role="group" aria-label="Modo de visualização">
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "grid" ? "is-active" : ""}`}
-                                onClick={() => alternarView("grid")}
-                                aria-pressed={view === "grid"}
-                                aria-label="Visualizar em grade"
-                            >
-                                <FiGrid size={16} />
-                            </button>
-                            <button
-                                type="button"
-                                className={`view-btn ${view === "list" ? "is-active" : ""}`}
-                                onClick={() => alternarView("list")}
-                                aria-pressed={view === "list"}
-                                aria-label="Visualizar em lista"
-                            >
-                                <FiList size={16} />
-                            </button>
-                        </div>
+                        <ViewToggle
+                            value={view}
+                            onChange={alternarView}
+                            ariaLabel="Modo de visualização"
+                            options={[
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: "Visualizar em grade" },
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: "Visualizar em lista" },
+                            ]}
+                        />
                     </div>
                 </div>
 
@@ -381,7 +366,7 @@ function PaletaCores() {
                     </div>
                 ) : visiveis.length === 0 ? (
                     <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><FiDroplet size={28} /></span>
+                        <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
                         <p className="empty-title">Nenhuma cor encontrada</p>
                         <p className="empty-sub">
                             {filtrosAtivos ? "Tente ajustar a busca ou os filtros." : "Cadastre a primeira cor para começar a paleta."}

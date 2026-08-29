@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { Add01Icon, Cancel01Icon, File01Icon, Image02Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -12,6 +16,7 @@ type CampoErro = "cliente" | "projeto" | "prazo";
 type Erros = Partial<Record<CampoErro, string>>;
 
 function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
+    const { t } = useTranslation();
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
@@ -29,18 +34,8 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     const hoje = new Date().toISOString().split("T")[0];
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose();
-        }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [onClose]);
+    useEscapeKey(onClose);
+    useBodyScrollLock();
 
     const previews = useMemo(
         () => imagensReferencia.map((file) => ({ file, url: URL.createObjectURL(file) })),
@@ -76,9 +71,10 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     function validar(): Erros {
         const e: Erros = {};
-        if (!cliente.trim()) e.cliente = "Informe o nome do cliente.";
-        if (!projeto.trim()) e.projeto = "Informe o nome do projeto.";
-        if (!prazo) e.prazo = "Informe o prazo.";
+        if (!cliente.trim()) e.cliente = t("pedidos.form.errorClient");
+        if (!projeto.trim()) e.projeto = t("pedidos.form.errorProject");
+        if (!prazo) e.prazo = t("pedidos.form.errorDeadline");
+        else if (prazo < hoje) e.prazo = t("pedidos.form.errorDeadlinePast");
         return e;
     }
 
@@ -111,7 +107,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         } catch (error) {
             setErroEnvio(error instanceof Error && error.message !== "Falha ao criar pedido"
                 ? error.message
-                : "Erro ao criar pedido. Tente novamente.");
+                : t("pedidos.novo.errorSubmit"));
         } finally {
             setLoading(false);
         }
@@ -121,96 +117,149 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         <>
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
-            <div
-                className="modal-card"
+            <section
+                className="modal-card pedido-detalhe-modal is-editing"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-titulo"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="modal-header">
-                    <h2 id="modal-titulo">Novo Pedido</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">
-                        <FiX size={18} />
-                    </button>
+                <div className="modal-header pedido-detalhe-header">
+                    <div>
+                        <span className="pedido-detalhe-kicker">{t("pedidos.novo.kicker")}</span>
+                        <h2 id="modal-titulo">{projeto.trim() || t("pedidos.novo.title")}</h2>
+                    </div>
+                    <div className="pedido-detalhe-header-actions">
+                        <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
+                            <Cancel01Icon size={18} />
+                        </IconButton>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} noValidate>
-                    {erroEnvio && <p className="error">{erroEnvio}</p>}
+                <form className="pedido-edit-form" onSubmit={handleSubmit} noValidate>
+                    {erroEnvio && <p className="pedido-edit-error" role="alert">{erroEnvio}</p>}
 
-                    <div className="input-group">
-                        <label htmlFor="cliente">Cliente</label>
-                        <input
-                            id="cliente"
-                            ref={clienteRef}
-                            className={erros.cliente ? "input-error" : ""}
-                            value={cliente}
-                            onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
-                            placeholder="Nome do cliente"
-                            aria-invalid={!!erros.cliente}
-                            aria-describedby={erros.cliente ? "cliente-erro" : undefined}
-                            autoFocus
-                        />
-                        <span className="input-hint" id="cliente-erro">
-                            {erros.cliente && <span className="error-text">{erros.cliente}</span>}
-                        </span>
+                    <div className="pedido-edit-grid">
+                        <div className="input-group">
+                            <label htmlFor="cliente">{t("pedidos.form.clientLabel")}</label>
+                            <input
+                                id="cliente"
+                                ref={clienteRef}
+                                className={erros.cliente ? "input-error" : ""}
+                                value={cliente}
+                                onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
+                                placeholder={t("pedidos.form.clientPlaceholder")}
+                                aria-invalid={!!erros.cliente}
+                                aria-describedby={erros.cliente ? "cliente-erro" : undefined}
+                                autoFocus
+                            />
+                            <span className="input-hint" id="cliente-erro">
+                                {erros.cliente && <span className="error-text">{erros.cliente}</span>}
+                            </span>
+                        </div>
+
+                        <div className="input-group">
+                            <label htmlFor="projeto">{t("pedidos.form.projectLabel")}</label>
+                            <input
+                                id="projeto"
+                                ref={projetoRef}
+                                className={erros.projeto ? "input-error" : ""}
+                                value={projeto}
+                                onChange={(e) => { setProjeto(e.target.value); limparErro("projeto"); }}
+                                placeholder={t("pedidos.form.projectPlaceholder")}
+                                aria-invalid={!!erros.projeto}
+                                aria-describedby={erros.projeto ? "projeto-erro" : undefined}
+                            />
+                            <span className="input-hint" id="projeto-erro">
+                                {erros.projeto && <span className="error-text">{erros.projeto}</span>}
+                            </span>
+                        </div>
+
+                        <div className="input-group">
+                            <label htmlFor="prazo">{t("pedidos.form.deadlineLabel")}</label>
+                            <input
+                                id="prazo"
+                                ref={prazoRef}
+                                type="date"
+                                className={erros.prazo ? "input-error" : ""}
+                                value={prazo}
+                                onChange={(e) => { setPrazo(e.target.value); limparErro("prazo"); }}
+                                min={hoje}
+                                aria-invalid={!!erros.prazo}
+                                aria-describedby={erros.prazo ? "prazo-erro" : undefined}
+                            />
+                            <span className="input-hint" id="prazo-erro">
+                                {erros.prazo && <span className="error-text">{erros.prazo}</span>}
+                            </span>
+                        </div>
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="projeto">Projeto</label>
-                        <input
-                            id="projeto"
-                            ref={projetoRef}
-                            className={erros.projeto ? "input-error" : ""}
-                            value={projeto}
-                            onChange={(e) => { setProjeto(e.target.value); limparErro("projeto"); }}
-                            placeholder="Nome do projeto"
-                            aria-invalid={!!erros.projeto}
-                            aria-describedby={erros.projeto ? "projeto-erro" : undefined}
-                        />
-                        <span className="input-hint" id="projeto-erro">
-                            {erros.projeto && <span className="error-text">{erros.projeto}</span>}
-                        </span>
-                    </div>
-
-                    <div className="input-group">
-                        <label htmlFor="descricao">Descrição</label>
+                        <label htmlFor="descricao">{t("pedidos.form.descriptionLabel")}</label>
                         <textarea
                             id="descricao"
+                            rows={3}
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
-                            placeholder="Detalhes do pedido, referências, acabamento desejado..."
-                            rows={3}
+                            placeholder={t("pedidos.form.descriptionPlaceholder")}
                         />
                     </div>
 
-                    <div className="input-group">
-                        <label htmlFor="objeto3D">
-                            Upload do objeto 3D
+                    <div className="pedido-edit-section">
+                        <div className="pedido-edit-section-title">
+                            <div>
+                                <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>
+                                <span>{t("pedidos.novo.object3dSectionHint")}</span>
+                            </div>
+                        </div>
+
+                        {objeto3D && (
+                            <div className="pedido-edit-file is-new">
+                                <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
+                                <div>
+                                    <strong>{objeto3D.name}</strong>
+                                    <span>{t("pedidos.novo.object3dSelected")}</span>
+                                </div>
+                                <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
+                                    <Cancel01Icon size={15} /> {t("pedidos.form.removeFile")}
+                                </button>
+                            </div>
+                        )}
+
+                        <label className="pedido-upload-btn">
+                            <Add01Icon size={16} />
+                            {objeto3D ? t("pedidos.novo.object3dReplace") : t("pedidos.novo.object3dAdd")}
+                            <input
+                                type="file"
+                                accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                                onChange={(e) => { setObjeto3D(e.target.files?.[0] ?? null); e.target.value = ""; }}
+                            />
                         </label>
-                        <input
-                            id="objeto3D"
-                            type="file"
-                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
-                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
-                        />
+                        <span className="input-hint">{t("pedidos.form.object3dFormats")}</span>
                     </div>
 
-                    <div className="input-group">
-                        <label htmlFor="imagensReferencia">
-                            Imagens de referência
-                        </label>
-                        <input
-                            id="imagensReferencia"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
-                        />
-                        {previews.length > 0 && (
-                            <div className="img-preview-grid">
+                    <div className="pedido-edit-section">
+                        <div className="pedido-edit-section-title">
+                            <div>
+                                <h3>{t("pedidos.detalhe.imagesSectionTitle")}</h3>
+                                <span>{t("pedidos.novo.imagesSectionHint")}</span>
+                            </div>
+                            <label className="pedido-upload-btn">
+                                <Add01Icon size={16} />
+                                {t("pedidos.novo.imagesAdd")}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
+                                />
+                            </label>
+                        </div>
+
+                        {previews.length > 0 ? (
+                            <div className="pedido-edit-images">
                                 {previews.map((p, i) => (
-                                    <div key={`${p.file.name}-${p.file.size}-${i}`} className="img-preview">
+                                    <div key={`${p.file.name}-${p.file.size}-${i}`} className="pedido-edit-image is-new">
                                         <img
                                             src={p.url}
                                             alt={p.file.name}
@@ -221,49 +270,29 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                                         />
                                         <button
                                             type="button"
-                                            className="img-preview-remove"
                                             onClick={() => removerImagem(i)}
-                                            aria-label={`Remover ${p.file.name}`}
+                                            aria-label={t("pedidos.novo.removeImageAria", { name: p.file.name })}
                                         >
-                                            <FiX size={12} />
+                                            <Cancel01Icon size={14} /> {t("pedidos.form.removeFile")}
                                         </button>
                                     </div>
                                 ))}
                             </div>
+                        ) : (
+                            <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.imagesEmpty")}</p>
                         )}
-                        <span className="input-hint">
-                            {previews.length > 0 && `${previews.length} imagem${previews.length > 1 ? "ns" : ""} selecionada${previews.length > 1 ? "s" : ""}`}
-                        </span>
                     </div>
 
-                    <div className="input-group">
-                        <label htmlFor="prazo">Prazo</label>
-                        <input
-                            id="prazo"
-                            ref={prazoRef}
-                            type="date"
-                            className={erros.prazo ? "input-error" : ""}
-                            value={prazo}
-                            onChange={(e) => { setPrazo(e.target.value); limparErro("prazo"); }}
-                            min={hoje}
-                            aria-invalid={!!erros.prazo}
-                            aria-describedby={erros.prazo ? "prazo-erro" : undefined}
-                        />
-                        <span className="input-hint" id="prazo-erro">
-                            {erros.prazo && <span className="error-text">{erros.prazo}</span>}
-                        </span>
-                    </div>
-
-                    <div className="modal-actions">
+                    <div className="modal-actions pedido-edit-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
-                            Cancelar
+                            {t("pedidos.form.cancel")}
                         </button>
                         <button type="submit" className="button" disabled={loading}>
-                            {loading ? "Criando..." : "Criar Pedido"}
+                            {loading ? t("pedidos.novo.submitting") : t("pedidos.novo.submit")}
                         </button>
                     </div>
                 </form>
-            </div>
+            </section>
         </div>
         </>
     );

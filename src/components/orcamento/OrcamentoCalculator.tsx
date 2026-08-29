@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { FiChevronDown, FiCheck } from "react-icons/fi";
+import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
 import { getMateriais } from "../../services/MaterialService";
 import { calcularOrcamento, salvarOrcamento } from "../../services/OrcamentoService";
 import { Material } from "../../models/Material";
 import { CalcularOrcamentoInput, Orcamento } from "../../models/Orcamento";
+import { cn } from "../../utils/cn";
+import { useDismissable } from "../../hooks/useDismissable";
 
 const moedaBR = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -39,15 +41,11 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
             .catch(() => setErro("Erro ao carregar materiais. Verifique se o servidor está rodando."));
     }, []);
 
-    useEffect(() => {
-        function onClickFora(e: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuAberto(false);
-            }
-        }
-        document.addEventListener("mousedown", onClickFora);
-        return () => document.removeEventListener("mousedown", onClickFora);
-    }, []);
+    useDismissable({
+        enabled: menuAberto,
+        refs: menuRef,
+        onDismiss: () => setMenuAberto(false),
+    });
 
     function montarInput(): CalcularOrcamentoInput | null {
         const volumeCm3 = Number(volume);
@@ -171,7 +169,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                 onClick={() => setMenuAberto((m) => !m)}
                             >
                                 {materialSelecionado ? materialSelecionado.nome : "Selecione um material"}
-                                <FiChevronDown size={15} className="filtro-action-chev" />
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto && (
                                 <div className="filtro-dropdown" role="menu">
@@ -184,11 +182,11 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                                 type="button"
                                                 role="menuitemradio"
                                                 aria-checked={materialId === m.id}
-                                                className={`filtro-option ${materialId === m.id ? "selected" : ""}`}
+                                                className={cn("filtro-option", materialId === m.id && "selected")}
                                                 onClick={() => selecionarMaterial(m.id)}
                                             >
                                                 {m.nome}
-                                                {materialId === m.id && <FiCheck size={15} />}
+                                                {materialId === m.id && <Tick02Icon size={15} />}
                                             </button>
                                         ))
                                     )}
@@ -276,7 +274,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                     </div>
                 </div>
 
-                <div className={`orcamento-preview-card ${calculando ? "is-calculando" : ""}`}>
+                <div className={cn("orcamento-preview-card", calculando && "is-calculando")}>
                     <div className="orcamento-preview-row">
                         <span>Custo do Material</span>
                         <span>{valor(preview?.custoMaterial)}</span>

@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { register } from "../../services/AuthService";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
+import LinkButton from "../ui/LinkButton";
 
 interface RegisterProps {
     onRegister: () => void;
@@ -175,9 +176,9 @@ function Register({ onRegister }: RegisterProps) {
                         <p style={{ color: "var(--on-surface-variant)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
                             Clique no link do email para ativar sua conta e entrar automaticamente.
                         </p>
-                        <button type="button" className="link" onClick={onRegister}>
+                        <LinkButton onClick={onRegister}>
                             Voltar para o login
-                        </button>
+                        </LinkButton>
                     </div>
                 </div>
             </div>
@@ -226,8 +227,12 @@ function Register({ onRegister }: RegisterProps) {
                             value={email}
                             onChange={(e) => {
                                 setEmail(e.target.value);
-                                setEmailValido(validarEmail(e.target.value) || e.target.value === "");
+                                // o erro só aparece no blur; aqui ele apenas some quando corrigido
+                                if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
+                                    setEmailValido(true);
+                                }
                             }}
+                            onBlur={() => setEmailValido(validarEmail(email) || email === "")}
                             className={!emailValido ? "input-error" : ""}
                             placeholder="Digite seu email"
                         />
@@ -305,7 +310,7 @@ function Register({ onRegister }: RegisterProps) {
                                     className="input-icon"
                                     onClick={() => setShowSenha(!showSenha)}
                                 >
-                                    {showSenha ? <FiEyeOff /> : <FiEye />}
+                                    {showSenha ? <ViewOffSlashIcon /> : <ViewIcon />}
                                 </button>
                             </div>
                             <span className="input-hint">
@@ -339,13 +344,9 @@ function Register({ onRegister }: RegisterProps) {
                         {loading ? "Cadastrando..." : "Cadastrar"}
                     </button>
 
-                    <button
-                        type="button"
-                        className="login-link"
-                        onClick={onRegister}
-                    >
+                    <LinkButton onClick={onRegister}>
                         Já tem conta? Voltar para login
-                    </button>
+                    </LinkButton>
 
                 </form>
             </div>

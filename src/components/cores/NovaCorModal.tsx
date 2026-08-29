@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { useRef, useState } from "react";
+import { Cancel01Icon } from "hugeicons-react";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
 import Select from "../ui/Select";
+import { cn } from "../../utils/cn";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import IconButton from "../ui/IconButton";
 
 interface NovaCorModalProps {
     onClose: () => void;
@@ -62,18 +66,8 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
     const hexSeguro = isHexValido(hex) ? normalizarHex(hex) : "#FB4A14";
 
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") onClose();
-        }
-        document.addEventListener("keydown", onKey);
-        const overflowAnterior = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [onClose]);
+    useEscapeKey(onClose);
+    useBodyScrollLock();
 
     function limparErro(campo: CampoErro) {
         setErros((prev) => {
@@ -157,9 +151,9 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
             >
                 <div className="modal-header">
                     <h2 id="cor-modal-titulo">{editando ? "Editar cor" : "Nova cor"}</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Fechar">
-                        <FiX size={18} />
-                    </button>
+                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
+                        <Cancel01Icon size={18} />
+                    </IconButton>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
@@ -201,7 +195,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                             <button
                                 key={c}
                                 type="button"
-                                className={`cor-preset ${hexSeguro === c ? "is-active" : ""}`}
+                                className={cn("cor-preset", hexSeguro === c && "is-active")}
                                 style={{ background: c }}
                                 onClick={() => selecionarCor(c)}
                                 aria-label={`Usar a cor ${c}`}
