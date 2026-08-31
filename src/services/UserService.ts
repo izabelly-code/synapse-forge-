@@ -78,6 +78,30 @@ export async function getUsers(
     return await response.json();
 }
 
+export async function getClientes(
+    token: string | null
+): Promise<User[]> {
+
+    if (!token) {
+        throw new Error("Usuário não autenticado.");
+    }
+
+    const response = await fetch(
+        `${API_URL}/clientes`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Falha ao buscar clientes.");
+    }
+
+    return await response.json();
+}
+
 export async function searchUsersByName(
     nome: string,
     token: string | null
@@ -115,19 +139,6 @@ export async function searchUsersByName(
     }
 }
 
-
-/*
- * Busca o usuário atualmente autenticado.
- *
- * Usa o endpoint:
- * GET /users/me
- *
- * Esse endpoint funciona para:
- * CLIENTE
- * TECNICO
- * GERENTE
- * ADMIN
- */
 export async function getMyUser(
     token: string | null
 ): Promise<User | null> {
@@ -164,13 +175,6 @@ export async function getMyUser(
     }
 }
 
-
-/*
- * Busca um usuário específico pelo ID.
- *
- * Mantido para situações em que GERENTE/ADMIN
- * precisam consultar outros usuários.
- */
 export async function getUserById(
     id: string,
     token: string | null
