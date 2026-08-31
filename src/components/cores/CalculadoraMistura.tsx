@@ -55,6 +55,7 @@ function CalculadoraMistura() {
                 setCached(CACHE_KEY, data);
             })
             .catch(() => setErro(t("cores.mistura.errorLoad")));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const corPorId = useMemo(() => new Map(cores.map((c) => [c.id, c])), [cores]);

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import Select from "../ui/Select";
 import { getCores } from "../../services/CorService";
 import {
@@ -11,6 +13,7 @@ import {
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
+import { formatDate } from "../../utils/format";
 import IconButton from "../ui/IconButton";
 import SearchField from "../ui/SearchField";
 import {
@@ -23,24 +26,19 @@ import {
 
 interface Coluna {
     etapa: EtapaOrdemPintura;
-    label: string;
     tone: string;
 }
 
 const COLUNAS: Coluna[] = [
-    { etapa: "AGUARDANDO", label: "Aguardando", tone: "waiting" },
-    { etapa: "MISTURANDO_TINTA", label: "Misturando Tinta", tone: "mixing" },
-    { etapa: "EM_PINTURA", label: "Em Pintura", tone: "painting" },
-    { etapa: "SECANDO", label: "Secando", tone: "drying" },
-    { etapa: "FINALIZADO", label: "Finalizado", tone: "done" },
-    { etapa: "RETRABALHO", label: "Retrabalho", tone: "rework" },
+    { etapa: "AGUARDANDO", tone: "waiting" },
+    { etapa: "MISTURANDO_TINTA", tone: "mixing" },
+    { etapa: "EM_PINTURA", tone: "painting" },
+    { etapa: "SECANDO", tone: "drying" },
+    { etapa: "FINALIZADO", tone: "done" },
+    { etapa: "RETRABALHO", tone: "rework" },
 ];
 
-const PRIORIDADE_LABEL: Record<PrioridadeOrdemPintura, string> = {
-    BAIXA: "Baixa",
-    MEDIA: "Média",
-    ALTA: "Alta",
-};
+const PRIORIDADES: PrioridadeOrdemPintura[] = ["BAIXA", "MEDIA", "ALTA"];
 
 type FiltroData = "TODAS" | "HOJE" | "ATRASADAS";
 
@@ -50,13 +48,13 @@ function inicioDoDia(data = new Date()): number {
     return copia.getTime();
 }
 
-function rotuloPrazo(prazo: string): string {
+function rotuloPrazo(prazo: string, t: TFunction): string {
     const [ano, mes, dia] = prazo.slice(0, 10).split("-").map(Number);
     const data = new Date(ano, mes - 1, dia);
     const diferenca = Math.round((inicioDoDia(data) - inicioDoDia()) / 86_400_000);
-    if (diferenca === 0) return "Hoje";
-    if (diferenca === 1) return "Amanhã";
-    return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    if (diferenca === 0) return t("pintura.today");
+    if (diferenca === 1) return t("pintura.tomorrow");
+    return formatDate(data, { day: "2-digit", month: "2-digit" });
 }
 
 function referenciaCurta(id: string): string {
@@ -78,6 +76,7 @@ interface NovaOrdemModalProps {
 }
 
 function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemModalProps) {
+    const { t } = useTranslation();
     const editando = !!ordem;
     const [pedidoId, setPedidoId] = useState(ordem?.pedidoId ?? "");
     const [corId, setCorId] = useState(ordem?.corId ?? "");
@@ -93,7 +92,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
     async function handleSubmit(event: React.FormEvent) {
         event.preventDefault();
         if (!pedidoId || !corId || !tecnico.trim() || !prazo) {
-            setErro("Preencha todos os campos da ordem.");
+            setErro(t("pintura.modal.errorRequired"));
             return;
         }
 
@@ -103,7 +102,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
             await onSave({ pedidoId, corId, tecnico: tecnico.trim(), prioridade, prazo });
             onClose();
         } catch {
-            setErro(editando ? "Não foi possível editar a ordem de pintura." : "Não foi possível criar a ordem de pintura.");
+            setErro(editando ? t("pintura.modal.errorEdit") : t("pintura.modal.errorCreate"));
         } finally {
             setSalvando(false);
         }
@@ -114,10 +113,10 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
             <section className="modal-card pintura-order-modal" onClick={(event) => event.stopPropagation()}>
                 <div className="modal-header">
                     <div>
-                        <span className="pintura-modal-kicker">Produção</span>
-                        <h2>{editando ? "Editar Ordem de Pintura" : "Nova Ordem de Pintura"}</h2>
+                        <span className="pintura-modal-kicker">{t("pintura.modal.kicker")}</span>
+                        <h2>{editando ? t("pintura.modal.titleEdit") : t("pintura.modal.titleNew")}</h2>
                     </div>
-                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
+                    <IconButton variant="modal-close" onClick={onClose} aria-label={t("pintura.modal.close")}>
                         <Cancel01Icon size={18} />
                     </IconButton>
                 </div>
@@ -126,12 +125,12 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                     {erro && <p className="error">{erro}</p>}
 
                     <div className="input-group">
-                        <label htmlFor="ordem-pedido">Pedido</label>
+                        <label htmlFor="ordem-pedido">{t("pintura.modal.orderLabel")}</label>
                         <Select
                             id="ordem-pedido"
                             value={pedidoId}
                             onChange={setPedidoId}
-                            placeholder="Selecione um pedido"
+                            placeholder={t("pintura.modal.orderPlaceholder")}
                             options={pedidos.map((item) => ({
                                 value: item.id,
                                 label: `${referenciaCurta(item.id)} - ${item.projeto} / ${item.cliente}`,
@@ -142,56 +141,52 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                     {pedido && (
                         <div className="pintura-reference-panel">
                             <div>
-                                <span>Referências do projeto</span>
+                                <span>{t("pintura.modal.referencesLabel")}</span>
                                 <strong>{pedido.projeto}</strong>
                             </div>
                             {pedido.imagensReferenciaFileIds?.length ? (
                                 <div className="pintura-reference-images">
                                     {pedido.imagensReferenciaFileIds.slice(0, 4).map((imagem, index) => (
-                                        <img key={index} src={imagem} alt={`Referência ${index + 1}`} />
+                                        <img key={index} src={imagem} alt={t("pintura.modal.refImageAlt", { index: index + 1 })} />
                                     ))}
                                 </div>
                             ) : (
-                                <small>Nenhuma imagem de referência cadastrada.</small>
+                                <small>{t("pintura.modal.noReferenceImages")}</small>
                             )}
                         </div>
                     )}
 
                     <div className="pintura-modal-grid">
                         <div className="input-group">
-                            <label htmlFor="ordem-cor">Cor</label>
+                            <label htmlFor="ordem-cor">{t("pintura.modal.colorLabel")}</label>
                             <Select
                                 id="ordem-cor"
                                 value={corId}
                                 onChange={setCorId}
-                                placeholder="Selecione a cor"
+                                placeholder={t("pintura.modal.colorPlaceholder")}
                                 options={cores.map((item) => ({ value: item.id, label: item.nome }))}
                             />
                         </div>
                         <div className="input-group">
-                            <label htmlFor="ordem-tecnico">Técnico</label>
+                            <label htmlFor="ordem-tecnico">{t("pintura.technicianLabel")}</label>
                             <input
                                 id="ordem-tecnico"
                                 value={tecnico}
                                 onChange={(e) => setTecnico(e.target.value)}
-                                placeholder="Nome do técnico"
+                                placeholder={t("pintura.modal.technicianPlaceholder")}
                             />
                         </div>
                         <div className="input-group">
-                            <label htmlFor="ordem-prioridade">Prioridade</label>
+                            <label htmlFor="ordem-prioridade">{t("pintura.priorityLabel")}</label>
                             <Select
                                 id="ordem-prioridade"
                                 value={prioridade}
                                 onChange={(v) => setPrioridade(v as PrioridadeOrdemPintura)}
-                                options={[
-                                    { value: "BAIXA", label: "Baixa" },
-                                    { value: "MEDIA", label: "Média" },
-                                    { value: "ALTA", label: "Alta" },
-                                ]}
+                                options={PRIORIDADES.map((p) => ({ value: p, label: t(`pintura.prioridade.${p}`) }))}
                             />
                         </div>
                         <div className="input-group">
-                            <label htmlFor="ordem-prazo">Prazo</label>
+                            <label htmlFor="ordem-prazo">{t("pintura.modal.deadlineLabel")}</label>
                             <input id="ordem-prazo" type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
                         </div>
                     </div>
@@ -201,15 +196,15 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                             <span style={{ backgroundColor: cor.hex }} />
                             <div>
                                 <strong>{cor.nome}</strong>
-                                <small>{cor.hex} · {cor.acabamento}</small>
+                                <small>{cor.hex} · {t(`cores.acabamento.${cor.acabamento}`)}</small>
                             </div>
                         </div>
                     )}
 
                     <div className="modal-actions">
-                        <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+                        <button type="button" className="btn-secondary" onClick={onClose}>{t("pintura.modal.cancel")}</button>
                         <button type="submit" className="button" disabled={salvando}>
-                            {salvando ? "Salvando..." : editando ? "Salvar Alterações" : "Criar Ordem"}
+                            {salvando ? t("pintura.modal.saving") : editando ? t("pintura.modal.saveChanges") : t("pintura.modal.create")}
                         </button>
                     </div>
                 </form>
@@ -219,6 +214,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
 }
 
 function OrdensPinturaKanban() {
+    const { t } = useTranslation();
     const [ordens, setOrdens] = useState<OrdemPintura[]>([]);
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [cores, setCores] = useState<Cor[]>([]);
@@ -251,7 +247,7 @@ function OrdensPinturaKanban() {
             setCores(coresData);
             setAtualizadoEm(new Date());
         } catch {
-            setErro("Não foi possível carregar as ordens de pintura.");
+            setErro(t("pintura.errorLoad"));
         } finally {
             setLoading(false);
         }
@@ -305,7 +301,7 @@ function OrdensPinturaKanban() {
             setConfirmarExclusaoId(null);
             setAtualizadoEm(new Date());
         } catch {
-            setErro("Não foi possível excluir a ordem de pintura.");
+            setErro(t("pintura.errorDelete"));
         }
     }
 
@@ -320,7 +316,7 @@ function OrdensPinturaKanban() {
             setAtualizadoEm(new Date());
         } catch {
             setOrdens((lista) => lista.map((ordem) => ordem.id === id ? atual : ordem));
-            setErro("Não foi possível mover a ordem. Tente novamente.");
+            setErro(t("pintura.errorMove"));
         }
     }
 
@@ -343,14 +339,14 @@ function OrdensPinturaKanban() {
                 <section className="pintura-content">
                     <header className="pedidos-toolbar">
                         <div>
-                            <h1 className="dashboard-title">Kanban de Ordens de Pintura</h1>
-                            <p className="dashboard-subtitle">Acompanhe o fluxo de trabalho das ordens de pintura em cada etapa do processo.</p>
+                            <h1 className="dashboard-title">{t("pintura.title")}</h1>
+                            <p className="dashboard-subtitle">{t("pintura.subtitle")}</p>
                         </div>
 
                         <div className="toolbar-actions">
 
                             <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                                + Nova Ordem
+                                + {t("pintura.newOrder")}
                             </button>
                         </div>
                     </header>
@@ -360,17 +356,17 @@ function OrdensPinturaKanban() {
                             variant="compact"
                             value={busca}
                             onChange={setBusca}
-                            placeholder="Buscar por pedido, cor ou técnico..."
+                            placeholder={t("pintura.searchPlaceholder")}
                         />
-                        <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> Filtros</button>
+                        <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> {t("pintura.filters")}</button>
                         <Select
                             variant="filter"
-                            label="Técnico"
+                            label={t("pintura.technicianLabel")}
                             icon={<UserIcon size={15} />}
                             value={tecnicoFiltro}
                             onChange={setTecnicoFiltro}
                             options={[
-                                { value: "", label: "Todos" },
+                                { value: "", label: t("pintura.allMasc") },
                                 ...Array.from(new Set(ordens.map((ordem) => ordem.tecnicoNome)))
                                     .filter(Boolean)
                                     .sort((a, b) => a.localeCompare(b))
@@ -379,44 +375,44 @@ function OrdensPinturaKanban() {
                         />
                         <Select
                             variant="filter"
-                            label="Prioridade"
+                            label={t("pintura.priorityLabel")}
                             icon={<Flag02Icon size={15} />}
                             value={prioridadeFiltro}
                             onChange={setPrioridadeFiltro}
                             options={[
-                                { value: "", label: "Todas" },
-                                { value: "ALTA", label: "Alta" },
-                                { value: "MEDIA", label: "Média" },
-                                { value: "BAIXA", label: "Baixa" },
+                                { value: "", label: t("pintura.allFem") },
+                                { value: "ALTA", label: t("pintura.prioridade.ALTA") },
+                                { value: "MEDIA", label: t("pintura.prioridade.MEDIA") },
+                                { value: "BAIXA", label: t("pintura.prioridade.BAIXA") },
                             ]}
                         />
                         <Select
                             variant="filter"
-                            label="Data"
+                            label={t("pintura.dateLabel")}
                             icon={<Calendar03Icon size={15} />}
                             value={dataFiltro}
                             onChange={(v) => setDataFiltro(v as FiltroData)}
                             options={[
-                                { value: "TODAS", label: "Todas" },
-                                { value: "HOJE", label: "Hoje" },
-                                { value: "ATRASADAS", label: "Atrasadas" },
+                                { value: "TODAS", label: t("pintura.allFem") },
+                                { value: "HOJE", label: t("pintura.today") },
+                                { value: "ATRASADAS", label: t("pintura.dateLate") },
                             ]}
                         />
                         <div className="pintura-toolbar-spacer" />
                         <span className="pintura-updated">
-                            {atualizadoEm ? "Atualizado agora há pouco" : "Carregando..."}
-                            <button type="button" onClick={carregar} aria-label="Atualizar"><RefreshIcon size={15} /></button>
+                            {atualizadoEm ? t("pintura.updatedNow") : t("pintura.loadingShort")}
+                            <button type="button" onClick={carregar} aria-label={t("pintura.refreshAria")}><RefreshIcon size={15} /></button>
                         </span>
                         <div className="pintura-view-toggle">
-                            <button type="button" className="active" aria-label="Kanban"><GridViewIcon size={17} /></button>
-                            <button type="button" aria-label="Lista"><LeftToRightListBulletIcon size={17} /></button>
+                            <button type="button" className="active" aria-label={t("pintura.kanbanAria")}><GridViewIcon size={17} /></button>
+                            <button type="button" aria-label={t("pintura.listAria")}><LeftToRightListBulletIcon size={17} /></button>
                         </div>
                     </div>
 
                     {erro && <div className="dashboard-error">{erro}</div>}
 
                     {loading ? (
-                        <div className="pintura-loading">Carregando ordens de pintura...</div>
+                        <div className="pintura-loading">{t("pintura.loading")}</div>
                     ) : (
                         <div className="pintura-board">
                             {COLUNAS.map((coluna) => {
@@ -442,7 +438,7 @@ function OrdensPinturaKanban() {
                                         }}
                                     >
                                         <header>
-                                            <h2>{coluna.label}</h2>
+                                            <h2>{t(`pintura.etapa.${coluna.etapa}`)}</h2>
                                             <span>{itens.length}</span>
                                         </header>
                                         <div className="pintura-column-body">
@@ -471,7 +467,7 @@ function OrdensPinturaKanban() {
                                                             <button
                                                                 type="button"
                                                                 className="pintura-card-menu-btn"
-                                                                aria-label="Ações da ordem"
+                                                                aria-label={t("pintura.card.actionsAria")}
                                                                 onClick={() => {
                                                                     setMenuOrdemId((atual) => atual === ordem.id ? null : ordem.id);
                                                                     setConfirmarExclusaoId(null);
@@ -483,15 +479,15 @@ function OrdensPinturaKanban() {
                                                                 <div className="pintura-card-menu">
                                                                     {confirmarExclusaoId === ordem.id ? (
                                                                         <>
-                                                                            <span>Excluir esta ordem?</span>
+                                                                            <span>{t("pintura.card.confirmDelete")}</span>
                                                                             <div>
-                                                                                <button type="button" onClick={() => setConfirmarExclusaoId(null)}>Cancelar</button>
+                                                                                <button type="button" onClick={() => setConfirmarExclusaoId(null)}>{t("pintura.card.cancel")}</button>
                                                                                 <button
                                                                                     type="button"
                                                                                     className="danger"
                                                                                     onClick={() => void handleExcluir(ordem.id)}
                                                                                 >
-                                                                                    Excluir
+                                                                                    {t("pintura.card.delete")}
                                                                                 </button>
                                                                             </div>
                                                                         </>
@@ -504,14 +500,14 @@ function OrdensPinturaKanban() {
                                                                                     setMenuOrdemId(null);
                                                                                 }}
                                                                             >
-                                                                                <PencilEdit02Icon size={14} /> Editar
+                                                                                <PencilEdit02Icon size={14} /> {t("pintura.card.edit")}
                                                                             </button>
                                                                             <button
                                                                                 type="button"
                                                                                 className="danger"
                                                                                 onClick={() => setConfirmarExclusaoId(ordem.id)}
                                                                             >
-                                                                                <Delete02Icon size={14} /> Excluir
+                                                                                <Delete02Icon size={14} /> {t("pintura.card.delete")}
                                                                             </button>
                                                                         </>
                                                                     )}
@@ -528,13 +524,13 @@ function OrdensPinturaKanban() {
                                                     </div>
                                                     <div className="pintura-card-footer">
                                                         <div>
-                                                            <span>Técnico</span>
+                                                            <span>{t("pintura.card.technician")}</span>
                                                             <strong>{ordem.tecnicoNome}</strong>
                                                         </div>
                                                         <div className="pintura-card-tags">
-                                                            <span className="pintura-date-tag"><Calendar03Icon size={11} /> {rotuloPrazo(ordem.prazo)}</span>
+                                                            <span className="pintura-date-tag"><Calendar03Icon size={11} /> {rotuloPrazo(ordem.prazo, t)}</span>
                                                             <span className={cn("pintura-priority", `prioridade-${ordem.prioridade.toLowerCase()}`)}>
-                                                                {PRIORIDADE_LABEL[ordem.prioridade]}
+                                                                {t(`pintura.prioridade.${ordem.prioridade}`)}
                                                             </span>
                                                         </div>
                                                     </div>
