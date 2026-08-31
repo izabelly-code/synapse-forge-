@@ -3,6 +3,7 @@ import { InboxIcon } from "hugeicons-react";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
+import SkeletonSwap from "../ui/SkeletonSwap";
 
 const moedaBR = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -74,56 +75,62 @@ function MateriaisDashboard() {
 
                 {error && <div className="dashboard-error">{error}</div>}
 
-                {fetching ? (
-                    <div className="pedidos-list">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="pedido-row-skeleton" />
-                        ))}
-                    </div>
-                ) : materiais.length === 0 ? (
-                    <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                        <p className="empty-title">Nenhum material cadastrado</p>
-                        <p className="empty-sub">Cadastre o primeiro material para começar.</p>
-                        <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                            + Novo Material
-                        </button>
-                    </div>
-                ) : (
-                    <div className="pedidos-list">
-                        <div className="pedidos-row-head material-row" aria-hidden="true">
-                            <span>Nome</span>
-                            <span>Tipo</span>
-                            <span>Densidade (g/cm³)</span>
-                            <span>Preço/grama (R$)</span>
-                            <span />
+                <SkeletonSwap
+                    ready={!fetching}
+                    label="Materiais"
+                    skeleton={
+                        <div className="pedidos-list">
+                            {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="pedido-row-skeleton" />
+                            ))}
                         </div>
-                        {materiais.map((m) => (
-                            <div key={m.id} className="pedido-row material-row">
-                                <span className="row-projeto-nome">{m.nome}</span>
-                                <span>{m.tipo}</span>
-                                <span>{m.densidadeGcm3.toFixed(2)} g/cm³</span>
-                                <span>{moedaBR.format(m.precoPorGrama)}</span>
-                                <div className="material-row-actions">
-                                    <button
-                                        type="button"
-                                        className="btn-acao-pequeno"
-                                        onClick={() => setMaterialEditando(m)}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn-acao-pequeno btn-acao-perigo"
-                                        onClick={() => handleExcluir(m.id)}
-                                    >
-                                        Excluir
-                                    </button>
-                                </div>
+                    }
+                >
+                    {fetching ? null : materiais.length === 0 ? (
+                        <div className="pedidos-empty">
+                            <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                            <p className="empty-title">Nenhum material cadastrado</p>
+                            <p className="empty-sub">Cadastre o primeiro material para começar.</p>
+                            <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                + Novo Material
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="pedidos-list">
+                            <div className="pedidos-row-head material-row" aria-hidden="true">
+                                <span>Nome</span>
+                                <span>Tipo</span>
+                                <span>Densidade (g/cm³)</span>
+                                <span>Preço/grama (R$)</span>
+                                <span />
                             </div>
-                        ))}
-                    </div>
-                )}
+                            {materiais.map((m) => (
+                                <div key={m.id} className="pedido-row material-row">
+                                    <span className="row-projeto-nome">{m.nome}</span>
+                                    <span>{m.tipo}</span>
+                                    <span>{m.densidadeGcm3.toFixed(2)} g/cm³</span>
+                                    <span>{moedaBR.format(m.precoPorGrama)}</span>
+                                    <div className="material-row-actions">
+                                        <button
+                                            type="button"
+                                            className="btn-acao-pequeno"
+                                            onClick={() => setMaterialEditando(m)}
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn-acao-pequeno btn-acao-perigo"
+                                            onClick={() => handleExcluir(m.id)}
+                                        >
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </SkeletonSwap>
             </main>
         </>
     );

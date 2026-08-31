@@ -11,6 +11,10 @@ import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
+import MenuSurface from "../ui/MenuSurface";
+import SkeletonSwap from "../ui/SkeletonSwap";
+import ValueFlash from "../ui/ValueFlash";
+import { useFlipList } from "../../hooks/useFlipList";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -87,6 +91,7 @@ function PedidosDashboard() {
     const periodoRef = useRef<HTMLDivElement>(null);
     const filtrosRef = useRef<HTMLDivElement>(null);
     const avancoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const listaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => () => { if (avancoTimer.current) clearTimeout(avancoTimer.current); }, []);
 
@@ -169,6 +174,10 @@ function PedidosDashboard() {
             return ordenacao === "prazo-asc" ? d : -d;
         });
     }, [pedidos, filtro, busca, periodo, ordenacao]);
+
+    // Filtrar e ordenar reorganiza a lista: as linhas viajam para o novo lugar
+    // em vez de a lista inteira ser redesenhada do zero.
+    useFlipList(listaRef, visiveis.map((p) => p.id).join("|"));
 
     const statCards = [
         { key: "total", label: t("pedidos.dashboard.statTotal"), value: stats.total, icon: <ShoppingBag01Icon size={18} /> },
@@ -275,7 +284,12 @@ function PedidosDashboard() {
                         <div key={s.key} className="stat-card">
                             <span className="stat-icon">{s.icon}</span>
                             <div className="stat-body">
-                                <span className="stat-value">{s.value}</span>
+                                {/* Durante o carregamento os contadores valem 0; montar o
+                                    ValueFlash só quando os dados chegam evita que a tela
+                                    inteira pisque só por ter terminado de carregar. */}
+                                <span className="stat-value">
+                                    {fetching ? s.value : <ValueFlash value={s.value} label={s.label} />}
+                                </span>
                                 <span className="stat-label">{s.label}</span>
                             </div>
                         </div>
@@ -320,7 +334,7 @@ function PedidosDashboard() {
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "periodo" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
                                         <button
                                             key={k}
@@ -334,7 +348,7 @@ function PedidosDashboard() {
                                             {periodo === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
 
@@ -350,7 +364,7 @@ function PedidosDashboard() {
                                 {t("pedidos.dashboard.filtersButton")}
                             </button>
                             {menuAberto === "filtros" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (
                                         <button
                                             key={k}
@@ -364,7 +378,7 @@ function PedidosDashboard() {
                                             {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
                     </div>
@@ -372,54 +386,60 @@ function PedidosDashboard() {
 
                 {error && <div className="dashboard-error">{error}</div>}
 
-                {fetching ? (
-                    <div className="pedidos-list">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="pedido-row-skeleton" />
-                        ))}
-                    </div>
-                ) : visiveis.length === 0 ? (
-                    <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                        <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
-                        <p className="empty-sub">
-                            {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
-                        </p>
-                        {!filtro && !busca && (
-                            <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                <PlusSignIcon size={16} strokeWidth={2.25} />
-                                {t("pedidos.dashboard.newOrder")}
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    <div className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
-                        {view === "list" && (
-                            <div className="pedidos-row-head" aria-hidden="true">
-                                <span>{t("pedidos.dashboard.headOrder")}</span>
-                                <span>{t("pedidos.dashboard.headClient")}</span>
-                                <span>{t("pedidos.dashboard.headProject")}</span>
-                                <span>{t("pedidos.dashboard.headDeadline")}</span>
-                                <span>{t("pedidos.dashboard.headProgress")}</span>
-                                <span />
-                            </div>
-                        )}
-                        {visiveis.map((pedido, i) => (
-                            <PedidoRow
-                                key={pedido.id}
-                                pedido={pedido}
-                                index={i}
-                                onAvancar={handleAvancar}
-                                onRegredir={handleRegredir}
-                                onDeletar={handleDeletar}
-                                onAbrir={(p) => { setDetalheEmEdicao(false); setPedidoDetalheId(p.id); }}
-                                onEditar={(p) => { setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
-                                loading={loadingIds.has(pedido.id)}
-                                justAdvanced={recemAvancado === pedido.id}
-                            />
-                        ))}
-                    </div>
-                )}
+                <SkeletonSwap
+                    ready={!fetching}
+                    label={t("pedidos.dashboard.title")}
+                    skeleton={
+                        <div className="pedidos-list">
+                            {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="pedido-row-skeleton" />
+                            ))}
+                        </div>
+                    }
+                >
+                    {fetching ? null : visiveis.length === 0 ? (
+                        <div className="pedidos-empty">
+                            <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                            <p className="empty-title">{t("pedidos.dashboard.emptyTitle")}</p>
+                            <p className="empty-sub">
+                                {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
+                            </p>
+                            {!filtro && !busca && (
+                                <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                    <PlusSignIcon size={16} strokeWidth={2.25} />
+                                    {t("pedidos.dashboard.newOrder")}
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div key={view} ref={listaRef} className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
+                            {view === "list" && (
+                                <div className="pedidos-row-head" aria-hidden="true">
+                                    <span>{t("pedidos.dashboard.headOrder")}</span>
+                                    <span>{t("pedidos.dashboard.headClient")}</span>
+                                    <span>{t("pedidos.dashboard.headProject")}</span>
+                                    <span>{t("pedidos.dashboard.headDeadline")}</span>
+                                    <span>{t("pedidos.dashboard.headProgress")}</span>
+                                    <span />
+                                </div>
+                            )}
+                            {visiveis.map((pedido, i) => (
+                                <PedidoRow
+                                    key={pedido.id}
+                                    pedido={pedido}
+                                    index={i}
+                                    onAvancar={handleAvancar}
+                                    onRegredir={handleRegredir}
+                                    onDeletar={handleDeletar}
+                                    onAbrir={(p) => { setDetalheEmEdicao(false); setPedidoDetalheId(p.id); }}
+                                    onEditar={(p) => { setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
+                                    loading={loadingIds.has(pedido.id)}
+                                    justAdvanced={recemAvancado === pedido.id}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </SkeletonSwap>
             </main>
         </>
     );

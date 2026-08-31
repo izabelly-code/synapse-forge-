@@ -1,10 +1,11 @@
 import EventService from '../../services/EventService';
 import { getUserById, searchUsersByName } from '../../services/UserService';
 import { EventData, User } from '../../types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Cancel01Icon } from "hugeicons-react";
 import './EventoModal.css';
 import IconButton from '../ui/IconButton';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface EventoModalProps {
   evento: Partial<EventData>;
@@ -29,6 +30,8 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
   const isCreateMode = mode === 'create';
   
   const [newParticipant, setNewParticipant] = useState('');
+  const painelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(painelRef);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [showUserSuggestions, setShowUserSuggestions] = useState(false);
   const [participantNames, setParticipantNames] = useState<string[]>([]);
@@ -229,12 +232,16 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
       onClick={onClose}
     >
       <div
+        ref={painelRef}
         className="evento-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="evento-modal-titulo"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="evento-modal-header">
-          <h2 className="evento-modal-titulo">{modalTitle}</h2>
+          <h2 className="evento-modal-titulo" id="evento-modal-titulo">{modalTitle}</h2>
           <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
             <Cancel01Icon size={18} />
           </IconButton>

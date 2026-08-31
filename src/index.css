@@ -124,6 +124,10 @@
   --ease-in-out: ease-in-out;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Assentamento: acelera e desacelera sem a cauda longa do out-expo, que faz o
+     elemento parecer "sentar" duas vezes ao chegar. Usado pelas transições da
+     camada de interação (SYN-81) e pelo FLIP das listas. */
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* ---- Breakpoints (referência) ----
      Media query em CSS puro NÃO aceita var(); os valores abaixo são o
@@ -608,7 +612,10 @@ body {
   width: 100%;
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
   border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  /* Mesma borda de .input-group input: controle interativo usa a borda forte.
+     Antes só o campo de senha ficava no wrapper e a diferença passava batida;
+     com a marca de validação dentro do campo, mais campos entram aqui. */
+  border: 1.5px solid var(--color-border-strong);
   outline: none;
   background: var(--surface);
   color: var(--on-background);
@@ -4913,4 +4920,397 @@ html {
     radial-gradient(150% 80% at 85% 8%, rgba(250, 190, 165, 0.4) 0%, transparent 55%),
     radial-gradient(130% 90% at 10% 90%, rgba(196, 96, 180, 0.5) 0%, transparent 55%),
     linear-gradient(135deg, #f8a781 0%, #f0653f 30%, #e88aa8 55%, #b858aa 85%, #e07a63 100%);
+}
+
+
+/* ==========================================================================
+   CAMADA DE INTERAÇÃO (SYN-81)
+   Mecânicas portadas do interior.dev (https://www.interior.dev/docs/) e
+   reescritas com os tokens do projeto — nenhuma biblioteca de animação.
+   Ordem: utilitário de leitor de tela → skeleton swap → loading button →
+   mensagem de campo → realce de menu → value flash.
+   ========================================================================== */
+
+/* Conteúdo só para leitores de tela: sai do fluxo sem sair da árvore de
+   acessibilidade (display:none e visibility:hidden esconderiam dos dois). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ===== SKELETON SWAP =====
+   As duas camadas dividem a mesma célula de grid: a caixa nunca colapsa entre
+   o placeholder e o conteúdo. */
+.skeleton-swap {
+  display: grid;
+  grid-template-areas: "swap";
+}
+
+.skeleton-swap-content,
+.skeleton-swap-placeholder {
+  grid-area: swap;
+  min-width: 0;
+}
+
+.skeleton-swap-placeholder {
+  align-self: start;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton-swap-content {
+    transition:
+      opacity var(--duration-slow) var(--ease-settle),
+      filter var(--duration-slow) var(--ease-settle);
+  }
+
+  .skeleton-swap-content[data-hidden] {
+    opacity: 0;
+    /* O desfoque é o que faz a troca parecer uma revelação e não um corte. */
+    filter: blur(4px);
+  }
+
+  .skeleton-swap-placeholder {
+    animation: skeleton-swap-in var(--duration-base) var(--ease-standard);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-swap-content[data-hidden] { opacity: 0; }
+}
+
+.skeleton-swap-content[data-hidden] {
+  pointer-events: none;
+}
+
+@keyframes skeleton-swap-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+/* ===== LOADING BUTTON =====
+   As faces ficam empilhadas na mesma célula: a largura do botão é a da face
+   mais larga e não muda quando o rótulo vira spinner. */
+.loading-button {
+  position: relative;
+}
+
+.loading-button-faces {
+  display: grid;
+  grid-template-areas: "face";
+  align-items: center;
+  justify-items: center;
+}
+
+.loading-button-face {
+  grid-area: face;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.loading-button-face[data-active] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loading-button-face {
+    transform: translateY(3px);
+    filter: blur(3px);
+    transition:
+      opacity var(--duration-base) var(--ease-settle),
+      transform var(--duration-base) var(--ease-settle),
+      filter var(--duration-base) var(--ease-settle);
+  }
+
+  .loading-button-face[data-active] {
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.loading-button-spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loading-button-spinner {
+    /* Fora da escala de --duration-*: é um loop contínuo, não uma transição. */
+    animation: loading-button-spin 0.85s linear infinite;
+  }
+}
+
+@keyframes loading-button-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ===== MENSAGEM DE CAMPO (validação inline) =====
+   Dica e erro dividem a mesma linha reservada: o erro aparece sem empurrar o
+   restante do formulário. */
+.field-message {
+  position: relative;
+  display: grid;
+  grid-template-areas: "message";
+  min-height: 0.95rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.field-message-layer {
+  grid-area: message;
+  min-width: 0;
+}
+
+.field-message-hint {
+  color: var(--on-surface-variant);
+}
+
+.field-message-error {
+  color: var(--error-color);
+  opacity: 0;
+}
+
+.field-message[data-invalid] .field-message-hint { opacity: 0; }
+.field-message[data-invalid] .field-message-error { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .field-message-layer {
+    transition:
+      opacity var(--duration-slow) var(--ease-settle),
+      transform var(--duration-slow) var(--ease-settle);
+  }
+
+  .field-message-error { transform: translateY(-3px); }
+  .field-message[data-invalid] .field-message-error { transform: translateY(0); }
+  .field-message[data-invalid] .field-message-hint { transform: translateY(3px); }
+}
+
+
+/* ===== REALCE VIAJANTE DOS MENUS =====
+   Posição e altura vêm do hook useMenuHighlight; aqui só desenhamos e
+   transicionamos. Fica atrás dos itens, que não têm fundo próprio. */
+.menu-highlight {
+  position: absolute;
+  left: var(--space-1-5);
+  right: var(--space-1-5);
+  top: 0;
+  height: var(--menu-hl-h, 0);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--state-hover);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(var(--menu-hl-y, 0));
+}
+
+[data-highlight] > .menu-highlight {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .menu-highlight {
+    transition:
+      transform var(--duration-base) var(--ease-settle),
+      height var(--duration-base) var(--ease-settle),
+      opacity var(--duration-fast) var(--ease-standard);
+  }
+}
+
+/* Com o realce viajando, o fundo por item vira uma segunda mancha de hover. */
+[data-highlight] > .filtro-option:hover,
+[data-highlight] > .kebab-item:hover,
+[data-highlight] > .sidebar-lang-option:hover {
+  background: none;
+}
+
+
+/* ===== VALUE FLASH =====
+   Marca o número que acabou de mudar: o antigo sai, o novo entra pelo lado
+   oposto e uma seta aponta o sentido. */
+.value-flash {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-flash-tint {
+  position: absolute;
+  inset: -0.125rem -0.25rem;
+  border-radius: var(--radius-xs);
+  opacity: 0;
+  pointer-events: none;
+  background: var(--state-hover);
+}
+
+.value-flash[data-tone="direction"][data-direction="up"] .value-flash-tint {
+  background: var(--success-container);
+}
+
+.value-flash[data-tone="direction"][data-direction="down"] .value-flash-tint {
+  background: var(--error-container);
+}
+
+.value-flash[data-flashing] .value-flash-tint { opacity: 1; }
+
+.value-flash[data-tone="direction"][data-direction="up"][data-flashing] { color: var(--success-color); }
+.value-flash[data-tone="direction"][data-direction="down"][data-flashing] { color: var(--error-color); }
+
+.value-flash-digits {
+  position: relative;
+  display: grid;
+  grid-template-areas: "digits";
+  overflow: hidden;
+}
+
+.value-flash-in,
+.value-flash-out {
+  grid-area: digits;
+}
+
+.value-flash-out {
+  /* O valor antigo só existe durante a saída; não deve reservar espaço. */
+  opacity: 0;
+}
+
+/* Fora do fluxo para que aparecer e sumir não empurre o número ao lado. */
+.value-flash-arrow {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.15em;
+  display: inline-flex;
+  width: 0.68em;
+  height: 0.68em;
+}
+
+.value-flash-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .value-flash {
+    transition: color var(--duration-base) var(--ease-standard);
+  }
+
+  .value-flash-tint {
+    transition: opacity var(--duration-slow) var(--ease-standard);
+  }
+
+  .value-flash-in[data-animate] {
+    animation: value-flash-enter var(--duration-slow) var(--ease-settle);
+  }
+
+  .value-flash-out {
+    animation: value-flash-leave var(--duration-base) var(--ease-in-out) forwards;
+  }
+
+  .value-flash-arrow {
+    animation: value-flash-arrow-in var(--duration-slow) var(--ease-spring);
+  }
+
+  .value-flash[data-direction="down"] .value-flash-in[data-animate] {
+    animation-name: value-flash-enter-down;
+  }
+
+  .value-flash[data-direction="down"] .value-flash-out {
+    animation-name: value-flash-leave-down;
+  }
+}
+
+@keyframes value-flash-enter {
+  from { opacity: 0; transform: translateY(0.85em); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes value-flash-enter-down {
+  from { opacity: 0; transform: translateY(-0.85em); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes value-flash-leave {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: translateY(-0.7em); filter: blur(4px); }
+}
+
+@keyframes value-flash-leave-down {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: translateY(0.7em); filter: blur(4px); }
+}
+
+/* Anima `scale` (propriedade independente) para não sobrescrever o
+   translateY(-50%) que centraliza a seta. */
+@keyframes value-flash-arrow-in {
+  from { opacity: 0; scale: 0.4; }
+  to { opacity: 1; scale: 1; }
+}
+
+/* O dropup de idioma usa raio menor que os demais menus; o realce acompanha. */
+.sidebar-lang-menu > .menu-highlight {
+  border-radius: calc(var(--radius) / 1.5);
+}
+
+
+/* ===== ÍCONE DE STATUS DO CAMPO (validação inline) =====
+   Fica dentro do campo, à direita; as duas marcas dividem a mesma célula e
+   trocam por opacidade/escala, então nada se move quando o estado muda. */
+.field-status {
+  position: absolute;
+  right: var(--space-3-5);
+  display: grid;
+  grid-template-areas: "status";
+  place-items: center;
+  width: 0.875rem;
+  height: 0.875rem;
+  pointer-events: none;
+}
+
+.field-status-icon {
+  grid-area: status;
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0;
+  scale: 0.7;
+}
+
+.field-status-ok { color: var(--on-surface-variant); }
+.field-status-erro { color: var(--error-color); }
+
+.field-status[data-state="valid"] .field-status-ok,
+.field-status[data-state="invalid"] .field-status-erro {
+  opacity: 1;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .field-status-icon {
+    transition:
+      opacity var(--duration-base) var(--ease-settle),
+      scale var(--duration-base) var(--ease-settle);
+  }
+}
+
+/* O campo com marca de status precisa do mesmo respiro à direita que o campo
+   com o botão de mostrar senha já tinha. */
+.input-wrapper:has(.field-status) input {
+  padding-right: var(--space-9);
 }

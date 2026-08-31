@@ -12,3 +12,8 @@ export function formatDate(
 export function formatCurrency(value: number, currency = "BRL"): string {
     return new Intl.NumberFormat(i18n.language, { style: "currency", currency }).format(value);
 }
+
+/** Formata número conforme o idioma ativo. */
+export function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
+    return new Intl.NumberFormat(i18n.language, options).format(value);
+}

@@ -16,6 +16,7 @@ import { formatDate } from "../../utils/format";
 import { cn } from "../../utils/cn";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
@@ -69,6 +70,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const clienteRef = useRef<HTMLInputElement>(null);
     const projetoRef = useRef<HTMLInputElement>(null);
     const prazoRef = useRef<HTMLInputElement>(null);
+    const painelRef = useRef<HTMLElement>(null);
 
     const atualizarNovasImagens = useCallback((proximas: NovaImagem[]) => {
         novasImagensRef.current = proximas;
@@ -127,6 +129,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         }
     });
     useBodyScrollLock();
+    useFocusTrap(painelRef);
 
     const imagensAtuais = useMemo(() => {
         const fontes = pedido?.imagensReferenciaFileIds ?? [];
@@ -256,6 +259,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
+                ref={painelRef}
                 className={cn("modal-card pedido-detalhe-modal", editando && "is-editing")}
                 role="dialog"
                 aria-modal="true"

@@ -4,7 +4,9 @@ import { criarMaterial, editarMaterial } from "../../services/MaterialService";
 import { Material } from "../../models/Material";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
+import LoadingButton from "../ui/LoadingButton";
 
 interface MaterialModalProps {
     material?: Material;
@@ -31,9 +33,11 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
     const tipoRef = useRef<HTMLInputElement>(null);
     const densidadeRef = useRef<HTMLInputElement>(null);
     const precoRef = useRef<HTMLInputElement>(null);
+    const painelRef = useRef<HTMLDivElement>(null);
 
     useEscapeKey(onClose);
     useBodyScrollLock();
+    useFocusTrap(painelRef);
 
     function limparErro(campo: CampoErro) {
         setErros((prev) => {
@@ -95,6 +99,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div
+                ref={painelRef}
                 className="modal-card"
                 role="dialog"
                 aria-modal="true"
@@ -203,9 +208,9 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                         <button type="button" className="btn-secondary" onClick={onClose}>
                             Cancelar
                         </button>
-                        <button type="submit" className="button" disabled={loading}>
-                            {loading ? (editando ? "Salvando..." : "Criando...") : (editando ? "Salvar" : "Criar Material")}
-                        </button>
+                        <LoadingButton pending={loading} pendingLabel={editando ? "Salvando..." : "Criando..."}>
+                            {editando ? "Salvar" : "Criar Material"}
+                        </LoadingButton>
                     </div>
                 </form>
             </div>

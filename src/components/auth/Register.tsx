@@ -3,6 +3,9 @@ import { register } from "../../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
 import LinkButton from "../ui/LinkButton";
+import LoadingButton from "../ui/LoadingButton";
+import FieldMessage from "../ui/FieldMessage";
+import FieldStatus, { type FieldState } from "../ui/FieldStatus";
 
 interface RegisterProps {
     onRegister: () => void;
@@ -108,6 +111,22 @@ function Register({ onRegister }: RegisterProps) {
 
     const nivelSenha = forcaSenha(senha);
 
+    // Estado de cada campo em um lugar só: alimenta a marca dentro do campo e a
+    // mensagem abaixo dele, para as duas nunca discordarem.
+    const cpfDigitos = cpf.replace(/\D/g, "");
+    const telDigitos = telefone.replace(/\D/g, "");
+
+    const erroNome = nome.length > 0 && nome.trim().length < 3 ? "Nome muito curto" : undefined;
+    const erroEmail = email !== "" && !emailValido ? "Formato inválido (ex: nome@email.com)" : undefined;
+    const erroCpf = !cpfValido ? "CPF inválido" : cpf !== "" && cpfDigitos.length < 11 ? "CPF incompleto" : undefined;
+    const erroTelefone = !telefoneValido ? "DDD/número inválido" : telefone !== "" && telDigitos.length < 10 ? "Telefone incompleto" : undefined;
+    const erroConfirm = confirmSenha !== "" && senha !== confirmSenha ? "Senhas não coincidem" : undefined;
+
+    function estado(erro: string | undefined, ok: boolean): FieldState {
+        if (erro) return "invalid";
+        return ok ? "valid" : "idle";
+    }
+
     async function handleRegister(e?: React.FormEvent) {
         if (e) e.preventDefault();
 
@@ -208,90 +227,86 @@ function Register({ onRegister }: RegisterProps) {
 
                     <div className="input-group">
                         <label>Nome</label>
-                        <input
-                            ref={nomeRef}
-                            value={nome}
-                            onChange={(e) => setNome(e.target.value)}
-                            placeholder="Digite seu nome"
-                        />
-                        <span className="input-hint">
-                            {nome && nome.length < 3 && (
-                                <span className="error-text">Nome muito curto</span>
-                            )}
-                        </span>
+                        <div className="input-wrapper">
+                            <input
+                                ref={nomeRef}
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                                placeholder="Digite seu nome"
+                                aria-invalid={!!erroNome}
+                            />
+                            <FieldStatus state={estado(erroNome, nome.trim().length >= 3)} />
+                        </div>
+                        <FieldMessage error={erroNome} />
                     </div>
 
                     <div className="input-group">
                         <label>Email</label>
-                        <input
-                            value={email}
-                            onChange={(e) => {
-                                setEmail(e.target.value);
-                                // o erro só aparece no blur; aqui ele apenas some quando corrigido
-                                if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
-                                    setEmailValido(true);
-                                }
-                            }}
-                            onBlur={() => setEmailValido(validarEmail(email) || email === "")}
-                            className={!emailValido ? "input-error" : ""}
-                            placeholder="Digite seu email"
-                        />
-                        <span className="input-hint">
-                            {email && !emailValido && (
-                                <span className="error-text">Formato inválido (ex: nome@email.com)</span>
-                            )}
-                        </span>
+                        <div className="input-wrapper">
+                            <input
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    // o erro só aparece no blur; aqui ele apenas some quando corrigido
+                                    if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
+                                        setEmailValido(true);
+                                    }
+                                }}
+                                onBlur={() => setEmailValido(validarEmail(email) || email === "")}
+                                className={!emailValido ? "input-error" : ""}
+                                placeholder="Digite seu email"
+                                aria-invalid={!!erroEmail}
+                            />
+                            <FieldStatus state={estado(erroEmail, email !== "" && validarEmail(email))} />
+                        </div>
+                        <FieldMessage error={erroEmail} />
                     </div>
 
                     <div className="form-row">
                         <div className="input-group">
                             <label>CPF</label>
-                            <input
-                                value={cpf}
-                                onChange={(e) => {
-                                    const valor = formatarCPF(e.target.value);
-                                    setCpf(valor);
+                            <div className="input-wrapper">
+                                <input
+                                    value={cpf}
+                                    onChange={(e) => {
+                                        const valor = formatarCPF(e.target.value);
+                                        setCpf(valor);
 
-                                    const numeros = valor.replace(/\D/g, "");
-                                    if (numeros.length === 11) {
-                                        setCpfValido(validarCPF(valor));
-                                    }
-                                }}
-                                className={!cpfValido ? "input-error" : ""}
-                                placeholder="000.000.000-00"
-                            />
-                            <span className="input-hint">
-                                {!cpfValido ? (
-                                    <span className="error-text">CPF inválido</span>
-                                ) : cpf && cpf.replace(/\D/g, "").length < 11 ? (
-                                    <span className="error-text">CPF incompleto</span>
-                                ) : null}
-                            </span>
+                                        const numeros = valor.replace(/\D/g, "");
+                                        if (numeros.length === 11) {
+                                            setCpfValido(validarCPF(valor));
+                                        }
+                                    }}
+                                    className={!cpfValido ? "input-error" : ""}
+                                    placeholder="000.000.000-00"
+                                    aria-invalid={!!erroCpf}
+                                />
+                                <FieldStatus state={estado(erroCpf, cpfDigitos.length === 11 && cpfValido)} />
+                            </div>
+                            <FieldMessage error={erroCpf} />
                         </div>
 
                         <div className="input-group">
                             <label>Telefone</label>
-                            <input
-                                value={telefone}
-                                onChange={(e) => {
-                                    const valor = formatarTelefone(e.target.value);
-                                    setTelefone(valor);
+                            <div className="input-wrapper">
+                                <input
+                                    value={telefone}
+                                    onChange={(e) => {
+                                        const valor = formatarTelefone(e.target.value);
+                                        setTelefone(valor);
 
-                                    const numeros = valor.replace(/\D/g, "");
-                                    if (numeros.length >= 10) {
-                                        setTelefoneValido(validarTelefone(valor));
-                                    }
-                                }}
-                                className={!telefoneValido ? "input-error" : ""}
-                                placeholder="(00) 00000-0000"
-                            />
-                            <span className="input-hint">
-                                {!telefoneValido ? (
-                                    <span className="error-text">DDD/número inválido</span>
-                                ) : telefone && telefone.replace(/\D/g, "").length < 10 ? (
-                                    <span className="error-text">Telefone incompleto</span>
-                                ) : null}
-                            </span>
+                                        const numeros = valor.replace(/\D/g, "");
+                                        if (numeros.length >= 10) {
+                                            setTelefoneValido(validarTelefone(valor));
+                                        }
+                                    }}
+                                    className={!telefoneValido ? "input-error" : ""}
+                                    placeholder="(00) 00000-0000"
+                                    aria-invalid={!!erroTelefone}
+                                />
+                                <FieldStatus state={estado(erroTelefone, telDigitos.length >= 10 && telefoneValido)} />
+                            </div>
+                            <FieldMessage error={erroTelefone} />
                         </div>
                     </div>
 
@@ -313,36 +328,36 @@ function Register({ onRegister }: RegisterProps) {
                                     {showSenha ? <ViewOffSlashIcon /> : <ViewIcon />}
                                 </button>
                             </div>
-                            <span className="input-hint">
-                                {senha && (
+                            <FieldMessage
+                                hint={senha && (
                                     <span className={`senha-${nivelSenha}`}>
                                         {nivelSenha === "fraca" && "Senha fraca"}
                                         {nivelSenha === "media" && "Senha média"}
                                         {nivelSenha === "forte" && "Senha forte"}
                                     </span>
                                 )}
-                            </span>
+                            />
                         </div>
 
                         <div className="input-group">
                             <label>Confirmar senha</label>
-                            <input
-                                type="password"
-                                value={confirmSenha}
-                                onChange={(e) => setConfirmSenha(e.target.value)}
-                                placeholder="Repita sua senha"
-                            />
-                            <span className="input-hint">
-                                {confirmSenha && senha !== confirmSenha && (
-                                    <span className="error-text">Senhas não coincidem</span>
-                                )}
-                            </span>
+                            <div className="input-wrapper">
+                                <input
+                                    type="password"
+                                    value={confirmSenha}
+                                    onChange={(e) => setConfirmSenha(e.target.value)}
+                                    placeholder="Repita sua senha"
+                                    aria-invalid={!!erroConfirm}
+                                />
+                                <FieldStatus state={estado(erroConfirm, confirmSenha !== "" && senha === confirmSenha)} />
+                            </div>
+                            <FieldMessage error={erroConfirm} />
                         </div>
                     </div>
 
-                    <button className="button" type="submit" disabled={loading}>
-                        {loading ? "Cadastrando..." : "Cadastrar"}
-                    </button>
+                    <LoadingButton pending={loading} pendingLabel="Cadastrando...">
+                        Cadastrar
+                    </LoadingButton>
 
                     <LinkButton onClick={onRegister}>
                         Já tem conta? Voltar para login

@@ -5,7 +5,9 @@ import { criarPedido } from "../../services/PedidoService";
 import ImageLightbox from "../ui/ImageLightbox";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
+import LoadingButton from "../ui/LoadingButton";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -31,11 +33,13 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const clienteRef = useRef<HTMLInputElement>(null);
     const projetoRef = useRef<HTMLInputElement>(null);
     const prazoRef = useRef<HTMLInputElement>(null);
+    const painelRef = useRef<HTMLElement>(null);
 
     const hoje = new Date().toISOString().split("T")[0];
 
     useEscapeKey(onClose);
     useBodyScrollLock();
+    useFocusTrap(painelRef);
 
     const previews = useMemo(
         () => imagensReferencia.map((file) => ({ file, url: URL.createObjectURL(file) })),
@@ -118,6 +122,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         {zoomSrc && <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} />}
         <div className="modal-overlay" onClick={onClose}>
             <section
+                ref={painelRef}
                 className="modal-card pedido-detalhe-modal is-editing"
                 role="dialog"
                 aria-modal="true"
@@ -287,9 +292,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                         <button type="button" className="btn-secondary" onClick={onClose}>
                             {t("pedidos.form.cancel")}
                         </button>
-                        <button type="submit" className="button" disabled={loading}>
-                            {loading ? t("pedidos.novo.submitting") : t("pedidos.novo.submit")}
-                        </button>
+                        <LoadingButton pending={loading} pendingLabel={t("pedidos.novo.submitting")}>
+                            {t("pedidos.novo.submit")}
+                        </LoadingButton>
                     </div>
                 </form>
             </section>

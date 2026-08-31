@@ -12,6 +12,7 @@ import { useDismissable } from "../../hooks/useDismissable";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import IconButton from "../ui/IconButton";
 import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
+import MenuSurface from "../ui/MenuSurface";
 
 interface NavItem {
     labelKey: string;
@@ -205,7 +206,7 @@ function Sidebar() {
                     </IconButton>
 
                     {langMenuAberto && (
-                        <div className="sidebar-lang-menu" role="menu">
+                        <MenuSurface className="sidebar-lang-menu" role="menu">
                             {LANGUAGES.map((lang) => (
                                 <button
                                     key={lang.code}
@@ -219,7 +220,7 @@ function Sidebar() {
                                     {i18n.language === lang.code && <Tick02Icon size={15} />}
                                 </button>
                             ))}
-                        </div>
+                        </MenuSurface>
                     )}
                 </div>
 

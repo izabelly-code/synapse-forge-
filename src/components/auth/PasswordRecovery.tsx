@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../../assets/Images/white-logo.png";
 import { esqueciSenha } from "../../services/AuthService";
 import LinkButton from "../ui/LinkButton";
+import LoadingButton from "../ui/LoadingButton";
+import FieldMessage from "../ui/FieldMessage";
+import FieldStatus from "../ui/FieldStatus";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -51,6 +54,8 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
     function handleEmailBlur() {
         setEmailValido(validarEmail(email) || email === "");
     }
+
+    const emailState = !emailValido ? "invalid" : email !== "" && validarEmail(email) ? "valid" : "idle";
 
     async function enviarEmail() {
         await esqueciSenha(email);
@@ -153,32 +158,29 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                     {/* EMAIL */}
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
-                        <input
-                            ref={emailRef}
-                            id="email"
-                            type="email"
-                            placeholder="Digite seu email"
-                            value={email}
-                            onChange={(e) => handleEmailChange(e.target.value)}
-                            onBlur={handleEmailBlur}
-                            className={!emailValido ? "input-error" : ""}
-                            autoComplete="email"
-                        />
-                        {!emailValido && (
-                            <span className="error-text">
-                                Email inválido
-                            </span>
-                        )}
+                        <div className="input-wrapper">
+                            <input
+                                ref={emailRef}
+                                id="email"
+                                type="email"
+                                placeholder="Digite seu email"
+                                value={email}
+                                onChange={(e) => handleEmailChange(e.target.value)}
+                                onBlur={handleEmailBlur}
+                                className={!emailValido ? "input-error" : ""}
+                                autoComplete="email"
+                                aria-invalid={!emailValido}
+                                aria-describedby="recovery-email-erro"
+                            />
+                            <FieldStatus state={emailState} />
+                        </div>
+                        <FieldMessage id="recovery-email-erro" error={emailValido ? undefined : "Email inválido"} />
                     </div>
 
                     {/* BOTÃO */}
-                    <button
-                        className="button"
-                        type="submit"
-                        disabled={loading || !email}
-                    >
-                        {loading ? "Enviando..." : "Enviar"}
-                    </button>
+                    <LoadingButton pending={loading} pendingLabel="Enviando..." disabled={!email}>
+                        Enviar
+                    </LoadingButton>
 
                     {/* VOLTAR */}
                     <LinkButton onClick={goToLogin}>
