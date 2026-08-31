@@ -123,6 +123,12 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
     const prazoClasse = tom === "atrasado" ? "prazo-atrasado" : tom === "urgente" ? "prazo-urgente" : "";
     const mostrarDot = tom === "atrasado" || tom === "urgente";
 
+    // Congelado na montagem: --row-index alimenta o animation-delay da animação
+    // de entrada, e mudar um delay recoloca a animação (já terminada, com fill
+    // forwards) na fase ativa — a linha "sentava" de novo logo depois de o FLIP
+    // deixá-la no lugar novo. O escalonamento só faz sentido na entrada mesmo.
+    const [indexEntrada] = useState(index);
+
     const [menuOpen, setMenuOpen] = useState(false);
     const [confirmDel, setConfirmDel] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -141,7 +147,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
     return (
         <div
             className={cn("pedido-row", justAdvanced && "is-advancing")}
-            style={{ "--row-index": index } as React.CSSProperties}
+            style={{ "--row-index": indexEntrada } as React.CSSProperties}
             data-flip-id={pedido.id}
             role="button"
             tabIndex={0}

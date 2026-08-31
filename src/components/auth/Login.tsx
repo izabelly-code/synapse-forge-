@@ -6,6 +6,7 @@ import logo from "../../assets/Images/white-logo.png";
 import LinkButton from "../ui/LinkButton";
 import LoadingButton from "../ui/LoadingButton";
 import FieldMessage from "../ui/FieldMessage";
+import FieldStatus from "../ui/FieldStatus";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -46,6 +47,10 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
     function handleEmailBlur() {
         setEmailValido(validarEmail(email) || email === "");
     }
+
+    // O tique aparece assim que o formato fecha, sem esperar o blur; o alerta só
+    // depois que a pessoa sai do campo ("reward early, punish late").
+    const emailState = !emailValido ? "invalid" : email !== "" && validarEmail(email) ? "valid" : "idle";
 
     function handleCapsLock(e: React.KeyboardEvent<HTMLInputElement>) {
         setCapsLock(e.getModifierState("CapsLock"));
@@ -143,18 +148,21 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                     {/* EMAIL */}
                     <div className="input-group">
                         <label htmlFor="email">{t("login.emailLabel")}</label>
-                        <input
-                            ref={emailRef}
-                            id="email"
-                            type="email"
-                            placeholder={t("login.emailPlaceholder")}
-                            value={email}
-                            onChange={(e) => handleEmailChange(e.target.value)}
-                            onBlur={handleEmailBlur}
-                            className={!emailValido ? "input-error" : ""}
-                            aria-invalid={!emailValido}
-                            aria-describedby="login-email-erro"
-                        />
+                        <div className="input-wrapper">
+                            <input
+                                ref={emailRef}
+                                id="email"
+                                type="email"
+                                placeholder={t("login.emailPlaceholder")}
+                                value={email}
+                                onChange={(e) => handleEmailChange(e.target.value)}
+                                onBlur={handleEmailBlur}
+                                className={!emailValido ? "input-error" : ""}
+                                aria-invalid={!emailValido}
+                                aria-describedby="login-email-erro"
+                            />
+                            <FieldStatus state={emailState} />
+                        </div>
                         <FieldMessage id="login-email-erro" error={emailValido ? undefined : t("login.emailInvalid")} />
                     </div>
 

@@ -2,7 +2,10 @@ import { useLayoutEffect, useRef, type RefObject } from "react";
 import { prefersReducedMotion } from "../utils/motion";
 
 /** Fora da escala de --duration-*: é o tempo do trajeto de uma linha, não de um hover. */
-const DURACAO = 320;
+const DURACAO = 360;
+/** Espelha o token --ease-settle: sobe e desce sem a cauda longa do out-expo,
+ *  que fazia a linha parecer "sentar" de novo ao chegar no lugar. */
+const EASING = "cubic-bezier(0.32, 0.72, 0, 1)";
 const ATRASO_POR_ITEM = 18;
 const ATRASO_MAXIMO = 8;
 /** Deslocamentos menores que isso são ruído de sub-pixel, não uma mudança de ordem. */
@@ -66,11 +69,21 @@ export function useFlipList(containerRef: RefObject<HTMLElement | null>, ordem: 
                 const dy = antes.top - depois.top;
                 if (Math.abs(dx) < LIMIAR_PX && Math.abs(dy) < LIMIAR_PX) continue;
 
+                // A animação de entrada do item (CSS, com fill forwards) ainda está
+                // no elemento. Levá-la ao fim antes de mover garante que ela não
+                // dispute o transform nem volte a rodar no meio do trajeto — era
+                // daí que vinha o segundo "assentamento" ao chegar no lugar novo.
+                for (const anterior of no.getAnimations()) {
+                    // finish() lança em animação infinita (o pulse dos skeletons).
+                    if (anterior.effect?.getComputedTiming().iterations === Infinity) continue;
+                    if (anterior.playState !== "finished") anterior.finish();
+                }
+
                 no.animate(
                     [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }],
                     {
                         duration: DURACAO,
-                        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                        easing: EASING,
                         delay: Math.min(animados, ATRASO_MAXIMO) * ATRASO_POR_ITEM,
                         composite: "replace",
                     },

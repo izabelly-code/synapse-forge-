@@ -4,6 +4,7 @@ import { esqueciSenha } from "../../services/AuthService";
 import LinkButton from "../ui/LinkButton";
 import LoadingButton from "../ui/LoadingButton";
 import FieldMessage from "../ui/FieldMessage";
+import FieldStatus from "../ui/FieldStatus";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -53,6 +54,8 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
     function handleEmailBlur() {
         setEmailValido(validarEmail(email) || email === "");
     }
+
+    const emailState = !emailValido ? "invalid" : email !== "" && validarEmail(email) ? "valid" : "idle";
 
     async function enviarEmail() {
         await esqueciSenha(email);
@@ -155,19 +158,22 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                     {/* EMAIL */}
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
-                        <input
-                            ref={emailRef}
-                            id="email"
-                            type="email"
-                            placeholder="Digite seu email"
-                            value={email}
-                            onChange={(e) => handleEmailChange(e.target.value)}
-                            onBlur={handleEmailBlur}
-                            className={!emailValido ? "input-error" : ""}
-                            autoComplete="email"
-                            aria-invalid={!emailValido}
-                            aria-describedby="recovery-email-erro"
-                        />
+                        <div className="input-wrapper">
+                            <input
+                                ref={emailRef}
+                                id="email"
+                                type="email"
+                                placeholder="Digite seu email"
+                                value={email}
+                                onChange={(e) => handleEmailChange(e.target.value)}
+                                onBlur={handleEmailBlur}
+                                className={!emailValido ? "input-error" : ""}
+                                autoComplete="email"
+                                aria-invalid={!emailValido}
+                                aria-describedby="recovery-email-erro"
+                            />
+                            <FieldStatus state={emailState} />
+                        </div>
                         <FieldMessage id="recovery-email-erro" error={emailValido ? undefined : "Email inválido"} />
                     </div>
 

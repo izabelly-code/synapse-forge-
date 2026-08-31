@@ -124,6 +124,10 @@
   --ease-in-out: ease-in-out;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Assentamento: acelera e desacelera sem a cauda longa do out-expo, que faz o
+     elemento parecer "sentar" duas vezes ao chegar. Usado pelas transições da
+     camada de interação (SYN-81) e pelo FLIP das listas. */
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* ---- Breakpoints (referência) ----
      Media query em CSS puro NÃO aceita var(); os valores abaixo são o
@@ -608,7 +612,10 @@ body {
   width: 100%;
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
   border-radius: var(--radius);
-  border: 1.5px solid var(--outline-variant);
+  /* Mesma borda de .input-group input: controle interativo usa a borda forte.
+     Antes só o campo de senha ficava no wrapper e a diferença passava batida;
+     com a marca de validação dentro do campo, mais campos entram aqui. */
+  border: 1.5px solid var(--color-border-strong);
   outline: none;
   background: var(--surface);
   color: var(--on-background);
@@ -4961,8 +4968,8 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   .skeleton-swap-content {
     transition:
-      opacity var(--duration-slow) var(--ease-out-expo),
-      filter var(--duration-slow) var(--ease-out-expo);
+      opacity var(--duration-slow) var(--ease-settle),
+      filter var(--duration-slow) var(--ease-settle);
   }
 
   .skeleton-swap-content[data-hidden] {
@@ -5023,9 +5030,9 @@ html {
     transform: translateY(3px);
     filter: blur(3px);
     transition:
-      opacity var(--duration-base) var(--ease-out-expo),
-      transform var(--duration-base) var(--ease-out-expo),
-      filter var(--duration-base) var(--ease-out-expo);
+      opacity var(--duration-base) var(--ease-settle),
+      transform var(--duration-base) var(--ease-settle),
+      filter var(--duration-base) var(--ease-settle);
   }
 
   .loading-button-face[data-active] {
@@ -5087,8 +5094,8 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   .field-message-layer {
     transition:
-      opacity var(--duration-base) var(--ease-out-expo),
-      transform var(--duration-base) var(--ease-out-expo);
+      opacity var(--duration-slow) var(--ease-settle),
+      transform var(--duration-slow) var(--ease-settle);
   }
 
   .field-message-error { transform: translateY(-3px); }
@@ -5120,8 +5127,8 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   .menu-highlight {
     transition:
-      transform var(--duration-base) var(--ease-out-expo),
-      height var(--duration-base) var(--ease-out-expo),
+      transform var(--duration-base) var(--ease-settle),
+      height var(--duration-base) var(--ease-settle),
       opacity var(--duration-fast) var(--ease-standard);
   }
 }
@@ -5210,7 +5217,7 @@ html {
   }
 
   .value-flash-in[data-animate] {
-    animation: value-flash-enter var(--duration-slow) var(--ease-out-expo);
+    animation: value-flash-enter var(--duration-slow) var(--ease-settle);
   }
 
   .value-flash-out {
@@ -5260,4 +5267,50 @@ html {
 /* O dropup de idioma usa raio menor que os demais menus; o realce acompanha. */
 .sidebar-lang-menu > .menu-highlight {
   border-radius: calc(var(--radius) / 1.5);
+}
+
+
+/* ===== ÍCONE DE STATUS DO CAMPO (validação inline) =====
+   Fica dentro do campo, à direita; as duas marcas dividem a mesma célula e
+   trocam por opacidade/escala, então nada se move quando o estado muda. */
+.field-status {
+  position: absolute;
+  right: var(--space-3-5);
+  display: grid;
+  grid-template-areas: "status";
+  place-items: center;
+  width: 0.875rem;
+  height: 0.875rem;
+  pointer-events: none;
+}
+
+.field-status-icon {
+  grid-area: status;
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0;
+  scale: 0.7;
+}
+
+.field-status-ok { color: var(--on-surface-variant); }
+.field-status-erro { color: var(--error-color); }
+
+.field-status[data-state="valid"] .field-status-ok,
+.field-status[data-state="invalid"] .field-status-erro {
+  opacity: 1;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .field-status-icon {
+    transition:
+      opacity var(--duration-base) var(--ease-settle),
+      scale var(--duration-base) var(--ease-settle);
+  }
+}
+
+/* O campo com marca de status precisa do mesmo respiro à direita que o campo
+   com o botão de mostrar senha já tinha. */
+.input-wrapper:has(.field-status) input {
+  padding-right: var(--space-9);
 }

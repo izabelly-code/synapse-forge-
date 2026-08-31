@@ -31,6 +31,7 @@ Animations API — a mesma técnica FLIP que a `motion` usa por baixo.
 | `ui/SkeletonSwap.tsx` | Crossfade skeleton → conteúdo na mesma célula de grid |
 | `ui/LoadingButton.tsx` | Faces empilhadas: rótulo vira spinner sem mudar a largura |
 | `ui/FieldMessage.tsx` | Slot de mensagem de altura reservada (dica ⇄ erro) |
+| `ui/FieldStatus.tsx` | Tique / alerta dentro do campo, à direita |
 | `ui/MenuSurface.tsx` | Painel de menu com o realce viajante |
 | `ui/ValueFlash.tsx` | Destaque do número que acabou de mudar |
 | `index.css` | Seção "CAMADA DE INTERAÇÃO (SYN-81)" no fim do arquivo + utilitário `.sr-only` |
@@ -41,7 +42,7 @@ Animations API — a mesma técnica FLIP que a `motion` usa por baixo.
 |---|---|
 | Skeleton Swap | PedidosDashboard, MateriaisDashboard, PaletaCores, OrcamentoHistorico |
 | Loading Button | Login, Register, PasswordRecovery, NovoPedidoModal, MaterialModal, NovaCorModal |
-| Inline Validation | Login, Register, PasswordRecovery (continuação da SYN-73) |
+| Inline Validation | Login, Register, PasswordRecovery (continuação da SYN-73): mensagem em slot reservado + marca de status dentro do campo |
 | Modal (focus trap) | NovoPedidoModal, PedidoDetalheModal, MaterialModal, NovaCorModal, EventoModal |
 | Dropdown (realce viajante) | dropup de idioma da Sidebar, kebabs de PedidoRow/CorCard, dropdowns de filtro de Pedidos e Cores |
 | Sortable Table | lista de Pedidos, histórico de Orçamentos |
@@ -50,6 +51,24 @@ Animations API — a mesma técnica FLIP que a `motion` usa por baixo.
 
 ## Notas de implementação
 
+- **O escalonamento de entrada é congelado na montagem** (`--row-index` vem de um
+  `useState(index)` em PedidoRow/CorCard). A animação de entrada é uma animação CSS com
+  `fill: forwards` cujo `animation-delay` depende de `--row-index`; mudar um `animation-delay`
+  recoloca a animação já terminada na fase ativa, ou seja, ela **roda de novo**. Reordenar
+  mudava o índice de todo mundo e cada linha "sentava" uma segunda vez logo depois de o FLIP
+  deixá-la no lugar. Escalonar só faz sentido na entrada mesmo, então o índice não precisa
+  acompanhar a ordem.
+- **`useFlipList` leva ao fim (`finish()`) qualquer animação pendente no item antes de movê-lo**,
+  para nada disputar o `transform` no meio do trajeto (pulando animações infinitas, que fazem
+  `finish()` lançar).
+- **`--ease-settle`** (`cubic-bezier(0.32, 0.72, 0, 1)`) é a curva de assentamento da camada:
+  o `--ease-out-expo` cobre quase toda a distância no começo e arrasta os últimos pixels por
+  centenas de milissegundos, o que também é lido como um segundo assentamento.
+- **A marca de status usa a propriedade `scale`**, não `transform`, para o crossfade não brigar
+  com nenhum posicionamento por transform.
+- **`.input-wrapper input` passou a usar `--color-border-strong`**, igual a `.input-group input`:
+  antes só o campo de senha vivia no wrapper e a borda mais fraca passava batida; com a marca de
+  validação, mais campos entram ali.
 - **`data-flip-id`** é obrigatório em cada item animável; `useFlipList` recebe uma string de
   ordem (ids concatenados) e remede a cada mudança. O container troca de identidade ao alternar
   lista/grade (`key={view}`), e o hook detecta isso para não animar itens vindos de outro layout.

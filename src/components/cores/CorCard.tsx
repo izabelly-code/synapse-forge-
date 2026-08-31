@@ -31,6 +31,12 @@ function formatarMl(valor: number): string {
 }
 
 function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
+    // Congelado na montagem: --row-index alimenta o animation-delay da animação
+    // de entrada, e mudar um delay recoloca a animação (já terminada, com fill
+    // forwards) na fase ativa — o card "sentava" de novo logo depois de o FLIP
+    // deixá-lo no lugar novo. O escalonamento só faz sentido na entrada mesmo.
+    const [indexEntrada] = useState(index);
+
     const [menuAberto, setMenuAberto] = useState(false);
     const [confirmando, setConfirmando] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -96,7 +102,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
 
     if (view === "list") {
         return (
-            <div className="cor-row" style={{ "--row-index": index } as React.CSSProperties} data-flip-id={cor.id}>
+            <div className="cor-row" style={{ "--row-index": indexEntrada } as React.CSSProperties} data-flip-id={cor.id}>
                 <span className="cor-row-swatch" style={{ background: cor.hex }} aria-hidden="true" />
                 <div className="cor-row-ident">
                     <span className="cor-nome">{cor.nome}</span>
@@ -126,7 +132,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
     }
 
     return (
-        <div className="cor-card" style={{ "--row-index": index } as React.CSSProperties} data-flip-id={cor.id}>
+        <div className="cor-card" style={{ "--row-index": indexEntrada } as React.CSSProperties} data-flip-id={cor.id}>
             <div className="cor-swatch" style={{ background: cor.hex }}>
                 <span className="cor-swatch-acabamento">{ACABAMENTO_LABEL[cor.acabamento]}</span>
                 <div className="cor-card-kebab">{menu}</div>

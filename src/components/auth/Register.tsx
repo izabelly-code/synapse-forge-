@@ -5,6 +5,7 @@ import logo from "../../assets/Images/white-logo.png";
 import LinkButton from "../ui/LinkButton";
 import LoadingButton from "../ui/LoadingButton";
 import FieldMessage from "../ui/FieldMessage";
+import FieldStatus, { type FieldState } from "../ui/FieldStatus";
 
 interface RegisterProps {
     onRegister: () => void;
@@ -110,6 +111,22 @@ function Register({ onRegister }: RegisterProps) {
 
     const nivelSenha = forcaSenha(senha);
 
+    // Estado de cada campo em um lugar só: alimenta a marca dentro do campo e a
+    // mensagem abaixo dele, para as duas nunca discordarem.
+    const cpfDigitos = cpf.replace(/\D/g, "");
+    const telDigitos = telefone.replace(/\D/g, "");
+
+    const erroNome = nome.length > 0 && nome.trim().length < 3 ? "Nome muito curto" : undefined;
+    const erroEmail = email !== "" && !emailValido ? "Formato inválido (ex: nome@email.com)" : undefined;
+    const erroCpf = !cpfValido ? "CPF inválido" : cpf !== "" && cpfDigitos.length < 11 ? "CPF incompleto" : undefined;
+    const erroTelefone = !telefoneValido ? "DDD/número inválido" : telefone !== "" && telDigitos.length < 10 ? "Telefone incompleto" : undefined;
+    const erroConfirm = confirmSenha !== "" && senha !== confirmSenha ? "Senhas não coincidem" : undefined;
+
+    function estado(erro: string | undefined, ok: boolean): FieldState {
+        if (erro) return "invalid";
+        return ok ? "valid" : "idle";
+    }
+
     async function handleRegister(e?: React.FormEvent) {
         if (e) e.preventDefault();
 
@@ -210,74 +227,86 @@ function Register({ onRegister }: RegisterProps) {
 
                     <div className="input-group">
                         <label>Nome</label>
-                        <input
-                            ref={nomeRef}
-                            value={nome}
-                            onChange={(e) => setNome(e.target.value)}
-                            placeholder="Digite seu nome"
-                        />
-                        <FieldMessage error={nome.length > 0 && nome.length < 3 ? "Nome muito curto" : undefined} />
+                        <div className="input-wrapper">
+                            <input
+                                ref={nomeRef}
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                                placeholder="Digite seu nome"
+                                aria-invalid={!!erroNome}
+                            />
+                            <FieldStatus state={estado(erroNome, nome.trim().length >= 3)} />
+                        </div>
+                        <FieldMessage error={erroNome} />
                     </div>
 
                     <div className="input-group">
                         <label>Email</label>
-                        <input
-                            value={email}
-                            onChange={(e) => {
-                                setEmail(e.target.value);
-                                // o erro só aparece no blur; aqui ele apenas some quando corrigido
-                                if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
-                                    setEmailValido(true);
-                                }
-                            }}
-                            onBlur={() => setEmailValido(validarEmail(email) || email === "")}
-                            className={!emailValido ? "input-error" : ""}
-                            placeholder="Digite seu email"
-                        />
-                        <FieldMessage error={email !== "" && !emailValido ? "Formato inválido (ex: nome@email.com)" : undefined} />
+                        <div className="input-wrapper">
+                            <input
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    // o erro só aparece no blur; aqui ele apenas some quando corrigido
+                                    if (!emailValido && (validarEmail(e.target.value) || e.target.value === "")) {
+                                        setEmailValido(true);
+                                    }
+                                }}
+                                onBlur={() => setEmailValido(validarEmail(email) || email === "")}
+                                className={!emailValido ? "input-error" : ""}
+                                placeholder="Digite seu email"
+                                aria-invalid={!!erroEmail}
+                            />
+                            <FieldStatus state={estado(erroEmail, email !== "" && validarEmail(email))} />
+                        </div>
+                        <FieldMessage error={erroEmail} />
                     </div>
 
                     <div className="form-row">
                         <div className="input-group">
                             <label>CPF</label>
-                            <input
-                                value={cpf}
-                                onChange={(e) => {
-                                    const valor = formatarCPF(e.target.value);
-                                    setCpf(valor);
+                            <div className="input-wrapper">
+                                <input
+                                    value={cpf}
+                                    onChange={(e) => {
+                                        const valor = formatarCPF(e.target.value);
+                                        setCpf(valor);
 
-                                    const numeros = valor.replace(/\D/g, "");
-                                    if (numeros.length === 11) {
-                                        setCpfValido(validarCPF(valor));
-                                    }
-                                }}
-                                className={!cpfValido ? "input-error" : ""}
-                                placeholder="000.000.000-00"
-                            />
-                            <FieldMessage
-                                error={!cpfValido ? "CPF inválido" : cpf !== "" && cpf.replace(/\D/g, "").length < 11 ? "CPF incompleto" : undefined}
-                            />
+                                        const numeros = valor.replace(/\D/g, "");
+                                        if (numeros.length === 11) {
+                                            setCpfValido(validarCPF(valor));
+                                        }
+                                    }}
+                                    className={!cpfValido ? "input-error" : ""}
+                                    placeholder="000.000.000-00"
+                                    aria-invalid={!!erroCpf}
+                                />
+                                <FieldStatus state={estado(erroCpf, cpfDigitos.length === 11 && cpfValido)} />
+                            </div>
+                            <FieldMessage error={erroCpf} />
                         </div>
 
                         <div className="input-group">
                             <label>Telefone</label>
-                            <input
-                                value={telefone}
-                                onChange={(e) => {
-                                    const valor = formatarTelefone(e.target.value);
-                                    setTelefone(valor);
+                            <div className="input-wrapper">
+                                <input
+                                    value={telefone}
+                                    onChange={(e) => {
+                                        const valor = formatarTelefone(e.target.value);
+                                        setTelefone(valor);
 
-                                    const numeros = valor.replace(/\D/g, "");
-                                    if (numeros.length >= 10) {
-                                        setTelefoneValido(validarTelefone(valor));
-                                    }
-                                }}
-                                className={!telefoneValido ? "input-error" : ""}
-                                placeholder="(00) 00000-0000"
-                            />
-                            <FieldMessage
-                                error={!telefoneValido ? "DDD/número inválido" : telefone !== "" && telefone.replace(/\D/g, "").length < 10 ? "Telefone incompleto" : undefined}
-                            />
+                                        const numeros = valor.replace(/\D/g, "");
+                                        if (numeros.length >= 10) {
+                                            setTelefoneValido(validarTelefone(valor));
+                                        }
+                                    }}
+                                    className={!telefoneValido ? "input-error" : ""}
+                                    placeholder="(00) 00000-0000"
+                                    aria-invalid={!!erroTelefone}
+                                />
+                                <FieldStatus state={estado(erroTelefone, telDigitos.length >= 10 && telefoneValido)} />
+                            </div>
+                            <FieldMessage error={erroTelefone} />
                         </div>
                     </div>
 
@@ -312,13 +341,17 @@ function Register({ onRegister }: RegisterProps) {
 
                         <div className="input-group">
                             <label>Confirmar senha</label>
-                            <input
-                                type="password"
-                                value={confirmSenha}
-                                onChange={(e) => setConfirmSenha(e.target.value)}
-                                placeholder="Repita sua senha"
-                            />
-                            <FieldMessage error={confirmSenha !== "" && senha !== confirmSenha ? "Senhas não coincidem" : undefined} />
+                            <div className="input-wrapper">
+                                <input
+                                    type="password"
+                                    value={confirmSenha}
+                                    onChange={(e) => setConfirmSenha(e.target.value)}
+                                    placeholder="Repita sua senha"
+                                    aria-invalid={!!erroConfirm}
+                                />
+                                <FieldStatus state={estado(erroConfirm, confirmSenha !== "" && senha === confirmSenha)} />
+                            </div>
+                            <FieldMessage error={erroConfirm} />
                         </div>
                     </div>
 
