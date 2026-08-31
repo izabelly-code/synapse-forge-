@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Add01Icon, AlertCircleIcon, ArrowDown01Icon, CheckmarkCircle02Icon, Copy01Icon, Delete02Icon, DropletIcon, FloppyDiskIcon, RotateLeft01Icon, Tick02Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { getCores } from "../../services/CorService";
 import { criarMistura } from "../../services/MisturaService";
 import { getCached, setCached } from "../../services/cache";
 import { Cor } from "../../types";
 import Select from "../ui/Select";
 import { cn } from "../../utils/cn";
+import { formatCurrency, formatNumber } from "../../utils/format";
 import { useDismissable } from "../../hooks/useDismissable";
 
 const CACHE_KEY = "cores:all";
@@ -23,17 +25,11 @@ function hexParaRgb(hex: string): [number, number, number] {
     return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff];
 }
 
-function formatarReais(valor: number): string {
-    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatarMl(valor: number): string {
-    return `${valor.toLocaleString("pt-BR")} ml`;
-}
-
 let proximaKey = 1;
 
 function CalculadoraMistura() {
+    const { t } = useTranslation();
+    const fmtMl = (valor: number) => t("cores.mistura.mlValue", { value: formatNumber(valor) });
     const [cores, setCores] = useState<Cor[]>(getCached<Cor[]>(CACHE_KEY) ?? []);
     const [erro, setErro] = useState("");
     const [nome, setNome] = useState("");
@@ -58,7 +54,7 @@ function CalculadoraMistura() {
                 setCores(data);
                 setCached(CACHE_KEY, data);
             })
-            .catch(() => setErro("Erro ao carregar as cores da paleta."));
+            .catch(() => setErro(t("cores.mistura.errorLoad")));
     }, []);
 
     const corPorId = useMemo(() => new Map(cores.map((c) => [c.id, c])), [cores]);
@@ -123,7 +119,7 @@ function CalculadoraMistura() {
             setCopiado(tipo);
             setTimeout(() => setCopiado(""), 1500);
         } catch {
-            setErro("Não foi possível copiar.");
+            setErro(t("cores.mistura.copyError"));
         }
     }
 
@@ -140,9 +136,9 @@ function CalculadoraMistura() {
                 itens: linhasValidas.map((l) => ({ corId: l.corId, proporcao: l.proporcao })),
                 volumeMl,
             });
-            setSalvoMsg("Fórmula salva com sucesso!");
+            setSalvoMsg(t("cores.mistura.saved"));
         } catch (e) {
-            setErro(e instanceof Error && e.message ? e.message : "Falha ao salvar a fórmula.");
+            setErro(e instanceof Error && e.message ? e.message : t("cores.mistura.saveError"));
         } finally {
             setSalvando(false);
         }
@@ -152,8 +148,8 @@ function CalculadoraMistura() {
         <main className="dashboard-main pedidos-page">
             <header className="pedidos-toolbar">
                 <div>
-                    <h1 className="dashboard-title">Calculadora de Mistura</h1>
-                    <p className="dashboard-subtitle">Combine cores e calcule automaticamente o custo e o volume da sua mistura.</p>
+                    <h1 className="dashboard-title">{t("cores.mistura.title")}</h1>
+                    <p className="dashboard-subtitle">{t("cores.mistura.subtitle")}</p>
                 </div>
             </header>
 
@@ -162,12 +158,12 @@ function CalculadoraMistura() {
             <div className="mistura-layout">
                 <section className="mistura-coluna-principal">
                     <div className="mistura-campo-nome">
-                        <label htmlFor="nome-formula">Nome da fórmula</label>
+                        <label htmlFor="nome-formula">{t("cores.mistura.nameLabel")}</label>
                         <div className="mistura-nome-wrap">
                             <input
                                 id="nome-formula"
                                 type="text"
-                                placeholder="Ex.: Bege Aveludado"
+                                placeholder={t("cores.mistura.namePlaceholder")}
                                 maxLength={NOME_MAX}
                                 value={nome}
                                 onChange={(e) => { setNome(e.target.value); setSalvoMsg(""); }}
@@ -178,12 +174,12 @@ function CalculadoraMistura() {
 
                     <div className="mistura-card">
                         <div className="mistura-card-head">
-                            <h2>Cores selecionadas</h2>
+                            <h2>{t("cores.mistura.selectedColors")}</h2>
                             <div className="mistura-card-acoes">
                                 {linhas.length > 0 && (
                                     <button type="button" className="btn-secondary mistura-btn-limpar" onClick={limparTudo}>
                                         <RotateLeft01Icon size={15} />
-                                        Limpar tudo
+                                        {t("cores.mistura.clearAll")}
                                     </button>
                                 )}
                                 <button
@@ -193,7 +189,7 @@ function CalculadoraMistura() {
                                     disabled={cores.length === 0 || linhas.length >= cores.length}
                                 >
                                     <Add01Icon size={16} />
-                                    Adicionar cor
+                                    {t("cores.mistura.addColor")}
                                 </button>
                             </div>
                         </div>
@@ -201,11 +197,11 @@ function CalculadoraMistura() {
                         {linhas.length === 0 ? (
                             <div className="pedidos-empty mistura-empty">
                                 <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
-                                <p className="empty-title">Nenhuma cor na mistura</p>
+                                <p className="empty-title">{t("cores.mistura.emptyTitle")}</p>
                                 <p className="empty-sub">
                                     {cores.length === 0
-                                        ? "Cadastre cores na paleta para começar a misturar."
-                                        : "Adicione pelo menos duas cores da paleta para criar a fórmula."}
+                                        ? t("cores.mistura.emptyNoColors")
+                                        : t("cores.mistura.emptyHint")}
                                 </p>
                             </div>
                         ) : (
@@ -225,8 +221,8 @@ function CalculadoraMistura() {
                                                         <Select
                                                             value={linha.corId}
                                                             onChange={(v) => atualizarLinha(linha.key, { corId: v })}
-                                                            ariaLabel="Cor da paleta"
-                                                            placeholder="Selecione uma cor"
+                                                            ariaLabel={t("cores.mistura.colorSelectAria")}
+                                                            placeholder={t("cores.mistura.colorSelectPlaceholder")}
                                                             options={cores
                                                                 .filter((c) => c.id === linha.corId || !usadas.has(c.id))
                                                                 .map((c) => ({ value: c.id, label: c.nome }))}
@@ -243,7 +239,7 @@ function CalculadoraMistura() {
                                                         onChange={(e) => atualizarLinha(linha.key, {
                                                             proporcao: Math.min(100, Math.max(0, Number(e.target.value))),
                                                         })}
-                                                        aria-label="Proporção em porcento"
+                                                        aria-label={t("cores.mistura.proportionAria")}
                                                     />
                                                     <span>%</span>
                                                 </div>
@@ -255,14 +251,14 @@ function CalculadoraMistura() {
                                                         step={1}
                                                         value={Number.isFinite(linha.proporcao) ? linha.proporcao : 0}
                                                         onChange={(e) => atualizarLinha(linha.key, { proporcao: Number(e.target.value) })}
-                                                        aria-label="Ajustar proporção"
+                                                        aria-label={t("cores.mistura.sliderAria")}
                                                     />
                                                 </div>
                                                 <button
                                                     type="button"
                                                     className="mistura-linha-remover"
                                                     onClick={() => removerLinha(linha.key)}
-                                                    aria-label="Remover cor da mistura"
+                                                    aria-label={t("cores.mistura.removeAria")}
                                                 >
                                                     <Delete02Icon size={16} />
                                                 </button>
@@ -272,12 +268,12 @@ function CalculadoraMistura() {
                                 </div>
 
                                 <div className={cn("mistura-total", totalOk ? "is-ok" : "is-erro")}>
-                                    <span className="mistura-total-label">Total</span>
+                                    <span className="mistura-total-label">{t("cores.mistura.totalLabel")}</span>
                                     <span className="mistura-total-valor">
-                                        {total.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
+                                        {formatNumber(total, { maximumFractionDigits: 1 })}%
                                         {totalOk ? <CheckmarkCircle02Icon size={17} /> : <AlertCircleIcon size={17} />}
                                     </span>
-                                    <span className="mistura-total-dica">A soma das proporções deve ser 100%.</span>
+                                    <span className="mistura-total-dica">{t("cores.mistura.totalHint")}</span>
                                 </div>
                             </>
                         )}
@@ -287,14 +283,14 @@ function CalculadoraMistura() {
                 <aside className="mistura-coluna-lateral">
                     <div className="mistura-card">
                         <div className="mistura-card-head">
-                            <h2>Pré-visualização da mistura</h2>
+                            <h2>{t("cores.mistura.previewTitle")}</h2>
                         </div>
 
                         <div
                             className="mistura-preview-swatch"
                             style={{ background: hexResultado ?? "var(--surface-container-high)" }}
                         >
-                            {!hexResultado && <span>Adicione cores para visualizar</span>}
+                            {!hexResultado && <span>{t("cores.mistura.previewEmpty")}</span>}
                         </div>
 
                         <div className="mistura-preview-codigos">
@@ -303,7 +299,7 @@ function CalculadoraMistura() {
                                 <div className="mistura-codigo-valor">
                                     <strong>{hexResultado ?? "—"}</strong>
                                     {hexResultado && (
-                                        <button type="button" onClick={() => copiar(hexResultado, "hex")} aria-label="Copiar HEX">
+                                        <button type="button" onClick={() => copiar(hexResultado, "hex")} aria-label={t("cores.mistura.copyHexAria")}>
                                             {copiado === "hex" ? <Tick02Icon size={15} /> : <Copy01Icon size={15} />}
                                         </button>
                                     )}
@@ -314,7 +310,7 @@ function CalculadoraMistura() {
                                 <div className="mistura-codigo-valor">
                                     <strong>{rgbResultado ?? "—"}</strong>
                                     {rgbResultado && (
-                                        <button type="button" onClick={() => copiar(rgbResultado, "rgb")} aria-label="Copiar RGB">
+                                        <button type="button" onClick={() => copiar(rgbResultado, "rgb")} aria-label={t("cores.mistura.copyRgbAria")}>
                                             {copiado === "rgb" ? <Tick02Icon size={15} /> : <Copy01Icon size={15} />}
                                         </button>
                                     )}
@@ -324,17 +320,17 @@ function CalculadoraMistura() {
 
                         <div className="mistura-preview-codigos">
                             <div className="mistura-preview-codigo">
-                                <span className="mistura-metric-label">Volume alvo</span>
+                                <span className="mistura-metric-label">{t("cores.mistura.targetVolume")}</span>
                                 <div className="filtro-menu mistura-volume-menu" ref={volumeMenuRef}>
                                     <button
                                         type="button"
                                         className="filtro-action"
                                         aria-haspopup="menu"
                                         aria-expanded={volumeMenuAberto}
-                                        aria-label="Volume alvo da mistura"
+                                        aria-label={t("cores.mistura.targetVolumeAria")}
                                         onClick={() => setVolumeMenuAberto((aberto) => !aberto)}
                                     >
-                                        {formatarMl(volumeMl)}
+                                        {fmtMl(volumeMl)}
                                         <ArrowDown01Icon size={15} className="filtro-action-chev" />
                                     </button>
                                     {volumeMenuAberto && (
@@ -348,7 +344,7 @@ function CalculadoraMistura() {
                                                     className={cn("filtro-option", volumeMl === v && "selected")}
                                                     onClick={() => { setVolumeMl(v); setSalvoMsg(""); setVolumeMenuAberto(false); }}
                                                 >
-                                                    {formatarMl(v)}
+                                                    {fmtMl(v)}
                                                     {volumeMl === v && <Tick02Icon size={15} />}
                                                 </button>
                                             ))}
@@ -357,8 +353,8 @@ function CalculadoraMistura() {
                                 </div>
                             </div>
                             <div className="mistura-preview-codigo">
-                                <span className="mistura-metric-label">Custo estimado</span>
-                                <strong className="mistura-custo">{formatarReais(custoEstimado)}</strong>
+                                <span className="mistura-metric-label">{t("cores.mistura.estimatedCost")}</span>
+                                <strong className="mistura-custo">{formatCurrency(custoEstimado)}</strong>
                             </div>
                         </div>
 
@@ -371,20 +367,20 @@ function CalculadoraMistura() {
                             onClick={handleSalvar}
                         >
                             <FloppyDiskIcon size={16} />
-                            {salvando ? "Salvando..." : "Salvar fórmula"}
+                            {salvando ? t("cores.mistura.saving") : t("cores.mistura.save")}
                         </button>
                     </div>
 
                     {composicao.length > 0 && (
                         <div className="mistura-card">
                             <div className="mistura-card-head">
-                                <h2>Resumo de composição</h2>
+                                <h2>{t("cores.mistura.summaryTitle")}</h2>
                             </div>
                             <div className="mistura-resumo">
                                 <div className="mistura-resumo-head">
-                                    <span>Cor</span>
-                                    <span>Volume (ml)</span>
-                                    <span>Custo (R$)</span>
+                                    <span>{t("cores.mistura.sumColor")}</span>
+                                    <span>{t("cores.mistura.sumVolume")}</span>
+                                    <span>{t("cores.mistura.sumCost")}</span>
                                 </div>
                                 {composicao.map(({ linha, cor, volume, custo }) => (
                                     <div key={linha.key} className="mistura-resumo-row">
@@ -395,17 +391,17 @@ function CalculadoraMistura() {
                                                 <small>{cor.fornecedor}</small>
                                             </span>
                                         </span>
-                                        <span>{formatarMl(volume)}</span>
-                                        <span>{custo.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span>{fmtMl(volume)}</span>
+                                        <span>{formatNumber(custo, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 ))}
                                 <div className="mistura-resumo-total">
-                                    <span>Total</span>
-                                    <span>{formatarMl(composicao.reduce((s, i) => s + i.volume, 0))}</span>
-                                    <span className="mistura-custo">{formatarReais(custoEstimado)}</span>
+                                    <span>{t("cores.mistura.sumTotal")}</span>
+                                    <span>{fmtMl(composicao.reduce((s, i) => s + i.volume, 0))}</span>
+                                    <span className="mistura-custo">{formatCurrency(custoEstimado)}</span>
                                 </div>
                             </div>
-                            <p className="mistura-nota">Valores calculados com base no custo por ml de cada cor em estoque.</p>
+                            <p className="mistura-nota">{t("cores.mistura.note")}</p>
                         </div>
                     )}
                 </aside>

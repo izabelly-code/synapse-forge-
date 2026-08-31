@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Tick02Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
 import CorCard from "./CorCard";
@@ -15,33 +16,27 @@ import { useFlipList } from "../../hooks/useFlipList";
 
 const CACHE_KEY = "cores:all";
 
-const ACABAMENTO_LABEL: Record<Acabamento, string> = {
-    FOSCO: "Fosco",
-    BRILHANTE: "Brilhante",
-    METALICO: "Metálico",
-    CETIM: "Cetim",
-};
-
 type EstoqueKey = "all" | "ok" | "baixo";
-const ESTOQUE_LABELS: Record<EstoqueKey, string> = {
-    all: "Estoque: Todos",
-    ok: "Em estoque",
-    baixo: "Estoque baixo",
+const ESTOQUE_KEYS: Record<EstoqueKey, string> = {
+    all: "cores.paleta.stockAll",
+    ok: "cores.paleta.stockOk",
+    baixo: "cores.paleta.stockLow",
 };
 
 type OrdKey = "nome-asc" | "nome-desc" | "custo-asc" | "custo-desc" | "estoque-desc" | "estoque-asc";
-const ORDENACAO_LABELS: Record<OrdKey, string> = {
-    "nome-asc": "Nome (A-Z)",
-    "nome-desc": "Nome (Z-A)",
-    "custo-asc": "Custo (menor)",
-    "custo-desc": "Custo (maior)",
-    "estoque-desc": "Estoque (maior)",
-    "estoque-asc": "Estoque (menor)",
+const ORDENACAO_KEYS: Record<OrdKey, string> = {
+    "nome-asc": "cores.paleta.sortNameAsc",
+    "nome-desc": "cores.paleta.sortNameDesc",
+    "custo-asc": "cores.paleta.sortCostAsc",
+    "custo-desc": "cores.paleta.sortCostDesc",
+    "estoque-desc": "cores.paleta.sortStockDesc",
+    "estoque-asc": "cores.paleta.sortStockAsc",
 };
 
 type MenuAberto = null | "fornecedor" | "estoque" | "acabamento" | "ordenacao";
 
 function PaletaCores() {
+    const { t } = useTranslation();
     const initialCached = getCached<Cor[]>(CACHE_KEY);
     const [cores, setCores] = useState<Cor[]>(initialCached ?? []);
     const [fetching, setFetching] = useState(initialCached === undefined);
@@ -81,7 +76,7 @@ function PaletaCores() {
         try {
             updateCores(await getCores());
         } catch {
-            setError("Erro ao carregar as cores. Tente novamente.");
+            setError(t("cores.paleta.errorLoad"));
         } finally {
             setFetching(false);
         }
@@ -157,7 +152,7 @@ function PaletaCores() {
             await deletarCor(id);
             updateCores((prev) => prev.filter((c) => c.id !== id));
         } catch {
-            setError("Falha ao excluir a cor.");
+            setError(t("cores.paleta.errorDelete"));
         }
     }
 
@@ -166,8 +161,10 @@ function PaletaCores() {
         setCorEditando(null);
     }
 
-    const fornecedorLabel = fornecedor || "Fornecedor: Todos";
-    const acabamentoLabel = acabamento ? `Acabamento: ${ACABAMENTO_LABEL[acabamento]}` : "Acabamento: Todos";
+    const fornecedorLabel = fornecedor || t("cores.paleta.supplierAll");
+    const acabamentoLabel = acabamento
+        ? t("cores.paleta.finishSelected", { finish: t(`cores.acabamento.${acabamento}`) })
+        : t("cores.paleta.finishAll");
 
     return (
         <>
@@ -182,13 +179,13 @@ function PaletaCores() {
             <main className="dashboard-main pedidos-page">
                 <header className="pedidos-toolbar">
                     <div>
-                        <h1 className="dashboard-title">Paleta de Cores</h1>
-                        <p className="dashboard-subtitle">Gerencie as cores, tintas e pigmentos usados na produção.</p>
+                        <h1 className="dashboard-title">{t("cores.paleta.title")}</h1>
+                        <p className="dashboard-subtitle">{t("cores.paleta.subtitle")}</p>
                     </div>
 
                     <div className="toolbar-actions">
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + Nova cor
+                            + {t("cores.paleta.newColor")}
                         </button>
                     </div>
                 </header>
@@ -198,8 +195,8 @@ function PaletaCores() {
                     inputRef={buscaRef}
                     value={busca}
                     onChange={setBusca}
-                    placeholder="Buscar por nome da cor, fornecedor ou código..."
-                    ariaLabel="Buscar cores"
+                    placeholder={t("cores.paleta.searchPlaceholder")}
+                    ariaLabel={t("cores.paleta.searchAria")}
                 />
 
                 <div className="filtros-bar cores-filtros" ref={barraRef}>
@@ -224,7 +221,7 @@ function PaletaCores() {
                                         className={cn("filtro-option", fornecedor === "" && "selected")}
                                         onClick={() => { setFornecedor(""); setMenuAberto(null); }}
                                     >
-                                        Todos
+                                        {t("cores.paleta.all")}
                                         {fornecedor === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {fornecedores.map((f) => (
@@ -252,12 +249,12 @@ function PaletaCores() {
                                 aria-expanded={menuAberto === "estoque"}
                                 onClick={() => setMenuAberto((m) => (m === "estoque" ? null : "estoque"))}
                             >
-                                {ESTOQUE_LABELS[estoque]}
+                                {t(ESTOQUE_KEYS[estoque])}
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "estoque" && (
                                 <MenuSurface className="filtro-dropdown" role="menu">
-                                    {(Object.keys(ESTOQUE_LABELS) as EstoqueKey[]).map((k) => (
+                                    {(Object.keys(ESTOQUE_KEYS) as EstoqueKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
@@ -266,7 +263,7 @@ function PaletaCores() {
                                             className={cn("filtro-option", estoque === k && "selected")}
                                             onClick={() => { setEstoque(k); setMenuAberto(null); }}
                                         >
-                                            {ESTOQUE_LABELS[k]}
+                                            {t(ESTOQUE_KEYS[k])}
                                             {estoque === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
@@ -294,7 +291,7 @@ function PaletaCores() {
                                         className={cn("filtro-option", acabamento === "" && "selected")}
                                         onClick={() => { setAcabamento(""); setMenuAberto(null); }}
                                     >
-                                        Todos
+                                        {t("cores.paleta.all")}
                                         {acabamento === "" && <Tick02Icon size={15} />}
                                     </button>
                                     {acabamentos.map((a) => (
@@ -306,7 +303,7 @@ function PaletaCores() {
                                             className={cn("filtro-option", acabamento === a && "selected")}
                                             onClick={() => { setAcabamento(a); setMenuAberto(null); }}
                                         >
-                                            {ACABAMENTO_LABEL[a]}
+                                            {t(`cores.acabamento.${a}`)}
                                             {acabamento === a && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
@@ -316,7 +313,7 @@ function PaletaCores() {
 
                         {filtrosAtivos && (
                             <button type="button" className="cores-limpar" onClick={limparFiltros}>
-                                Limpar filtros
+                                {t("cores.paleta.clearFilters")}
                             </button>
                         )}
                     </div>
@@ -330,12 +327,12 @@ function PaletaCores() {
                                 aria-expanded={menuAberto === "ordenacao"}
                                 onClick={() => setMenuAberto((m) => (m === "ordenacao" ? null : "ordenacao"))}
                             >
-                                Ordenar: {ORDENACAO_LABELS[ordenacao]}
+                                {t("cores.paleta.sortLabel", { order: t(ORDENACAO_KEYS[ordenacao]) })}
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "ordenacao" && (
                                 <MenuSurface className="filtro-dropdown" role="menu">
-                                    {(Object.keys(ORDENACAO_LABELS) as OrdKey[]).map((k) => (
+                                    {(Object.keys(ORDENACAO_KEYS) as OrdKey[]).map((k) => (
                                         <button
                                             key={k}
                                             type="button"
@@ -344,7 +341,7 @@ function PaletaCores() {
                                             className={cn("filtro-option", ordenacao === k && "selected")}
                                             onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
                                         >
-                                            {ORDENACAO_LABELS[k]}
+                                            {t(ORDENACAO_KEYS[k])}
                                             {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
@@ -355,10 +352,10 @@ function PaletaCores() {
                         <ViewToggle
                             value={view}
                             onChange={alternarView}
-                            ariaLabel="Modo de visualização"
+                            ariaLabel={t("cores.paleta.viewModeAria")}
                             options={[
-                                { value: "grid", icon: <GridViewIcon size={16} />, label: "Visualizar em grade" },
-                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: "Visualizar em lista" },
+                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("cores.paleta.viewGrid") },
+                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("cores.paleta.viewList") },
                             ]}
                         />
                     </div>
@@ -368,7 +365,7 @@ function PaletaCores() {
 
                 <SkeletonSwap
                     ready={!fetching}
-                    label="Paleta de Cores"
+                    label={t("cores.paleta.title")}
                     skeleton={
                         <div className="cores-grid">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -380,13 +377,13 @@ function PaletaCores() {
                     {fetching ? null : visiveis.length === 0 ? (
                         <div className="pedidos-empty">
                             <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
-                            <p className="empty-title">Nenhuma cor encontrada</p>
+                            <p className="empty-title">{t("cores.paleta.emptyTitle")}</p>
                             <p className="empty-sub">
-                                {filtrosAtivos ? "Tente ajustar a busca ou os filtros." : "Cadastre a primeira cor para começar a paleta."}
+                                {filtrosAtivos ? t("cores.paleta.emptyFilterHint") : t("cores.paleta.emptyCta")}
                             </p>
                             {!filtrosAtivos && (
                                 <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                    + Nova cor
+                                    + {t("cores.paleta.newColor")}
                                 </button>
                             )}
                         </div>
@@ -395,10 +392,10 @@ function PaletaCores() {
                             {view === "list" && (
                                 <div className="cor-row-head" aria-hidden="true">
                                     <span />
-                                    <span>Cor</span>
-                                    <span>Acabamento</span>
-                                    <span>Estoque</span>
-                                    <span>Custo/ml</span>
+                                    <span>{t("cores.paleta.headColor")}</span>
+                                    <span>{t("cores.paleta.headFinish")}</span>
+                                    <span>{t("cores.paleta.headStock")}</span>
+                                    <span>{t("cores.paleta.headCost")}</span>
                                     <span />
                                 </div>
                             )}

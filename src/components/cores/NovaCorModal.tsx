@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Cancel01Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { criarCor, editarCor, CorInput } from "../../services/CorService";
 import { Cor, Acabamento } from "../../types";
 import Select from "../ui/Select";
@@ -19,12 +20,7 @@ interface NovaCorModalProps {
 type CampoErro = "nome" | "fornecedor" | "estoqueMl" | "custoMl" | "hex";
 type Erros = Partial<Record<CampoErro, string>>;
 
-const ACABAMENTOS: { value: Acabamento; label: string }[] = [
-    { value: "FOSCO", label: "Fosco" },
-    { value: "BRILHANTE", label: "Brilhante" },
-    { value: "METALICO", label: "Metálico" },
-    { value: "CETIM", label: "Cetim" },
-];
+const ACABAMENTOS: Acabamento[] = ["FOSCO", "BRILHANTE", "METALICO", "CETIM"];
 
 const HEX_REGEX = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/;
 
@@ -46,6 +42,7 @@ function normalizarHex(valor: string): string {
 }
 
 function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
+    const { t } = useTranslation();
     const editando = !!cor;
 
     const [nome, setNome] = useState(cor?.nome ?? "");
@@ -95,11 +92,11 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
     function validar(): Erros {
         const e: Erros = {};
-        if (!nome.trim()) e.nome = "Informe o nome da cor.";
-        if (!isHexValido(hex)) e.hex = "Código HEX inválido. Use o formato #RRGGBB.";
-        if (!fornecedor.trim()) e.fornecedor = "Informe o fornecedor.";
-        if (estoqueMl === "" || Number(estoqueMl) < 0) e.estoqueMl = "Informe um estoque válido.";
-        if (custoMl === "" || Number(custoMl) < 0) e.custoMl = "Informe um custo válido.";
+        if (!nome.trim()) e.nome = t("cores.modal.errorName");
+        if (!isHexValido(hex)) e.hex = t("cores.modal.errorHex");
+        if (!fornecedor.trim()) e.fornecedor = t("cores.modal.errorSupplier");
+        if (estoqueMl === "" || Number(estoqueMl) < 0) e.estoqueMl = t("cores.modal.errorStock");
+        if (custoMl === "" || Number(custoMl) < 0) e.custoMl = t("cores.modal.errorCost");
         return e;
     }
 
@@ -138,7 +135,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
             }
             onSalvo();
         } catch {
-            setErroEnvio(editando ? "Erro ao salvar cor. Tente novamente." : "Erro ao criar cor. Tente novamente.");
+            setErroEnvio(editando ? t("cores.modal.errorSaveEdit") : t("cores.modal.errorSaveNew"));
         } finally {
             setLoading(false);
         }
@@ -155,8 +152,8 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header">
-                    <h2 id="cor-modal-titulo">{editando ? "Editar cor" : "Nova cor"}</h2>
-                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
+                    <h2 id="cor-modal-titulo">{editando ? t("cores.modal.titleEdit") : t("cores.modal.titleNew")}</h2>
+                    <IconButton variant="modal-close" onClick={onClose} aria-label={t("cores.modal.close")}>
                         <Cancel01Icon size={18} />
                     </IconButton>
                 </div>
@@ -165,19 +162,19 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                     {erroEnvio && <p className="error">{erroEnvio}</p>}
 
                     <div className="cor-modal-topo">
-                        <div className="cor-modal-swatch-wrap" title="Clique para escolher a cor">
+                        <div className="cor-modal-swatch-wrap" title={t("cores.modal.chooseColorTitle")}>
                             <span className="cor-modal-swatch" style={{ background: hexSeguro }} aria-hidden="true" />
-                            <span className="cor-modal-swatch-hint">Escolher</span>
+                            <span className="cor-modal-swatch-hint">{t("cores.modal.choose")}</span>
                             <input
                                 type="color"
                                 className="cor-modal-color-input"
                                 value={hexSeguro.toLowerCase()}
                                 onChange={(e) => selecionarCor(e.target.value)}
-                                aria-label="Selecionar cor com a roda de cores"
+                                aria-label={t("cores.modal.colorWheelAria")}
                             />
                         </div>
                         <div className="input-group cor-modal-hex">
-                            <label htmlFor="hex">Cor (HEX)</label>
+                            <label htmlFor="hex">{t("cores.modal.hexLabel")}</label>
                             <input
                                 id="hex"
                                 ref={hexRef}
@@ -195,7 +192,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                         </div>
                     </div>
 
-                    <div className="cor-presets" role="group" aria-label="Cores predefinidas">
+                    <div className="cor-presets" role="group" aria-label={t("cores.modal.presetsAria")}>
                         {CORES_PRESET.map((c) => (
                             <button
                                 key={c}
@@ -203,20 +200,20 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                                 className={cn("cor-preset", hexSeguro === c && "is-active")}
                                 style={{ background: c }}
                                 onClick={() => selecionarCor(c)}
-                                aria-label={`Usar a cor ${c}`}
+                                aria-label={t("cores.modal.presetAria", { color: c })}
                             />
                         ))}
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="nome">Nome da cor</label>
+                        <label htmlFor="nome">{t("cores.modal.nameLabel")}</label>
                         <input
                             id="nome"
                             ref={nomeRef}
                             className={erros.nome ? "input-error" : ""}
                             value={nome}
                             onChange={(e) => { setNome(e.target.value); limparErro("nome"); }}
-                            placeholder="Ex.: Vermelho Queimado"
+                            placeholder={t("cores.modal.namePlaceholder")}
                             aria-invalid={!!erros.nome}
                             autoFocus
                         />
@@ -227,14 +224,14 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
                     <div className="form-row">
                         <div className="input-group">
-                            <label htmlFor="fornecedor">Fornecedor</label>
+                            <label htmlFor="fornecedor">{t("cores.modal.supplierLabel")}</label>
                             <input
                                 id="fornecedor"
                                 ref={fornecedorRef}
                                 className={erros.fornecedor ? "input-error" : ""}
                                 value={fornecedor}
                                 onChange={(e) => { setFornecedor(e.target.value); limparErro("fornecedor"); }}
-                                placeholder="Ex.: Suvinil"
+                                placeholder={t("cores.modal.supplierPlaceholder")}
                                 aria-invalid={!!erros.fornecedor}
                             />
                             <span className="input-hint">
@@ -244,32 +241,32 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
                         <div className="input-group">
                             <label htmlFor="codigo">
-                                Código <span className="label-opcional">(opcional)</span>
+                                {t("cores.modal.codeLabel")} <span className="label-opcional">{t("cores.modal.optional")}</span>
                             </label>
                             <input
                                 id="codigo"
                                 value={codigo}
                                 onChange={(e) => setCodigo(e.target.value)}
-                                placeholder="Ex.: SV-072"
+                                placeholder={t("cores.modal.codePlaceholder")}
                             />
                             <span className="input-hint" />
                         </div>
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="acabamento">Acabamento</label>
+                        <label htmlFor="acabamento">{t("cores.modal.finishLabel")}</label>
                         <Select
                             id="acabamento"
                             value={acabamento}
                             onChange={(v) => setAcabamento(v as Acabamento)}
-                            options={ACABAMENTOS}
+                            options={ACABAMENTOS.map((a) => ({ value: a, label: t(`cores.acabamento.${a}`) }))}
                         />
                         <span className="input-hint" />
                     </div>
 
                     <div className="form-row">
                         <div className="input-group">
-                            <label htmlFor="estoque">Estoque (ml)</label>
+                            <label htmlFor="estoque">{t("cores.modal.stockLabel")}</label>
                             <input
                                 id="estoque"
                                 ref={estoqueRef}
@@ -287,7 +284,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                         </div>
 
                         <div className="input-group">
-                            <label htmlFor="estoqueMin">Estoque mínimo (ml)</label>
+                            <label htmlFor="estoqueMin">{t("cores.modal.stockMinLabel")}</label>
                             <input
                                 id="estoqueMin"
                                 type="number"
@@ -301,7 +298,7 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="custo">Custo por ml (R$)</label>
+                        <label htmlFor="custo">{t("cores.modal.costLabel")}</label>
                         <input
                             id="custo"
                             ref={custoRef}
@@ -321,10 +318,10 @@ function NovaCorModal({ onClose, onSalvo, cor }: NovaCorModalProps) {
 
                     <div className="modal-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
-                            Cancelar
+                            {t("cores.modal.cancel")}
                         </button>
-                        <LoadingButton pending={loading} pendingLabel={editando ? "Salvando..." : "Criando..."}>
-                            {editando ? "Salvar" : "Criar cor"}
+                        <LoadingButton pending={loading} pendingLabel={editando ? t("cores.modal.saving") : t("cores.modal.creating")}>
+                            {editando ? t("cores.modal.save") : t("cores.modal.create")}
                         </LoadingButton>
                     </div>
                 </form>
