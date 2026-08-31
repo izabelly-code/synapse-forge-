@@ -9,6 +9,9 @@ import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
+import MenuSurface from "../ui/MenuSurface";
+import SkeletonSwap from "../ui/SkeletonSwap";
+import { useFlipList } from "../../hooks/useFlipList";
 
 const CACHE_KEY = "cores:all";
 
@@ -57,6 +60,7 @@ function PaletaCores() {
 
     const buscaRef = useRef<HTMLInputElement>(null);
     const barraRef = useRef<HTMLDivElement>(null);
+    const listaRef = useRef<HTMLDivElement>(null);
 
     function alternarView(v: "grid" | "list") {
         setView(v);
@@ -144,6 +148,10 @@ function PaletaCores() {
         return ordenada;
     }, [cores, busca, fornecedor, acabamento, estoque, ordenacao]);
 
+    // Filtrar e ordenar reorganiza a grade: os cards viajam para o novo lugar
+    // em vez de a grade inteira ser redesenhada do zero.
+    useFlipList(listaRef, visiveis.map((c) => c.id).join("|"));
+
     async function handleDeletar(id: string) {
         try {
             await deletarCor(id);
@@ -208,7 +216,7 @@ function PaletaCores() {
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "fornecedor" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     <button
                                         type="button"
                                         role="menuitemradio"
@@ -232,7 +240,7 @@ function PaletaCores() {
                                             {fornecedor === f && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
 
@@ -248,7 +256,7 @@ function PaletaCores() {
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "estoque" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(ESTOQUE_LABELS) as EstoqueKey[]).map((k) => (
                                         <button
                                             key={k}
@@ -262,7 +270,7 @@ function PaletaCores() {
                                             {estoque === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
 
@@ -278,7 +286,7 @@ function PaletaCores() {
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "acabamento" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     <button
                                         type="button"
                                         role="menuitemradio"
@@ -302,7 +310,7 @@ function PaletaCores() {
                                             {acabamento === a && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
 
@@ -326,7 +334,7 @@ function PaletaCores() {
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto === "ordenacao" && (
-                                <div className="filtro-dropdown" role="menu">
+                                <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(ORDENACAO_LABELS) as OrdKey[]).map((k) => (
                                         <button
                                             key={k}
@@ -340,7 +348,7 @@ function PaletaCores() {
                                             {ordenacao === k && <Tick02Icon size={15} />}
                                         </button>
                                     ))}
-                                </div>
+                                </MenuSurface>
                             )}
                         </div>
 
@@ -358,49 +366,55 @@ function PaletaCores() {
 
                 {error && <div className="dashboard-error">{error}</div>}
 
-                {fetching ? (
-                    <div className="cores-grid">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                            <div key={i} className="cor-card-skeleton" />
-                        ))}
-                    </div>
-                ) : visiveis.length === 0 ? (
-                    <div className="pedidos-empty">
-                        <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
-                        <p className="empty-title">Nenhuma cor encontrada</p>
-                        <p className="empty-sub">
-                            {filtrosAtivos ? "Tente ajustar a busca ou os filtros." : "Cadastre a primeira cor para começar a paleta."}
-                        </p>
-                        {!filtrosAtivos && (
-                            <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                + Nova cor
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    <div className={view === "grid" ? "cores-grid" : "cores-list"}>
-                        {view === "list" && (
-                            <div className="cor-row-head" aria-hidden="true">
-                                <span />
-                                <span>Cor</span>
-                                <span>Acabamento</span>
-                                <span>Estoque</span>
-                                <span>Custo/ml</span>
-                                <span />
-                            </div>
-                        )}
-                        {visiveis.map((cor, i) => (
-                            <CorCard
-                                key={cor.id}
-                                cor={cor}
-                                index={i}
-                                view={view}
-                                onEditar={setCorEditando}
-                                onDeletar={handleDeletar}
-                            />
-                        ))}
-                    </div>
-                )}
+                <SkeletonSwap
+                    ready={!fetching}
+                    label="Paleta de Cores"
+                    skeleton={
+                        <div className="cores-grid">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                                <div key={i} className="cor-card-skeleton" />
+                            ))}
+                        </div>
+                    }
+                >
+                    {fetching ? null : visiveis.length === 0 ? (
+                        <div className="pedidos-empty">
+                            <span className="pedidos-empty-icon"><DropletIcon size={28} /></span>
+                            <p className="empty-title">Nenhuma cor encontrada</p>
+                            <p className="empty-sub">
+                                {filtrosAtivos ? "Tente ajustar a busca ou os filtros." : "Cadastre a primeira cor para começar a paleta."}
+                            </p>
+                            {!filtrosAtivos && (
+                                <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                    + Nova cor
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div key={view} ref={listaRef} className={view === "grid" ? "cores-grid" : "cores-list"}>
+                            {view === "list" && (
+                                <div className="cor-row-head" aria-hidden="true">
+                                    <span />
+                                    <span>Cor</span>
+                                    <span>Acabamento</span>
+                                    <span>Estoque</span>
+                                    <span>Custo/ml</span>
+                                    <span />
+                                </div>
+                            )}
+                            {visiveis.map((cor, i) => (
+                                <CorCard
+                                    key={cor.id}
+                                    cor={cor}
+                                    index={i}
+                                    view={view}
+                                    onEditar={setCorEditando}
+                                    onDeletar={handleDeletar}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </SkeletonSwap>
             </main>
         </>
     );

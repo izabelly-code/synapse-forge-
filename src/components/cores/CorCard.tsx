@@ -4,6 +4,8 @@ import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import IconButton from "../ui/IconButton";
+import MenuSurface from "../ui/MenuSurface";
+import ValueFlash from "../ui/ValueFlash";
 
 const ACABAMENTO_LABEL: Record<Acabamento, string> = {
     FOSCO: "Fosco",
@@ -56,7 +58,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <MoreVerticalIcon size={18} />
             </IconButton>
             {menuAberto && (
-                <div className="kebab-menu" role="menu">
+                <MenuSurface className="kebab-menu" role="menu">
                     {confirmando ? (
                         <>
                             <p className="kebab-confirm-text">Excluir "{cor.nome}"?</p>
@@ -87,14 +89,14 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                             </button>
                         </>
                     )}
-                </div>
+                </MenuSurface>
             )}
         </div>
     );
 
     if (view === "list") {
         return (
-            <div className="cor-row" style={{ "--row-index": index } as React.CSSProperties}>
+            <div className="cor-row" style={{ "--row-index": index } as React.CSSProperties} data-flip-id={cor.id}>
                 <span className="cor-row-swatch" style={{ background: cor.hex }} aria-hidden="true" />
                 <div className="cor-row-ident">
                     <span className="cor-nome">{cor.nome}</span>
@@ -103,7 +105,9 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <span className="cor-chip-acabamento">{ACABAMENTO_LABEL[cor.acabamento]}</span>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Estoque</span>
-                    <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
+                    <span className={cn("cor-metric-value", baixo && "is-baixo")}>
+                        <ValueFlash value={cor.estoqueMl} format={formatarMl} tone="direction" label="Estoque" /> ml
+                    </span>
                 </div>
                 <div className="cor-row-metric">
                     <span className="cor-metric-label">Custo/ml</span>
@@ -122,7 +126,7 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
     }
 
     return (
-        <div className="cor-card" style={{ "--row-index": index } as React.CSSProperties}>
+        <div className="cor-card" style={{ "--row-index": index } as React.CSSProperties} data-flip-id={cor.id}>
             <div className="cor-swatch" style={{ background: cor.hex }}>
                 <span className="cor-swatch-acabamento">{ACABAMENTO_LABEL[cor.acabamento]}</span>
                 <div className="cor-card-kebab">{menu}</div>
@@ -142,7 +146,9 @@ function CorCard({ cor, index, view, onEditar, onDeletar }: CorCardProps) {
                 <div className="cor-meta">
                     <div className="cor-meta-item">
                         <span className="cor-metric-label">Estoque</span>
-                        <span className={cn("cor-metric-value", baixo && "is-baixo")}>{formatarMl(cor.estoqueMl)} ml</span>
+                        <span className={cn("cor-metric-value", baixo && "is-baixo")}>
+                            <ValueFlash value={cor.estoqueMl} format={formatarMl} tone="direction" label="Estoque" /> ml
+                        </span>
                     </div>
                     <div className="cor-meta-item cor-meta-custo">
                         <span className="cor-metric-label">Custo/ml</span>

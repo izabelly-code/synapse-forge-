@@ -3,6 +3,8 @@ import { register } from "../../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
 import LinkButton from "../ui/LinkButton";
+import LoadingButton from "../ui/LoadingButton";
+import FieldMessage from "../ui/FieldMessage";
 
 interface RegisterProps {
     onRegister: () => void;
@@ -214,11 +216,7 @@ function Register({ onRegister }: RegisterProps) {
                             onChange={(e) => setNome(e.target.value)}
                             placeholder="Digite seu nome"
                         />
-                        <span className="input-hint">
-                            {nome && nome.length < 3 && (
-                                <span className="error-text">Nome muito curto</span>
-                            )}
-                        </span>
+                        <FieldMessage error={nome.length > 0 && nome.length < 3 ? "Nome muito curto" : undefined} />
                     </div>
 
                     <div className="input-group">
@@ -236,11 +234,7 @@ function Register({ onRegister }: RegisterProps) {
                             className={!emailValido ? "input-error" : ""}
                             placeholder="Digite seu email"
                         />
-                        <span className="input-hint">
-                            {email && !emailValido && (
-                                <span className="error-text">Formato inválido (ex: nome@email.com)</span>
-                            )}
-                        </span>
+                        <FieldMessage error={email !== "" && !emailValido ? "Formato inválido (ex: nome@email.com)" : undefined} />
                     </div>
 
                     <div className="form-row">
@@ -260,13 +254,9 @@ function Register({ onRegister }: RegisterProps) {
                                 className={!cpfValido ? "input-error" : ""}
                                 placeholder="000.000.000-00"
                             />
-                            <span className="input-hint">
-                                {!cpfValido ? (
-                                    <span className="error-text">CPF inválido</span>
-                                ) : cpf && cpf.replace(/\D/g, "").length < 11 ? (
-                                    <span className="error-text">CPF incompleto</span>
-                                ) : null}
-                            </span>
+                            <FieldMessage
+                                error={!cpfValido ? "CPF inválido" : cpf !== "" && cpf.replace(/\D/g, "").length < 11 ? "CPF incompleto" : undefined}
+                            />
                         </div>
 
                         <div className="input-group">
@@ -285,13 +275,9 @@ function Register({ onRegister }: RegisterProps) {
                                 className={!telefoneValido ? "input-error" : ""}
                                 placeholder="(00) 00000-0000"
                             />
-                            <span className="input-hint">
-                                {!telefoneValido ? (
-                                    <span className="error-text">DDD/número inválido</span>
-                                ) : telefone && telefone.replace(/\D/g, "").length < 10 ? (
-                                    <span className="error-text">Telefone incompleto</span>
-                                ) : null}
-                            </span>
+                            <FieldMessage
+                                error={!telefoneValido ? "DDD/número inválido" : telefone !== "" && telefone.replace(/\D/g, "").length < 10 ? "Telefone incompleto" : undefined}
+                            />
                         </div>
                     </div>
 
@@ -313,15 +299,15 @@ function Register({ onRegister }: RegisterProps) {
                                     {showSenha ? <ViewOffSlashIcon /> : <ViewIcon />}
                                 </button>
                             </div>
-                            <span className="input-hint">
-                                {senha && (
+                            <FieldMessage
+                                hint={senha && (
                                     <span className={`senha-${nivelSenha}`}>
                                         {nivelSenha === "fraca" && "Senha fraca"}
                                         {nivelSenha === "media" && "Senha média"}
                                         {nivelSenha === "forte" && "Senha forte"}
                                     </span>
                                 )}
-                            </span>
+                            />
                         </div>
 
                         <div className="input-group">
@@ -332,17 +318,13 @@ function Register({ onRegister }: RegisterProps) {
                                 onChange={(e) => setConfirmSenha(e.target.value)}
                                 placeholder="Repita sua senha"
                             />
-                            <span className="input-hint">
-                                {confirmSenha && senha !== confirmSenha && (
-                                    <span className="error-text">Senhas não coincidem</span>
-                                )}
-                            </span>
+                            <FieldMessage error={confirmSenha !== "" && senha !== confirmSenha ? "Senhas não coincidem" : undefined} />
                         </div>
                     </div>
 
-                    <button className="button" type="submit" disabled={loading}>
-                        {loading ? "Cadastrando..." : "Cadastrar"}
-                    </button>
+                    <LoadingButton pending={loading} pendingLabel="Cadastrando...">
+                        Cadastrar
+                    </LoadingButton>
 
                     <LinkButton onClick={onRegister}>
                         Já tem conta? Voltar para login

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../../assets/Images/white-logo.png";
 import { esqueciSenha } from "../../services/AuthService";
 import LinkButton from "../ui/LinkButton";
+import LoadingButton from "../ui/LoadingButton";
+import FieldMessage from "../ui/FieldMessage";
 
 interface PasswordRecoveryProps {
     goToLogin: () => void;
@@ -163,22 +165,16 @@ function PasswordRecovery({ goToLogin }: PasswordRecoveryProps) {
                             onBlur={handleEmailBlur}
                             className={!emailValido ? "input-error" : ""}
                             autoComplete="email"
+                            aria-invalid={!emailValido}
+                            aria-describedby="recovery-email-erro"
                         />
-                        {!emailValido && (
-                            <span className="error-text">
-                                Email inválido
-                            </span>
-                        )}
+                        <FieldMessage id="recovery-email-erro" error={emailValido ? undefined : "Email inválido"} />
                     </div>
 
                     {/* BOTÃO */}
-                    <button
-                        className="button"
-                        type="submit"
-                        disabled={loading || !email}
-                    >
-                        {loading ? "Enviando..." : "Enviar"}
-                    </button>
+                    <LoadingButton pending={loading} pendingLabel="Enviando..." disabled={!email}>
+                        Enviar
+                    </LoadingButton>
 
                     {/* VOLTAR */}
                     <LinkButton onClick={goToLogin}>

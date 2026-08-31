@@ -4,6 +4,8 @@ import { login } from "../../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import logo from "../../assets/Images/white-logo.png";
 import LinkButton from "../ui/LinkButton";
+import LoadingButton from "../ui/LoadingButton";
+import FieldMessage from "../ui/FieldMessage";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -150,10 +152,10 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                             onChange={(e) => handleEmailChange(e.target.value)}
                             onBlur={handleEmailBlur}
                             className={!emailValido ? "input-error" : ""}
+                            aria-invalid={!emailValido}
+                            aria-describedby="login-email-erro"
                         />
-                        {!emailValido && (
-                            <span className="error-text">{t("login.emailInvalid")}</span>
-                        )}
+                        <FieldMessage id="login-email-erro" error={emailValido ? undefined : t("login.emailInvalid")} />
                     </div>
 
                     {/* SENHA */}
@@ -184,19 +186,16 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
                             </button>
                         </div>
 
-                        {capsLock && (
-                            <span className="warning-text">{t("login.capsLock")}</span>
-                        )}
+                        {/* Slot de altura reservada: o aviso não empurra o botão para baixo. */}
+                        <span className="input-hint">
+                            {capsLock && <span className="warning-text">{t("login.capsLock")}</span>}
+                        </span>
                     </div>
 
                     {/* BOTÃO */}
-                    <button
-                        className="button"
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? t("login.submitting") : t("login.submit")}
-                    </button>
+                    <LoadingButton pending={loading} pendingLabel={t("login.submitting")}>
+                        {t("login.submit")}
+                    </LoadingButton>
 
                     {/* LINKS */}
                     <LinkButton onClick={goToRegister}>

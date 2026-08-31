@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/format';
 import { cn } from '../../utils/cn';
 import { useDismissable } from '../../hooks/useDismissable';
 import IconButton from '../ui/IconButton';
+import MenuSurface from '../ui/MenuSurface';
 import { avatarPalette } from "../../utils/avatarPalette";
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
@@ -141,6 +142,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
         <div
             className={cn("pedido-row", justAdvanced && "is-advancing")}
             style={{ "--row-index": index } as React.CSSProperties}
+            data-flip-id={pedido.id}
             role="button"
             tabIndex={0}
             onClick={() => onAbrir(pedido)}
@@ -210,7 +212,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                     </IconButton>
 
                     {menuOpen && (
-                        <div className="kebab-menu" role="menu">
+                        <MenuSurface className="kebab-menu" role="menu">
                             {!confirmDel ? (
                                 <>
                                     {!finalizado && (
@@ -239,7 +241,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                                     </div>
                                 </>
                             )}
-                        </div>
+                        </MenuSurface>
                     )}
                 </div>
             </div>
