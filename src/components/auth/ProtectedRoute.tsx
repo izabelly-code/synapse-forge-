@@ -1,8 +1,20 @@
 import { Outlet } from "react-router-dom";
-import { getToken, isTokenExpired, clearSession } from "../../hooks/useAuth";
+import {
+    getToken,
+    getUserRole,
+    isTokenExpired,
+    clearSession
+} from "../../hooks/useAuth";
 import StatusScreen from "./StatusScreen";
 
-function ProtectedRoute() {
+interface ProtectedRouteProps {
+    allowedRoles?: string[];
+}
+
+function ProtectedRoute({
+    allowedRoles
+}: ProtectedRouteProps) {
+
     const token = getToken();
 
     if (!token) {
@@ -19,7 +31,9 @@ function ProtectedRoute() {
     }
 
     if (isTokenExpired(token)) {
+
         clearSession();
+
         return (
             <StatusScreen
                 titulo="Sessão expirada"
@@ -30,6 +44,25 @@ function ProtectedRoute() {
                 secundariaDestino="/"
             />
         );
+    }
+
+    if (allowedRoles && allowedRoles.length > 0) {
+
+        const role = getUserRole();
+
+        if (!role || !allowedRoles.includes(role)) {
+
+            return (
+                <StatusScreen
+                    titulo="403 - Acesso negado"
+                    descricao="Você não possui permissão para acessar esta página."
+                    acaoLabel="Voltar para pedidos"
+                    acaoDestino="/dashboard"
+                    secundariaLabel="Voltar ao início"
+                    secundariaDestino="/"
+                />
+            );
+        }
     }
 
     return <Outlet />;

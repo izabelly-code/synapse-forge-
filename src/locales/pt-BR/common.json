@@ -73,7 +73,10 @@
       "errorClient": "Informe o nome do cliente.",
       "errorProject": "Informe o nome do projeto.",
       "errorDeadline": "Informe o prazo.",
-      "errorDeadlinePast": "O prazo não pode ser anterior a hoje."
+      "errorDeadlinePast": "O prazo não pode ser anterior a hoje.",
+      "loadingClients": "Carregando clientes...",
+      "noClientLinked": "Nenhum cliente vinculado",
+      "errorLoadClients": "Não foi possível carregar os clientes."
     },
     "novo": {
       "kicker": "Criando pedido",

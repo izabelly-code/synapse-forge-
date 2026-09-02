@@ -5,6 +5,7 @@ import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
+import { getUserRole } from "../../hooks/useAuth";
 import PedidoDetalheModal from "./PedidoDetalheModal";
 import { Pedido, PedidoStatus } from "../../types";
 import { cn } from "../../utils/cn";
@@ -66,6 +67,11 @@ function ehAtrasado(prazo: string): boolean {
 
 function PedidosDashboard() {
     const { t } = useTranslation();
+
+    /** RF12: CLIENTE só visualiza; criar/editar/avançar/deletar são de TECNICO/GERENTE/ADMIN. */
+    const role = getUserRole();
+    const podeGerenciarPedidos = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
+
     const initialCached = getCached<Pedido[]>(CACHE_KEY);
     const [pedidos, setPedidos] = useState<Pedido[]>(initialCached ?? []);
     const [filtro, setFiltro] = useState<PedidoStatus | "">("");
@@ -188,6 +194,7 @@ function PedidosDashboard() {
     ];
 
     async function handleDeletar(id: string) {
+        if (!podeGerenciarPedidos) return;
         try {
             await deletarPedido(id);
             updatePedidos((prev) => prev.filter((p) => p.id !== id));
@@ -197,6 +204,7 @@ function PedidosDashboard() {
     }
 
     async function handleAvancar(id: string) {
+        if (!podeGerenciarPedidos) return;
         setLoadingIds((prev) => new Set(prev).add(id));
         try {
             const updated = await avancarStatus(id);
@@ -216,6 +224,7 @@ function PedidosDashboard() {
     }
 
     async function handleRegredir(id: string) {
+        if (!podeGerenciarPedidos) return;
         setLoadingIds((prev) => new Set(prev).add(id));
         try {
             const updated = await regredirStatus(id);
@@ -236,7 +245,7 @@ function PedidosDashboard() {
 
     return (
         <>
-            {modalAberto && (
+            {modalAberto && podeGerenciarPedidos && (
                 <NovoPedidoModal
                     onClose={() => setModalAberto(false)}
                     onCriado={() => { setModalAberto(false); fetchPedidos(); }}
@@ -272,10 +281,12 @@ function PedidosDashboard() {
                         />
 
 
-                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            <PlusSignIcon size={16} strokeWidth={2.25} />
-                            {t("pedidos.dashboard.newOrder")}
-                        </button>
+                        {podeGerenciarPedidos && (
+                            <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
+                                <PlusSignIcon size={16} strokeWidth={2.25} />
+                                {t("pedidos.dashboard.newOrder")}
+                            </button>
+                        )}
                     </div>
                 </header>
 
@@ -404,7 +415,7 @@ function PedidosDashboard() {
                             <p className="empty-sub">
                                 {busca ? t("pedidos.dashboard.emptySearchHint") : filtro ? t("pedidos.dashboard.emptyFilterHint") : t("pedidos.dashboard.emptyCta")}
                             </p>
-                            {!filtro && !busca && (
+                            {!filtro && !busca && podeGerenciarPedidos && (
                                 <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
                                     <PlusSignIcon size={16} strokeWidth={2.25} />
                                     {t("pedidos.dashboard.newOrder")}
@@ -432,7 +443,7 @@ function PedidosDashboard() {
                                     onRegredir={handleRegredir}
                                     onDeletar={handleDeletar}
                                     onAbrir={(p) => { setDetalheEmEdicao(false); setPedidoDetalheId(p.id); }}
-                                    onEditar={(p) => { setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
+                                    onEditar={(p) => { if (!podeGerenciarPedidos) return; setDetalheEmEdicao(true); setPedidoDetalheId(p.id); }}
                                     loading={loadingIds.has(pedido.id)}
                                     justAdvanced={recemAvancado === pedido.id}
                                 />

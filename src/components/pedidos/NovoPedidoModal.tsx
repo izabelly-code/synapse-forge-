@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Add01Icon, Cancel01Icon, File01Icon, Image02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
+import { getClientes } from "../../services/UserService";
+import type { User } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
@@ -19,6 +21,10 @@ type Erros = Partial<Record<CampoErro, string>>;
 
 function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const { t } = useTranslation();
+    const [clientes, setClientes] = useState<User[]>([]);
+    const [carregandoClientes, setCarregandoClientes] = useState(true);
+    const [erroClientes, setErroClientes] = useState("");
+    const [clienteId, setClienteId] = useState("");
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
@@ -30,7 +36,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [erroEnvio, setErroEnvio] = useState("");
     const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
-    const clienteRef = useRef<HTMLInputElement>(null);
+    const clienteRef = useRef<HTMLSelectElement>(null);
     const projetoRef = useRef<HTMLInputElement>(null);
     const prazoRef = useRef<HTMLInputElement>(null);
     const painelRef = useRef<HTMLElement>(null);
@@ -40,6 +46,29 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     useEscapeKey(onClose);
     useBodyScrollLock();
     useFocusTrap(painelRef);
+
+    // RF12: pedido é vinculado a um usuário CLIENTE; o backend devolve só usuários com essa role.
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        setCarregandoClientes(true);
+        setErroClientes("");
+        getClientes(token)
+            .then((usuarios) => setClientes(usuarios))
+            .catch(() => setErroClientes(t("pedidos.form.errorLoadClients")))
+            .finally(() => setCarregandoClientes(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    function handleClienteChange(id: string) {
+        setClienteId(id);
+        limparErro("cliente");
+        if (!id) {
+            setCliente("");
+            return;
+        }
+        const selecionado = clientes.find((usuario) => usuario.id === id);
+        setCliente(selecionado?.nome ?? "");
+    }
 
     const previews = useMemo(
         () => imagensReferencia.map((file) => ({ file, url: URL.createObjectURL(file) })),
@@ -75,7 +104,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     function validar(): Erros {
         const e: Erros = {};
-        if (!cliente.trim()) e.cliente = t("pedidos.form.errorClient");
+        // Cliente é opcional (RF12): o pedido pode nascer sem vínculo.
         if (!projeto.trim()) e.projeto = t("pedidos.form.errorProject");
         if (!prazo) e.prazo = t("pedidos.form.errorDeadline");
         else if (prazo < hoje) e.prazo = t("pedidos.form.errorDeadlinePast");
@@ -89,13 +118,13 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         const novosErros = validar();
         if (Object.keys(novosErros).length > 0) {
             setErros(novosErros);
-            if (novosErros.cliente) clienteRef.current?.focus();
-            else if (novosErros.projeto) projetoRef.current?.focus();
+            if (novosErros.projeto) projetoRef.current?.focus();
             else if (novosErros.prazo) prazoRef.current?.focus();
             return;
         }
 
         const data = {
+            clienteId: clienteId || undefined,
             cliente: cliente.trim(),
             projeto: projeto.trim(),
             descricao: descricao.trim(),
@@ -147,17 +176,27 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     <div className="pedido-edit-grid">
                         <div className="input-group">
                             <label htmlFor="cliente">{t("pedidos.form.clientLabel")}</label>
-                            <input
+                            <select
                                 id="cliente"
                                 ref={clienteRef}
                                 className={erros.cliente ? "input-error" : ""}
-                                value={cliente}
-                                onChange={(e) => { setCliente(e.target.value); limparErro("cliente"); }}
-                                placeholder={t("pedidos.form.clientPlaceholder")}
+                                value={clienteId}
+                                onChange={(e) => handleClienteChange(e.target.value)}
                                 aria-invalid={!!erros.cliente}
                                 aria-describedby={erros.cliente ? "cliente-erro" : undefined}
                                 autoFocus
-                            />
+                                disabled={carregandoClientes}
+                            >
+                                <option value="">
+                                    {carregandoClientes ? t("pedidos.form.loadingClients") : t("pedidos.form.noClientLinked")}
+                                </option>
+                                {!carregandoClientes && clientes.map((usuario) => (
+                                    <option key={usuario.id} value={usuario.id}>
+                                        {usuario.nome} — {usuario.email}
+                                    </option>
+                                ))}
+                            </select>
+                            {erroClientes && <span className="error-text">{erroClientes}</span>}
                             <span className="input-hint" id="cliente-erro">
                                 {erros.cliente && <span className="error-text">{erros.cliente}</span>}
                             </span>

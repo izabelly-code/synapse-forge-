@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar03Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
-import { getUserById } from "../../services/UserService";
+import { getMyUser } from "../../services/UserService";
+import { getUserRole } from "../../hooks/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
@@ -77,11 +78,21 @@ const LANGUAGES = [
     { code: "en-US", labelKey: "sidebar.langEnglish" },
 ];
 
+/** RF12: CLIENTE só enxerga os próprios pedidos e o perfil; demais perfis veem tudo. */
+function podeVerItem(path: string, role: string | null): boolean {
+    if (role === "CLIENTE") {
+        return path === "/dashboard" || path === "/perfil";
+    }
+    return true;
+}
+
 function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { theme, toggleTheme } = useTheme();
     const { t, i18n } = useTranslation();
+
+    const role = getUserRole();
 
     const [nome, setNome] = useState(() => localStorage.getItem("userNome") ?? "");
     const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
@@ -96,9 +107,8 @@ function Sidebar() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId");
-        if (!userId || !token) return;
-        getUserById(userId, token).then((user) => {
+        if (!token) return;
+        getMyUser(token).then((user) => {
             if (user) {
                 const nextNome = user.nome ?? "";
                 const nextEmail = user.email ?? "";
@@ -149,7 +159,10 @@ function Sidebar() {
             </div>
 
             <nav className="sidebar-nav" aria-label={t("sidebar.navAria")}>
-                {NAV_GROUPS.map((group) => {
+                {NAV_GROUPS
+                    .map((group) => ({ ...group, items: group.items.filter((item) => podeVerItem(item.path, role)) }))
+                    .filter((group) => group.items.length > 0)
+                    .map((group) => {
                     const headingId = `sidebar-area-${group.id}`;
                     const grupoAtivo = group.items.some((item) => item.path === location.pathname);
                     return (

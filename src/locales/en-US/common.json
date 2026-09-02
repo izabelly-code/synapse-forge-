@@ -73,7 +73,10 @@
       "errorClient": "Enter the client name.",
       "errorProject": "Enter the project name.",
       "errorDeadline": "Enter the deadline.",
-      "errorDeadlinePast": "The deadline cannot be in the past."
+      "errorDeadlinePast": "The deadline cannot be in the past.",
+      "loadingClients": "Loading clients...",
+      "noClientLinked": "No client linked",
+      "errorLoadClients": "Could not load the clients."
     },
     "novo": {
       "kicker": "Creating order",

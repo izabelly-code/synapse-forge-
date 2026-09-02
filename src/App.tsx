@@ -20,35 +20,131 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SessionExpiredPage from "./pages/SessionExpiredPage";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Hero />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/recovery" element={<RecoveryPage />} />
-        <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
-        <Route path="/confirmar-mudanca-email" element={<ConfirmEmailMudancaPage />} />
-        <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
-        <Route path="/sessao-expirada" element={<SessionExpiredPage />} />
+    return (
+        <BrowserRouter>
+            <Routes>
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/paleta-cores" element={<PaletaCoresPage />} />
-            <Route path="/calculadora-mistura" element={<CalculadoraMisturaPage />} />
-            <Route path="/materiais" element={<MateriaisPage />} />
-            <Route path="/orcamento" element={<OrcamentoPageWrapper />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/perfil" element={<UserProfilePage />} />
-            <Route path="/ordens-pintura" element={<OrdensPinturaPage />} />
-          </Route>
-        </Route>
+                {/* =====================================================
+                    ROTAS PÚBLICAS
+                ====================================================== */}
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
+                <Route path="/" element={<Hero />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/recovery" element={<RecoveryPage />} />
+                <Route
+                    path="/confirmar-email"
+                    element={<ConfirmEmailPage />}
+                />
+                <Route
+                    path="/confirmar-mudanca-email"
+                    element={<ConfirmEmailMudancaPage />}
+                />
+                <Route
+                    path="/redefinir-senha"
+                    element={<ResetPasswordPage />}
+                />
+                <Route
+                    path="/sessao-expirada"
+                    element={<SessionExpiredPage />}
+                />
+
+
+                {/* =====================================================
+                    ÁREA PROTEGIDA
+                ====================================================== */}
+
+                <Route element={<ProtectedRoute />}>
+
+                    <Route element={<DashboardLayout />}>
+
+                        {/* -------------------------------------------------
+                            PEDIDOS
+                            Cliente pode visualizar.
+                            Técnico/Gerente/Admin possuem acesso completo.
+                        -------------------------------------------------- */}
+
+                        <Route
+                            path="/dashboard"
+                            element={<DashboardPage />}
+                        />
+
+
+                        {/* -------------------------------------------------
+                            FERRAMENTAS
+                            Apenas Técnico/Gerente/Admin.
+                        -------------------------------------------------- */}
+
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "TECNICO",
+                                        "GERENTE",
+                                        "ADMIN"
+                                    ]}
+                                />
+                            }
+                        >
+                            <Route
+                                path="/paleta-cores"
+                                element={<PaletaCoresPage />}
+                            />
+
+                            <Route
+                                path="/calculadora-mistura"
+                                element={<CalculadoraMisturaPage />}
+                            />
+
+                            <Route
+                                path="/materiais"
+                                element={<MateriaisPage />}
+                            />
+
+                            <Route
+                                path="/orcamento"
+                                element={<OrcamentoPageWrapper />}
+                            />
+
+                            <Route
+                                path="/calendar"
+                                element={<Calendar />}
+                            />
+
+                            <Route
+                                path="/ordens-pintura"
+                                element={<OrdensPinturaPage />}
+                            />
+                        </Route>
+
+
+                        {/* -------------------------------------------------
+                            PERFIL
+                            Todos podem acessar o próprio perfil.
+                        -------------------------------------------------- */}
+
+                        <Route
+                            path="/perfil"
+                            element={<UserProfilePage />}
+                        />
+
+                    </Route>
+
+                </Route>
+
+
+                {/* =====================================================
+                    ROTA 404
+                ====================================================== */}
+
+                <Route
+                    path="*"
+                    element={<NotFoundPage />}
+                />
+
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;

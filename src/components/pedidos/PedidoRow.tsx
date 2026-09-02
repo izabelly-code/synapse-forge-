@@ -9,6 +9,7 @@ import { useDismissable } from '../../hooks/useDismissable';
 import IconButton from '../ui/IconButton';
 import MenuSurface from '../ui/MenuSurface';
 import { avatarPalette } from "../../utils/avatarPalette";
+import { getUserRole } from "../../hooks/useAuth";
 
 const STATUS_SEQUENCE: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
@@ -133,6 +134,10 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
     const [confirmDel, setConfirmDel] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    /** RF12: CLIENTE não altera pedidos — sem kebab de ações. */
+    const role = getUserRole();
+    const podeAlterar = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
+
     function fecharMenu() {
         setMenuOpen(false);
         setConfirmDel(false);
@@ -201,6 +206,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
             </div>
 
             <div className="cell cell-acoes">
+                {podeAlterar && (
                 <div
                     className="kebab-wrap"
                     ref={menuRef}
@@ -250,6 +256,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                         </MenuSurface>
                     )}
                 </div>
+                )}
             </div>
         </div>
     );
