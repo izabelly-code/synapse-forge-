@@ -29,6 +29,13 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
     const [prazo, setPrazo] = useState("");
+    const [materialId, setMaterialId] = useState("");
+    const [volumeCm3, setVolumeCm3] = useState("");
+    const [tempoImpressaoHoras, setTempoImpressaoHoras] = useState("");
+    const [tempoMaoDeObraHoras, setTempoMaoDeObraHoras] = useState("");
+    const [custoMaquinaHora, setCustoMaquinaHora] = useState("");
+    const [custoMaoDeObraHora, setCustoMaoDeObraHora] = useState("");
+    const [margemLucro, setMargemLucro] = useState("");
     const [objeto3D, setObjeto3D] = useState<File | null>(null);
     const [imagensReferencia, setImagensReferencia] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
@@ -129,6 +136,13 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
             projeto: projeto.trim(),
             descricao: descricao.trim(),
             prazo,
+            materialId: materialId.trim() || undefined,
+            volumeCm3: volumeCm3 ? Number(volumeCm3) : undefined,
+            tempoImpressaoHoras: tempoImpressaoHoras ? Number(tempoImpressaoHoras) : undefined,
+            tempoMaoDeObraHoras: tempoMaoDeObraHoras ? Number(tempoMaoDeObraHoras) : undefined,
+            custoMaquinaHora: custoMaquinaHora ? Number(custoMaquinaHora) : undefined,
+            custoMaoDeObraHora: custoMaoDeObraHora ? Number(custoMaoDeObraHora) : undefined,
+            margemLucro: margemLucro ? Number(margemLucro) : undefined,
             objeto3D,
             imagensReferencia,
         };
@@ -249,37 +263,29 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                         />
                     </div>
 
-                    <div className="pedido-edit-section">
-                        <div className="pedido-edit-section-title">
-                            <div>
-                                <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>
-                                <span>{t("pedidos.novo.object3dSectionHint")}</span>
-                            </div>
+                    <fieldset className="pedido-orcamento-fields">
+                        <legend>Dados do orçamento</legend>
+                        <div className="pedido-edit-grid">
+                            <div className="input-group"><label htmlFor="pedido-material">ID do material</label><input id="pedido-material" value={materialId} onChange={(e) => setMaterialId(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-volume">Volume (cm³)</label><input id="pedido-volume" type="number" min="0" step="0.01" value={volumeCm3} onChange={(e) => setVolumeCm3(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-impressao">Impressão (h)</label><input id="pedido-impressao" type="number" min="0" step="0.1" value={tempoImpressaoHoras} onChange={(e) => setTempoImpressaoHoras(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-mao-obra">Mão de obra (h)</label><input id="pedido-mao-obra" type="number" min="0" step="0.1" value={tempoMaoDeObraHoras} onChange={(e) => setTempoMaoDeObraHoras(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-maquina">Custo máquina/h</label><input id="pedido-maquina" type="number" min="0" step="0.01" value={custoMaquinaHora} onChange={(e) => setCustoMaquinaHora(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-mao-obra-custo">Custo mão de obra/h</label><input id="pedido-mao-obra-custo" type="number" min="0" step="0.01" value={custoMaoDeObraHora} onChange={(e) => setCustoMaoDeObraHora(e.target.value)} /></div>
+                            <div className="input-group"><label htmlFor="pedido-margem">Margem de lucro (%)</label><input id="pedido-margem" type="number" min="0" step="0.1" value={margemLucro} onChange={(e) => setMargemLucro(e.target.value)} /></div>
                         </div>
+                    </fieldset>
 
-                        {objeto3D && (
-                            <div className="pedido-edit-file is-new">
-                                <span className="pedido-arquivo-icon"><File01Icon size={20} /></span>
-                                <div>
-                                    <strong>{objeto3D.name}</strong>
-                                    <span>{t("pedidos.novo.object3dSelected")}</span>
-                                </div>
-                                <button type="button" className="pedido-remove-btn" onClick={() => setObjeto3D(null)}>
-                                    <Cancel01Icon size={15} /> {t("pedidos.form.removeFile")}
-                                </button>
-                            </div>
-                        )}
-
-                        <label className="pedido-upload-btn">
-                            <Add01Icon size={16} />
-                            {objeto3D ? t("pedidos.novo.object3dReplace") : t("pedidos.novo.object3dAdd")}
-                            <input
-                                type="file"
-                                accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
-                                onChange={(e) => { setObjeto3D(e.target.files?.[0] ?? null); e.target.value = ""; }}
-                            />
+                    <div className="input-group">
+                        <label htmlFor="objeto3D">
+                            Upload do objeto 3D
                         </label>
-                        <span className="input-hint">{t("pedidos.form.object3dFormats")}</span>
+                        <input
+                            id="objeto3D"
+                            type="file"
+                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
+                        />
                     </div>
 
                     <div className="pedido-edit-section">

@@ -4723,6 +4723,44 @@ html {
   flex-direction: column;
 }
 
+.orcamento-upload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.orcamento-upload-file {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: fit-content;
+  max-width: 100%;
+  color: var(--on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.orcamento-upload-file svg:first-child {
+  flex: 0 0 auto;
+}
+
+.orcamento-upload-file button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.orcamento-upload-file button:hover {
+  color: var(--error-color);
+  background: var(--error-container);
+}
+
 .orcamento-material-menu {
   display: block;
 }
@@ -4823,12 +4861,58 @@ html {
 }
 
 .orcamento-historico-title {
-  font-size: var(--text-5xl);
+  font-size: 1.75rem;
+}
+
+.orcamento-pendentes {
+  margin-bottom: 2.5rem;
+}
+
+.orcamento-secao + .orcamento-secao {
+  margin-top: 2.5rem;
+}
+
+.orcamento-secao-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.orcamento-secao-head h3 {
+  margin: 0;
+  color: var(--on-background);
+  font-size: 1.1rem;
+}
+
+.orcamento-secao-head p,
+.orcamento-lista-vazia {
+  margin: 0.3rem 0 0;
+  color: var(--on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.orcamento-contador {
+  display: inline-grid;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--secondary-fixed);
+  color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .pedidos-row-head.orcamento-row,
 .pedido-row.orcamento-row {
-  grid-template-columns: minmax(140px, 1.6fr) minmax(90px, 1fr) minmax(150px, 1.2fr) minmax(120px, 1fr);
+  grid-template-columns: minmax(140px, 1.6fr) minmax(90px, 1fr) minmax(150px, 1.2fr) minmax(120px, 1fr) minmax(120px, 0.9fr);
+}
+
+.pedidos-row-head.orcamento-row-pendente,
+.pedido-row.orcamento-row:has(.orcamento-acoes) {
+  grid-template-columns: minmax(140px, 1.4fr) minmax(80px, 0.8fr) minmax(140px, 1fr) minmax(110px, 0.9fr) minmax(110px, 0.8fr) minmax(230px, 1.6fr);
 }
 
 .pedido-row.orcamento-row {
@@ -4848,9 +4932,48 @@ html {
   text-align: right;
 }
 
-/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
-   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
-   de tablets em paisagem */
+.orcamento-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.orcamento-status-pendente { background: var(--secondary-fixed); color: var(--secondary); }
+.orcamento-status-aprovado { background: var(--success-container); color: var(--success-color); }
+.orcamento-status-rejeitado { background: var(--error-container); color: var(--error-color); }
+
+.orcamento-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.orcamento-decisao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.orcamento-decisao:disabled { opacity: 0.55; cursor: not-allowed; }
+.orcamento-aprovar { color: var(--success-color); border-color: rgba(26, 127, 60, 0.25); }
+.orcamento-aprovar:hover:not(:disabled) { background: var(--success-container); }
+.orcamento-rejeitar { color: var(--error-color); border-color: rgba(179, 38, 30, 0.2); }
+.orcamento-rejeitar:hover:not(:disabled) { background: var(--error-container); }
+
 @media (max-width: 900px) {
   .orcamento-form-grid {
     grid-template-columns: 1fr;
@@ -4874,6 +4997,14 @@ html {
 
   .orcamento-row-preco {
     text-align: left;
+  }
+
+  .pedido-row.orcamento-row:has(.orcamento-acoes) {
+    grid-template-columns: 1fr;
+  }
+
+  .orcamento-acoes {
+    justify-content: flex-start;
   }
 }
 

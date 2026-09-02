@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
+import { FiFile, FiImage, FiX } from "react-icons/fi";
 import { getMateriais } from "../../services/MaterialService";
 import { calcularOrcamento, salvarOrcamento } from "../../services/OrcamentoService";
 import { Material } from "../../models/Material";
@@ -18,6 +19,10 @@ interface OrcamentoCalculatorProps {
 
 function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
     const [materiais, setMateriais] = useState<Material[]>([]);
+    const [cliente, setCliente] = useState("");
+    const [projeto, setProjeto] = useState("");
+    const [descricao, setDescricao] = useState("");
+    const [prazo, setPrazo] = useState("");
     const [materialId, setMaterialId] = useState("");
     const [volume, setVolume] = useState("");
     const [tempoImpressao, setTempoImpressao] = useState("");
@@ -25,6 +30,8 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
     const [custoMaquina, setCustoMaquina] = useState("");
     const [custoMaoDeObra, setCustoMaoDeObra] = useState("");
     const [margem, setMargem] = useState("");
+    const [objeto3D, setObjeto3D] = useState<File | null>(null);
+    const [imagensReferencia, setImagensReferencia] = useState<File[]>([]);
 
     const [menuAberto, setMenuAberto] = useState(false);
     const [preview, setPreview] = useState<Orcamento | null>(null);
@@ -55,7 +62,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
         const custoMaoDeObraHora = Number(custoMaoDeObra);
         const margemLucro = Number(margem);
 
-        if (!materialId) return null;
+        if (!cliente.trim() || !projeto.trim() || !prazo || !materialId) return null;
         if (!(volumeCm3 > 0)) return null;
         if (!(tempoImpressaoHoras > 0)) return null;
         if (!(tempoMaoDeObraHoras > 0)) return null;
@@ -64,6 +71,10 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
         if (!(margemLucro > 0)) return null;
 
         return {
+            cliente: cliente.trim(),
+            projeto: projeto.trim(),
+            descricao: descricao.trim(),
+            prazo,
             materialId,
             volumeCm3,
             tempoImpressaoHoras,
@@ -71,6 +82,8 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
             custoMaquinaHora,
             custoMaoDeObraHora,
             margemLucro,
+            objeto3D,
+            imagensReferencia,
         };
     }
 
@@ -102,7 +115,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
             clearTimeout(timer);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [materialId, volume, tempoImpressao, tempoMaoDeObra, custoMaquina, custoMaoDeObra, margem]);
+    }, [cliente, projeto, descricao, prazo, materialId, volume, tempoImpressao, tempoMaoDeObra, custoMaquina, custoMaoDeObra, margem]);
 
     async function handleSalvar() {
         const input = montarInput();
@@ -124,13 +137,28 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
 
     function limparForm() {
         setMaterialId("");
+        setCliente("");
+        setProjeto("");
+        setDescricao("");
+        setPrazo("");
         setVolume("");
         setTempoImpressao("");
         setTempoMaoDeObra("");
         setCustoMaquina("");
         setCustoMaoDeObra("");
         setMargem("");
+        setObjeto3D(null);
+        setImagensReferencia([]);
         setPreview(null);
+    }
+
+    function adicionarImagens(arquivos: FileList | null) {
+        if (!arquivos?.length) return;
+        setImagensReferencia((atuais) => [...atuais, ...Array.from(arquivos)]);
+    }
+
+    function removerImagem(index: number) {
+        setImagensReferencia((atuais) => atuais.filter((_, indice) => indice !== index));
     }
 
     function selecionarMaterial(id: string) {
@@ -158,6 +186,63 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
 
             <div className="orcamento-form-grid">
                 <div className="orcamento-form-fields">
+                    <div className="input-group">
+                        <label htmlFor="orcamento-cliente">Cliente</label>
+                        <input id="orcamento-cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder="Nome do cliente" />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="orcamento-projeto">Projeto</label>
+                        <input id="orcamento-projeto" value={projeto} onChange={(e) => setProjeto(e.target.value)} placeholder="Nome do projeto" />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="orcamento-prazo">Prazo</label>
+                        <input id="orcamento-prazo" type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="orcamento-descricao">Descrição</label>
+                        <textarea id="orcamento-descricao" rows={3} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Detalhes do pedido" />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="orcamento-objeto-3d">Objeto 3D</label>
+                        <input
+                            id="orcamento-objeto-3d"
+                            type="file"
+                            accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                            onChange={(e) => setObjeto3D(e.target.files?.[0] ?? null)}
+                        />
+                        {objeto3D && (
+                            <span className="orcamento-upload-file">
+                                <FiFile size={15} /> {objeto3D.name}
+                                <button type="button" onClick={() => setObjeto3D(null)} aria-label="Remover objeto 3D">
+                                    <FiX size={15} />
+                                </button>
+                            </span>
+                        )}
+                        <span className="input-hint">Formatos aceitos: STL, OBJ, FBX, GLB, GLTF e 3MF.</span>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="orcamento-imagens">Imagens de referência</label>
+                        <input
+                            id="orcamento-imagens"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => { adicionarImagens(e.target.files); e.target.value = ""; }}
+                        />
+                        {imagensReferencia.length > 0 && (
+                            <div className="orcamento-upload-list">
+                                {imagensReferencia.map((imagem, index) => (
+                                    <span key={`${imagem.name}-${imagem.size}-${index}`} className="orcamento-upload-file">
+                                        <FiImage size={15} /> {imagem.name}
+                                        <button type="button" onClick={() => removerImagem(index)} aria-label={`Remover ${imagem.name}`}>
+                                            <FiX size={15} />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <span className="input-hint">Você pode selecionar mais de uma imagem.</span>
+                    </div>
                     <div className="input-group" ref={menuRef}>
                         <label>Material</label>
                         <div className="filtro-menu orcamento-material-menu">
