@@ -1,6 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
+import {
+    Calendar03Icon,
+    ClipboardIcon,
+    DollarCircleIcon,
+    DropletIcon,
+    Globe02Icon,
+    Logout03Icon,
+    Moon02Icon,
+    ShoppingBag01Icon,
+    SlidersHorizontalIcon,
+    Sun03Icon,
+    Tick02Icon,
+    UserIcon,
+    WarehouseIcon,
+    UserGroupIcon
+} from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getMyUser } from "../../services/UserService";
 import { getUserRole } from "../../hooks/useAuth";
@@ -37,45 +52,94 @@ const NAV_GROUPS: NavGroup[] = [
         id: "pedidos",
         labelKey: "sidebar.areaPedidos",
         items: [
-            { labelKey: "sidebar.pedidosClientes", path: "/dashboard", icon: <ShoppingBag01Icon size={18} /> },
-            { labelKey: "sidebar.ordensPintura", path: "/ordens-pintura", icon: <ClipboardIcon size={18} /> },
+            {
+                labelKey: "sidebar.pedidosClientes",
+                path: "/dashboard",
+                icon: <ShoppingBag01Icon size={18} />,
+            },
+            {
+                labelKey: "sidebar.ordensPintura",
+                path: "/ordens-pintura",
+                icon: <ClipboardIcon size={18} />,
+            },
         ],
     },
     {
         id: "orcamentos",
         labelKey: "sidebar.areaOrcamentos",
         items: [
-            { labelKey: "sidebar.orcamento", path: "/orcamento", icon: <DollarCircleIcon size={18} /> },
+            {
+                labelKey: "sidebar.orcamento",
+                path: "/orcamento",
+                icon: <DollarCircleIcon size={18} />,
+            },
         ],
     },
     {
         id: "estoque",
         labelKey: "sidebar.areaEstoqueCores",
         items: [
-            { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
-            { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
-            { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
+            {
+                labelKey: "sidebar.paletaCores",
+                path: "/paleta-cores",
+                icon: <DropletIcon size={18} />,
+            },
+            {
+                labelKey: "sidebar.calculadoraMistura",
+                path: "/calculadora-mistura",
+                icon: <SlidersHorizontalIcon size={18} />,
+            },
+            {
+                labelKey: "sidebar.materiais",
+                path: "/materiais",
+                icon: <WarehouseIcon size={18} />,
+            },
+        ],
+    },
+    {
+        id: "equipe",
+        labelKey: "sidebar.areaEquipe",
+        items: [
+            {
+                labelKey: "sidebar.equipe",
+                path: "/equipe",
+                icon: <UserGroupIcon size={18} />,
+            },
         ],
     },
     {
         id: "agenda",
         labelKey: "sidebar.areaAgenda",
         items: [
-            { labelKey: "sidebar.calendario", path: "/calendar", icon: <Calendar03Icon size={18} /> },
+            {
+                labelKey: "sidebar.calendario",
+                path: "/calendar",
+                icon: <Calendar03Icon size={18} />,
+            },
         ],
     },
     {
         id: "admin",
         labelKey: "sidebar.areaAdmin",
         items: [
-            { labelKey: "sidebar.perfil", path: "/perfil", icon: <UserIcon size={18} /> },
+            {
+                labelKey: "sidebar.perfil",
+                path: "/perfil",
+                icon: <UserIcon size={18} />,
+            },
         ],
     },
 ];
 
 const LANGUAGES = [
-    { code: "pt-BR", labelKey: "sidebar.langPortuguese" },
-    { code: "en-US", labelKey: "sidebar.langEnglish" },
+    {
+        code: "pt-BR",
+        labelKey: "sidebar.langPortuguese",
+    },
+    {
+        code: "en-US",
+        labelKey: "sidebar.langEnglish",
+    },
 ];
 
 /** RF12: CLIENTE só enxerga os próprios pedidos e o perfil; demais perfis veem tudo. */
@@ -83,6 +147,7 @@ function podeVerItem(path: string, role: string | null): boolean {
     if (role === "CLIENTE") {
         return path === "/dashboard" || path === "/perfil";
     }
+
     return true;
 }
 
@@ -93,10 +158,18 @@ function Sidebar() {
     const { t, i18n } = useTranslation();
 
     const role = getUserRole();
+    const isCliente = role === "CLIENTE";
 
-    const [nome, setNome] = useState(() => localStorage.getItem("userNome") ?? "");
-    const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
+    const [nome, setNome] = useState(
+        () => localStorage.getItem("userNome") ?? ""
+    );
+
+    const [email, setEmail] = useState(
+        () => localStorage.getItem("userEmail") ?? ""
+    );
+
     const [langMenuAberto, setLangMenuAberto] = useState(false);
+
     const langMenuRef = useRef<HTMLDivElement>(null);
 
     useDismissable({
@@ -107,13 +180,17 @@ function Sidebar() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
+
         if (!token) return;
+
         getMyUser(token).then((user) => {
             if (user) {
                 const nextNome = user.nome ?? "";
                 const nextEmail = user.email ?? "";
+
                 setNome(nextNome);
                 setEmail(nextEmail);
+
                 localStorage.setItem("userNome", nextNome);
                 localStorage.setItem("userEmail", nextEmail);
             }
@@ -125,6 +202,7 @@ function Sidebar() {
         localStorage.removeItem("userId");
         localStorage.removeItem("userNome");
         localStorage.removeItem("userEmail");
+
         navigate("/login");
     }
 
@@ -132,22 +210,29 @@ function Sidebar() {
         return nome ? nome.charAt(0).toUpperCase() : "?";
     }
 
-    const { pedidosUrgentes, ordensUrgentes } = useNotificacoesUrgentes();
+    const { pedidosUrgentes, ordensUrgentes } =
+        useNotificacoesUrgentes();
+
     const notificacoes: NotificationItem[] = [
         ...pedidosUrgentes.map(({ pedido, atrasado }) => ({
             id: `pedido-${pedido.id}`,
             title: pedido.projeto,
             subtitle: pedido.cliente,
             tone: atrasado ? ("danger" as const) : ("warn" as const),
-            tagLabel: atrasado ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+            tagLabel: atrasado
+                ? t("pedidos.dashboard.tagLate")
+                : t("pedidos.dashboard.tagDueToday"),
             onSelect: () => navigate("/dashboard"),
         })),
+
         ...ordensUrgentes.map(({ ordem, atrasada }) => ({
             id: `ordem-${ordem.id}`,
             title: ordem.corNome,
             subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
             tone: atrasada ? ("danger" as const) : ("warn" as const),
-            tagLabel: atrasada ? t("pedidos.dashboard.tagLate") : t("pedidos.dashboard.tagDueToday"),
+            tagLabel: atrasada
+                ? t("pedidos.dashboard.tagLate")
+                : t("pedidos.dashboard.tagDueToday"),
             onSelect: () => navigate("/ordens-pintura"),
         })),
     ];
@@ -155,63 +240,157 @@ function Sidebar() {
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
-                <img src={theme === "dark" ? logoLight : logoDark} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
+                <img
+                    src={
+                        theme === "dark"
+                            ? logoLight
+                            : logoDark
+                    }
+                    alt="SynapseForge"
+                    className="sidebar-logo"
+                    onClick={() => navigate("/")}
+                    style={{ cursor: "pointer" }}
+                />
             </div>
 
-            <nav className="sidebar-nav" aria-label={t("sidebar.navAria")}>
+            <nav
+                className="sidebar-nav"
+                aria-label={t("sidebar.navAria")}
+            >
                 {NAV_GROUPS
-                    .map((group) => ({ ...group, items: group.items.filter((item) => podeVerItem(item.path, role)) }))
+                    .map((group) => ({
+                        ...group,
+                        items: group.items.filter((item) =>
+                            podeVerItem(item.path, role)
+                        ),
+                    }))
                     .filter((group) => group.items.length > 0)
                     .map((group) => {
-                    const headingId = `sidebar-area-${group.id}`;
-                    const grupoAtivo = group.items.some((item) => item.path === location.pathname);
-                    return (
-                        <section
-                            key={group.id}
-                            className={cn("sidebar-nav-group", grupoAtivo && "is-current")}
-                            aria-labelledby={headingId}
-                        >
-                            <h2 className="sidebar-nav-group-label" id={headingId}>{t(group.labelKey)}</h2>
-                            <ul className="sidebar-nav-list">
-                                {group.items.map((item) => {
-                                    const active = location.pathname === item.path;
-                                    return (
-                                        <li key={item.path}>
-                                            <button
-                                                type="button"
-                                                className={cn("sidebar-nav-item", active && "active")}
-                                                aria-current={active ? "page" : undefined}
-                                                onClick={() => navigate(item.path)}
-                                            >
-                                                <span className="sidebar-nav-icon">{item.icon}</span>
-                                                <span className="sidebar-nav-label">{t(item.labelKey)}</span>
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </section>
-                    );
-                })}
+                        const headingId = `sidebar-area-${group.id}`;
+
+                        const grupoAtivo = group.items.some(
+                            (item) =>
+                                item.path === location.pathname
+                        );
+
+                        /*
+                         * CLIENTE:
+                         * - A área de pedidos continua sendo "Pedidos"
+                         * - O item /dashboard passa a ser "Meus pedidos"
+                         * - A área do perfil passa a ser "Minha conta"
+                         *
+                         * Demais perfis continuam utilizando exatamente
+                         * os textos originais.
+                         */
+                        const groupLabelKey =
+                            isCliente && group.id === "admin"
+                                ? "sidebar.areaClienteConta"
+                                : group.labelKey;
+
+                        return (
+                            <section
+                                key={group.id}
+                                className={cn(
+                                    "sidebar-nav-group",
+                                    grupoAtivo && "is-current"
+                                )}
+                                aria-labelledby={headingId}
+                            >
+                                <h2
+                                    className="sidebar-nav-group-label"
+                                    id={headingId}
+                                >
+                                    {t(groupLabelKey)}
+                                </h2>
+
+                                <ul className="sidebar-nav-list">
+                                    {group.items.map((item) => {
+                                        const active =
+                                            location.pathname ===
+                                            item.path;
+
+                                        const itemLabelKey =
+                                            isCliente &&
+                                            item.path === "/dashboard"
+                                                ? "sidebar.pedidosCliente"
+                                                : item.labelKey;
+
+                                        return (
+                                            <li key={item.path}>
+                                                <button
+                                                    type="button"
+                                                    className={cn(
+                                                        "sidebar-nav-item",
+                                                        active && "active"
+                                                    )}
+                                                    aria-current={
+                                                        active
+                                                            ? "page"
+                                                            : undefined
+                                                    }
+                                                    onClick={() =>
+                                                        navigate(
+                                                            item.path
+                                                        )
+                                                    }
+                                                >
+                                                    <span className="sidebar-nav-icon">
+                                                        {item.icon}
+                                                    </span>
+
+                                                    <span className="sidebar-nav-label">
+                                                        {t(itemLabelKey)}
+                                                    </span>
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </section>
+                        );
+                    })}
             </nav>
 
             <div className="sidebar-controls">
                 <IconButton
                     variant="sidebar"
                     onClick={toggleTheme}
-                    aria-label={theme === "dark" ? t("sidebar.themeToLightAria") : t("sidebar.themeToDarkAria")}
-                    title={theme === "dark" ? t("sidebar.themeToLight") : t("sidebar.themeToDark")}
+                    aria-label={
+                        theme === "dark"
+                            ? t("sidebar.themeToLightAria")
+                            : t("sidebar.themeToDarkAria")
+                    }
+                    title={
+                        theme === "dark"
+                            ? t("sidebar.themeToLight")
+                            : t("sidebar.themeToDark")
+                    }
                 >
-                    {theme === "dark" ? <Sun03Icon size={18} /> : <Moon02Icon size={18} />}
+                    {theme === "dark" ? (
+                        <Sun03Icon size={18} />
+                    ) : (
+                        <Moon02Icon size={18} />
+                    )}
                 </IconButton>
 
-                <div className="sidebar-lang-wrap" ref={langMenuRef}>
+                <div
+                    className="sidebar-lang-wrap"
+                    ref={langMenuRef}
+                >
                     <IconButton
                         variant="sidebar"
-                        className={cn(langMenuAberto && "is-open")}
-                        onClick={() => setLangMenuAberto((o) => !o)}
-                        aria-label={t("sidebar.languageAria")}
-                        title={t("sidebar.languageAria")}
+                        className={cn(
+                            langMenuAberto && "is-open"
+                        )}
+                        onClick={() =>
+                            setLangMenuAberto((o) => !o)
+                        }
+                        aria-label={t(
+                            "sidebar.languageAria"
+                        )}
+                        title={t(
+                            "sidebar.languageAria"
+                        )}
                         aria-haspopup="menu"
                         aria-expanded={langMenuAberto}
                     >
@@ -219,18 +398,43 @@ function Sidebar() {
                     </IconButton>
 
                     {langMenuAberto && (
-                        <MenuSurface className="sidebar-lang-menu" role="menu">
+                        <MenuSurface
+                            className="sidebar-lang-menu"
+                            role="menu"
+                        >
                             {LANGUAGES.map((lang) => (
                                 <button
                                     key={lang.code}
                                     type="button"
                                     role="menuitemradio"
-                                    aria-checked={i18n.language === lang.code}
-                                    className={cn("sidebar-lang-option", i18n.language === lang.code && "selected")}
-                                    onClick={() => { i18n.changeLanguage(lang.code); setLangMenuAberto(false); }}
+                                    aria-checked={
+                                        i18n.language ===
+                                        lang.code
+                                    }
+                                    className={cn(
+                                        "sidebar-lang-option",
+                                        i18n.language ===
+                                            lang.code &&
+                                            "selected"
+                                    )}
+                                    onClick={() => {
+                                        i18n.changeLanguage(
+                                            lang.code
+                                        );
+
+                                        setLangMenuAberto(
+                                            false
+                                        );
+                                    }}
                                 >
                                     {t(lang.labelKey)}
-                                    {i18n.language === lang.code && <Tick02Icon size={15} />}
+
+                                    {i18n.language ===
+                                        lang.code && (
+                                        <Tick02Icon
+                                            size={15}
+                                        />
+                                    )}
                                 </button>
                             ))}
                         </MenuSurface>
@@ -240,19 +444,42 @@ function Sidebar() {
                 <NotificationBell
                     variant="sidebar"
                     direction="up"
-                    ariaLabel={t("pedidos.dashboard.notificationsAria")}
-                    panelTitle={t("pedidos.dashboard.notifTitle")}
-                    emptyText={t("pedidos.dashboard.notifEmpty")}
+                    ariaLabel={t(
+                        "pedidos.dashboard.notificationsAria"
+                    )}
+                    panelTitle={t(
+                        "pedidos.dashboard.notifTitle"
+                    )}
+                    emptyText={t(
+                        "pedidos.dashboard.notifEmpty"
+                    )}
                     items={notificacoes}
                 />
             </div>
 
             <div className="sidebar-account">
-                <div className={cn("sidebar-avatar", avatarPalette(email || nome))}>{getInitial()}</div>
-                <div className="sidebar-user-info">
-                    <span className="sidebar-user-name">{nome || t("sidebar.userFallback")}</span>
-                    {email && <span className="sidebar-user-email">{email}</span>}
+                <div
+                    className={cn(
+                        "sidebar-avatar",
+                        avatarPalette(email || nome)
+                    )}
+                >
+                    {getInitial()}
                 </div>
+
+                <div className="sidebar-user-info">
+                    <span className="sidebar-user-name">
+                        {nome ||
+                            t("sidebar.userFallback")}
+                    </span>
+
+                    {email && (
+                        <span className="sidebar-user-email">
+                            {email}
+                        </span>
+                    )}
+                </div>
+
                 <IconButton
                     variant="sidebar"
                     className="sidebar-account-logout"

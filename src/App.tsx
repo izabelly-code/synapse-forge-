@@ -18,6 +18,7 @@ import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import SessionExpiredPage from "./pages/SessionExpiredPage";
+import EquipePage from "./pages/EquipePage";
 
 function App() {
     return (
@@ -115,7 +116,14 @@ function App() {
                                 path="/ordens-pintura"
                                 element={<OrdensPinturaPage />}
                             />
+
+                            <Route
+                                path="/equipe"
+                                element={<EquipePage />}
+                            />
                         </Route>
+
+                        
 
 
                         {/* -------------------------------------------------

@@ -31,14 +31,21 @@
     "areaAgenda": "Agenda",
     "areaEstoqueCores": "Estoque & Cores",
     "areaAdmin": "Admin",
+
     "pedidosClientes": "Pedidos de clientes",
+    "pedidosCliente": "Meus pedidos",
+
     "paletaCores": "Paleta de Cores",
     "calculadoraMistura": "Calculadora de Mistura",
     "materiais": "Materiais",
     "orcamento": "Orçamento",
     "ordensPintura": "Ordens de Pintura",
     "calendario": "Calendário",
+
     "perfil": "Perfil",
+
+    "areaClienteConta": "Minha conta",
+
     "userFallback": "Usuário",
     "themeToLight": "Tema claro",
     "themeToDark": "Tema escuro",
@@ -161,6 +168,11 @@
     "dashboard": {
       "title": "Produção",
       "subtitle": "Acompanhe todos os pedidos em produção",
+
+      "clientTitle": "Meus Pedidos",
+      "clientSubtitle": "Acompanhe o andamento dos seus pedidos",
+      "clientSearchPlaceholder": "Buscar pedido ou projeto...",
+
       "searchPlaceholder": "Buscar cliente ou projeto...",
       "searchAria": "Buscar pedidos",
       "notificationsAria": "Notificações",
