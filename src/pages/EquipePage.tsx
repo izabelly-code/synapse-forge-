@@ -1,11 +1,24 @@
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useState,
+    type ChangeEvent,
+} from "react";
+
 import {
     UserAdd01Icon,
     UserGroupIcon,
     Cancel01Icon,
     Image01Icon,
+    Mail01Icon,
+    UserRemove01Icon,
+    Refresh01Icon,
 } from "hugeicons-react";
+
+import "./EquipePage.css";
+
 import { getUserRole, getToken } from "../hooks/useAuth";
+
+const API_URL = "http://localhost:8081";
 
 interface Equipe {
     id: string;
@@ -17,6 +30,41 @@ interface Equipe {
     atualizadoEm: string;
 }
 
+interface Integrante {
+    id: string;
+    nome: string;
+    email: string;
+    cpf?: string | null;
+    telefone?: string | null;
+    role: string;
+    equipeId?: string | null;
+}
+
+interface ClienteDisponivel {
+    id: string;
+    nome: string;
+    email: string;
+    cpf?: string | null;
+    telefone?: string | null;
+    role: string;
+    equipeId?: string | null;
+}
+
+interface Convite {
+    id: string;
+    equipeId: string;
+    equipeNome: string | null;
+    gerenteId: string;
+    gerenteNome: string | null;
+    usuarioId: string;
+    usuarioNome: string | null;
+    status: string;
+    criadoEm: string;
+    expiraEm: string;
+}
+
+type ModalEquipeModo = "criacao" | "edicao";
+
 function EquipePage() {
     const role = getUserRole();
 
@@ -26,160 +74,491 @@ function EquipePage() {
 
     const podeGerenciarEquipe = isGerente || isAdmin;
 
-    const [equipe, setEquipe] =
-        useState<Equipe | null>(null);
+    const [equipe, setEquipe] = useState<Equipe | null>(null);
 
-    const [carregando, setCarregando] =
-        useState(true);
+    const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
+    const [carregandoIntegrantes, setCarregandoIntegrantes] = useState(false);
 
-    const [modalAberto, setModalAberto] =
-        useState(false);
+    const [clientesDisponiveis, setClientesDisponiveis] = useState<
+        ClienteDisponivel[]
+    >([]);
 
-    // true = edição | false = criação
-    const [modoEdicao, setModoEdicao] =
-        useState(false);
+    const [convites, setConvites] = useState<Convite[]>([]);
 
-    const [nomeEquipe, setNomeEquipe] =
-        useState("");
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState<string | null>(null);
 
-    const [foto, setFoto] =
-        useState<File | null>(null);
+    const [modalAberto, setModalAberto] = useState(false);
+    const [modalEquipeModo, setModalEquipeModo] =
+        useState<ModalEquipeModo>("criacao");
 
-    const [banner, setBanner] =
-        useState<File | null>(null);
+    const [modalConviteAberto, setModalConviteAberto] = useState(false);
 
-    const [fotoPreview, setFotoPreview] =
+    const [nomeEquipe, setNomeEquipe] = useState("");
+
+    const [foto, setFoto] = useState<File | null>(null);
+    const [banner, setBanner] = useState<File | null>(null);
+
+    const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+    const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+
+    const [salvandoEquipe, setSalvandoEquipe] = useState(false);
+
+    const [carregandoClientes, setCarregandoClientes] = useState(false);
+    const [enviandoConvite, setEnviandoConvite] = useState(false);
+
+    const [clienteSelecionado, setClienteSelecionado] = useState("");
+
+    const [removendoIntegranteId, setRemovendoIntegranteId] =
         useState<string | null>(null);
 
-    const [bannerPreview, setBannerPreview] =
-        useState<string | null>(null);
+    const [saindoDaEquipe, setSaindoDaEquipe] = useState(false);
 
-    const [salvandoEquipe, setSalvandoEquipe] =
-        useState(false);
+    const [atualizando, setAtualizando] = useState(false);
 
-    const [erro, setErro] =
-        useState<string | null>(null);
+    /*
+     * =========================================================
+     * HELPERS
+     * =========================================================
+     */
 
+    function obterToken(): string {
+        const token = getToken();
 
-    // =========================================================
-    // BUSCAR MINHA EQUIPE
-    // =========================================================
+        if (!token) {
+            throw new Error(
+                "Sua sessão expirou. Faça login novamente."
+            );
+        }
 
-    useEffect(() => {
+        return token;
+    }
 
-        async function carregarEquipe() {
+    async function obterMensagemErro(
+        response: Response,
+        mensagemPadrao: string
+    ): Promise<string> {
+        try {
+            const data = await response.json();
 
+            if (data?.message) {
+                return data.message;
+            }
+
+            if (data?.mensagem) {
+                return data.mensagem;
+            }
+
+            if (typeof data === "string") {
+                return data;
+            }
+        } catch {
             try {
+                const texto = await response.text();
 
-                setCarregando(true);
-                setErro(null);
-
-                const token = getToken();
-
-                if (!token) {
-                    setErro("Sessão não encontrada.");
-                    return;
+                if (texto) {
+                    return texto;
                 }
+            } catch {
+                // Mantém mensagem padrão.
+            }
+        }
 
-                const response =
+        return mensagemPadrao;
+    }
+
+    /*
+     * =========================================================
+     * BUSCAR MINHA EQUIPE
+     * =========================================================
+     */
+
+    async function buscarMinhaEquipe(): Promise<Equipe | null> {
+        const token = obterToken();
+
+        const response = await fetch(
+            `${API_URL}/equipes/minha`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 404) {
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                await obterMensagemErro(
+                    response,
+                    "Não foi possível carregar a equipe."
+                )
+            );
+        }
+
+        return await response.json();
+    }
+
+    /*
+     * =========================================================
+     * BUSCAR INTEGRANTES
+     * =========================================================
+     */
+
+    async function buscarIntegrantes() {
+        if (!equipe) {
+            setIntegrantes([]);
+            return;
+        }
+
+        try {
+            setCarregandoIntegrantes(true);
+
+            const token = obterToken();
+
+            const response = await fetch(
+                `${API_URL}/equipes/minha/integrantes`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível carregar os integrantes."
+                    )
+                );
+            }
+
+            const data: Integrante[] = await response.json();
+
+            setIntegrantes(data);
+        } catch (error) {
+            console.error(
+                "Erro ao carregar integrantes:",
+                error
+            );
+
+            setIntegrantes([]);
+        } finally {
+            setCarregandoIntegrantes(false);
+        }
+    }
+
+    /*
+     * =========================================================
+     * BUSCAR CLIENTES DISPONÍVEIS
+     * =========================================================
+     */
+
+    async function buscarClientesDisponiveis() {
+        if (!podeGerenciarEquipe || !equipe) {
+            return;
+        }
+
+        try {
+            setCarregandoClientes(true);
+
+            const token = obterToken();
+
+            const response = await fetch(
+                `${API_URL}/equipes/minha/clientes-disponiveis`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível carregar os clientes disponíveis."
+                    )
+                );
+            }
+
+            const data: ClienteDisponivel[] =
+                await response.json();
+
+            setClientesDisponiveis(data);
+        } catch (error) {
+            console.error(
+                "Erro ao carregar clientes disponíveis:",
+                error
+            );
+
+            setClientesDisponiveis([]);
+        } finally {
+            setCarregandoClientes(false);
+        }
+    }
+
+    /*
+     * =========================================================
+     * BUSCAR CONVITES PENDENTES
+     * =========================================================
+     */
+
+    async function buscarConvites() {
+        if (!podeGerenciarEquipe || !equipe) {
+            setConvites([]);
+            return;
+        }
+
+        try {
+            const token = obterToken();
+
+            const response = await fetch(
+                `${API_URL}/equipes/${equipe.id}/convites`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível carregar os convites."
+                    )
+                );
+            }
+
+            const data: Convite[] =
+                await response.json();
+
+            setConvites(data);
+        } catch (error) {
+            console.error(
+                "Erro ao carregar convites:",
+                error
+            );
+
+            setConvites([]);
+        }
+    }
+
+    /*
+     * =========================================================
+     * CARREGAR DADOS DA PÁGINA
+     * =========================================================
+     */
+
+    async function carregarDados() {
+        try {
+            setCarregando(true);
+            setErro(null);
+
+            const minhaEquipe =
+                await buscarMinhaEquipe();
+
+            setEquipe(minhaEquipe);
+
+            if (!minhaEquipe) {
+                setIntegrantes([]);
+                setClientesDisponiveis([]);
+                setConvites([]);
+                return;
+            }
+
+            /*
+             * Como buscarIntegrantes usa o estado equipe,
+             * fazemos a chamada diretamente aqui para evitar
+             * depender de uma atualização assíncrona do React.
+             */
+
+            const token = obterToken();
+
+            const integrantesResponse =
+                await fetch(
+                    `${API_URL}/equipes/minha/integrantes`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            if (integrantesResponse.ok) {
+                const integrantesData =
+                    await integrantesResponse.json();
+
+                setIntegrantes(integrantesData);
+            }
+
+            if (podeGerenciarEquipe) {
+                const clientesResponse =
                     await fetch(
-                        "http://localhost:8081/equipes/minha",
+                        `${API_URL}/equipes/minha/clientes-disponiveis`,
                         {
                             method: "GET",
                             headers: {
-                                Authorization:
-                                    `Bearer ${token}`,
+                                Authorization: `Bearer ${token}`,
                             },
                         }
                     );
 
+                if (clientesResponse.ok) {
+                    const clientesData =
+                        await clientesResponse.json();
 
-                // -------------------------------------------------
-                // 404 = usuário ainda não possui equipe
-                // ISSO NÃO É UM ERRO
-                // -------------------------------------------------
-
-                if (response.status === 404) {
-
-                    setEquipe(null);
-                    setErro(null);
-
-                    return;
+                    setClientesDisponiveis(clientesData);
                 }
 
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Não foi possível carregar a equipe."
+                const convitesResponse =
+                    await fetch(
+                        `${API_URL}/equipes/${minhaEquipe.id}/convites`,
+                        {
+                            method: "GET",
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
                     );
+
+                if (convitesResponse.ok) {
+                    const convitesData =
+                        await convitesResponse.json();
+
+                    setConvites(convitesData);
                 }
-
-
-                const data =
-                    await response.json();
-
-                setEquipe(data);
-                setErro(null);
-
-            } catch (error) {
-
-                console.error(
-                    "Erro ao carregar equipe:",
-                    error
-                );
-
-                setEquipe(null);
-
-                setErro(
-                    "Não foi possível carregar os dados da equipe."
-                );
-
-            } finally {
-
-                setCarregando(false);
             }
+        } catch (error) {
+            console.error(
+                "Erro ao carregar dados da equipe:",
+                error
+            );
+
+            setEquipe(null);
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível carregar os dados da equipe."
+            );
+        } finally {
+            setCarregando(false);
         }
+    }
 
-        carregarEquipe();
-
+    useEffect(() => {
+        carregarDados();
     }, []);
 
+    /*
+     * =========================================================
+     * ATUALIZAR DADOS
+     * =========================================================
+     */
 
-    // =========================================================
-    // LIMPAR CAMPOS DO MODAL
-    // =========================================================
+    async function atualizarDados() {
+        try {
+            setAtualizando(true);
+            setErro(null);
 
-    function limparFormulario() {
+            const minhaEquipe =
+                await buscarMinhaEquipe();
 
+            setEquipe(minhaEquipe);
+
+            if (!minhaEquipe) {
+                setIntegrantes([]);
+                setClientesDisponiveis([]);
+                setConvites([]);
+                return;
+            }
+
+            const token = obterToken();
+
+            const integrantesResponse =
+                await fetch(
+                    `${API_URL}/equipes/minha/integrantes`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            if (integrantesResponse.ok) {
+                setIntegrantes(
+                    await integrantesResponse.json()
+                );
+            }
+
+            if (podeGerenciarEquipe) {
+                await Promise.all([
+                    buscarClientesDisponiveis(),
+                    buscarConvites(),
+                ]);
+            }
+        } catch (error) {
+            console.error(
+                "Erro ao atualizar equipe:",
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível atualizar os dados."
+            );
+        } finally {
+            setAtualizando(false);
+        }
+    }
+
+    /*
+     * =========================================================
+     * LIMPAR FORMULÁRIO
+     * =========================================================
+     */
+
+    function limparFormularioEquipe() {
         setNomeEquipe("");
         setFoto(null);
         setBanner(null);
         setFotoPreview(null);
         setBannerPreview(null);
-        setErro(null);
     }
 
-
-    // =========================================================
-    // ABRIR MODAL DE CRIAÇÃO
-    // =========================================================
+    /*
+     * =========================================================
+     * ABRIR MODAL DE CRIAÇÃO
+     * =========================================================
+     */
 
     function abrirModalCriacao() {
+        limparFormularioEquipe();
 
-        limparFormulario();
-
-        setModoEdicao(false);
+        setErro(null);
+        setModalEquipeModo("criacao");
         setModalAberto(true);
     }
 
-
-    // =========================================================
-    // ABRIR MODAL DE EDIÇÃO
-    // =========================================================
+    /*
+     * =========================================================
+     * ABRIR MODAL DE EDIÇÃO
+     * =========================================================
+     */
 
     function abrirModalEdicao() {
-
         if (!equipe) {
             return;
         }
@@ -199,37 +578,34 @@ function EquipePage() {
 
         setErro(null);
 
-        setModoEdicao(true);
+        setModalEquipeModo("edicao");
         setModalAberto(true);
     }
 
+    /*
+     * =========================================================
+     * FECHAR MODAL DE EQUIPE
+     * =========================================================
+     */
 
-    // =========================================================
-    // FECHAR MODAL
-    // =========================================================
-
-    function fecharModal() {
-
+    function fecharModalEquipe() {
         if (salvandoEquipe) {
             return;
         }
 
         setModalAberto(false);
-
-        limparFormulario();
-
-        setModoEdicao(false);
+        limparFormularioEquipe();
     }
 
-
-    // =========================================================
-    // SELECIONAR FOTO
-    // =========================================================
+    /*
+     * =========================================================
+     * SELECIONAR FOTO
+     * =========================================================
+     */
 
     function selecionarFoto(
-        event: React.ChangeEvent<HTMLInputElement>
+        event: ChangeEvent<HTMLInputElement>
     ) {
-
         const arquivo =
             event.target.files?.[0];
 
@@ -238,7 +614,6 @@ function EquipePage() {
         }
 
         if (!arquivo.type.startsWith("image/")) {
-
             setErro(
                 "A foto precisa ser uma imagem."
             );
@@ -252,19 +627,18 @@ function EquipePage() {
             URL.createObjectURL(arquivo);
 
         setFotoPreview(preview);
-
         setErro(null);
     }
 
-
-    // =========================================================
-    // SELECIONAR BANNER
-    // =========================================================
+    /*
+     * =========================================================
+     * SELECIONAR BANNER
+     * =========================================================
+     */
 
     function selecionarBanner(
-        event: React.ChangeEvent<HTMLInputElement>
+        event: ChangeEvent<HTMLInputElement>
     ) {
-
         const arquivo =
             event.target.files?.[0];
 
@@ -273,7 +647,6 @@ function EquipePage() {
         }
 
         if (!arquivo.type.startsWith("image/")) {
-
             setErro(
                 "O banner precisa ser uma imagem."
             );
@@ -287,77 +660,97 @@ function EquipePage() {
             URL.createObjectURL(arquivo);
 
         setBannerPreview(preview);
-
         setErro(null);
     }
 
+    /*
+     * =========================================================
+     * UPLOAD DA FOTO
+     * =========================================================
+     */
 
-    // =========================================================
-    // RECARREGAR EQUIPE
-    // =========================================================
+    async function enviarFoto(
+        equipeId: string,
+        arquivo: File
+    ) {
+        const token = obterToken();
 
-    async function recarregarEquipe() {
+        const formData = new FormData();
 
-        const token = getToken();
+        formData.append("file", arquivo);
 
-        if (!token) {
-            throw new Error(
-                "Sua sessão expirou. Faça login novamente."
-            );
-        }
-
-        const response =
-            await fetch(
-                "http://localhost:8081/equipes/minha",
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
-                }
-            );
-
-
-        // -------------------------------------------------
-        // Se por algum motivo a equipe não existir mais
-        // -------------------------------------------------
-
-        if (response.status === 404) {
-
-            setEquipe(null);
-            setErro(null);
-
-            return;
-        }
-
+        const response = await fetch(
+            `${API_URL}/equipes/${equipeId}/foto`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            }
+        );
 
         if (!response.ok) {
-
             throw new Error(
-                "Não foi possível atualizar os dados da equipe."
+                await obterMensagemErro(
+                    response,
+                    "Não foi possível atualizar a foto da equipe."
+                )
             );
         }
 
-
-        const data =
-            await response.json();
-
-        setEquipe(data);
+        return await response.json();
     }
 
+    /*
+     * =========================================================
+     * UPLOAD DO BANNER
+     * =========================================================
+     */
 
-    // =========================================================
-    // CRIAR EQUIPE
-    // =========================================================
+    async function enviarBanner(
+        equipeId: string,
+        arquivo: File
+    ) {
+        const token = obterToken();
+
+        const formData = new FormData();
+
+        formData.append("file", arquivo);
+
+        const response = await fetch(
+            `${API_URL}/equipes/${equipeId}/banner`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                await obterMensagemErro(
+                    response,
+                    "Não foi possível atualizar o banner da equipe."
+                )
+            );
+        }
+
+        return await response.json();
+    }
+
+    /*
+     * =========================================================
+     * CRIAR EQUIPE
+     * =========================================================
+     */
 
     async function criarEquipe() {
-
-        const nome =
-            nomeEquipe.trim();
+        const nome = nomeEquipe.trim();
 
         if (!nome) {
-
             setErro(
                 "Digite um nome para a equipe."
             );
@@ -366,114 +759,67 @@ function EquipePage() {
         }
 
         try {
-
             setSalvandoEquipe(true);
             setErro(null);
 
-            const token = getToken();
+            const token = obterToken();
 
-            if (!token) {
-
-                setErro(
-                    "Sua sessão expirou. Faça login novamente."
-                );
-
-                return;
-            }
-
-
-            // -------------------------------------------------
-            // FormData
-            // -------------------------------------------------
-
-            const formData =
-                new FormData();
-
-            formData.append(
-                "nome",
-                nome
+            /*
+             * O backend recebe EquipeRequestDTO em JSON.
+             */
+            const response = await fetch(
+                `${API_URL}/equipes`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        nome,
+                    }),
+                }
             );
 
-            if (foto) {
-
-                formData.append(
-                    "foto",
-                    foto
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível criar a equipe."
+                    )
                 );
+            }
+
+            let equipeCriada: Equipe =
+                await response.json();
+
+            /*
+             * Foto e banner são enviados depois da criação,
+             * porque possuem endpoints próprios no backend.
+             */
+            if (foto) {
+                equipeCriada =
+                    await enviarFoto(
+                        equipeCriada.id,
+                        foto
+                    );
             }
 
             if (banner) {
-
-                formData.append(
-                    "banner",
-                    banner
-                );
+                equipeCriada =
+                    await enviarBanner(
+                        equipeCriada.id,
+                        banner
+                    );
             }
 
-
-            // -------------------------------------------------
-            // POST /equipes
-            // -------------------------------------------------
-
-            const response =
-                await fetch(
-                    "http://localhost:8081/equipes",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-                        },
-
-                        body: formData,
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                let mensagem =
-                    "Não foi possível criar a equipe.";
-
-                try {
-
-                    const data =
-                        await response.json();
-
-                    if (data?.message) {
-                        mensagem =
-                            data.message;
-                    }
-
-                } catch {
-                    // Mantém mensagem padrão
-                }
-
-                throw new Error(
-                    mensagem
-                );
-            }
-
-
-            const data =
-                await response.json();
-
-
-            // -------------------------------------------------
-            // Equipe criada!
-            // -------------------------------------------------
-
-            setEquipe(data);
+            setEquipe(equipeCriada);
 
             setModalAberto(false);
+            limparFormularioEquipe();
 
-            limparFormulario();
-
-            setModoEdicao(false);
-
+            await atualizarDados();
         } catch (error) {
-
             console.error(
                 "Erro ao criar equipe:",
                 error
@@ -484,29 +830,25 @@ function EquipePage() {
                     ? error.message
                     : "Não foi possível criar a equipe."
             );
-
         } finally {
-
             setSalvandoEquipe(false);
         }
     }
 
-
-    // =========================================================
-    // EDITAR EQUIPE
-    // =========================================================
+    /*
+     * =========================================================
+     * EDITAR EQUIPE
+     * =========================================================
+     */
 
     async function editarEquipe() {
-
         if (!equipe) {
             return;
         }
 
-        const nome =
-            nomeEquipe.trim();
+        const nome = nomeEquipe.trim();
 
         if (!nome) {
-
             setErro(
                 "Digite um nome para a equipe."
             );
@@ -515,205 +857,70 @@ function EquipePage() {
         }
 
         try {
-
             setSalvandoEquipe(true);
             setErro(null);
 
-            const token = getToken();
+            const token = obterToken();
 
-            if (!token) {
-
-                setErro(
-                    "Sua sessão expirou. Faça login novamente."
-                );
-
-                return;
-            }
-
-
-            // =================================================
-            // 1. ATUALIZAR NOME
-            // =================================================
-
+            /*
+             * 1. Atualiza o nome
+             */
             const nomeResponse =
                 await fetch(
-                    `http://localhost:8081/equipes/${equipe.id}`,
+                    `${API_URL}/equipes/${equipe.id}`,
                     {
                         method: "PUT",
-
                         headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            "Content-Type":
-                                "application/json",
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
                         },
-
                         body: JSON.stringify({
-                            nome: nome,
+                            nome,
                         }),
                     }
                 );
 
-
             if (!nomeResponse.ok) {
-
-                let mensagem =
-                    "Não foi possível atualizar o nome da equipe.";
-
-                try {
-
-                    const data =
-                        await nomeResponse.json();
-
-                    if (data?.message) {
-                        mensagem =
-                            data.message;
-                    }
-
-                } catch {
-                    // Mantém mensagem padrão
-                }
-
                 throw new Error(
-                    mensagem
+                    await obterMensagemErro(
+                        nomeResponse,
+                        "Não foi possível atualizar o nome da equipe."
+                    )
                 );
             }
 
+            let equipeAtualizada: Equipe =
+                await nomeResponse.json();
 
-            // =================================================
-            // 2. ATUALIZAR FOTO
-            // =================================================
-
+            /*
+             * 2. Atualiza foto, se uma nova foi selecionada
+             */
             if (foto) {
-
-                const fotoFormData =
-                    new FormData();
-
-                fotoFormData.append(
-                    "foto",
-                    foto
-                );
-
-
-                const fotoResponse =
-                    await fetch(
-                        `http://localhost:8081/equipes/${equipe.id}/foto`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                Authorization:
-                                    `Bearer ${token}`,
-                            },
-
-                            body: fotoFormData,
-                        }
+                equipeAtualizada =
+                    await enviarFoto(
+                        equipe.id,
+                        foto
                     );
-
-
-                if (!fotoResponse.ok) {
-
-                    let mensagem =
-                        "O nome foi atualizado, mas não foi possível atualizar a foto.";
-
-                    try {
-
-                        const data =
-                            await fotoResponse.json();
-
-                        if (data?.message) {
-                            mensagem =
-                                data.message;
-                        }
-
-                    } catch {
-                        // Mantém mensagem padrão
-                    }
-
-                    throw new Error(
-                        mensagem
-                    );
-                }
             }
 
-
-            // =================================================
-            // 3. ATUALIZAR BANNER
-            // =================================================
-
+            /*
+             * 3. Atualiza banner, se um novo foi selecionado
+             */
             if (banner) {
-
-                const bannerFormData =
-                    new FormData();
-
-                bannerFormData.append(
-                    "banner",
-                    banner
-                );
-
-
-                const bannerResponse =
-                    await fetch(
-                        `http://localhost:8081/equipes/${equipe.id}/banner`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                Authorization:
-                                    `Bearer ${token}`,
-                            },
-
-                            body: bannerFormData,
-                        }
+                equipeAtualizada =
+                    await enviarBanner(
+                        equipe.id,
+                        banner
                     );
-
-
-                if (!bannerResponse.ok) {
-
-                    let mensagem =
-                        "Os dados anteriores foram atualizados, mas não foi possível atualizar o banner.";
-
-                    try {
-
-                        const data =
-                            await bannerResponse.json();
-
-                        if (data?.message) {
-                            mensagem =
-                                data.message;
-                        }
-
-                    } catch {
-                        // Mantém mensagem padrão
-                    }
-
-                    throw new Error(
-                        mensagem
-                    );
-                }
             }
 
-
-            // =================================================
-            // 4. RECARREGAR EQUIPE DO BACKEND
-            // =================================================
-
-            await recarregarEquipe();
-
-
-            // =================================================
-            // 5. FECHAR MODAL
-            // =================================================
+            setEquipe(equipeAtualizada);
 
             setModalAberto(false);
+            limparFormularioEquipe();
 
-            limparFormulario();
-
-            setModoEdicao(false);
-
+            await atualizarDados();
         } catch (error) {
-
             console.error(
                 "Erro ao editar equipe:",
                 error
@@ -724,48 +931,291 @@ function EquipePage() {
                     ? error.message
                     : "Não foi possível editar a equipe."
             );
-
         } finally {
-
             setSalvandoEquipe(false);
         }
     }
 
-
-    // =========================================================
-    // SALVAR MODAL
-    // =========================================================
+    /*
+     * =========================================================
+     * SALVAR EQUIPE
+     * =========================================================
+     */
 
     function salvarEquipe() {
-
-        if (modoEdicao) {
-
+        if (modalEquipeModo === "edicao") {
             editarEquipe();
-
             return;
         }
 
         criarEquipe();
     }
 
+    /*
+     * =========================================================
+     * ABRIR MODAL DE CONVITE
+     * =========================================================
+     */
 
-    // =========================================================
-    // ESC PARA FECHAR MODAL
-    // =========================================================
+    async function abrirModalConvite() {
+        if (!equipe) {
+            return;
+        }
+
+        setClienteSelecionado("");
+        setErro(null);
+        setModalConviteAberto(true);
+
+        await buscarClientesDisponiveis();
+    }
+
+    /*
+     * =========================================================
+     * FECHAR MODAL DE CONVITE
+     * =========================================================
+     */
+
+    function fecharModalConvite() {
+        if (enviandoConvite) {
+            return;
+        }
+
+        setModalConviteAberto(false);
+        setClienteSelecionado("");
+    }
+
+    /*
+     * =========================================================
+     * ENVIAR CONVITE
+     * =========================================================
+     */
+
+    async function enviarConvite() {
+        if (!equipe) {
+            return;
+        }
+
+        if (!clienteSelecionado) {
+            setErro(
+                "Selecione um usuário para convidar."
+            );
+
+            return;
+        }
+
+        try {
+            setEnviandoConvite(true);
+            setErro(null);
+
+            const token = obterToken();
+
+            const response = await fetch(
+                `${API_URL}/equipes/${equipe.id}/convites/${clienteSelecionado}`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível enviar o convite."
+                    )
+                );
+            }
+
+            setModalConviteAberto(false);
+            setClienteSelecionado("");
+
+            await Promise.all([
+                buscarClientesDisponiveis(),
+                buscarConvites(),
+            ]);
+        } catch (error) {
+            console.error(
+                "Erro ao enviar convite:",
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível enviar o convite."
+            );
+        } finally {
+            setEnviandoConvite(false);
+        }
+    }
+
+    /*
+     * =========================================================
+     * REMOVER INTEGRANTE
+     * =========================================================
+     */
+
+    async function removerIntegrante(
+        usuarioId: string
+    ) {
+        if (!equipe) {
+            return;
+        }
+
+        const integrante =
+            integrantes.find(
+                (item) => item.id === usuarioId
+            );
+
+        if (!integrante) {
+            return;
+        }
+
+        const confirmar =
+            window.confirm(
+                `Deseja realmente remover ${integrante.nome} da equipe?`
+            );
+
+        if (!confirmar) {
+            return;
+        }
+
+        try {
+            setRemovendoIntegranteId(usuarioId);
+            setErro(null);
+
+            const token = obterToken();
+
+            const response =
+                await fetch(
+                    `${API_URL}/equipes/${equipe.id}/integrantes/${usuarioId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível remover o integrante."
+                    )
+                );
+            }
+
+            await Promise.all([
+                buscarIntegrantes(),
+                buscarClientesDisponiveis(),
+            ]);
+        } catch (error) {
+            console.error(
+                "Erro ao remover integrante:",
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível remover o integrante."
+            );
+        } finally {
+            setRemovendoIntegranteId(null);
+        }
+    }
+
+    /*
+     * =========================================================
+     * TÉCNICO SAIR DA EQUIPE
+     * =========================================================
+     */
+
+    async function sairDaEquipe() {
+        const confirmar =
+            window.confirm(
+                "Deseja realmente sair desta equipe?"
+            );
+
+        if (!confirmar) {
+            return;
+        }
+
+        try {
+            setSaindoDaEquipe(true);
+            setErro(null);
+
+            const token = obterToken();
+
+            const response =
+                await fetch(
+                    `${API_URL}/equipes/minha/integrantes`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        "Não foi possível sair da equipe."
+                    )
+                );
+            }
+
+            setEquipe(null);
+            setIntegrantes([]);
+            setClientesDisponiveis([]);
+            setConvites([]);
+        } catch (error) {
+            console.error(
+                "Erro ao sair da equipe:",
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível sair da equipe."
+            );
+        } finally {
+            setSaindoDaEquipe(false);
+        }
+    }
+
+    /*
+     * =========================================================
+     * ESC PARA FECHAR MODAIS
+     * =========================================================
+     */
 
     useEffect(() => {
-
         function handleEscape(
             event: KeyboardEvent
         ) {
+            if (event.key !== "Escape") {
+                return;
+            }
 
             if (
-                event.key === "Escape"
-                && modalAberto
-                && !salvandoEquipe
+                modalAberto &&
+                !salvandoEquipe
             ) {
+                fecharModalEquipe();
+            }
 
-                fecharModal();
+            if (
+                modalConviteAberto &&
+                !enviandoConvite
+            ) {
+                fecharModalConvite();
             }
         }
 
@@ -775,646 +1225,36 @@ function EquipePage() {
         );
 
         return () => {
-
             document.removeEventListener(
                 "keydown",
                 handleEscape
             );
         };
-
     }, [
         modalAberto,
-        salvandoEquipe
+        salvandoEquipe,
+        modalConviteAberto,
+        enviandoConvite,
     ]);
 
+    /*
+     * =========================================================
+     * RENDER
+     * =========================================================
+     */
 
     return (
         <>
-            <style>{`
-                .equipe-page {
-                    min-height: 100vh;
-                    padding: 40px 48px 56px;
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    box-sizing: border-box;
-                }
-
-                .equipe-page-header {
-                    display: flex;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    gap: 24px;
-                    margin-bottom: 28px;
-                }
-
-                .equipe-page-kicker {
-                    display: block;
-                    margin-bottom: 8px;
-                    color: var(--color-primary, #FB4A14);
-                    font-size: 12px;
-                    font-weight: 700;
-                    letter-spacing: 0.12em;
-                    text-transform: uppercase;
-                }
-
-                .equipe-page-title {
-                    margin: 0;
-                    color: var(--color-text, #262626);
-                    font-size: 32px;
-                    line-height: 1.15;
-                    font-weight: 750;
-                    letter-spacing: -0.025em;
-                }
-
-                .equipe-page-subtitle {
-                    margin: 8px 0 0;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 15px;
-                    line-height: 1.5;
-                }
-
-                .equipe-primary-button,
-                .equipe-secondary-button {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    border-radius: 10px;
-                    padding: 11px 16px;
-                    font: inherit;
-                    font-size: 14px;
-                    font-weight: 650;
-                    cursor: pointer;
-                    transition:
-                        transform 140ms ease,
-                        box-shadow 140ms ease,
-                        background 140ms ease,
-                        border-color 140ms ease;
-                }
-
-                .equipe-primary-button {
-                    flex-shrink: 0;
-                    border: 1px solid var(--color-primary, #FB4A14);
-                    background: var(--color-primary, #FB4A14);
-                    color: #ffffff;
-                    box-shadow: 0 4px 12px rgba(251, 74, 20, 0.18);
-                }
-
-                .equipe-primary-button:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 6px 16px rgba(251, 74, 20, 0.24);
-                }
-
-                .equipe-primary-button:disabled {
-                    opacity: 0.65;
-                    cursor: not-allowed;
-                    transform: none;
-                    box-shadow: none;
-                }
-
-                .equipe-secondary-button {
-                    margin-left: auto;
-                    border: 1px solid var(--color-border-strong, rgba(67, 70, 86, 0.24));
-                    background: var(--color-surface, #ffffff);
-                    color: var(--color-text, #262626);
-                }
-
-                .equipe-secondary-button:hover {
-                    border-color: var(--color-primary, #FB4A14);
-                    color: var(--color-primary, #FB4A14);
-                }
-
-                .equipe-primary-button:focus-visible,
-                .equipe-secondary-button:focus-visible {
-                    outline: 3px solid rgba(251, 74, 20, 0.2);
-                    outline-offset: 2px;
-                }
-
-                .equipe-card {
-                    border: 1px solid var(--color-border, rgba(67, 70, 86, 0.15));
-                    border-radius: 16px;
-                    background: var(--color-surface, #ffffff);
-                    box-shadow: var(--shadow-card, 0 2px 10px rgba(0, 0, 0, 0.04));
-                }
-
-                .equipe-header-card {
-                    overflow: hidden;
-                    margin-bottom: 32px;
-                }
-
-                .equipe-banner {
-                    position: relative;
-                    height: 220px;
-                    overflow: hidden;
-                    background:
-                        radial-gradient(
-                            circle at 18% 30%,
-                            rgba(251, 74, 20, 0.36),
-                            transparent 28%
-                        ),
-                        radial-gradient(
-                            circle at 80% 20%,
-                            rgba(251, 74, 20, 0.2),
-                            transparent 30%
-                        ),
-                        linear-gradient(
-                            135deg,
-                            #252525 0%,
-                            #3b3b3b 50%,
-                            #202020 100%
-                        );
-                }
-
-                .equipe-banner-image {
-                    position: absolute;
-                    inset: 0;
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .equipe-banner::after {
-                    content: "";
-                    position: absolute;
-                    inset: 0;
-                    background:
-                        linear-gradient(
-                            120deg,
-                            transparent 0%,
-                            rgba(255, 255, 255, 0.035) 45%,
-                            transparent 70%
-                        );
-                    pointer-events: none;
-                }
-
-                .equipe-banner-placeholder {
-                    position: absolute;
-                    width: 180px;
-                    height: 180px;
-                    right: 9%;
-                    top: 20px;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 50%;
-                    transform: rotate(18deg);
-                }
-
-                .equipe-banner-placeholder::before,
-                .equipe-banner-placeholder::after {
-                    content: "";
-                    position: absolute;
-                    inset: 24px;
-                    border: 1px solid rgba(255, 255, 255, 0.07);
-                    border-radius: 50%;
-                }
-
-                .equipe-banner-placeholder::after {
-                    inset: 48px;
-                }
-
-                .equipe-info {
-                    display: flex;
-                    align-items: center;
-                    gap: 18px;
-                    padding: 22px 24px 24px;
-                }
-
-                .equipe-avatar {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                    width: 76px;
-                    height: 76px;
-                    margin-top: -56px;
-                    border: 4px solid var(--color-surface, #ffffff);
-                    border-radius: 20px;
-                    background:
-                        linear-gradient(
-                            145deg,
-                            var(--color-primary, #FB4A14),
-                            #ff774c
-                        );
-                    color: #ffffff;
-                    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.14);
-                    z-index: 1;
-                    overflow: hidden;
-                }
-
-                .equipe-avatar-image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .equipe-info-text {
-                    min-width: 0;
-                }
-
-                .equipe-info-text h2 {
-                    margin: 0;
-                    color: var(--color-text, #262626);
-                    font-size: 21px;
-                    line-height: 1.25;
-                    font-weight: 720;
-                }
-
-                .equipe-info-text p {
-                    margin: 5px 0 0;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 14px;
-                    line-height: 1.45;
-                }
-
-                .equipe-members-section {
-                    width: 100%;
-                }
-
-                .equipe-section-header {
-                    display: flex;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    gap: 20px;
-                    margin-bottom: 14px;
-                }
-
-                .equipe-section-header h2 {
-                    margin: 0;
-                    color: var(--color-text, #262626);
-                    font-size: 20px;
-                    font-weight: 720;
-                    letter-spacing: -0.015em;
-                }
-
-                .equipe-section-header p {
-                    margin: 5px 0 0;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 14px;
-                }
-
-                .equipe-member-count {
-                    flex-shrink: 0;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-                .equipe-empty-card {
-                    min-height: 300px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 40px 24px;
-                    text-align: center;
-                    color: var(--color-text-muted, #737373);
-                }
-
-                .equipe-empty-card > svg {
-                    margin-bottom: 14px;
-                    opacity: 0.55;
-                }
-
-                .equipe-empty-card h3 {
-                    margin: 0;
-                    color: var(--color-text, #262626);
-                    font-size: 17px;
-                    font-weight: 700;
-                }
-
-                .equipe-empty-card p {
-                    max-width: 430px;
-                    margin: 7px 0 20px;
-                    font-size: 14px;
-                    line-height: 1.55;
-                }
-
-                .equipe-loading {
-                    min-height: 300px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 14px;
-                }
-
-                .equipe-error {
-                    margin-bottom: 18px;
-                    padding: 12px 14px;
-                    border: 1px solid rgba(190, 30, 45, 0.2);
-                    border-radius: 10px;
-                    background: rgba(190, 30, 45, 0.06);
-                    color: #a51d2d;
-                    font-size: 14px;
-                }
-
-                /* =====================================================
-                   MODAL
-                   ===================================================== */
-
-                .equipe-modal-overlay {
-                    position: fixed;
-                    inset: 0;
-                    z-index: 1000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 24px;
-                    background: rgba(0, 0, 0, 0.48);
-                    backdrop-filter: blur(4px);
-                }
-
-                .equipe-modal {
-                    width: min(620px, 100%);
-                    max-height: calc(100vh - 48px);
-                    overflow-y: auto;
-                    border: 1px solid var(--color-border, rgba(67, 70, 86, 0.15));
-                    border-radius: 18px;
-                    background: var(--color-surface, #ffffff);
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
-                }
-
-                .equipe-modal-header {
-                    display: flex;
-                    align-items: flex-start;
-                    justify-content: space-between;
-                    gap: 16px;
-                    padding: 24px 24px 18px;
-                    border-bottom: 1px solid var(--color-border, rgba(67, 70, 86, 0.15));
-                }
-
-                .equipe-modal-header h2 {
-                    margin: 0;
-                    color: var(--color-text, #262626);
-                    font-size: 21px;
-                    font-weight: 720;
-                }
-
-                .equipe-modal-header p {
-                    margin: 5px 0 0;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 13px;
-                    line-height: 1.45;
-                }
-
-                .equipe-modal-close {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 34px;
-                    height: 34px;
-                    flex-shrink: 0;
-                    border: 0;
-                    border-radius: 9px;
-                    background: transparent;
-                    color: var(--color-text-muted, #737373);
-                    cursor: pointer;
-                }
-
-                .equipe-modal-close:hover {
-                    background: var(--color-surface-2, #f2f2f6);
-                    color: var(--color-text, #262626);
-                }
-
-                .equipe-modal-body {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                    padding: 24px;
-                }
-
-                .equipe-form-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .equipe-form-label {
-                    color: var(--color-text, #262626);
-                    font-size: 13px;
-                    font-weight: 700;
-                }
-
-                .equipe-form-input {
-                    width: 100%;
-                    box-sizing: border-box;
-                    padding: 12px 13px;
-                    border: 1px solid var(--color-border-strong, rgba(67, 70, 86, 0.24));
-                    border-radius: 10px;
-                    background: var(--color-surface, #ffffff);
-                    color: var(--color-text, #262626);
-                    font: inherit;
-                    font-size: 14px;
-                    outline: none;
-                    transition:
-                        border-color 140ms ease,
-                        box-shadow 140ms ease;
-                }
-
-                .equipe-form-input:focus {
-                    border-color: var(--color-primary, #FB4A14);
-                    box-shadow: 0 0 0 3px rgba(251, 74, 20, 0.12);
-                }
-
-                .equipe-upload-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 16px;
-                }
-
-                .equipe-upload-box {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .equipe-upload-label {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    min-height: 120px;
-                    padding: 14px;
-                    box-sizing: border-box;
-                    border: 1px dashed var(--color-border-strong, rgba(67, 70, 86, 0.24));
-                    border-radius: 12px;
-                    background: var(--color-surface-2, #f2f2f6);
-                    color: var(--color-text-muted, #737373);
-                    cursor: pointer;
-                    overflow: hidden;
-                    transition:
-                        border-color 140ms ease,
-                        background 140ms ease;
-                }
-
-                .equipe-upload-label:hover {
-                    border-color: var(--color-primary, #FB4A14);
-                    background: rgba(251, 74, 20, 0.035);
-                }
-
-                .equipe-upload-label-content {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 7px;
-                    text-align: center;
-                }
-
-                .equipe-upload-label-content span {
-                    font-size: 12px;
-                    font-weight: 650;
-                }
-
-                .equipe-upload-preview {
-                    width: 100%;
-                    height: 120px;
-                    object-fit: cover;
-                    border-radius: 8px;
-                }
-
-                .equipe-upload-input {
-                    display: none;
-                }
-
-                .equipe-upload-name {
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    color: var(--color-text-muted, #737373);
-                    font-size: 11px;
-                }
-
-                .equipe-modal-footer {
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 10px;
-                    padding: 18px 24px 24px;
-                    border-top: 1px solid var(--color-border, rgba(67, 70, 86, 0.15));
-                }
-
-                .equipe-modal-cancel {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 11px 16px;
-                    border: 1px solid var(--color-border-strong, rgba(67, 70, 86, 0.24));
-                    border-radius: 10px;
-                    background: var(--color-surface, #ffffff);
-                    color: var(--color-text, #262626);
-                    font: inherit;
-                    font-size: 14px;
-                    font-weight: 650;
-                    cursor: pointer;
-                }
-
-                .equipe-modal-cancel:hover {
-                    border-color: var(--color-primary, #FB4A14);
-                }
-
-                @media (max-width: 900px) {
-                    .equipe-page {
-                        padding: 32px 28px 48px;
-                    }
-
-                    .equipe-banner {
-                        height: 190px;
-                    }
-
-                    .equipe-page-header {
-                        align-items: flex-start;
-                        flex-direction: column;
-                    }
-
-                    .equipe-primary-button {
-                        width: 100%;
-                    }
-                }
-
-                @media (max-width: 600px) {
-                    .equipe-page {
-                        padding: 24px 18px 40px;
-                    }
-
-                    .equipe-page-title {
-                        font-size: 27px;
-                    }
-
-                    .equipe-banner {
-                        height: 150px;
-                    }
-
-                    .equipe-info {
-                        align-items: flex-start;
-                        flex-wrap: wrap;
-                        padding: 18px;
-                    }
-
-                    .equipe-avatar {
-                        width: 64px;
-                        height: 64px;
-                        margin-top: -46px;
-                        border-radius: 16px;
-                    }
-
-                    .equipe-info-text {
-                        padding-top: 2px;
-                        max-width: calc(100% - 82px);
-                    }
-
-                    .equipe-secondary-button {
-                        width: 100%;
-                        margin-left: 0;
-                    }
-
-                    .equipe-section-header {
-                        align-items: flex-start;
-                        flex-direction: column;
-                        gap: 7px;
-                    }
-
-                    .equipe-empty-card {
-                        min-height: 260px;
-                    }
-
-                    .equipe-upload-grid {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .equipe-modal-overlay {
-                        padding: 12px;
-                    }
-
-                    .equipe-modal {
-                        max-height: calc(100vh - 24px);
-                    }
-
-                    .equipe-modal-header,
-                    .equipe-modal-body,
-                    .equipe-modal-footer {
-                        padding-left: 18px;
-                        padding-right: 18px;
-                    }
-
-                    .equipe-modal-footer {
-                        flex-direction: column-reverse;
-                    }
-
-                    .equipe-modal-footer button {
-                        width: 100%;
-                    }
-                }
-            `}</style>
 
             <main className="equipe-page">
 
                 {/* =====================================================
                     CABEÇALHO
-                ===================================================== */}
+                ====================================================== */}
 
                 <header className="equipe-page-header">
 
                     <div>
-
                         <span className="equipe-page-kicker">
                             Equipe
                         </span>
@@ -1426,36 +1266,51 @@ function EquipePage() {
                         <p className="equipe-page-subtitle">
                             Visualize e gerencie os integrantes da sua equipe.
                         </p>
-
                     </div>
 
-                    {podeGerenciarEquipe && equipe && (
-                        <button
-                            type="button"
-                            className="equipe-primary-button"
-                        >
-                            <UserAdd01Icon size={18} />
-                            Convidar usuário
-                        </button>
-                    )}
+                    <div className="equipe-header-actions">
+                        {equipe && (
+                            <button
+                                type="button"
+                                className="equipe-button equipe-secondary-button"
+                                onClick={atualizarDados}
+                                disabled={atualizando}
+                            >
+                                <Refresh01Icon size={17} />
+
+                                {atualizando
+                                    ? "Atualizando..."
+                                    : "Atualizar"}
+                            </button>
+                        )}
+
+                        {podeGerenciarEquipe && equipe && (
+                            <button
+                                type="button"
+                                className="equipe-button equipe-primary-button"
+                                onClick={abrirModalConvite}
+                            >
+                                <UserAdd01Icon size={18} />
+                                Convidar usuário
+                            </button>
+                        )}
+                    </div>
 
                 </header>
 
-
                 {/* =====================================================
                     ERRO
-                ===================================================== */}
+                ====================================================== */}
 
-                {erro && !modalAberto && (
+                {erro && !modalAberto && !modalConviteAberto && (
                     <div className="equipe-error">
                         {erro}
                     </div>
                 )}
 
-
                 {/* =====================================================
                     LOADING
-                ===================================================== */}
+                ====================================================== */}
 
                 {carregando ? (
 
@@ -1465,9 +1320,11 @@ function EquipePage() {
 
                 ) : !equipe ? (
 
-                    /* =================================================
-                       SEM EQUIPE
-                    ================================================= */
+                    /*
+                     * =================================================
+                     * SEM EQUIPE
+                     * =================================================
+                     */
 
                     <section className="equipe-members-section">
 
@@ -1480,17 +1337,16 @@ function EquipePage() {
                             </h3>
 
                             <p>
-                                Crie sua equipe para começar a organizar
-                                os integrantes e gerenciar sua produção.
+                                {isTecnico
+                                    ? "Você ainda não está vinculado a nenhuma equipe."
+                                    : "Crie sua equipe para começar a organizar os integrantes e gerenciar sua produção."}
                             </p>
 
                             {podeGerenciarEquipe && (
                                 <button
                                     type="button"
-                                    className="equipe-primary-button"
-                                    onClick={
-                                        abrirModalCriacao
-                                    }
+                                    className="equipe-button equipe-primary-button"
+                                    onClick={abrirModalCriacao}
                                 >
                                     <UserGroupIcon size={18} />
                                     Criar equipe
@@ -1503,12 +1359,21 @@ function EquipePage() {
 
                 ) : (
 
-                    /* =================================================
-                       EQUIPE EXISTENTE
-                    ================================================= */
+                    /*
+                     * =================================================
+                     * EQUIPE EXISTENTE
+                     * =================================================
+                     */
 
                     <>
-                        <section className="equipe-card equipe-header-card">
+
+                        {/* =================================================
+                            HEADER DA EQUIPE
+                        ================================================== */}
+
+                        <section
+                            className="equipe-card equipe-header-card"
+                        >
 
                             <div className="equipe-banner">
 
@@ -1529,7 +1394,6 @@ function EquipePage() {
                                 )}
 
                             </div>
-
 
                             <div className="equipe-info">
 
@@ -1557,7 +1421,6 @@ function EquipePage() {
 
                                 </div>
 
-
                                 <div className="equipe-info-text">
 
                                     <h2>
@@ -1570,23 +1433,42 @@ function EquipePage() {
 
                                 </div>
 
+                                <div className="equipe-info-actions">
 
-                                {podeGerenciarEquipe && (
-                                    <button
-                                        type="button"
-                                        className="equipe-secondary-button"
-                                        onClick={
-                                            abrirModalEdicao
-                                        }
-                                    >
-                                        Editar equipe
-                                    </button>
-                                )}
+                                    {podeGerenciarEquipe && (
+                                        <button
+                                            type="button"
+                                            className="equipe-button equipe-secondary-button"
+                                            onClick={abrirModalEdicao}
+                                        >
+                                            Editar equipe
+                                        </button>
+                                    )}
+
+                                    {isTecnico && (
+                                        <button
+                                            type="button"
+                                            className="equipe-button equipe-danger-button"
+                                            onClick={sairDaEquipe}
+                                            disabled={saindoDaEquipe}
+                                        >
+                                            <UserRemove01Icon size={17} />
+
+                                            {saindoDaEquipe
+                                                ? "Saindo..."
+                                                : "Sair da equipe"}
+                                        </button>
+                                    )}
+
+                                </div>
 
                             </div>
 
                         </section>
 
+                        {/* =================================================
+                            INTEGRANTES
+                        ================================================== */}
 
                         <section className="equipe-members-section">
 
@@ -1605,51 +1487,220 @@ function EquipePage() {
                                 </div>
 
                                 <span className="equipe-member-count">
-                                    0 integrantes
+                                    {integrantes.length}{" "}
+                                    {integrantes.length === 1
+                                        ? "integrante"
+                                        : "integrantes"}
                                 </span>
 
                             </div>
 
+                            <div className="equipe-card">
 
-                            <div className="equipe-card equipe-empty-card">
+                                {carregandoIntegrantes ? (
 
-                                <UserGroupIcon size={34} />
+                                    <div className="equipe-loading">
+                                        Carregando integrantes...
+                                    </div>
 
-                                <h3>
-                                    Nenhum integrante ainda
-                                </h3>
+                                ) : integrantes.length === 0 ? (
 
-                                <p>
-                                    {isTecnico
-                                        ? "Você ainda não está vinculado a uma equipe."
-                                        : isGerente || isAdmin
-                                            ? "Convide usuários para começar a montar sua equipe."
-                                            : "Nenhum integrante encontrado."}
-                                </p>
+                                    <div className="equipe-empty-card">
 
-                                {podeGerenciarEquipe && (
-                                    <button
-                                        type="button"
-                                        className="equipe-primary-button"
-                                    >
-                                        <UserAdd01Icon size={18} />
-                                        Convidar primeiro integrante
-                                    </button>
+                                        <UserGroupIcon size={34} />
+
+                                        <h3>
+                                            Nenhum integrante ainda
+                                        </h3>
+
+                                        <p>
+                                            {podeGerenciarEquipe
+                                                ? "Convide usuários para começar a montar sua equipe."
+                                                : "Nenhum integrante encontrado."}
+                                        </p>
+
+                                        {podeGerenciarEquipe && (
+                                            <button
+                                                type="button"
+                                                className="equipe-button equipe-primary-button"
+                                                onClick={abrirModalConvite}
+                                            >
+                                                <UserAdd01Icon size={18} />
+                                                Convidar primeiro integrante
+                                            </button>
+                                        )}
+
+                                    </div>
+
+                                ) : (
+
+                                    <div className="equipe-list">
+
+                                        {integrantes.map(
+                                            (integrante) => (
+
+                                                <div
+                                                    className="equipe-member"
+                                                    key={integrante.id}
+                                                >
+
+                                                    <div className="equipe-member-avatar">
+                                                        <UserGroupIcon
+                                                            size={20}
+                                                        />
+                                                    </div>
+
+                                                    <div className="equipe-member-main">
+
+                                                        <p className="equipe-member-name">
+                                                            {integrante.nome}
+                                                        </p>
+
+                                                        <div className="equipe-member-email">
+                                                            {integrante.email}
+                                                        </div>
+
+                                                    </div>
+
+                                                    <span className="equipe-member-role">
+                                                        {integrante.role}
+                                                    </span>
+
+                                                    {podeGerenciarEquipe && (
+                                                        <div className="equipe-member-actions">
+
+                                                            <button
+                                                                type="button"
+                                                                className="equipe-icon-button"
+                                                                title="Remover integrante"
+                                                                onClick={() =>
+                                                                    removerIntegrante(
+                                                                        integrante.id
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    removendoIntegranteId ===
+                                                                    integrante.id
+                                                                }
+                                                            >
+                                                                <UserRemove01Icon
+                                                                    size={17}
+                                                                />
+                                                            </button>
+
+                                                        </div>
+                                                    )}
+
+                                                </div>
+
+                                            )
+                                        )}
+
+                                    </div>
+
                                 )}
 
                             </div>
 
                         </section>
+
+                        {/* =================================================
+                            CONVITES PENDENTES
+                        ================================================== */}
+
+                        {podeGerenciarEquipe && (
+                            <section className="equipe-members-section equipe-invites-card">
+
+                                <div className="equipe-section-header">
+
+                                    <div>
+
+                                        <h2>
+                                            Convites pendentes
+                                        </h2>
+
+                                        <p>
+                                            Usuários que ainda precisam responder ao convite.
+                                        </p>
+
+                                    </div>
+
+                                    <span className="equipe-member-count">
+                                        {convites.length}{" "}
+                                        {convites.length === 1
+                                            ? "convite"
+                                            : "convites"}
+                                    </span>
+
+                                </div>
+
+                                <div className="equipe-card">
+
+                                    {convites.length === 0 ? (
+
+                                        <div className="equipe-empty-invites">
+                                            Nenhum convite pendente.
+                                        </div>
+
+                                    ) : (
+
+                                        convites.map(
+                                            (convite) => (
+
+                                                <div
+                                                    className="equipe-invite-item"
+                                                    key={convite.id}
+                                                >
+
+                                                    <div className="equipe-invite-icon">
+                                                        <Mail01Icon
+                                                            size={19}
+                                                        />
+                                                    </div>
+
+                                                    <div className="equipe-invite-main">
+
+                                                        <p className="equipe-invite-name">
+                                                            {convite.usuarioNome ||
+                                                                "Usuário"}
+                                                        </p>
+
+                                                        <p className="equipe-invite-date">
+                                                            Expira em{" "}
+                                                            {new Date(
+                                                                convite.expiraEm
+                                                            ).toLocaleString(
+                                                                "pt-BR"
+                                                            )}
+                                                        </p>
+
+                                                    </div>
+
+                                                    <span className="equipe-pending-badge">
+                                                        Pendente
+                                                    </span>
+
+                                                </div>
+
+                                            )
+                                        )
+
+                                    )}
+
+                                </div>
+
+                            </section>
+                        )}
+
                     </>
 
                 )}
 
             </main>
 
-
             {/* =========================================================
-                MODAL DE CRIAÇÃO / EDIÇÃO
-            ========================================================= */}
+                MODAL DE CRIAÇÃO / EDIÇÃO DA EQUIPE
+            ========================================================== */}
 
             {modalAberto && (
 
@@ -1661,8 +1712,7 @@ function EquipePage() {
                             event.target ===
                             event.currentTarget
                         ) {
-
-                            fecharModal();
+                            fecharModalEquipe();
                         }
 
                     }}
@@ -1670,20 +1720,18 @@ function EquipePage() {
 
                     <div className="equipe-modal">
 
-                        {/* HEADER */}
-
                         <div className="equipe-modal-header">
 
                             <div>
 
                                 <h2>
-                                    {modoEdicao
+                                    {modalEquipeModo === "edicao"
                                         ? "Editar equipe"
                                         : "Criar equipe"}
                                 </h2>
 
                                 <p>
-                                    {modoEdicao
+                                    {modalEquipeModo === "edicao"
                                         ? "Atualize as informações da sua equipe."
                                         : "Configure as informações iniciais da sua equipe."}
                                 </p>
@@ -1694,7 +1742,7 @@ function EquipePage() {
                                 type="button"
                                 className="equipe-modal-close"
                                 onClick={
-                                    fecharModal
+                                    fecharModalEquipe
                                 }
                                 disabled={
                                     salvandoEquipe
@@ -1705,9 +1753,6 @@ function EquipePage() {
 
                         </div>
 
-
-                        {/* BODY */}
-
                         <div className="equipe-modal-body">
 
                             {erro && (
@@ -1715,7 +1760,6 @@ function EquipePage() {
                                     {erro}
                                 </div>
                             )}
-
 
                             {/* NOME */}
 
@@ -1748,7 +1792,6 @@ function EquipePage() {
                                 />
 
                             </div>
-
 
                             {/* UPLOADS */}
 
@@ -1783,7 +1826,8 @@ function EquipePage() {
                                                 />
 
                                                 <span>
-                                                    {modoEdicao
+                                                    {modalEquipeModo ===
+                                                    "edicao"
                                                         ? "Trocar foto"
                                                         : "Selecionar foto"}
                                                 </span>
@@ -1814,7 +1858,6 @@ function EquipePage() {
 
                                 </div>
 
-
                                 {/* BANNER */}
 
                                 <div className="equipe-upload-box">
@@ -1844,7 +1887,8 @@ function EquipePage() {
                                                 />
 
                                                 <span>
-                                                    {modoEdicao
+                                                    {modalEquipeModo ===
+                                                    "edicao"
                                                         ? "Trocar banner"
                                                         : "Selecionar banner"}
                                                 </span>
@@ -1879,16 +1923,13 @@ function EquipePage() {
 
                         </div>
 
-
-                        {/* FOOTER */}
-
                         <div className="equipe-modal-footer">
 
                             <button
                                 type="button"
                                 className="equipe-modal-cancel"
                                 onClick={
-                                    fecharModal
+                                    fecharModalEquipe
                                 }
                                 disabled={
                                     salvandoEquipe
@@ -1899,7 +1940,7 @@ function EquipePage() {
 
                             <button
                                 type="button"
-                                className="equipe-primary-button"
+                                className="equipe-button equipe-primary-button"
                                 onClick={
                                     salvarEquipe
                                 }
@@ -1908,10 +1949,12 @@ function EquipePage() {
                                 }
                             >
                                 {salvandoEquipe
-                                    ? modoEdicao
+                                    ? modalEquipeModo ===
+                                      "edicao"
                                         ? "Salvando..."
                                         : "Criando..."
-                                    : modoEdicao
+                                    : modalEquipeModo ===
+                                      "edicao"
                                         ? "Salvar alterações"
                                         : "Criar equipe"}
                             </button>
@@ -1924,6 +1967,182 @@ function EquipePage() {
 
             )}
 
+            {/* =========================================================
+                MODAL DE CONVITE
+            ========================================================== */}
+
+            {modalConviteAberto && (
+
+                <div
+                    className="equipe-modal-overlay"
+                    onMouseDown={(event) => {
+
+                        if (
+                            event.target ===
+                            event.currentTarget
+                        ) {
+                            fecharModalConvite();
+                        }
+
+                    }}
+                >
+
+                    <div className="equipe-modal equipe-modal-small">
+
+                        <div className="equipe-modal-header">
+
+                            <div>
+
+                                <h2>
+                                    Convidar usuário
+                                </h2>
+
+                                <p>
+                                    Escolha um cliente para enviar um convite para esta equipe.
+                                </p>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                className="equipe-modal-close"
+                                onClick={
+                                    fecharModalConvite
+                                }
+                                disabled={
+                                    enviandoConvite
+                                }
+                            >
+                                <Cancel01Icon size={19} />
+                            </button>
+
+                        </div>
+
+                        <div className="equipe-modal-body">
+
+                            {erro && (
+                                <div className="equipe-error">
+                                    {erro}
+                                </div>
+                            )}
+
+                            <div className="equipe-form-group">
+
+                                <span className="equipe-form-label">
+                                    Clientes disponíveis
+                                </span>
+
+                                {carregandoClientes ? (
+
+                                    <div className="equipe-loading-clients">
+                                        Carregando clientes...
+                                    </div>
+
+                                ) : clientesDisponiveis.length === 0 ? (
+
+                                    <div className="equipe-empty-clients">
+                                        Não há clientes disponíveis para convite.
+                                    </div>
+
+                                ) : (
+
+                                    <div className="equipe-client-list">
+
+                                        {clientesDisponiveis.map(
+                                            (cliente) => (
+
+                                                <button
+                                                    type="button"
+                                                    key={cliente.id}
+                                                    className={
+                                                        "equipe-client-option" +
+                                                        (clienteSelecionado ===
+                                                        cliente.id
+                                                            ? " selected"
+                                                            : "")
+                                                    }
+                                                    onClick={() =>
+                                                        setClienteSelecionado(
+                                                            cliente.id
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        enviandoConvite
+                                                    }
+                                                >
+
+                                                    <div className="equipe-client-avatar">
+                                                        <UserGroupIcon
+                                                            size={19}
+                                                        />
+                                                    </div>
+
+                                                    <div className="equipe-client-info">
+
+                                                        <strong>
+                                                            {cliente.nome}
+                                                        </strong>
+
+                                                        <span>
+                                                            {cliente.email}
+                                                        </span>
+
+                                                    </div>
+
+                                                </button>
+
+                                            )
+                                        )}
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+                        <div className="equipe-modal-footer">
+
+                            <button
+                                type="button"
+                                className="equipe-modal-cancel"
+                                onClick={
+                                    fecharModalConvite
+                                }
+                                disabled={
+                                    enviandoConvite
+                                }
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
+                                className="equipe-button equipe-primary-button"
+                                onClick={
+                                    enviarConvite
+                                }
+                                disabled={
+                                    enviandoConvite ||
+                                    !clienteSelecionado ||
+                                    clientesDisponiveis.length === 0
+                                }
+                            >
+                                <Mail01Icon size={17} />
+
+                                {enviandoConvite
+                                    ? "Enviando..."
+                                    : "Enviar convite"}
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
         </>
     );
 }

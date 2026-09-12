@@ -19,6 +19,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import SessionExpiredPage from "./pages/SessionExpiredPage";
 import EquipePage from "./pages/EquipePage";
+import ConviteEquipePage from "./pages/ConviteEquipePage";
 
 function App() {
     return (
@@ -44,6 +45,10 @@ function App() {
                 <Route
                     path="/redefinir-senha"
                     element={<ResetPasswordPage />}
+                />
+                <Route
+                    path="/convite-equipe"
+                    element={<ConviteEquipePage />}
                 />
                 <Route
                     path="/sessao-expirada"
