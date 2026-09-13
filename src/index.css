@@ -1267,17 +1267,22 @@ body {
 
 .notif-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 1.05rem;
-  height: 1.05rem;
-  padding: 0 var(--space-1);
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  box-sizing: border-box;
   border-radius: var(--radius-pill);
   background: var(--error-color);
   color: var(--on-primary);
   font-size: var(--text-2xs);
   font-weight: var(--weight-bold);
-  display: flex;
+  /* line-height 1: o herdado (1.5 → 15px) não cabia nos ~14px internos do
+     círculo e empurrava o número para baixo do centro */
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--surface);
@@ -1449,6 +1454,11 @@ body {
   container-type: inline-size;
   container-name: sf-list;
   overflow-x: auto;
+  /* `hidden` explícito no eixo Y: com `overflow-x: auto` o Y viraria `auto`, e o
+     translateY(8px) da animação de entrada da última linha abria uma barra de
+     rolagem vertical dentro da lista por um instante, roubando 15px de largura
+     de todas as linhas. A lista cresce com o conteúdo; nunca precisa rolar. */
+  overflow-y: hidden;
 }
 
 /* Enquanto um kebab está aberto o clip sai de cena: o popover é absoluto e seria
@@ -1456,7 +1466,8 @@ body {
    `overflow-x: clip` do `.dashboard-content`). */
 .pedidos-list:has(.kebab-menu),
 .cores-list:has(.kebab-menu) {
-  overflow-x: visible;
+  /* os dois eixos: `visible` num eixo só vira `auto` quando o outro não é visible */
+  overflow: visible;
 }
 
 .pedidos-grid {
@@ -4243,6 +4254,11 @@ html {
   container-type: inline-size;
   container-name: sf-list;
   overflow-x: auto;
+  /* `hidden` explícito no eixo Y: com `overflow-x: auto` o Y viraria `auto`, e o
+     translateY(8px) da animação de entrada da última linha abria uma barra de
+     rolagem vertical dentro da lista por um instante, roubando 15px de largura
+     de todas as linhas. A lista cresce com o conteúdo; nunca precisa rolar. */
+  overflow-y: hidden;
 }
 
 .cor-row-head,
