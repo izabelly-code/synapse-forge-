@@ -827,50 +827,6 @@ body {
 
 
 /* ===== DASHBOARD LAYOUT ===== */
-.app-container {
-  min-height: 100vh;
-  background: var(--surface-container-low);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 60px; /* fora da escala: recuo do topo próprio desta tela (lista de usuários), não é um passo de espaçamento */
-}
-
-.dashboard-layout {
-  min-height: 100vh;
-  background: var(--surface-container-low);
-}
-
-
-/* Header — surface on surface-container-low: tonal shift defines boundary, no border */
-.dashboard-header {
-  background: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  box-shadow: var(--shadow-card);
-}
-
-.dashboard-header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-  height: 85px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-logo {
-  height: 100px;
-  width: auto;
-}
-
-.dashboard-header-inner .link {
-  margin-top: 0;
-  font-size: var(--text-base);
-}
-
 .dashboard-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -1269,6 +1225,8 @@ body {
   top: calc(100% + 0.5rem);
   right: 0;
   width: 300px;
+  /* nunca mais largo que a viewport menos uma margem de respiro (SYN-76) */
+  max-width: calc(100vw - 2rem);
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -2718,14 +2676,22 @@ body {
 
 /* ===== SIDEBAR LAYOUT ===== */
 .dashboard-shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 280px 1fr;
   background: var(--surface-container-low);
 }
 
+/* `overflow-x: clip` e não `auto`/`hidden`: é o único valor que pode conviver com
+   `overflow-y: visible`, então o guard não transforma a coluna de conteúdo em
+   contêiner de scroll — as barras sticky das telas e os modais `position: fixed`
+   continuam ancorados na viewport (verificado no Chrome). Rede de segurança: um
+   estouro pontual de uma lista não vira scroll horizontal do documento inteiro,
+   que arrastaria o drawer/scrim junto. As listas ganham o próprio
+   `overflow-x: auto` na fase 2 da SYN-76. */
 .dashboard-content {
   min-width: 0;
+  overflow-x: clip;
   scrollbar-gutter: stable;
 }
 
@@ -2743,7 +2709,7 @@ html {
      barras sticky do conteúdo (--z-sticky) sem passar dos modais. */
   z-index: var(--z-menu);
   top: 0;
-  height: 100vh;
+  height: 100dvh;
   background: var(--surface);
   border-right: 1px solid var(--outline-variant);
   padding: var(--space-5) var(--space-3-5);
@@ -3012,6 +2978,7 @@ html {
   left: 50%;
   transform: translateX(-50%);
   min-width: 168px;
+  max-width: calc(100vw - 2rem);
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -3071,6 +3038,38 @@ html {
 }
 
 
+/* ===== SHELL COMPACTO: HEADER MOBILE E SCRIM DO DRAWER (SYN-76 fase 1) ===== */
+/* Abaixo de 1024px a Sidebar sai do fluxo e vira gaveta; quem abre é o
+   hambúrguer deste header, renderizado pelo DashboardLayout só no modo compacto
+   (o `display: none` aqui é a segunda trava, para o caso de o header sobrar numa
+   transição de viewport). */
+.mobile-header {
+  display: none;
+}
+
+.mobile-header-logo {
+  height: 26px;
+  width: auto;
+}
+
+/* Scrim da gaveta. Fica acima das barras sticky do conteúdo (--z-sticky) e
+   abaixo da própria gaveta (--z-popover). */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: var(--z-menu);
+  border: none;
+  padding: 0;
+  animation: drawer-scrim-in var(--duration-base) var(--ease-standard);
+}
+
+@keyframes drawer-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
 /* Largura padrao das telas do painel */
 .dashboard-shell .dashboard-main {
   max-width: 1380px;
@@ -3086,65 +3085,91 @@ html {
   padding: var(--space-10) var(--space-10);
 }
 
-/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
-   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
-   de tablets em paisagem */
-@media (max-width: 900px) {
+/* Colapso estrutural do shell no passo canônico lg (SYN-76 fase 1). Era 900px e
+   virava uma barra horizontal com scroll lateral cego — agora a Sidebar sai do
+   fluxo e vira gaveta, o que também mata a faixa morta 901–1266px em que o
+   conteúdo ainda contava com os 280px da sidebar. */
+@media (max-width: 1024px) {
   .dashboard-shell {
     grid-template-columns: 1fr;
   }
 
+  /* A gaveta: mesma marcação e mesmo visual da sidebar fixa, só fora do fluxo.
+     O `transform` faz dela o containing block dos filhos `position: fixed` — é
+     de propósito: nada dentro dela precisa escapar. */
   .sidebar {
-    position: static;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    border-right: none;
-    border-bottom: 1px solid var(--outline-variant);
-    overflow-x: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 86vw);
+    height: 100dvh;
+    z-index: var(--z-popover);
+    transform: translateX(-100%);
+    transition: transform var(--duration-slow) var(--ease-settle);
+    box-shadow: var(--shadow-ambient);
   }
 
-  .sidebar-brand,
-  .sidebar-account {
-    flex-shrink: 0;
-    border-bottom: none;
+  .sidebar.is-drawer-open {
+    transform: translateX(0);
+  }
+
+  /* Fechar a gaveta sem depender do scrim (o hambúrguer fica atrás dele). */
+  .sidebar-brand {
+    position: relative;
+  }
+
+  .sidebar-drawer-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex: 0 0 auto;
+    width: var(--control-h);
     padding: 0;
-    background: transparent;
   }
 
-  .sidebar-user-info {
-    display: none;
-  }
-
-  /* Na barra horizontal não cabe rótulo de área: o agrupamento passa a ser
-     comunicado só pelo espaço maior entre os blocos de itens. */
-  .sidebar-nav {
-    flex-direction: row;
+  .mobile-header {
+    display: flex;
     align-items: center;
-    flex: 1;
-    gap: var(--space-4);
-    overflow-x: auto;
-    overflow-y: visible;
+    gap: var(--space-3);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    height: 56px; /* fora da escala: altura de barra de aplicativo, com alvo de toque confortável */
+    padding: 0 var(--space-4);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
   }
 
-  .sidebar-nav-group-label {
-    display: none;
+  /* O `flex: 1` do .sidebar-icon-btn serve à linha de controles do rodapé da
+     gaveta; aqui o hambúrguer é um alvo quadrado encostado na borda. */
+  .mobile-header-toggle {
+    flex: 0 0 auto;
+    width: var(--control-h);
   }
 
-  .sidebar-nav-list {
-    flex-direction: row;
-    gap: var(--space-1);
+  /* Os popovers do rodapé passam a ser medidos na linha de controles inteira:
+     na largura da gaveta eles não caberiam ancorados num único botão (o painel
+     de 300px do sino estouraria para fora da tela). A gaveta não tem
+     `overflow` nenhum, então nada é recortado. */
+  .sidebar .sidebar-controls {
+    position: relative;
   }
 
-  .sidebar-nav-item {
-    white-space: nowrap;
-    padding: 0 var(--space-3);
+  .sidebar .sidebar-lang-wrap,
+  .sidebar .notif-wrap {
+    position: static;
   }
 
-  .sidebar-logo {
-    height: 36px;
+  .sidebar .sidebar-lang-menu,
+  .sidebar .notif-wrap--up .notif-panel {
+    left: 0;
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    transform: none;
   }
 
   .dashboard-shell .dashboard-main {
@@ -3153,6 +3178,17 @@ html {
 
   .dashboard-shell .calendar-page {
     padding: var(--space-4);
+  }
+}
+
+/* Depois do bloco acima de propósito: precisa vencer a `transition` da gaveta. */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+
+  .drawer-scrim {
+    animation: none;
   }
 }
 
