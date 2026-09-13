@@ -24,6 +24,227 @@
     "errorAccountLocked_other": "Account temporarily locked due to too many attempts. Try again in {{count}} minutes or reset your password.",
     "errorGeneric": "Could not sign in. Check your credentials."
   },
+  "register": {
+  "choice": {
+    "title": "What is your goal with Synapse Forge?",
+    "description": "Choose how you intend to use Synapse Forge.",
+    "client": {
+      "title": "As a client",
+      "description": "I want to request services and track my orders."
+    },
+    "manager": {
+      "title": "For my business",
+      "description": "I want to manage my business and my team."
+    },
+    "back": "Back to login"
+  },
+
+  "client": {
+    "leftTitle": "Create your account",
+    "leftDescription": "Get started now and enjoy all the available features.",
+    "formTitle": "Sign up"
+  },
+
+  "manager": {
+    "leftTitle": "Create your business account",
+    "leftDescription": "Start managing your business with Synapse Forge.",
+    "formTitle": "Business registration"
+  },
+
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "cpf": "CPF",
+    "phone": "Phone",
+    "password": "Password",
+    "confirmPassword": "Confirm password"
+  },
+
+  "placeholders": {
+    "name": "Enter your name",
+    "email": "Enter your email",
+    "cpf": "000.000.000-00",
+    "phone": "(00) 00000-0000",
+    "password": "Enter your password",
+    "confirmPassword": "Repeat your password"
+  },
+
+  "passwordStrength": {
+    "weak": "Weak password",
+    "medium": "Medium password",
+    "strong": "Strong password"
+  },
+
+  "buttons": {
+    "register": "Sign up",
+    "registering": "Signing up...",
+    "backToChoice": "Back to selection",
+    "alreadyHaveAccount": "Already have an account? Back to login",
+    "backToLogin": "Back to login",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+
+  "validation": {
+    "nameShort": "Name is too short",
+    "emailInvalidFormat": "Invalid format (e.g. name@email.com)",
+    "cpfInvalid": "Invalid CPF",
+    "cpfIncomplete": "Incomplete CPF",
+    "phoneInvalid": "Invalid area code/number",
+    "phoneIncomplete": "Incomplete phone number",
+    "passwordMismatch": "Passwords do not match"
+  },
+
+  "errors": {
+    "nameRequired": "Please enter your name.",
+    "nameMinLength": "Name must contain at least 3 characters.",
+    "emailRequired": "Please enter your email.",
+    "emailInvalid": "Enter a valid email (e.g. name@email.com).",
+    "cpfIncomplete": "Incomplete CPF.",
+    "cpfInvalid": "Invalid CPF. Check the numbers entered.",
+    "phoneIncomplete": "Incomplete phone number.",
+    "phoneInvalid": "Invalid phone number. Check the area code and number.",
+    "passwordRequired": "Create a password.",
+    "passwordMinLength": "Password must contain at least 6 characters.",
+    "confirmPasswordRequired": "Confirm your password.",
+    "passwordMismatch": "Passwords do not match.",
+    "emailAlreadyRegistered": "This email is already registered.",
+    "generic": "Registration failed. Please try again in a moment."
+  },
+
+  "confirmation": {
+    "almostThere": "Almost there!",
+    "subtitle": "Confirm your email to start using the platform.",
+    "title": "Check your email",
+    "sentTo": "We sent a confirmation link to",
+    "instructions": "Click the link in the email to activate your account and sign in automatically."
+  }
+},
+  "equipe": {
+    "kicker": "Team",
+    "title": "My team",
+    "subtitle": "View and manage the members of your team.",
+
+    "actions": {
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "inviteUser": "Invite user",
+        "createTeam": "Create team",
+        "editTeam": "Edit team",
+        "leaveTeam": "Leave team",
+        "leaving": "Leaving...",
+        "inviteFirstMember": "Invite first member",
+        "removeMember": "Remove member",
+        "close": "Close",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "creating": "Creating...",
+        "saveChanges": "Save changes",
+        "sending": "Sending...",
+        "sendInvite": "Send invite"
+    },
+
+    "loading": {
+        "team": "Loading team...",
+        "members": "Loading members...",
+        "clients": "Loading clients..."
+    },
+
+    "empty": {
+        "noTeamTitle": "You do not have a team yet",
+        "technicianNoTeam": "You are not currently assigned to a team.",
+        "managerNoTeam": "Create your team to start organizing members and managing your production."
+    },
+
+    "teamDescription": "Production and development team",
+
+    "members": {
+        "title": "Members",
+        "description": "People who are part of this team.",
+        "member": "member",
+        "members": "members",
+        "emptyTitle": "No members yet",
+        "emptyManager": "Invite users to start building your team.",
+        "emptyTechnician": "No members found."
+    },
+
+    "invites": {
+        "title": "Pending invitations",
+        "description": "Users who still need to respond to the invitation.",
+        "invite": "invitation",
+        "invites": "invitations",
+        "empty": "No pending invitations.",
+        "defaultUser": "User",
+        "expiresAt": "Expires on {{date}}",
+        "pending": "Pending"
+    },
+
+    "modal": {
+        "createTitle": "Create team",
+        "createDescription": "Configure the initial information for your team.",
+        "editTitle": "Edit team",
+        "editDescription": "Update your team information."
+    },
+
+    "form": {
+        "teamName": "Team name",
+        "teamNamePlaceholder": "E.g.: Synapse Team",
+        "teamPhoto": "Team photo",
+        "teamBanner": "Team banner",
+        "selectPhoto": "Select photo",
+        "changePhoto": "Change photo",
+        "selectBanner": "Select banner",
+        "changeBanner": "Change banner"
+    },
+
+    "inviteModal": {
+        "title": "Invite user",
+        "description": "Choose a customer to send an invitation to this team.",
+        "availableClients": "Available customers",
+        "noClients": "There are no customers available to invite."
+    },
+
+    "images": {
+        "bannerAlt": "Team banner",
+        "teamPhotoAlt": "Team photo {{name}}",
+        "photoPreviewAlt": "Photo preview",
+        "bannerPreviewAlt": "Banner preview"
+    },
+
+    "confirm": {
+        "removeMember": "Are you sure you want to remove {{name}} from the team?",
+        "leaveTeam": "Are you sure you want to leave this team?"
+    },
+
+    "errors": {
+        "sessionExpired": "Your session has expired. Please sign in again.",
+        "loadTeam": "Unable to load the team.",
+        "loadMembers": "Unable to load team members.",
+        "loadAvailableClients": "Unable to load available customers.",
+        "loadInvites": "Unable to load invitations.",
+        "loadData": "Unable to load team data.",
+        "updateData": "Unable to update the data.",
+        "photoMustBeImage": "The photo must be an image.",
+        "bannerMustBeImage": "The banner must be an image.",
+        "updatePhoto": "Unable to update the team photo.",
+        "updateBanner": "Unable to update the team banner.",
+        "teamNameRequired": "Enter a team name.",
+        "createTeam": "Unable to create the team.",
+        "updateTeamName": "Unable to update the team name.",
+        "editTeam": "Unable to edit the team.",
+        "selectUser": "Select a user to invite.",
+        "sendInvite": "Unable to send the invitation.",
+        "removeMember": "Unable to remove the member.",
+        "leaveTeam": "Unable to leave the team."
+    },
+
+    "roles": {
+        "ADMIN": "Administrator",
+        "GERENTE": "Manager",
+        "TECNICO": "Technician",
+        "CLIENTE": "Customer"
+    }
+},
   "sidebar": {
     "navAria": "Main navigation",
     "areaPedidos": "Orders",

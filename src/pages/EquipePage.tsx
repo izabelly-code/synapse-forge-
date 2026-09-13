@@ -14,6 +14,8 @@ import {
     Refresh01Icon,
 } from "hugeicons-react";
 
+import { useTranslation } from "react-i18next";
+
 import "./EquipePage.css";
 
 import { getUserRole, getToken } from "../hooks/useAuth";
@@ -66,6 +68,8 @@ interface Convite {
 type ModalEquipeModo = "criacao" | "edicao";
 
 function EquipePage() {
+    const { t, i18n } = useTranslation();
+
     const role = getUserRole();
 
     const isGerente = role === "GERENTE";
@@ -77,11 +81,11 @@ function EquipePage() {
     const [equipe, setEquipe] = useState<Equipe | null>(null);
 
     const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
-    const [carregandoIntegrantes, setCarregandoIntegrantes] = useState(false);
+    const [carregandoIntegrantes, setCarregandoIntegrantes] =
+        useState(false);
 
-    const [clientesDisponiveis, setClientesDisponiveis] = useState<
-        ClienteDisponivel[]
-    >([]);
+    const [clientesDisponiveis, setClientesDisponiveis] =
+        useState<ClienteDisponivel[]>([]);
 
     const [convites, setConvites] = useState<Convite[]>([]);
 
@@ -100,11 +104,13 @@ function EquipePage() {
     const [banner, setBanner] = useState<File | null>(null);
 
     const [fotoPreview, setFotoPreview] = useState<string | null>(null);
-    const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+    const [bannerPreview, setBannerPreview] =
+        useState<string | null>(null);
 
     const [salvandoEquipe, setSalvandoEquipe] = useState(false);
 
-    const [carregandoClientes, setCarregandoClientes] = useState(false);
+    const [carregandoClientes, setCarregandoClientes] =
+        useState(false);
     const [enviandoConvite, setEnviandoConvite] = useState(false);
 
     const [clienteSelecionado, setClienteSelecionado] = useState("");
@@ -127,7 +133,7 @@ function EquipePage() {
 
         if (!token) {
             throw new Error(
-                "Sua sessão expirou. Faça login novamente."
+                t("equipe.errors.sessionExpired")
             );
         }
 
@@ -167,6 +173,30 @@ function EquipePage() {
         return mensagemPadrao;
     }
 
+    function formatarData(data: string): string {
+        return new Date(data).toLocaleString(
+            i18n.language === "en-US"
+                ? "en-US"
+                : "pt-BR"
+        );
+    }
+
+    function traduzirRole(roleIntegrante: string): string {
+        const roleNormalizada =
+            roleIntegrante?.toUpperCase();
+
+        const chaveRole =
+            `equipe.roles.${roleNormalizada}`;
+
+        const traducao = t(chaveRole);
+
+        if (traducao !== chaveRole) {
+            return traducao;
+        }
+
+        return roleIntegrante;
+    }
+
     /*
      * =========================================================
      * BUSCAR MINHA EQUIPE
@@ -194,7 +224,7 @@ function EquipePage() {
             throw new Error(
                 await obterMensagemErro(
                     response,
-                    "Não foi possível carregar a equipe."
+                    t("equipe.errors.loadTeam")
                 )
             );
         }
@@ -233,12 +263,13 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível carregar os integrantes."
+                        t("equipe.errors.loadMembers")
                     )
                 );
             }
 
-            const data: Integrante[] = await response.json();
+            const data: Integrante[] =
+                await response.json();
 
             setIntegrantes(data);
         } catch (error) {
@@ -283,7 +314,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível carregar os clientes disponíveis."
+                        t("equipe.errors.loadAvailableClients")
                     )
                 );
             }
@@ -333,7 +364,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível carregar os convites."
+                        t("equipe.errors.loadInvites")
                     )
                 );
             }
@@ -449,7 +480,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível carregar os dados da equipe."
+                    : t("equipe.errors.loadData")
             );
         } finally {
             setCarregando(false);
@@ -517,7 +548,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível atualizar os dados."
+                    : t("equipe.errors.updateData")
             );
         } finally {
             setAtualizando(false);
@@ -615,7 +646,7 @@ function EquipePage() {
 
         if (!arquivo.type.startsWith("image/")) {
             setErro(
-                "A foto precisa ser uma imagem."
+                t("equipe.errors.photoMustBeImage")
             );
 
             return;
@@ -648,7 +679,7 @@ function EquipePage() {
 
         if (!arquivo.type.startsWith("image/")) {
             setErro(
-                "O banner precisa ser uma imagem."
+                t("equipe.errors.bannerMustBeImage")
             );
 
             return;
@@ -694,7 +725,7 @@ function EquipePage() {
             throw new Error(
                 await obterMensagemErro(
                     response,
-                    "Não foi possível atualizar a foto da equipe."
+                    t("equipe.errors.updatePhoto")
                 )
             );
         }
@@ -733,7 +764,7 @@ function EquipePage() {
             throw new Error(
                 await obterMensagemErro(
                     response,
-                    "Não foi possível atualizar o banner da equipe."
+                    t("equipe.errors.updateBanner")
                 )
             );
         }
@@ -752,7 +783,7 @@ function EquipePage() {
 
         if (!nome) {
             setErro(
-                "Digite um nome para a equipe."
+                t("equipe.errors.teamNameRequired")
             );
 
             return;
@@ -764,9 +795,6 @@ function EquipePage() {
 
             const token = obterToken();
 
-            /*
-             * O backend recebe EquipeRequestDTO em JSON.
-             */
             const response = await fetch(
                 `${API_URL}/equipes`,
                 {
@@ -785,7 +813,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível criar a equipe."
+                        t("equipe.errors.createTeam")
                     )
                 );
             }
@@ -793,10 +821,6 @@ function EquipePage() {
             let equipeCriada: Equipe =
                 await response.json();
 
-            /*
-             * Foto e banner são enviados depois da criação,
-             * porque possuem endpoints próprios no backend.
-             */
             if (foto) {
                 equipeCriada =
                     await enviarFoto(
@@ -828,7 +852,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível criar a equipe."
+                    : t("equipe.errors.createTeam")
             );
         } finally {
             setSalvandoEquipe(false);
@@ -850,7 +874,7 @@ function EquipePage() {
 
         if (!nome) {
             setErro(
-                "Digite um nome para a equipe."
+                t("equipe.errors.teamNameRequired")
             );
 
             return;
@@ -862,9 +886,6 @@ function EquipePage() {
 
             const token = obterToken();
 
-            /*
-             * 1. Atualiza o nome
-             */
             const nomeResponse =
                 await fetch(
                     `${API_URL}/equipes/${equipe.id}`,
@@ -884,7 +905,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         nomeResponse,
-                        "Não foi possível atualizar o nome da equipe."
+                        t("equipe.errors.updateTeamName")
                     )
                 );
             }
@@ -892,9 +913,6 @@ function EquipePage() {
             let equipeAtualizada: Equipe =
                 await nomeResponse.json();
 
-            /*
-             * 2. Atualiza foto, se uma nova foi selecionada
-             */
             if (foto) {
                 equipeAtualizada =
                     await enviarFoto(
@@ -903,9 +921,6 @@ function EquipePage() {
                     );
             }
 
-            /*
-             * 3. Atualiza banner, se um novo foi selecionado
-             */
             if (banner) {
                 equipeAtualizada =
                     await enviarBanner(
@@ -929,7 +944,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível editar a equipe."
+                    : t("equipe.errors.editTeam")
             );
         } finally {
             setSalvandoEquipe(false);
@@ -997,7 +1012,7 @@ function EquipePage() {
 
         if (!clienteSelecionado) {
             setErro(
-                "Selecione um usuário para convidar."
+                t("equipe.errors.selectUser")
             );
 
             return;
@@ -1023,7 +1038,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível enviar o convite."
+                        t("equipe.errors.sendInvite")
                     )
                 );
             }
@@ -1044,7 +1059,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível enviar o convite."
+                    : t("equipe.errors.sendInvite")
             );
         } finally {
             setEnviandoConvite(false);
@@ -1075,7 +1090,9 @@ function EquipePage() {
 
         const confirmar =
             window.confirm(
-                `Deseja realmente remover ${integrante.nome} da equipe?`
+                t("equipe.confirm.removeMember", {
+                    name: integrante.nome,
+                })
             );
 
         if (!confirmar) {
@@ -1103,7 +1120,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível remover o integrante."
+                        t("equipe.errors.removeMember")
                     )
                 );
             }
@@ -1121,7 +1138,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível remover o integrante."
+                    : t("equipe.errors.removeMember")
             );
         } finally {
             setRemovendoIntegranteId(null);
@@ -1137,7 +1154,7 @@ function EquipePage() {
     async function sairDaEquipe() {
         const confirmar =
             window.confirm(
-                "Deseja realmente sair desta equipe?"
+                t("equipe.confirm.leaveTeam")
             );
 
         if (!confirmar) {
@@ -1165,7 +1182,7 @@ function EquipePage() {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        "Não foi possível sair da equipe."
+                        t("equipe.errors.leaveTeam")
                     )
                 );
             }
@@ -1183,7 +1200,7 @@ function EquipePage() {
             setErro(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível sair da equipe."
+                    : t("equipe.errors.leaveTeam")
             );
         } finally {
             setSaindoDaEquipe(false);
@@ -1245,26 +1262,19 @@ function EquipePage() {
 
     return (
         <>
-
             <main className="equipe-page">
-
-                {/* =====================================================
-                    CABEÇALHO
-                ====================================================== */}
-
                 <header className="equipe-page-header">
-
                     <div>
                         <span className="equipe-page-kicker">
-                            Equipe
+                            {t("equipe.kicker")}
                         </span>
 
                         <h1 className="equipe-page-title">
-                            Minha equipe
+                            {t("equipe.title")}
                         </h1>
 
                         <p className="equipe-page-subtitle">
-                            Visualize e gerencie os integrantes da sua equipe.
+                            {t("equipe.subtitle")}
                         </p>
                     </div>
 
@@ -1279,8 +1289,8 @@ function EquipePage() {
                                 <Refresh01Icon size={17} />
 
                                 {atualizando
-                                    ? "Atualizando..."
-                                    : "Atualizar"}
+                                    ? t("equipe.actions.refreshing")
+                                    : t("equipe.actions.refresh")}
                             </button>
                         )}
 
@@ -1291,55 +1301,42 @@ function EquipePage() {
                                 onClick={abrirModalConvite}
                             >
                                 <UserAdd01Icon size={18} />
-                                Convidar usuário
+
+                                {t("equipe.actions.inviteUser")}
                             </button>
                         )}
                     </div>
-
                 </header>
 
-                {/* =====================================================
-                    ERRO
-                ====================================================== */}
-
-                {erro && !modalAberto && !modalConviteAberto && (
-                    <div className="equipe-error">
-                        {erro}
-                    </div>
-                )}
-
-                {/* =====================================================
-                    LOADING
-                ====================================================== */}
+                {erro &&
+                    !modalAberto &&
+                    !modalConviteAberto && (
+                        <div className="equipe-error">
+                            {erro}
+                        </div>
+                    )}
 
                 {carregando ? (
-
                     <section className="equipe-card equipe-loading">
-                        Carregando equipe...
+                        {t("equipe.loading.team")}
                     </section>
-
                 ) : !equipe ? (
-
-                    /*
-                     * =================================================
-                     * SEM EQUIPE
-                     * =================================================
-                     */
-
                     <section className="equipe-members-section">
-
                         <div className="equipe-card equipe-empty-card">
-
                             <UserGroupIcon size={42} />
 
                             <h3>
-                                Você ainda não possui uma equipe
+                                {t("equipe.empty.noTeamTitle")}
                             </h3>
 
                             <p>
                                 {isTecnico
-                                    ? "Você ainda não está vinculado a nenhuma equipe."
-                                    : "Crie sua equipe para começar a organizar os integrantes e gerenciar sua produção."}
+                                    ? t(
+                                          "equipe.empty.technicianNoTeam"
+                                      )
+                                    : t(
+                                          "equipe.empty.managerNoTeam"
+                                      )}
                             </p>
 
                             {podeGerenciarEquipe && (
@@ -1349,99 +1346,71 @@ function EquipePage() {
                                     onClick={abrirModalCriacao}
                                 >
                                     <UserGroupIcon size={18} />
-                                    Criar equipe
+
+                                    {t(
+                                        "equipe.actions.createTeam"
+                                    )}
                                 </button>
                             )}
-
                         </div>
-
                     </section>
-
                 ) : (
-
-                    /*
-                     * =================================================
-                     * EQUIPE EXISTENTE
-                     * =================================================
-                     */
-
                     <>
-
-                        {/* =================================================
-                            HEADER DA EQUIPE
-                        ================================================== */}
-
-                        <section
-                            className="equipe-card equipe-header-card"
-                        >
-
+                        <section className="equipe-card equipe-header-card">
                             <div className="equipe-banner">
-
                                 {equipe.bannerBase64 ? (
-
                                     <img
-                                        src={
-                                            equipe.bannerBase64
-                                        }
-                                        alt="Banner da equipe"
+                                        src={equipe.bannerBase64}
+                                        alt={t(
+                                            "equipe.images.bannerAlt"
+                                        )}
                                         className="equipe-banner-image"
                                     />
-
                                 ) : (
-
                                     <div className="equipe-banner-placeholder" />
-
                                 )}
-
                             </div>
 
                             <div className="equipe-info">
-
                                 <div className="equipe-avatar">
-
                                     {equipe.fotoBase64 ? (
-
                                         <img
-                                            src={
-                                                equipe.fotoBase64
-                                            }
-                                            alt={
-                                                `Foto da equipe ${equipe.nome}`
-                                            }
+                                            src={equipe.fotoBase64}
+                                            alt={t(
+                                                "equipe.images.teamPhotoAlt",
+                                                {
+                                                    name: equipe.nome,
+                                                }
+                                            )}
                                             className="equipe-avatar-image"
                                         />
-
                                     ) : (
-
-                                        <UserGroupIcon
-                                            size={30}
-                                        />
-
+                                        <UserGroupIcon size={30} />
                                     )}
-
                                 </div>
 
                                 <div className="equipe-info-text">
-
                                     <h2>
                                         {equipe.nome}
                                     </h2>
 
                                     <p>
-                                        Equipe de produção e desenvolvimento
+                                        {t(
+                                            "equipe.teamDescription"
+                                        )}
                                     </p>
-
                                 </div>
 
                                 <div className="equipe-info-actions">
-
                                     {podeGerenciarEquipe && (
                                         <button
                                             type="button"
                                             className="equipe-button equipe-secondary-button"
                                             onClick={abrirModalEdicao}
                                         >
-                                            Editar equipe
+                                            {t(
+                                                "equipe.actions.editTeam"
+                                            )}
                                         </button>
                                     )}
 
@@ -1452,127 +1421,145 @@ function EquipePage() {
                                             onClick={sairDaEquipe}
                                             disabled={saindoDaEquipe}
                                         >
-                                            <UserRemove01Icon size={17} />
+                                            <UserRemove01Icon
+                                                size={17}
+                                            />
 
                                             {saindoDaEquipe
-                                                ? "Saindo..."
-                                                : "Sair da equipe"}
+                                                ? t(
+                                                      "equipe.actions.leaving"
+                                                  )
+                                                : t(
+                                                      "equipe.actions.leaveTeam"
+                                                  )}
                                         </button>
                                     )}
-
                                 </div>
-
                             </div>
-
                         </section>
 
-                        {/* =================================================
-                            INTEGRANTES
-                        ================================================== */}
-
                         <section className="equipe-members-section">
-
                             <div className="equipe-section-header">
-
                                 <div>
-
                                     <h2>
-                                        Integrantes
+                                        {t(
+                                            "equipe.members.title"
+                                        )}
                                     </h2>
 
                                     <p>
-                                        Pessoas que fazem parte desta equipe.
+                                        {t(
+                                            "equipe.members.description"
+                                        )}
                                     </p>
-
                                 </div>
 
                                 <span className="equipe-member-count">
                                     {integrantes.length}{" "}
                                     {integrantes.length === 1
-                                        ? "integrante"
-                                        : "integrantes"}
+                                        ? t(
+                                              "equipe.members.member"
+                                          )
+                                        : t(
+                                              "equipe.members.members"
+                                          )}
                                 </span>
-
                             </div>
 
                             <div className="equipe-card">
-
                                 {carregandoIntegrantes ? (
-
                                     <div className="equipe-loading">
-                                        Carregando integrantes...
+                                        {t(
+                                            "equipe.loading.members"
+                                        )}
                                     </div>
-
                                 ) : integrantes.length === 0 ? (
-
                                     <div className="equipe-empty-card">
-
                                         <UserGroupIcon size={34} />
 
                                         <h3>
-                                            Nenhum integrante ainda
+                                            {t(
+                                                "equipe.members.emptyTitle"
+                                            )}
                                         </h3>
 
                                         <p>
                                             {podeGerenciarEquipe
-                                                ? "Convide usuários para começar a montar sua equipe."
-                                                : "Nenhum integrante encontrado."}
+                                                ? t(
+                                                      "equipe.members.emptyManager"
+                                                  )
+                                                : t(
+                                                      "equipe.members.emptyTechnician"
+                                                  )}
                                         </p>
 
                                         {podeGerenciarEquipe && (
                                             <button
                                                 type="button"
                                                 className="equipe-button equipe-primary-button"
-                                                onClick={abrirModalConvite}
+                                                onClick={
+                                                    abrirModalConvite
+                                                }
                                             >
-                                                <UserAdd01Icon size={18} />
-                                                Convidar primeiro integrante
+                                                <UserAdd01Icon
+                                                    size={18}
+                                                />
+
+                                                {t(
+                                                    "equipe.actions.inviteFirstMember"
+                                                )}
                                             </button>
                                         )}
-
                                     </div>
-
                                 ) : (
-
                                     <div className="equipe-list">
-
                                         {integrantes.map(
                                             (integrante) => (
-
                                                 <div
                                                     className="equipe-member"
-                                                    key={integrante.id}
+                                                    key={
+                                                        integrante.id
+                                                    }
                                                 >
-
                                                     <div className="equipe-member-avatar">
                                                         <UserGroupIcon
-                                                            size={20}
+                                                            size={
+                                                                20
+                                                            }
                                                         />
                                                     </div>
 
                                                     <div className="equipe-member-main">
-
                                                         <p className="equipe-member-name">
-                                                            {integrante.nome}
+                                                            {
+                                                                integrante.nome
+                                                            }
                                                         </p>
 
                                                         <div className="equipe-member-email">
-                                                            {integrante.email}
+                                                            {
+                                                                integrante.email
+                                                            }
                                                         </div>
-
                                                     </div>
 
                                                     <span className="equipe-member-role">
-                                                        {integrante.role}
+                                                        {traduzirRole(
+                                                            integrante.role
+                                                        )}
                                                     </span>
 
                                                     {podeGerenciarEquipe && (
                                                         <div className="equipe-member-actions">
-
                                                             <button
                                                                 type="button"
                                                                 className="equipe-icon-button"
-                                                                title="Remover integrante"
+                                                                title={t(
+                                                                    "equipe.actions.removeMember"
+                                                                )}
+                                                                aria-label={t(
+                                                                    "equipe.actions.removeMember"
+                                                                )}
                                                                 onClick={() =>
                                                                     removerIntegrante(
                                                                         integrante.id
@@ -1584,158 +1571,144 @@ function EquipePage() {
                                                                 }
                                                             >
                                                                 <UserRemove01Icon
-                                                                    size={17}
+                                                                    size={
+                                                                        17
+                                                                    }
                                                                 />
                                                             </button>
-
                                                         </div>
                                                     )}
-
                                                 </div>
-
                                             )
                                         )}
-
                                     </div>
-
                                 )}
-
                             </div>
-
                         </section>
-
-                        {/* =================================================
-                            CONVITES PENDENTES
-                        ================================================== */}
 
                         {podeGerenciarEquipe && (
                             <section className="equipe-members-section equipe-invites-card">
-
                                 <div className="equipe-section-header">
-
                                     <div>
-
                                         <h2>
-                                            Convites pendentes
+                                            {t(
+                                                "equipe.invites.title"
+                                            )}
                                         </h2>
 
                                         <p>
-                                            Usuários que ainda precisam responder ao convite.
+                                            {t(
+                                                "equipe.invites.description"
+                                            )}
                                         </p>
-
                                     </div>
 
                                     <span className="equipe-member-count">
                                         {convites.length}{" "}
                                         {convites.length === 1
-                                            ? "convite"
-                                            : "convites"}
+                                            ? t(
+                                                  "equipe.invites.invite"
+                                              )
+                                            : t(
+                                                  "equipe.invites.invites"
+                                              )}
                                     </span>
-
                                 </div>
 
                                 <div className="equipe-card">
-
                                     {convites.length === 0 ? (
-
                                         <div className="equipe-empty-invites">
-                                            Nenhum convite pendente.
+                                            {t(
+                                                "equipe.invites.empty"
+                                            )}
                                         </div>
-
                                     ) : (
-
                                         convites.map(
                                             (convite) => (
-
                                                 <div
                                                     className="equipe-invite-item"
-                                                    key={convite.id}
+                                                    key={
+                                                        convite.id
+                                                    }
                                                 >
-
                                                     <div className="equipe-invite-icon">
                                                         <Mail01Icon
-                                                            size={19}
+                                                            size={
+                                                                19
+                                                            }
                                                         />
                                                     </div>
 
                                                     <div className="equipe-invite-main">
-
                                                         <p className="equipe-invite-name">
                                                             {convite.usuarioNome ||
-                                                                "Usuário"}
+                                                                t(
+                                                                    "equipe.invites.defaultUser"
+                                                                )}
                                                         </p>
 
                                                         <p className="equipe-invite-date">
-                                                            Expira em{" "}
-                                                            {new Date(
-                                                                convite.expiraEm
-                                                            ).toLocaleString(
-                                                                "pt-BR"
+                                                            {t(
+                                                                "equipe.invites.expiresAt",
+                                                                {
+                                                                    date: formatarData(
+                                                                        convite.expiraEm
+                                                                    ),
+                                                                }
                                                             )}
                                                         </p>
-
                                                     </div>
 
                                                     <span className="equipe-pending-badge">
-                                                        Pendente
+                                                        {t(
+                                                            "equipe.invites.pending"
+                                                        )}
                                                     </span>
-
                                                 </div>
-
                                             )
                                         )
-
                                     )}
-
                                 </div>
-
                             </section>
                         )}
-
                     </>
-
                 )}
-
             </main>
 
-            {/* =========================================================
-                MODAL DE CRIAÇÃO / EDIÇÃO DA EQUIPE
-            ========================================================== */}
-
             {modalAberto && (
-
                 <div
                     className="equipe-modal-overlay"
                     onMouseDown={(event) => {
-
                         if (
                             event.target ===
                             event.currentTarget
                         ) {
                             fecharModalEquipe();
                         }
-
                     }}
                 >
-
                     <div className="equipe-modal">
-
                         <div className="equipe-modal-header">
-
                             <div>
-
                                 <h2>
                                     {modalEquipeModo === "edicao"
-                                        ? "Editar equipe"
-                                        : "Criar equipe"}
+                                        ? t(
+                                              "equipe.modal.editTitle"
+                                          )
+                                        : t(
+                                              "equipe.modal.createTitle"
+                                          )}
                                 </h2>
 
                                 <p>
                                     {modalEquipeModo === "edicao"
-                                        ? "Atualize as informações da sua equipe."
-                                        : "Configure as informações iniciais da sua equipe."}
+                                        ? t(
+                                              "equipe.modal.editDescription"
+                                          )
+                                        : t(
+                                              "equipe.modal.createDescription"
+                                          )}
                                 </p>
-
                             </div>
 
                             <button
@@ -1747,36 +1720,41 @@ function EquipePage() {
                                 disabled={
                                     salvandoEquipe
                                 }
+                                aria-label={t(
+                                    "equipe.actions.close"
+                                )}
+                                title={t(
+                                    "equipe.actions.close"
+                                )}
                             >
                                 <Cancel01Icon size={19} />
                             </button>
-
                         </div>
 
                         <div className="equipe-modal-body">
-
                             {erro && (
                                 <div className="equipe-error">
                                     {erro}
                                 </div>
                             )}
 
-                            {/* NOME */}
-
                             <div className="equipe-form-group">
-
                                 <label
                                     htmlFor="nome-equipe"
                                     className="equipe-form-label"
                                 >
-                                    Nome da equipe
+                                    {t(
+                                        "equipe.form.teamName"
+                                    )}
                                 </label>
 
                                 <input
                                     id="nome-equipe"
                                     type="text"
                                     className="equipe-form-input"
-                                    placeholder="Ex.: Equipe Synapse"
+                                    placeholder={t(
+                                        "equipe.form.teamNamePlaceholder"
+                                    )}
                                     value={
                                         nomeEquipe
                                     }
@@ -1790,50 +1768,46 @@ function EquipePage() {
                                         salvandoEquipe
                                     }
                                 />
-
                             </div>
 
-                            {/* UPLOADS */}
-
                             <div className="equipe-upload-grid">
-
-                                {/* FOTO */}
-
                                 <div className="equipe-upload-box">
-
                                     <span className="equipe-form-label">
-                                        Foto da equipe
+                                        {t(
+                                            "equipe.form.teamPhoto"
+                                        )}
                                     </span>
 
                                     <label className="equipe-upload-label">
-
                                         {fotoPreview ? (
-
                                             <img
                                                 src={
                                                     fotoPreview
                                                 }
-                                                alt="Preview da foto"
+                                                alt={t(
+                                                    "equipe.images.photoPreviewAlt"
+                                                )}
                                                 className="equipe-upload-preview"
                                             />
-
                                         ) : (
-
                                             <div className="equipe-upload-label-content">
-
                                                 <Image01Icon
-                                                    size={28}
+                                                    size={
+                                                        28
+                                                    }
                                                 />
 
                                                 <span>
                                                     {modalEquipeModo ===
                                                     "edicao"
-                                                        ? "Trocar foto"
-                                                        : "Selecionar foto"}
+                                                        ? t(
+                                                              "equipe.form.changePhoto"
+                                                          )
+                                                        : t(
+                                                              "equipe.form.selectPhoto"
+                                                          )}
                                                 </span>
-
                                             </div>
-
                                         )}
 
                                         <input
@@ -1847,7 +1821,6 @@ function EquipePage() {
                                                 salvandoEquipe
                                             }
                                         />
-
                                     </label>
 
                                     {foto && (
@@ -1855,46 +1828,45 @@ function EquipePage() {
                                             {foto.name}
                                         </span>
                                     )}
-
                                 </div>
 
-                                {/* BANNER */}
-
                                 <div className="equipe-upload-box">
-
                                     <span className="equipe-form-label">
-                                        Banner da equipe
+                                        {t(
+                                            "equipe.form.teamBanner"
+                                        )}
                                     </span>
 
                                     <label className="equipe-upload-label">
-
                                         {bannerPreview ? (
-
                                             <img
                                                 src={
                                                     bannerPreview
                                                 }
-                                                alt="Preview do banner"
+                                                alt={t(
+                                                    "equipe.images.bannerPreviewAlt"
+                                                )}
                                                 className="equipe-upload-preview"
                                             />
-
                                         ) : (
-
                                             <div className="equipe-upload-label-content">
-
                                                 <Image01Icon
-                                                    size={28}
+                                                    size={
+                                                        28
+                                                    }
                                                 />
 
                                                 <span>
                                                     {modalEquipeModo ===
                                                     "edicao"
-                                                        ? "Trocar banner"
-                                                        : "Selecionar banner"}
+                                                        ? t(
+                                                              "equipe.form.changeBanner"
+                                                          )
+                                                        : t(
+                                                              "equipe.form.selectBanner"
+                                                          )}
                                                 </span>
-
                                             </div>
-
                                         )}
 
                                         <input
@@ -1908,7 +1880,6 @@ function EquipePage() {
                                                 salvandoEquipe
                                             }
                                         />
-
                                     </label>
 
                                     {banner && (
@@ -1916,15 +1887,11 @@ function EquipePage() {
                                             {banner.name}
                                         </span>
                                     )}
-
                                 </div>
-
                             </div>
-
                         </div>
 
                         <div className="equipe-modal-footer">
-
                             <button
                                 type="button"
                                 className="equipe-modal-cancel"
@@ -1935,7 +1902,9 @@ function EquipePage() {
                                     salvandoEquipe
                                 }
                             >
-                                Cancelar
+                                {t(
+                                    "equipe.actions.cancel"
+                                )}
                             </button>
 
                             <button
@@ -1951,56 +1920,52 @@ function EquipePage() {
                                 {salvandoEquipe
                                     ? modalEquipeModo ===
                                       "edicao"
-                                        ? "Salvando..."
-                                        : "Criando..."
+                                        ? t(
+                                              "equipe.actions.saving"
+                                          )
+                                        : t(
+                                              "equipe.actions.creating"
+                                          )
                                     : modalEquipeModo ===
                                       "edicao"
-                                        ? "Salvar alterações"
-                                        : "Criar equipe"}
+                                        ? t(
+                                              "equipe.actions.saveChanges"
+                                          )
+                                        : t(
+                                              "equipe.actions.createTeam"
+                                          )}
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             )}
 
-            {/* =========================================================
-                MODAL DE CONVITE
-            ========================================================== */}
-
             {modalConviteAberto && (
-
                 <div
                     className="equipe-modal-overlay"
                     onMouseDown={(event) => {
-
                         if (
                             event.target ===
                             event.currentTarget
                         ) {
                             fecharModalConvite();
                         }
-
                     }}
                 >
-
                     <div className="equipe-modal equipe-modal-small">
-
                         <div className="equipe-modal-header">
-
                             <div>
-
                                 <h2>
-                                    Convidar usuário
+                                    {t(
+                                        "equipe.inviteModal.title"
+                                    )}
                                 </h2>
 
                                 <p>
-                                    Escolha um cliente para enviar um convite para esta equipe.
+                                    {t(
+                                        "equipe.inviteModal.description"
+                                    )}
                                 </p>
-
                             </div>
 
                             <button
@@ -2012,14 +1977,18 @@ function EquipePage() {
                                 disabled={
                                     enviandoConvite
                                 }
+                                aria-label={t(
+                                    "equipe.actions.close"
+                                )}
+                                title={t(
+                                    "equipe.actions.close"
+                                )}
                             >
                                 <Cancel01Icon size={19} />
                             </button>
-
                         </div>
 
                         <div className="equipe-modal-body">
-
                             {erro && (
                                 <div className="equipe-error">
                                     {erro}
@@ -2027,33 +1996,34 @@ function EquipePage() {
                             )}
 
                             <div className="equipe-form-group">
-
                                 <span className="equipe-form-label">
-                                    Clientes disponíveis
+                                    {t(
+                                        "equipe.inviteModal.availableClients"
+                                    )}
                                 </span>
 
                                 {carregandoClientes ? (
-
                                     <div className="equipe-loading-clients">
-                                        Carregando clientes...
+                                        {t(
+                                            "equipe.loading.clients"
+                                        )}
                                     </div>
-
-                                ) : clientesDisponiveis.length === 0 ? (
-
+                                ) : clientesDisponiveis.length ===
+                                  0 ? (
                                     <div className="equipe-empty-clients">
-                                        Não há clientes disponíveis para convite.
+                                        {t(
+                                            "equipe.inviteModal.noClients"
+                                        )}
                                     </div>
-
                                 ) : (
-
                                     <div className="equipe-client-list">
-
                                         {clientesDisponiveis.map(
                                             (cliente) => (
-
                                                 <button
                                                     type="button"
-                                                    key={cliente.id}
+                                                    key={
+                                                        cliente.id
+                                                    }
                                                     className={
                                                         "equipe-client-option" +
                                                         (clienteSelecionado ===
@@ -2070,40 +2040,36 @@ function EquipePage() {
                                                         enviandoConvite
                                                     }
                                                 >
-
                                                     <div className="equipe-client-avatar">
                                                         <UserGroupIcon
-                                                            size={19}
+                                                            size={
+                                                                19
+                                                            }
                                                         />
                                                     </div>
 
                                                     <div className="equipe-client-info">
-
                                                         <strong>
-                                                            {cliente.nome}
+                                                            {
+                                                                cliente.nome
+                                                            }
                                                         </strong>
 
                                                         <span>
-                                                            {cliente.email}
+                                                            {
+                                                                cliente.email
+                                                            }
                                                         </span>
-
                                                     </div>
-
                                                 </button>
-
                                             )
                                         )}
-
                                     </div>
-
                                 )}
-
                             </div>
-
                         </div>
 
                         <div className="equipe-modal-footer">
-
                             <button
                                 type="button"
                                 className="equipe-modal-cancel"
@@ -2114,7 +2080,9 @@ function EquipePage() {
                                     enviandoConvite
                                 }
                             >
-                                Cancelar
+                                {t(
+                                    "equipe.actions.cancel"
+                                )}
                             </button>
 
                             <button
@@ -2126,22 +2094,23 @@ function EquipePage() {
                                 disabled={
                                     enviandoConvite ||
                                     !clienteSelecionado ||
-                                    clientesDisponiveis.length === 0
+                                    clientesDisponiveis.length ===
+                                        0
                                 }
                             >
                                 <Mail01Icon size={17} />
 
                                 {enviandoConvite
-                                    ? "Enviando..."
-                                    : "Enviar convite"}
+                                    ? t(
+                                          "equipe.actions.sending"
+                                      )
+                                    : t(
+                                          "equipe.actions.sendInvite"
+                                      )}
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             )}
         </>
     );

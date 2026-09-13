@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
     register,
@@ -30,6 +31,8 @@ function Register({
     onVoltarEscolha,
     tipoCadastro = "CLIENTE"
 }: RegisterProps) {
+
+    const { t } = useTranslation();
 
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
@@ -242,35 +245,35 @@ function Register({
     const erroNome =
         nome.length > 0 &&
         nome.trim().length < 3
-            ? "Nome muito curto"
+            ? t("register.validation.nameShort")
             : undefined;
 
     const erroEmail =
         email !== "" &&
         !emailValido
-            ? "Formato inválido (ex: nome@email.com)"
+            ? t("register.validation.emailInvalidFormat")
             : undefined;
 
     const erroCpf =
         !cpfValido
-            ? "CPF inválido"
+            ? t("register.validation.cpfInvalid")
             : cpf !== "" &&
               cpfDigitos.length < 11
-                ? "CPF incompleto"
+                ? t("register.validation.cpfIncomplete")
                 : undefined;
 
     const erroTelefone =
         !telefoneValido
-            ? "DDD/número inválido"
+            ? t("register.validation.phoneInvalid")
             : telefone !== "" &&
               telDigitos.length < 10
-                ? "Telefone incompleto"
+                ? t("register.validation.phoneIncomplete")
                 : undefined;
 
     const erroConfirm =
         confirmSenha !== "" &&
         senha !== confirmSenha
-            ? "Senhas não coincidem"
+            ? t("register.validation.passwordMismatch")
             : undefined;
 
     function estado(
@@ -304,25 +307,25 @@ function Register({
 
         if (!nome.trim()) {
             return setErro(
-                "Por favor, informe seu nome."
+                t("register.errors.nameRequired")
             );
         }
 
         if (nome.trim().length < 3) {
             return setErro(
-                "O nome deve ter pelo menos 3 caracteres."
+                t("register.errors.nameMinLength")
             );
         }
 
         if (!email) {
             return setErro(
-                "Por favor, informe seu email."
+                t("register.errors.emailRequired")
             );
         }
 
         if (!validarEmail(email)) {
             return setErro(
-                "Digite um email válido (ex: nome@email.com)."
+                t("register.errors.emailInvalid")
             );
         }
 
@@ -330,13 +333,13 @@ function Register({
 
         if (cpfNum.length < 11) {
             return setErro(
-                "CPF incompleto."
+                t("register.errors.cpfIncomplete")
             );
         }
 
         if (!validarCPF(cpf)) {
             return setErro(
-                "CPF inválido. Verifique os números digitados."
+                t("register.errors.cpfInvalid")
             );
         }
 
@@ -344,37 +347,37 @@ function Register({
 
         if (telNum.length < 10) {
             return setErro(
-                "Telefone incompleto."
+                t("register.errors.phoneIncomplete")
             );
         }
 
         if (!validarTelefone(telefone)) {
             return setErro(
-                "Telefone inválido. Verifique DDD e número."
+                t("register.errors.phoneInvalid")
             );
         }
 
         if (!senha) {
             return setErro(
-                "Crie uma senha."
+                t("register.errors.passwordRequired")
             );
         }
 
         if (senha.length < 6) {
             return setErro(
-                "A senha deve ter no mínimo 6 caracteres."
+                t("register.errors.passwordMinLength")
             );
         }
 
         if (!confirmSenha) {
             return setErro(
-                "Confirme sua senha."
+                t("register.errors.confirmPasswordRequired")
             );
         }
 
         if (senha !== confirmSenha) {
             return setErro(
-                "As senhas não coincidem."
+                t("register.errors.passwordMismatch")
             );
         }
 
@@ -407,8 +410,8 @@ function Register({
 
             setErro(
                 msg.includes("já cadastrado")
-                    ? "Este email já está cadastrado."
-                    : "Erro ao cadastrar. Tente novamente em instantes."
+                    ? t("register.errors.emailAlreadyRegistered")
+                    : t("register.errors.generic")
             );
 
         } finally {
@@ -437,11 +440,12 @@ function Register({
 
                     <div className="left-content">
 
-                        <h1>Quase lá!</h1>
+                        <h1>
+                            {t("register.confirmation.almostThere")}
+                        </h1>
 
                         <p>
-                            Confirme seu email para começar
-                            a usar a plataforma.
+                            {t("register.confirmation.subtitle")}
                         </p>
 
                     </div>
@@ -467,7 +471,7 @@ function Register({
                         </div>
 
                         <h2>
-                            Verifique seu email
+                            {t("register.confirmation.title")}
                         </h2>
 
                         <p
@@ -479,7 +483,7 @@ function Register({
                                 marginBottom: "1.5rem"
                             }}
                         >
-                            Enviamos um link de confirmação para
+                            {t("register.confirmation.sentTo")}
                             <br />
 
                             <strong
@@ -500,14 +504,13 @@ function Register({
                                 marginBottom: "1.5rem"
                             }}
                         >
-                            Clique no link do email para ativar
-                            sua conta e entrar automaticamente.
+                            {t("register.confirmation.instructions")}
                         </p>
 
                         <LinkButton
                             onClick={onRegister}
                         >
-                            Voltar para o login
+                            {t("register.buttons.backToLogin")}
                         </LinkButton>
 
                     </div>
@@ -539,15 +542,15 @@ function Register({
 
                     <h1>
                         {tipoCadastro === "GERENTE"
-                            ? "Crie sua conta empresarial"
-                            : "Crie sua conta"
+                            ? t("register.manager.leftTitle")
+                            : t("register.client.leftTitle")
                         }
                     </h1>
 
                     <p>
                         {tipoCadastro === "GERENTE"
-                            ? "Comece a gerenciar seu negócio no Synapse Forge."
-                            : "Comece agora e aproveite todos os recursos."
+                            ? t("register.manager.leftDescription")
+                            : t("register.client.leftDescription")
                         }
                     </p>
 
@@ -564,8 +567,8 @@ function Register({
 
                     <h2>
                         {tipoCadastro === "GERENTE"
-                            ? "Cadastro para negócio"
-                            : "Cadastro"
+                            ? t("register.manager.formTitle")
+                            : t("register.client.formTitle")
                         }
                     </h2>
 
@@ -584,7 +587,7 @@ function Register({
                     <div className="input-group">
 
                         <label>
-                            Nome
+                            {t("register.fields.name")}
                         </label>
 
                         <div className="input-wrapper">
@@ -595,7 +598,9 @@ function Register({
                                 onChange={(e) =>
                                     setNome(e.target.value)
                                 }
-                                placeholder="Digite seu nome"
+                                placeholder={t(
+                                    "register.placeholders.name"
+                                )}
                                 aria-invalid={!!erroNome}
                             />
 
@@ -619,7 +624,7 @@ function Register({
                     <div className="input-group">
 
                         <label>
-                            Email
+                            {t("register.fields.email")}
                         </label>
 
                         <div className="input-wrapper">
@@ -655,7 +660,9 @@ function Register({
                                         ? "input-error"
                                         : ""
                                 }
-                                placeholder="Digite seu email"
+                                placeholder={t(
+                                    "register.placeholders.email"
+                                )}
                                 aria-invalid={!!erroEmail}
                             />
 
@@ -682,7 +689,7 @@ function Register({
                         <div className="input-group">
 
                             <label>
-                                CPF
+                                {t("register.fields.cpf")}
                             </label>
 
                             <div className="input-wrapper">
@@ -717,7 +724,9 @@ function Register({
                                             ? "input-error"
                                             : ""
                                     }
-                                    placeholder="000.000.000-00"
+                                    placeholder={t(
+                                        "register.placeholders.cpf"
+                                    )}
                                     aria-invalid={!!erroCpf}
                                 />
 
@@ -742,7 +751,7 @@ function Register({
                         <div className="input-group">
 
                             <label>
-                                Telefone
+                                {t("register.fields.phone")}
                             </label>
 
                             <div className="input-wrapper">
@@ -779,7 +788,9 @@ function Register({
                                             ? "input-error"
                                             : ""
                                     }
-                                    placeholder="(00) 00000-0000"
+                                    placeholder={t(
+                                        "register.placeholders.phone"
+                                    )}
                                     aria-invalid={!!erroTelefone}
                                 />
 
@@ -808,7 +819,7 @@ function Register({
                         <div className="input-group">
 
                             <label>
-                                Senha
+                                {t("register.fields.password")}
                             </label>
 
                             <div className="input-wrapper">
@@ -823,7 +834,9 @@ function Register({
                                     onChange={(e) =>
                                         setSenha(e.target.value)
                                     }
-                                    placeholder="Digite sua senha"
+                                    placeholder={t(
+                                        "register.placeholders.password"
+                                    )}
                                 />
 
                                 <button
@@ -833,6 +846,11 @@ function Register({
                                         setShowSenha(
                                             !showSenha
                                         )
+                                    }
+                                    aria-label={
+                                        showSenha
+                                            ? t("register.buttons.hidePassword")
+                                            : t("register.buttons.showPassword")
                                     }
                                 >
                                     {showSenha
@@ -852,15 +870,15 @@ function Register({
                                             }
                                         >
                                             {nivelSenha === "fraca" &&
-                                                "Senha fraca"
+                                                t("register.passwordStrength.weak")
                                             }
 
                                             {nivelSenha === "media" &&
-                                                "Senha média"
+                                                t("register.passwordStrength.medium")
                                             }
 
                                             {nivelSenha === "forte" &&
-                                                "Senha forte"
+                                                t("register.passwordStrength.strong")
                                             }
                                         </span>
                                     )
@@ -872,7 +890,7 @@ function Register({
                         <div className="input-group">
 
                             <label>
-                                Confirmar senha
+                                {t("register.fields.confirmPassword")}
                             </label>
 
                             <div className="input-wrapper">
@@ -885,7 +903,9 @@ function Register({
                                             e.target.value
                                         )
                                     }
-                                    placeholder="Repita sua senha"
+                                    placeholder={t(
+                                        "register.placeholders.confirmPassword"
+                                    )}
                                     aria-invalid={!!erroConfirm}
                                 />
 
@@ -911,23 +931,25 @@ function Register({
 
                     <LoadingButton
                         pending={loading}
-                        pendingLabel="Cadastrando..."
+                        pendingLabel={t(
+                            "register.buttons.registering"
+                        )}
                     >
-                        Cadastrar
+                        {t("register.buttons.register")}
                     </LoadingButton>
 
                     {onVoltarEscolha && (
                         <LinkButton
                             onClick={onVoltarEscolha}
                         >
-                            ← Voltar para escolha
+                            ← {t("register.buttons.backToChoice")}
                         </LinkButton>
                     )}
 
                     <LinkButton
                         onClick={onRegister}
                     >
-                        Já tem conta? Voltar para login
+                        {t("register.buttons.alreadyHaveAccount")}
                     </LinkButton>
 
                 </form>
