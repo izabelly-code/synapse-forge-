@@ -372,7 +372,9 @@
       "delete": "Delete",
       "confirmDelete": "Delete this order?",
       "cancel": "Cancel",
-      "technician": "Technician"
+      "technician": "Technician",
+      "moveTo": "Move to…",
+      "back": "Back"
     },
     "modal": {
       "kicker": "Production",
