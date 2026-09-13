@@ -1997,6 +1997,80 @@ body {
   .ui-search-field--pill input { width: 100%; }
 }
 
+/* ===== CELULAR (≤768px): decisões de layout da página de Pedidos =====
+   O React troca os componentes (abas → dropdown de status, botão da toolbar →
+   FAB, toggle lista/grade some) via useMediaQuery(MOBILE_QUERY), com o mesmo
+   768px daqui. */
+@media (max-width: 768px) {
+  /* "Total de Pedidos" ocupa a linha inteira; os outros quatro formam dois pares.
+     Cinco cards em duas colunas deixavam um órfão no fim. */
+  .stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .stat-cards .stat-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Barra de filtros: status em linha própria, prazo e ordenação lado a lado. */
+  .filtros-bar { align-items: stretch; }
+  .filtro-menu-status { flex: 1 1 100%; }
+  .filtros-actions { width: 100%; }
+  .filtros-actions .filtro-menu { flex: 1 1 40%; }
+  .filtros-actions .filtro-action { width: 100%; justify-content: space-between; }
+}
+
+.filtro-menu-status .filtro-action {
+  width: 100%;
+}
+
+/* o dropdown de status acompanha a largura do gatilho, que ocupa a linha toda */
+.filtro-menu-status .filtro-dropdown {
+  left: 0;
+  right: 0;
+}
+
+.filtro-action-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.filtro-option-trail {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ===== FAB (ilha redonda de ação primária no celular) ===== */
+.fab {
+  position: fixed;
+  right: max(var(--space-5), env(safe-area-inset-right));
+  bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  width: 3.5rem;
+  height: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  color: var(--on-primary);
+  cursor: pointer;
+  /* abaixo do scrim da gaveta (--z-menu) e dos popovers; acima do conteúdo sticky */
+  z-index: var(--z-sticky);
+  box-shadow: var(--shadow-ambient), 0 6px 16px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  transition: filter var(--duration-base) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.fab:hover { filter: brightness(0.92); }
+.fab:active { transform: scale(0.96); box-shadow: var(--shadow-ambient); }
+.fab:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+
 
 /* ===== DASHBOARD ERROR / EMPTY ===== */
 .dashboard-error {
@@ -2073,6 +2147,14 @@ body {
   padding: clamp(var(--space-4), 2.5vw, var(--space-8));
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
+  overflow-x: hidden; /* o que não couber quebra ou corta; o modal nunca rola de lado */
+}
+
+.modal-card input,
+.modal-card select,
+.modal-card textarea {
+  min-width: 0;
+  max-width: 100%;
 }
 
 
@@ -3165,7 +3247,7 @@ html {
 }
 
 .mobile-header-logo {
-  height: 26px;
+  height: 32px;
   width: auto;
 }
 
@@ -3252,6 +3334,7 @@ html {
   .mobile-header {
     display: flex;
     align-items: center;
+    justify-content: center; /* logo centralizada; o hambúrguer sai do fluxo à esquerda */
     gap: var(--space-3);
     position: sticky;
     top: 0;
@@ -3265,7 +3348,10 @@ html {
   /* O `flex: 1` do .sidebar-icon-btn serve à linha de controles do rodapé da
      gaveta; aqui o hambúrguer é um alvo quadrado encostado na borda. */
   .mobile-header-toggle {
-    flex: 0 0 auto;
+    position: absolute;
+    left: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
     width: var(--control-h);
   }
 
