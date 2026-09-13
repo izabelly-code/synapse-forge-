@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { useMenuHighlight } from "../../hooks/useMenuHighlight";
+import { useMenuClamp } from "../../hooks/useMenuClamp";
 
 interface MenuSurfaceProps extends HTMLAttributes<HTMLDivElement> {
     children: ReactNode;
@@ -15,6 +16,8 @@ interface MenuSurfaceProps extends HTMLAttributes<HTMLDivElement> {
  */
 function MenuSurface({ children, ...rest }: MenuSurfaceProps) {
     const ref = useMenuHighlight<HTMLDivElement>({ enabled: true });
+    // Clamp horizontal: o popover nunca abre fora da viewport (SYN-76, fase 3).
+    useMenuClamp(ref);
 
     return (
         <div ref={ref} {...rest}>

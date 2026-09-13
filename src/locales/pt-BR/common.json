@@ -47,7 +47,9 @@
     "langEnglish": "English (US)",
     "langPortuguese": "Português (Brasil)",
     "languageAria": "Mudar idioma / Change language",
-    "logout": "Sair"
+    "logout": "Sair",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
   },
   "pedidos": {
     "status": {
@@ -370,7 +372,9 @@
       "delete": "Excluir",
       "confirmDelete": "Excluir esta ordem?",
       "cancel": "Cancelar",
-      "technician": "Técnico"
+      "technician": "Técnico",
+      "moveTo": "Mover para…",
+      "back": "Voltar"
     },
     "modal": {
       "kicker": "Produção",
@@ -503,7 +507,9 @@
       "errorUpdate": "Não foi possível atualizar o evento.",
       "errorUpdateGeneric": "Erro ao atualizar evento",
       "errorLoad": "Erro ao buscar eventos",
-      "errorDelete": "Não foi possível deletar o evento."
+      "errorDelete": "Não foi possível deletar o evento.",
+      "today": "Hoje",
+      "listEmpty": "Nenhum evento neste mês. Toque em Criar evento para adicionar o primeiro."
     },
     "modal": {
       "titleDetails": "Detalhes do evento",

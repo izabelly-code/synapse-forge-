@@ -165,15 +165,18 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
             }}
         >
             <div className="cell cell-ref">
+                <span className="cell-label">{t("pedidos.dashboard.headOrder")}</span>
                 <span className="row-ref">{refCurta(pedido.id)}</span>
             </div>
 
             <div className="cell cell-cliente">
+                <span className="cell-label">{t("pedidos.dashboard.headClient")}</span>
                 <span className={cn("row-avatar", avatarPalette(pedido.cliente))} aria-hidden="true">{pedido.cliente.charAt(0).toUpperCase()}</span>
                 <span className="row-cliente-nome">{pedido.cliente}</span>
             </div>
 
             <div className="cell cell-projeto">
+                <span className="cell-label">{t("pedidos.dashboard.headProject")}</span>
                 <span className="row-projeto-nome">{pedido.projeto}</span>
                 {pedido.descricao && <span className="row-projeto-desc">{pedido.descricao}</span>}
             </div>
@@ -202,6 +205,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
             </div>
 
             <div className="cell cell-progresso">
+                <span className="cell-label">{t("pedidos.dashboard.headProgress")}</span>
                 <ProgressStepper status={pedido.status} />
             </div>
 

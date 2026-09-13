@@ -28,7 +28,7 @@
   box-shadow: var(--shadow-ambient);
   max-width: 500px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   animation: slideUp var(--duration-slow) var(--ease-standard);
 }
@@ -120,7 +120,7 @@
 
 .field-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
@@ -128,6 +128,12 @@
   display: flex;
   gap: var(--space-3);
   align-items: center;
+  min-width: 0;
+}
+
+.participants-input-row .btn.mini {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .btn.mini {
@@ -259,8 +265,8 @@
 /* Responsive */
 @media (max-width: 640px) {
   .evento-modal-content {
-    width: 95%;
-    max-height: 95vh;
+    width: 100%;
+    max-height: 95dvh;
   }
 
   .evento-modal-header {
@@ -272,17 +278,65 @@
     font-size: var(--text-2xl);
   }
 
-  .evento-modal-body,
-  .evento-modal-footer {
+  .evento-modal-body {
     padding: var(--space-4);
   }
 
+  /* rodape sticky: as acoes ficam sempre alcancaveis com o corpo rolando atras */
   .evento-modal-footer {
     flex-direction: column-reverse;
+    position: sticky;
+    bottom: 0;
+    padding: var(--space-3-5) var(--space-4);
+    background: var(--surface);
   }
 
-  .btn {
+  /* so as acoes do rodape viram bloco — o botao de participantes continua ao lado do campo */
+  .evento-modal-footer .btn {
     width: 100%;
+  }
+
+  /* 16px evita o zoom automatico do iOS ao focar o campo */
+  .form-group input,
+  .form-group textarea {
+    font-size: var(--text-xl);
+  }
+
+  /* data ocupa a linha inteira; os dois horarios dividem a de baixo */
+  .field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .field-row > .form-group:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (pointer: coarse) {
+  .evento-modal-footer .btn,
+  .participants-input-row .btn.mini {
+    min-height: var(--space-11);
+  }
+
+  .form-group input,
+  .form-group textarea {
+    min-height: var(--space-11);
+  }
+
+  .participant-chip button {
+    padding: var(--space-1-5);
+    margin: calc(var(--space-1-5) * -1) calc(var(--space-1-5) * -1) calc(var(--space-1-5) * -1) 0;
+  }
+
+  .user-suggestion-item {
+    min-height: var(--space-11);
   }
 }
 
@@ -296,7 +350,9 @@
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   max-height: 250px;
+  max-width: calc(100vw - 2rem);
   overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: var(--z-modal);
   box-shadow: var(--shadow);
 }

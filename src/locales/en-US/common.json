@@ -47,7 +47,9 @@
     "langEnglish": "English (US)",
     "langPortuguese": "Português (Brasil)",
     "languageAria": "Mudar idioma / Change language",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "pedidos": {
     "status": {
@@ -370,7 +372,9 @@
       "delete": "Delete",
       "confirmDelete": "Delete this order?",
       "cancel": "Cancel",
-      "technician": "Technician"
+      "technician": "Technician",
+      "moveTo": "Move to…",
+      "back": "Back"
     },
     "modal": {
       "kicker": "Production",
@@ -503,7 +507,9 @@
       "errorUpdate": "Could not update the event.",
       "errorUpdateGeneric": "Error updating event",
       "errorLoad": "Error loading events",
-      "errorDelete": "Could not delete the event."
+      "errorDelete": "Could not delete the event.",
+      "today": "Today",
+      "listEmpty": "No events this month. Tap Create event to add the first one."
     },
     "modal": {
       "titleDetails": "Event details",

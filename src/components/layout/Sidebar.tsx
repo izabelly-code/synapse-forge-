@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
+import { Calendar03Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getMyUser } from "../../services/UserService";
 import { getUserRole } from "../../hooks/useAuth";
@@ -10,6 +10,7 @@ import logoLight from "../../assets/Images/white-logo.png";
 import { cn } from "../../utils/cn";
 import { avatarPalette } from "../../utils/avatarPalette";
 import { useDismissable } from "../../hooks/useDismissable";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import IconButton from "../ui/IconButton";
 import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
@@ -86,7 +87,16 @@ function podeVerItem(path: string, role: string | null): boolean {
     return true;
 }
 
-function Sidebar() {
+interface SidebarProps {
+    /** Referenciado pelo `aria-controls` do hambourguer do MobileHeader. */
+    id: string;
+    /** Abaixo do colapso do shell (1024px) a sidebar é uma gaveta sobreposta. */
+    compacto: boolean;
+    drawerAberto: boolean;
+    onFecharDrawer: () => void;
+}
+
+function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
     const navigate = useNavigate();
     const location = useLocation();
     const { theme, toggleTheme } = useTheme();
@@ -98,6 +108,11 @@ function Sidebar() {
     const [email, setEmail] = useState(() => localStorage.getItem("userEmail") ?? "");
     const [langMenuAberto, setLangMenuAberto] = useState(false);
     const langMenuRef = useRef<HTMLDivElement>(null);
+    const asideRef = useRef<HTMLElement>(null);
+
+    // Enquanto a gaveta está aberta ela é um diálogo: o Tab não deve passear pelo
+    // conteúdo atrás do scrim. Fora do modo compacto a sidebar é navegação normal.
+    useFocusTrap(asideRef, compacto && drawerAberto);
 
     useDismissable({
         enabled: langMenuAberto,
@@ -153,9 +168,30 @@ function Sidebar() {
     ];
 
     return (
-        <aside className="sidebar">
+        <aside
+            id={id}
+            ref={asideRef}
+            className={cn("sidebar", drawerAberto && "is-drawer-open")}
+            role={compacto && drawerAberto ? "dialog" : undefined}
+            aria-modal={compacto && drawerAberto ? true : undefined}
+            aria-label={compacto && drawerAberto ? t("sidebar.navAria") : undefined}
+            // Gaveta fechada sai da ordem de tabulação e da árvore de acessibilidade:
+            // ela continua montada (a transição de `transform` depende disso).
+            inert={compacto && !drawerAberto}
+        >
             <div className="sidebar-brand">
                 <img src={theme === "dark" ? logoLight : logoDark} alt="SynapseForge" className="sidebar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
+                {compacto && (
+                    <IconButton
+                        variant="sidebar"
+                        className="sidebar-drawer-close"
+                        onClick={onFecharDrawer}
+                        aria-label={t("sidebar.closeMenu")}
+                        title={t("sidebar.closeMenu")}
+                    >
+                        <Cancel01Icon size={18} />
+                    </IconButton>
+                )}
             </div>
 
             <nav className="sidebar-nav" aria-label={t("sidebar.navAria")}>
