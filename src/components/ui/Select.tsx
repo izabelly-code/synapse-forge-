@@ -74,7 +74,7 @@ function Select({
             >
                 {icon}
                 {variant === "filter" && label ? (
-                    <span>{label}: {textoSelecionado}</span>
+                    <span className="ui-select-value"><span className="ui-select-label-prefix">{label}: </span>{textoSelecionado}</span>
                 ) : (
                     <span className="ui-select-value">{textoSelecionado}</span>
                 )}
