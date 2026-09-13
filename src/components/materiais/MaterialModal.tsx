@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Cancel01Icon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { criarMaterial, editarMaterial } from "../../services/MaterialService";
 import { Material } from "../../models/Material";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
@@ -18,6 +19,7 @@ type CampoErro = "nome" | "tipo" | "densidadeGcm3" | "precoPorGrama";
 type Erros = Partial<Record<CampoErro, string>>;
 
 function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
+    const { t } = useTranslation();
     const editando = !!material;
 
     const [nome, setNome] = useState(material?.nome ?? "");
@@ -50,12 +52,12 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
 
     function validar(): Erros {
         const e: Erros = {};
-        if (!nome.trim()) e.nome = "Informe o nome do material.";
-        if (!tipo.trim()) e.tipo = "Informe o tipo.";
+        if (!nome.trim()) e.nome = t("materiais.modal.errorName");
+        if (!tipo.trim()) e.tipo = t("materiais.modal.errorType");
         const dens = Number(densidade);
-        if (!densidade || isNaN(dens) || dens <= 0) e.densidadeGcm3 = "Informe uma densidade positiva.";
+        if (!densidade || isNaN(dens) || dens <= 0) e.densidadeGcm3 = t("materiais.modal.errorDensity");
         const prc = Number(preco);
-        if (!preco || isNaN(prc) || prc < 0) e.precoPorGrama = "Informe um preço válido.";
+        if (!preco || isNaN(prc) || prc < 0) e.precoPorGrama = t("materiais.modal.errorPrice");
         return e;
     }
 
@@ -90,7 +92,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
             }
             onSalvo();
         } catch {
-            setErroEnvio(editando ? "Erro ao salvar material. Tente novamente." : "Erro ao criar material. Tente novamente.");
+            setErroEnvio(editando ? t("materiais.modal.errorSaveEdit") : t("materiais.modal.errorSaveNew"));
         } finally {
             setLoading(false);
         }
@@ -107,8 +109,8 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header">
-                    <h2 id="modal-titulo">{editando ? "Editar Material" : "Novo Material"}</h2>
-                    <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
+                    <h2 id="modal-titulo">{editando ? t("materiais.modal.titleEdit") : t("materiais.modal.titleNew")}</h2>
+                    <IconButton variant="modal-close" onClick={onClose} aria-label={t("materiais.modal.close")}>
                         <Cancel01Icon size={18} />
                     </IconButton>
                 </div>
@@ -117,14 +119,14 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                     {erroEnvio && <p className="error">{erroEnvio}</p>}
 
                     <div className="input-group">
-                        <label htmlFor="nome">Nome</label>
+                        <label htmlFor="nome">{t("materiais.modal.nameLabel")}</label>
                         <input
                             id="nome"
                             ref={nomeRef}
                             className={erros.nome ? "input-error" : ""}
                             value={nome}
                             onChange={(e) => { setNome(e.target.value); limparErro("nome"); }}
-                            placeholder="Nome do material"
+                            placeholder={t("materiais.modal.namePlaceholder")}
                             aria-invalid={!!erros.nome}
                             aria-describedby={erros.nome ? "nome-erro" : undefined}
                             autoFocus
@@ -135,14 +137,14 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="tipo">Tipo</label>
+                        <label htmlFor="tipo">{t("materiais.modal.typeLabel")}</label>
                         <input
                             id="tipo"
                             ref={tipoRef}
                             className={erros.tipo ? "input-error" : ""}
                             value={tipo}
                             onChange={(e) => { setTipo(e.target.value); limparErro("tipo"); }}
-                            placeholder="Ex: RESINA, PLA, ABS"
+                            placeholder={t("materiais.modal.typePlaceholder")}
                             aria-invalid={!!erros.tipo}
                             aria-describedby={erros.tipo ? "tipo-erro" : undefined}
                         />
@@ -152,7 +154,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="densidade">Densidade (g/cm³)</label>
+                        <label htmlFor="densidade">{t("materiais.modal.densityLabel")}</label>
                         <input
                             id="densidade"
                             ref={densidadeRef}
@@ -162,7 +164,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                             className={erros.densidadeGcm3 ? "input-error" : ""}
                             value={densidade}
                             onChange={(e) => { setDensidade(e.target.value); limparErro("densidadeGcm3"); }}
-                            placeholder="Ex: 1.10"
+                            placeholder={t("materiais.modal.densityPlaceholder")}
                             aria-invalid={!!erros.densidadeGcm3}
                             aria-describedby={erros.densidadeGcm3 ? "densidade-erro" : undefined}
                         />
@@ -172,7 +174,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="preco">Preço por grama (R$)</label>
+                        <label htmlFor="preco">{t("materiais.modal.priceLabel")}</label>
                         <input
                             id="preco"
                             ref={precoRef}
@@ -182,7 +184,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                             className={erros.precoPorGrama ? "input-error" : ""}
                             value={preco}
                             onChange={(e) => { setPreco(e.target.value); limparErro("precoPorGrama"); }}
-                            placeholder="Ex: 0.132"
+                            placeholder={t("materiais.modal.pricePlaceholder")}
                             aria-invalid={!!erros.precoPorGrama}
                             aria-describedby={erros.precoPorGrama ? "preco-erro" : undefined}
                         />
@@ -199,17 +201,17 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                                     checked={ativo}
                                     onChange={(e) => setAtivo(e.target.checked)}
                                 />
-                                <span>Ativo</span>
+                                <span>{t("materiais.modal.active")}</span>
                             </label>
                         </div>
                     )}
 
                     <div className="modal-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
-                            Cancelar
+                            {t("materiais.modal.cancel")}
                         </button>
-                        <LoadingButton pending={loading} pendingLabel={editando ? "Salvando..." : "Criando..."}>
-                            {editando ? "Salvar" : "Criar Material"}
+                        <LoadingButton pending={loading} pendingLabel={editando ? t("materiais.modal.saving") : t("materiais.modal.creating")}>
+                            {editando ? t("materiais.modal.save") : t("materiais.modal.create")}
                         </LoadingButton>
                     </div>
                 </form>
