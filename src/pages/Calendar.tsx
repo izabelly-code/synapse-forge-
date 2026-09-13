@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Alert02Icon, ArrowLeft01Icon, ArrowRight01Icon, Clock01Icon, UserMultiple02Icon, ViewIcon } from "hugeicons-react";
+import AddAction from "../components/ui/AddAction";
 import { useTranslation } from 'react-i18next';
 import './Calendar.css';
 import EventoModal from '../components/calendario/EventoModal';
@@ -57,6 +58,48 @@ function getWeekDayLabels(): string[] {
     const label = formatDate(new Date(2024, 0, 7 + i), { weekday: 'short' }).replace('.', '');
     return label.charAt(0).toUpperCase() + label.slice(1);
   });
+}
+
+/** "AAAA-MM-DD" → "Segunda-feira, 08 de setembro" no idioma ativo (cabeçalho de dia da visão lista). */
+function formatDayHeading(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const label = formatDate(new Date(year, month - 1, day), { weekday: 'long', day: '2-digit', month: 'long' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+type EventCardProps = {
+  event: EventData;
+  nomesParticipantes: Record<string, string>;
+  onView: (evento: EventData) => void;
+};
+
+/** Card de evento — usado no painel lateral (>=641px) e na visao lista do mobile (<=640px). */
+function EventCard({ event, nomesParticipantes, onView }: Readonly<EventCardProps>) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="event-card">
+      <div className="event-card-info">
+        <p className="event-card-title">{event.nome}</p>
+        <p className="event-card-meta">{event.descricao || t('agenda.calendar.noDescription')}</p>
+        {event.horarioInicio && (
+          <p className="event-card-time">
+            <Clock01Icon size={12} />
+            {formatTimeStr(event.horarioInicio)}{event.horarioFim ? ` - ${formatTimeStr(event.horarioFim)}` : ''}
+          </p>
+        )}
+        {event.participantes && event.participantes.length > 0 && (
+          <p className="event-card-participants">
+            <UserMultiple02Icon size={12} />
+            {event.participantes.map((id) => nomesParticipantes[id] || id).join(', ')}
+          </p>
+        )}
+      </div>
+      <button className="event-card-action" onClick={() => onView(event)}>
+        <ViewIcon size={14} /> {t('agenda.calendar.viewEdit')}
+      </button>
+    </div>
+  );
 }
 
 function Calendar() {
@@ -211,6 +254,25 @@ function Calendar() {
     return mapa;
   }, [eventos]);
 
+  const mesAtualPrefixo = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+  const hojeStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  /** Eventos do mes exibido agrupados por dia (dias sem evento nao entram) — base da visao lista. */
+  const diasComEventos = useMemo(
+    () =>
+      Object.keys(eventosPorData)
+        .filter((data) => data.startsWith(mesAtualPrefixo))
+        .sort((a, b) => a.localeCompare(b))
+        .map((data) => ({
+          data,
+          hoje: data === hojeStr,
+          eventos: eventosPorData[data]
+            .slice()
+            .sort((a, b) => (a.horarioInicio ?? '').localeCompare(b.horarioInicio ?? '')),
+        })),
+    [eventosPorData, mesAtualPrefixo, hojeStr]
+  );
+
   const displayedDate = selectedDate || `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const selectedDayEvents = eventosPorData[displayedDate] || [];
   const nextEvents = eventos
@@ -243,9 +305,7 @@ function Calendar() {
           <h1 className="dashboard-title">{t('agenda.calendar.title')}</h1>
           <p className="dashboard-subtitle">{t('agenda.calendar.subtitle')}</p>
         </div>
-        <button className="button btn-novo-pedido" onClick={handleCreateNewEvent}>
-          + {t('agenda.calendar.newEvent')}
-        </button>
+        <AddAction label={t('agenda.calendar.newEvent')} onClick={handleCreateNewEvent} />
       </header>
 
       {erro && <div className="calendar-error"><Alert02Icon size={16} /> {erro}</div>}
@@ -309,6 +369,30 @@ function Calendar() {
               );
             })}
           </div>
+
+          {/* Visao lista (<=640px): substitui a grade por eventos do mes agrupados por dia */}
+          <div className="calendar-agenda">
+            {diasComEventos.length > 0 ? (
+              diasComEventos.map((grupo) => (
+                <section key={grupo.data} className="agenda-dia">
+                  <h3 className={cn('agenda-dia-titulo', grupo.hoje && 'is-today')}>
+                    <span className="agenda-dia-data">{formatDayHeading(grupo.data)}</span>
+                    {grupo.hoje && <span className="agenda-dia-hoje">{t('agenda.calendar.today')}</span>}
+                  </h3>
+                  {grupo.eventos.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      nomesParticipantes={nomesParticipantes}
+                      onView={selecionarEvento}
+                    />
+                  ))}
+                </section>
+              ))
+            ) : (
+              <p className="panel-empty">{t('agenda.calendar.listEmpty')}</p>
+            )}
+          </div>
         </section>
 
         <aside className="calendar-panel">
@@ -322,27 +406,12 @@ function Calendar() {
               <h4>{selectedDayEvents.length ? t('agenda.calendar.eventsOnDay') : t('agenda.calendar.noEventsScheduled')}</h4>
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map((event) => (
-                  <div key={event.id} className="event-card">
-                    <div className="event-card-info">
-                      <p className="event-card-title">{event.nome}</p>
-                      <p className="event-card-meta">{event.descricao || t('agenda.calendar.noDescription')}</p>
-                      {event.horarioInicio && (
-                        <p className="event-card-time">
-                          <Clock01Icon size={12} />
-                          {formatTimeStr(event.horarioInicio)}{event.horarioFim ? ` - ${formatTimeStr(event.horarioFim)}` : ''}
-                        </p>
-                      )}
-                      {event.participantes && event.participantes.length > 0 && (
-                        <p className="event-card-participants">
-                          <UserMultiple02Icon size={12} />
-                          {event.participantes.map((id) => nomesParticipantes[id] || id).join(', ')}
-                        </p>
-                      )}
-                    </div>
-                    <button className="event-card-action" onClick={() => selecionarEvento(event)}>
-                      <ViewIcon size={14} /> {t('agenda.calendar.viewEdit')}
-                    </button>
-                  </div>
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    nomesParticipantes={nomesParticipantes}
+                    onView={selecionarEvento}
+                  />
                 ))
               ) : (
                 <p className="panel-empty">{t('agenda.calendar.clickDayHint')}</p>
