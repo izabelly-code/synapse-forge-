@@ -491,6 +491,7 @@
     "calendar": {
       "title": "Calendar",
       "subtitle": "Manage your events and appointments",
+      "loading": "Loading events...",
       "newEvent": "New Event",
       "prevMonth": "Previous month",
       "nextMonth": "Next month",

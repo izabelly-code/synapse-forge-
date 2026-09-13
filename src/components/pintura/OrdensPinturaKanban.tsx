@@ -239,9 +239,10 @@ function OrdensPinturaKanban() {
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
 
 
-    async function carregar() {
-        setLoading(true);
-        setErro("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders
+    // (`loading` já nasce true e `erro` vazio no useState acima).
+    async function buscarDados() {
         try {
             const [ordensData, pedidosData, coresData] = await Promise.all([
                 getOrdensPintura(),
@@ -252,6 +253,7 @@ function OrdensPinturaKanban() {
             setPedidos(pedidosData);
             setCores(coresData);
             setAtualizadoEm(new Date());
+            setErro("");
         } catch {
             setErro(t("pintura.errorLoad"));
         } finally {
@@ -259,10 +261,21 @@ function OrdensPinturaKanban() {
         }
     }
 
+    // Recarga disparada pelo botão de atualizar: volta ao estado de carregando.
+    function carregar() {
+        setLoading(true);
+        setErro("");
+        return buscarDados();
+    }
+
     useEffect(() => {
-        // Initial synchronization with the persisted Kanban data.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        void carregar();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarDados();
+        }
+        void carregarNaMontagem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const ordensFiltradas = useMemo(() => {

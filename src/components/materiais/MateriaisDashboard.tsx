@@ -16,11 +16,13 @@ function MateriaisDashboard() {
     const [modalAberto, setModalAberto] = useState(false);
     const [materialEditando, setMaterialEditando] = useState<Material | null>(null);
 
-    async function fetchMateriais() {
-        setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders
+    // (`fetching` já nasce true e `error` vazio no useState acima).
+    async function buscarMateriais() {
         try {
             setMateriais(await getMateriais());
+            setError("");
         } catch {
             setError(t("materiais.dashboard.errorLoad"));
         } finally {
@@ -28,8 +30,20 @@ function MateriaisDashboard() {
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchMateriais() {
+        setFetching(true);
+        setError("");
+        return buscarMateriais();
+    }
+
     useEffect(() => {
-        fetchMateriais();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarMateriais();
+        }
+        void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

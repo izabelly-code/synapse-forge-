@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Menu01Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import logoDark from "../../assets/Images/black-logo.png";
 import logoLight from "../../assets/Images/white-logo.png";
 import IconButton from "../ui/IconButton";
