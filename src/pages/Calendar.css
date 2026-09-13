@@ -139,6 +139,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  /* rede de seguranca: nada de chip/badge vazando para a celula vizinha */
+  overflow: hidden;
+  min-width: 0;
   transition: box-shadow var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard);
 }
 
@@ -174,6 +177,7 @@
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--on-background);
+  min-width: 0;
 }
 
 .day-badge {
@@ -184,6 +188,7 @@
   font-size: var(--text-2xs);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 .events-preview {
@@ -191,10 +196,13 @@
   flex-direction: column;
   gap: var(--space-1);
   margin-top: var(--space-1-5);
+  min-width: 0;
 }
 
 .event-chip {
   display: block;
+  max-width: 100%;
+  min-width: 0;
   padding: var(--space-05) var(--space-1-5);
   border-radius: var(--radius);
   background: var(--secondary-fixed);
@@ -341,6 +349,52 @@
   font-size: var(--text-sm);
 }
 
+/* ---------------------------------------------------------------------------
+   Visao lista (agenda) — substitui a grade mensal em telas <= 640px.
+   Fica oculta acima disso; a grade de 7 colunas continua exatamente como antes.
+   --------------------------------------------------------------------------- */
+.calendar-agenda {
+  display: none;
+}
+
+.agenda-dia + .agenda-dia {
+  margin-top: var(--space-5);
+}
+
+.agenda-dia-titulo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2-5);
+  padding-bottom: var(--space-1-5);
+  border-bottom: 1px solid var(--outline-variant);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--on-surface-variant);
+}
+
+.agenda-dia-data {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.agenda-dia-titulo.is-today {
+  color: var(--on-background);
+}
+
+.agenda-dia-hoje {
+  flex-shrink: 0;
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  border-radius: var(--radius-xs);
+  padding: var(--space-05) var(--space-1-5);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @media (max-width: 768px) {
   .calendar-card-header,
   .panel-header {
@@ -350,5 +404,52 @@
 
   .calendar-page {
     padding: var(--space-4);
+  }
+
+  /* faixa 641-768px: a celula nao cabe dois chips legiveis — fica so o badge de contagem */
+  .events-preview {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .calendar-page {
+    padding: var(--space-3);
+  }
+
+  /* fora a grade e o painel lateral; a lista cobre os dois (ver/editar esta no card) */
+  .week-days,
+  .calendar-grid,
+  .calendar-panel {
+    display: none;
+  }
+
+  .calendar-agenda {
+    display: block;
+  }
+
+  .calendar-header {
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .event-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .event-card-action {
+    justify-content: center;
+  }
+}
+
+@media (pointer: coarse) {
+  .nav-arrow {
+    width: var(--space-11);
+    height: var(--space-11);
+  }
+
+  .event-card-action {
+    min-height: var(--space-11);
   }
 }
