@@ -77,10 +77,22 @@ function OrcamentoHistorico() {
                         </div>
                         {orcamentos.map((o) => (
                             <div key={o.id} data-flip-id={o.id} className="pedido-row orcamento-row">
-                                <span className="row-projeto-nome">{o.nomeMaterial}</span>
-                                <span>{t("orcamento.historico.volumeValue", { value: formatNumber(o.volumeCm3) })}</span>
-                                <span>{formatarData(o.criadoEm)}</span>
-                                <span className="orcamento-row-preco">{formatCurrency(o.precoFinal)}</span>
+                                <span className="row-projeto-nome">
+                                    <span className="cell-label">{t("orcamento.historico.colMaterial")}</span>
+                                    {o.nomeMaterial}
+                                </span>
+                                <span>
+                                    <span className="cell-label">{t("orcamento.historico.colVolume")}</span>
+                                    {t("orcamento.historico.volumeValue", { value: formatNumber(o.volumeCm3) })}
+                                </span>
+                                <span>
+                                    <span className="cell-label">{t("orcamento.historico.colDate")}</span>
+                                    {formatarData(o.criadoEm)}
+                                </span>
+                                <span className="orcamento-row-preco">
+                                    <span className="cell-label">{t("orcamento.historico.colFinalPrice")}</span>
+                                    {formatCurrency(o.precoFinal)}
+                                </span>
                             </div>
                         ))}
                     </div>

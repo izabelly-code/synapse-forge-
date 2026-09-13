@@ -136,7 +136,12 @@
        640px  (sm)  · telefone
        768px  (md)  · tablet retrato / colapso geral
       1024px  (lg)  · tablet paisagem
-     Exceções documentadas em docs/design-tokens.md (540px, 900px, 1100px). */
+     Exceções documentadas em docs/design-tokens.md (540px, 1100px).
+     Conteúdo que vive dentro da coluna do dashboard (listas, grid do formulário
+     de orçamento) NÃO usa @media: mede a própria largura com @container, porque
+     acima de 1024px a coluna vale `viewport − 280px − 80px`. Contêineres
+     nomeados: `sf-list` (listas de linhas) e `sf-pane` (painel do orçamento);
+     pontos de empilhamento em comentário junto de cada @container. */
 
   /* Controles — spec */
   --control-h: 2.25rem;       /* botões: 36px */
@@ -847,6 +852,10 @@ body {
 .btn-novo-pedido {
   width: auto;
   white-space: nowrap;
+  /* S5: o rótulo pode ser longo ("Novo pedido de cliente") em 360px */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   gap: var(--space-1-5);
   padding: 0 var(--space-4) 0 var(--space-3-5);
 }
@@ -891,6 +900,8 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .view-toggle {
@@ -963,6 +974,7 @@ body {
 
 
 .filtro-count {
+  flex-shrink: 0;
   min-width: var(--badge-h);
   height: var(--badge-h);
   padding: 0 var(--space-1-5);
@@ -984,6 +996,11 @@ body {
 
 .filtro-menu {
   position: relative;
+  /* cap em vez de `min-width: 0`: o item de flex precisa poder ser recortado
+     quando é mais largo que a barra, mas NÃO pode encolher abaixo do conteúdo
+     antes de quebrar a linha (senão três filtros viram três rótulos cortados
+     em 390px em vez de quebrarem). */
+  max-width: 100%;
 }
 
 .filtro-action {
@@ -1000,8 +1017,18 @@ body {
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
   cursor: pointer;
+  /* S5: nowrap num item de flex precisa de min-width: 0 + corte, senão o rótulo
+     (nome de fornecedor, de técnico) empurra a barra de filtros para fora. */
   white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.filtro-action .filtro-action-chev {
+  flex-shrink: 0;
 }
 
 .filtro-action:hover {
@@ -1022,11 +1049,18 @@ body {
   transform: rotate(180deg);
 }
 
+/* Padrão único dos popovers ancorados (SYN-76, fase 3): nunca mais largo que a
+   viewport, nunca mais alto que ela, e deslocado de volta para dentro pelo
+   `--menu-shift` que o MenuSurface calcula (ver hooks/useMenuClamp.ts). */
 .filtro-dropdown {
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 190px;
+  max-width: calc(100vw - 2rem);
+  max-height: min(60vh, 320px);
+  overflow-y: auto;
+  transform: translateX(var(--menu-shift, 0px));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -1361,10 +1395,31 @@ body {
 }
 
 
+/* Contêiner de consulta das linhas (SYN-76, fase 2). O empilhamento das linhas
+   precisa medir a LARGURA REAL disponível, não o viewport: acima de 1024px o
+   conteúdo vale `viewport − 280px (sidebar) − 80px (padding)`, e um breakpoint
+   de viewport erra essa conta (era a "faixa morta" 1025–1266px do audit).
+   O `container-type` fica na lista — e não no `.dashboard-content` — porque
+   `container-type` implica `contain: layout`, que faria do elemento o bloco
+   contêiner de descendentes `position: fixed`: os overlays de modal (inset: 0)
+   passariam a cobrir só a coluna de conteúdo. Nenhuma lista tem filho fixed.
+   `overflow-x: auto` é a rede de segurança da fase 2: se uma linha ainda não
+   couber, rola a lista e não o documento. */
 .pedidos-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  container-type: inline-size;
+  container-name: sf-list;
+  overflow-x: auto;
+}
+
+/* Enquanto um kebab está aberto o clip sai de cena: o popover é absoluto e seria
+   recortado pelo contêiner de scroll (o guard do documento continua sendo o
+   `overflow-x: clip` do `.dashboard-content`). */
+.pedidos-list:has(.kebab-menu),
+.cores-list:has(.kebab-menu) {
+  overflow-x: visible;
 }
 
 .pedidos-grid {
@@ -1380,12 +1435,10 @@ body {
   padding: var(--space-4) var(--space-4-5);
 }
 
-.pedidos-grid .cell-label {
+/* No mosaico o card já é autoexplicativo: só o prazo leva rótulo (como antes de
+   a linha empilhada ganhar o conjunto completo de rótulos). */
+.pedidos-grid .cell-prazo .cell-label {
   display: inline;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--on-surface-variant);
-  margin-right: var(--space-2);
 }
 
 .pedidos-grid .cell-prazo {
@@ -1480,7 +1533,16 @@ body {
 }
 
 .cell { min-width: 0; }
-.cell-label { display: none; }
+
+/* Rótulo de célula: escondido quando existe cabeçalho de coluna, visível quando
+   a linha empilha (cada bloco de empilhamento só liga o `display`). */
+.cell-label {
+  display: none;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--on-surface-variant);
+  margin-right: var(--space-2);
+}
 
 .row-ref {
   font-size: var(--text-sm);
@@ -1743,11 +1805,14 @@ body {
   background: var(--state-hover);
 }
 
+/* mesmo padrão do .filtro-dropdown: clamp de largura + `--menu-shift` */
 .kebab-menu {
   position: absolute;
   top: calc(100% + 0.375rem);
   right: 0;
   min-width: 172px;
+  max-width: calc(100vw - 2rem);
+  transform: translateX(var(--menu-shift, 0px));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -1851,25 +1916,45 @@ body {
   .stat-cards { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 768px) {
-  .pedidos-row-head { display: none; }
+/* Empilhamento da linha de pedido. 960px é a largura da LISTA (não do viewport):
+   a linha tem 906px de min-content (84 + 120 + 140 + 104 + 290 + 5 gaps de 16 +
+   40 de padding), então 960 é o último ponto em que ela ainda respira. Com
+   sidebar isso equivale a ~1320px de viewport; sem sidebar (≤1024px), a ~1000px.
+   Substitui o antigo `@media (max-width: 768px)`, que deixava a linha estourando
+   em toda a faixa 769–1265px. */
+@container sf-list (max-width: 960px) {
+  .pedidos-row-head:not(.material-row):not(.orcamento-row) { display: none; }
 
-  .pedido-row {
+  .pedido-row:not(.material-row):not(.orcamento-row) {
     grid-template-columns: 1fr;
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
 
-  .cell-label {
-    display: inline;
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    color: var(--on-surface-variant);
-    margin-right: var(--space-2);
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-label { display: inline; }
+
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-prazo { align-items: flex-start; }
+
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-acoes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
-  .cell-prazo { align-items: flex-start; }
-  .cell-acoes { justify-content: flex-start; flex-wrap: wrap; }
+  /* Com o kebab à esquerda, `right: 0` jogava o menu ~122px fora da tela. */
+  .pedido-row:not(.material-row):not(.orcamento-row) .kebab-menu {
+    left: 0;
+    right: auto;
+  }
+}
+
+/* Abaixo de ~420px de lista as 5 etiquetas de 10px do stepper se sobrepõem;
+   ficam só os pontos (o stepper já tem aria-label e aria-valuenow). */
+@container sf-list (max-width: 420px) {
+  .step-label { display: none; }
+
+  /* Sem espaço para o selo inteiro; o próprio valor de estoque já aparece na
+     cor de alerta (`.cor-metric-value.is-baixo`), então a informação não some. */
+  .cor-row .cor-estoque-baixo { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -3756,7 +3841,9 @@ html {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
+/* 820px = min-content da linha de material (752px: 140 + 100 + 120 + 120 + 168 +
+   4 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 820px) {
   .pedidos-row-head.material-row { display: none; }
 
   .pedido-row.material-row {
@@ -3764,6 +3851,8 @@ html {
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
+
+  .pedido-row.material-row .cell-label { display: inline; }
 
   .material-row-actions { justify-content: flex-start; flex-wrap: wrap; }
 }
@@ -3967,10 +4056,14 @@ html {
 
 
 /* List view */
+/* mesmo contêiner de consulta das listas de pedidos/materiais (ver .pedidos-list) */
 .cores-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  container-type: inline-size;
+  container-name: sf-list;
+  overflow-x: auto;
 }
 
 .cor-row-head,
@@ -4146,7 +4239,11 @@ html {
   .cores-filtros .filtros-actions {
     width: 100%;
   }
+}
 
+/* 800px = min-content da linha de cor (736px: 40 + 140 + 110 + 120 + 110 + 96 +
+   5 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 800px) {
   .cor-row-head {
     display: none;
   }
@@ -4172,6 +4269,13 @@ html {
     grid-column: 3;
     grid-row: 1;
     align-self: start;
+  }
+
+  /* S5: o selo é nowrap e travava a coluna 3 em ~147px, estourando a linha. */
+  .cor-row .cor-estoque-baixo {
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
   }
 }
 
@@ -4747,6 +4851,13 @@ html {
   gap: var(--space-10);
 }
 
+/* contêiner de consulta do formulário de orçamento (ver .pedidos-list para o
+   porquê de medir o contêiner e não o viewport) */
+.orcamento-calculator {
+  container-type: inline-size;
+  container-name: sf-pane;
+}
+
 .orcamento-form-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -4884,10 +4995,11 @@ html {
   text-align: right;
 }
 
-/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
-   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
-   de tablets em paisagem */
-@media (max-width: 900px) {
+/* O formulário + preview deixam de caber lado a lado quando a ÁREA DO
+   FORMULÁRIO cai abaixo de ~820px (o antigo `@media (max-width: 900px)` media o
+   viewport e errava por causa dos 360px de sidebar + padding: com sidebar o
+   ponto real era ~1180px de viewport). */
+@container sf-pane (max-width: 820px) {
   .orcamento-form-grid {
     grid-template-columns: 1fr;
   }
@@ -4897,7 +5009,9 @@ html {
   }
 }
 
-@media (max-width: 768px) {
+/* 640px = min-content da linha de orçamento (588px: 140 + 90 + 150 + 120 +
+   3 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 640px) {
   .pedidos-row-head.orcamento-row {
     display: none;
   }
@@ -4907,6 +5021,8 @@ html {
     gap: var(--space-2);
     padding: var(--space-4) var(--space-4-5);
   }
+
+  .pedido-row.orcamento-row .cell-label { display: inline; }
 
   .orcamento-row-preco {
     text-align: left;

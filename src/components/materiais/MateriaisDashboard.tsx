@@ -104,9 +104,16 @@ function MateriaisDashboard() {
                             </div>
                             {materiais.map((m) => (
                                 <div key={m.id} className="pedido-row material-row">
-                                    <span className="row-projeto-nome">{m.nome}</span>
-                                    <span>{m.tipo}</span>
+                                    <span className="row-projeto-nome">
+                                        <span className="cell-label">{t("materiais.dashboard.colName")}</span>
+                                        {m.nome}
+                                    </span>
                                     <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colType")}</span>
+                                        {m.tipo}
+                                    </span>
+                                    <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colDensity")}</span>
                                         {t("materiais.dashboard.densityValue", {
                                             value: formatNumber(m.densidadeGcm3, {
                                                 minimumFractionDigits: 2,
@@ -115,6 +122,7 @@ function MateriaisDashboard() {
                                         })}
                                     </span>
                                     <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colPricePerGram")}</span>
                                         {formatCurrency(m.precoPorGrama, { minimumFractionDigits: 3 })}
                                     </span>
                                     <div className="material-row-actions">
