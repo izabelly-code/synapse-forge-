@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
-import { formatNumber } from "../../utils/format";
+import { formatCurrency, formatNumber } from "../../utils/format";
 import SkeletonSwap from "../ui/SkeletonSwap";
 
 function MateriaisDashboard() {
@@ -115,11 +115,7 @@ function MateriaisDashboard() {
                                         })}
                                     </span>
                                     <span>
-                                        {formatNumber(m.precoPorGrama, {
-                                            style: "currency",
-                                            currency: "BRL",
-                                            minimumFractionDigits: 3,
-                                        })}
+                                        {formatCurrency(m.precoPorGrama, { minimumFractionDigits: 3 })}
                                     </span>
                                     <div className="material-row-actions">
                                         <button
