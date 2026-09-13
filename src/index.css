@@ -4599,7 +4599,7 @@ html {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm); /* painel estático: sombra de repouso da receita de card, não a de overlay */
   padding: clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
