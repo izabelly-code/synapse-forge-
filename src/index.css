@@ -3258,7 +3258,7 @@ html {
 }
 
 .mobile-header-logo {
-  height: 32px;
+  height: 40px; /* logo 3:1 → 120px de largura; a 32px ficava miúda no celular */
   width: auto;
 }
 
@@ -3350,7 +3350,7 @@ html {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    height: 56px; /* fora da escala: altura de barra de aplicativo, com alvo de toque confortável */
+    height: 64px; /* fora da escala: altura de barra de aplicativo, com respiro para a logo de 40px */
     padding: 0 var(--space-4);
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
