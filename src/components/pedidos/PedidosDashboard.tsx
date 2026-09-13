@@ -13,7 +13,7 @@ import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
 import MenuSurface from "../ui/MenuSurface";
-import Fab from "../ui/Fab";
+import AddAction from "../ui/AddAction";
 import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import SkeletonSwap from "../ui/SkeletonSwap";
 import ValueFlash from "../ui/ValueFlash";
@@ -288,11 +288,8 @@ function PedidosDashboard() {
                         />
 
 
-                        {podeGerenciarPedidos && !mobile && (
-                            <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                                <PlusSignIcon size={16} strokeWidth={2.25} />
-                                {t("pedidos.dashboard.newOrder")}
-                            </button>
+                        {podeGerenciarPedidos && (
+                            <AddAction label={t("pedidos.dashboard.newOrder")} onClick={() => setModalAberto(true)} />
                         )}
                     </div>
                 </header>
@@ -502,11 +499,6 @@ function PedidosDashboard() {
                     )}
                 </SkeletonSwap>
 
-                {podeGerenciarPedidos && mobile && (
-                    <Fab label={t("pedidos.dashboard.newOrder")} onClick={() => setModalAberto(true)}>
-                        <PlusSignIcon size={24} strokeWidth={2.25} />
-                    </Fab>
-                )}
             </main>
         </>
     );

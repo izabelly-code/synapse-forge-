@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Alert02Icon, ArrowLeft01Icon, ArrowRight01Icon, Clock01Icon, UserMultiple02Icon, ViewIcon } from "hugeicons-react";
+import AddAction from "../components/ui/AddAction";
 import { useTranslation } from 'react-i18next';
 import './Calendar.css';
 import EventoModal from '../components/calendario/EventoModal';
@@ -304,9 +305,7 @@ function Calendar() {
           <h1 className="dashboard-title">{t('agenda.calendar.title')}</h1>
           <p className="dashboard-subtitle">{t('agenda.calendar.subtitle')}</p>
         </div>
-        <button className="button btn-novo-pedido" onClick={handleCreateNewEvent}>
-          + {t('agenda.calendar.newEvent')}
-        </button>
+        <AddAction label={t('agenda.calendar.newEvent')} onClick={handleCreateNewEvent} />
       </header>
 
       {erro && <div className="calendar-error"><Alert02Icon size={16} /> {erro}</div>}
