@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import { InboxIcon } from "hugeicons-react";
+import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
+import { formatNumber } from "../../utils/format";
 import SkeletonSwap from "../ui/SkeletonSwap";
 
-const moedaBR = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 3,
-});
-
 function MateriaisDashboard() {
+    const { t } = useTranslation();
     const [materiais, setMateriais] = useState<Material[]>([]);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
@@ -24,7 +21,7 @@ function MateriaisDashboard() {
         try {
             setMateriais(await getMateriais());
         } catch {
-            setError("Erro ao carregar materiais. Verifique se o servidor está rodando.");
+            setError(t("materiais.dashboard.errorLoad"));
         } finally {
             setFetching(false);
         }
@@ -32,6 +29,7 @@ function MateriaisDashboard() {
 
     useEffect(() => {
         fetchMateriais();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function fecharModal() {
@@ -40,12 +38,12 @@ function MateriaisDashboard() {
     }
 
     async function handleExcluir(id: string) {
-        if (!window.confirm("Deseja realmente excluir este material?")) return;
+        if (!window.confirm(t("materiais.dashboard.confirmDelete"))) return;
         try {
             await inativarMaterial(id);
             setMateriais((prev) => prev.filter((m) => m.id !== id));
         } catch {
-            setError("Falha ao excluir material.");
+            setError(t("materiais.dashboard.errorDelete"));
         }
     }
 
@@ -62,13 +60,13 @@ function MateriaisDashboard() {
             <main className="dashboard-main materiais-page">
                 <header className="materiais-toolbar">
                     <div>
-                        <h1 className="dashboard-title">Materiais</h1>
-                        <p className="dashboard-subtitle">Cadastre os materiais usados na produção</p>
+                        <h1 className="dashboard-title">{t("materiais.dashboard.title")}</h1>
+                        <p className="dashboard-subtitle">{t("materiais.dashboard.subtitle")}</p>
                     </div>
 
                     <div className="toolbar-actions">
                         <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + Novo Material
+                            {t("materiais.dashboard.newMaterial")}
                         </button>
                     </div>
                 </header>
@@ -77,7 +75,7 @@ function MateriaisDashboard() {
 
                 <SkeletonSwap
                     ready={!fetching}
-                    label="Materiais"
+                    label={t("materiais.dashboard.title")}
                     skeleton={
                         <div className="pedidos-list">
                             {[1, 2, 3, 4].map((i) => (
@@ -89,41 +87,54 @@ function MateriaisDashboard() {
                     {fetching ? null : materiais.length === 0 ? (
                         <div className="pedidos-empty">
                             <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                            <p className="empty-title">Nenhum material cadastrado</p>
-                            <p className="empty-sub">Cadastre o primeiro material para começar.</p>
+                            <p className="empty-title">{t("materiais.dashboard.emptyTitle")}</p>
+                            <p className="empty-sub">{t("materiais.dashboard.emptySubtitle")}</p>
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                + Novo Material
+                                {t("materiais.dashboard.newMaterial")}
                             </button>
                         </div>
                     ) : (
                         <div className="pedidos-list">
                             <div className="pedidos-row-head material-row" aria-hidden="true">
-                                <span>Nome</span>
-                                <span>Tipo</span>
-                                <span>Densidade (g/cm³)</span>
-                                <span>Preço/grama (R$)</span>
+                                <span>{t("materiais.dashboard.colName")}</span>
+                                <span>{t("materiais.dashboard.colType")}</span>
+                                <span>{t("materiais.dashboard.colDensity")}</span>
+                                <span>{t("materiais.dashboard.colPricePerGram")}</span>
                                 <span />
                             </div>
                             {materiais.map((m) => (
                                 <div key={m.id} className="pedido-row material-row">
                                     <span className="row-projeto-nome">{m.nome}</span>
                                     <span>{m.tipo}</span>
-                                    <span>{m.densidadeGcm3.toFixed(2)} g/cm³</span>
-                                    <span>{moedaBR.format(m.precoPorGrama)}</span>
+                                    <span>
+                                        {t("materiais.dashboard.densityValue", {
+                                            value: formatNumber(m.densidadeGcm3, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            }),
+                                        })}
+                                    </span>
+                                    <span>
+                                        {formatNumber(m.precoPorGrama, {
+                                            style: "currency",
+                                            currency: "BRL",
+                                            minimumFractionDigits: 3,
+                                        })}
+                                    </span>
                                     <div className="material-row-actions">
                                         <button
                                             type="button"
                                             className="btn-acao-pequeno"
                                             onClick={() => setMaterialEditando(m)}
                                         >
-                                            Editar
+                                            {t("materiais.dashboard.edit")}
                                         </button>
                                         <button
                                             type="button"
                                             className="btn-acao-pequeno btn-acao-perigo"
                                             onClick={() => handleExcluir(m.id)}
                                         >
-                                            Excluir
+                                            {t("materiais.dashboard.delete")}
                                         </button>
                                     </div>
                                 </div>
