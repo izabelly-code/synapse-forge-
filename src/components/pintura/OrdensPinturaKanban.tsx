@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import Select from "../ui/Select";
@@ -344,10 +345,7 @@ function OrdensPinturaKanban() {
                         </div>
 
                         <div className="toolbar-actions">
-
-                            <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                                + {t("pintura.newOrder")}
-                            </button>
+                            <AddAction label={t("pintura.newOrder")} onClick={() => setModalAberto(true)} />
                         </div>
                     </header>
 

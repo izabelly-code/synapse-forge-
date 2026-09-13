@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Tick02Icon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
@@ -184,9 +185,7 @@ function PaletaCores() {
                     </div>
 
                     <div className="toolbar-actions">
-                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + {t("cores.paleta.newColor")}
-                        </button>
+                        <AddAction label={t("cores.paleta.newColor")} onClick={() => setModalAberto(true)} />
                     </div>
                 </header>
 

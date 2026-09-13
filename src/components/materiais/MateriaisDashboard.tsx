@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { InboxIcon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
@@ -65,9 +66,7 @@ function MateriaisDashboard() {
                     </div>
 
                     <div className="toolbar-actions">
-                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            {t("materiais.dashboard.newMaterial")}
-                        </button>
+                        <AddAction label={t("materiais.dashboard.newMaterial")} onClick={() => setModalAberto(true)} />
                     </div>
                 </header>
 
