@@ -75,11 +75,13 @@ function PaletaCores() {
         });
     }
 
-    async function fetchCores() {
-        if (getCached<Cor[]>(CACHE_KEY) === undefined) setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders.
+    // O estado inicial de `fetching`/`error` já reflete o cache (useState acima).
+    async function buscarCores() {
         try {
             updateCores(await getCores());
+            setError("");
         } catch {
             setError(t("cores.paleta.errorLoad"));
         } finally {
@@ -87,8 +89,20 @@ function PaletaCores() {
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchCores() {
+        if (getCached<Cor[]>(CACHE_KEY) === undefined) setFetching(true);
+        setError("");
+        return buscarCores();
+    }
+
     useEffect(() => {
-        fetchCores();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarCores();
+        }
+        void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

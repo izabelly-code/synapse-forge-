@@ -116,11 +116,13 @@ function PedidosDashboard() {
         });
     }
 
-    async function fetchPedidos() {
-        if (getCached<Pedido[]>(CACHE_KEY) === undefined) setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders.
+    // O estado inicial de `fetching`/`error` já reflete o cache (useState acima).
+    async function buscarPedidos() {
         try {
             updatePedidos(await getPedidos());
+            setError("");
         } catch {
             setError(t("pedidos.dashboard.errorLoad"));
         } finally {
@@ -128,8 +130,20 @@ function PedidosDashboard() {
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchPedidos() {
+        if (getCached<Pedido[]>(CACHE_KEY) === undefined) setFetching(true);
+        setError("");
+        return buscarPedidos();
+    }
+
     useEffect(() => {
-        fetchPedidos();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarPedidos();
+        }
+        void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

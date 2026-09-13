@@ -491,6 +491,7 @@
     "calendar": {
       "title": "Calendário",
       "subtitle": "Gerencie seus eventos e compromissos",
+      "loading": "Carregando eventos...",
       "newEvent": "Criar evento",
       "prevMonth": "Mês anterior",
       "nextMonth": "Próximo mês",
