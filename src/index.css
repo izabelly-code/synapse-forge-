@@ -1536,6 +1536,11 @@ body {
 }
 
 
+/* RECEITA DE CARD (fonte de verdade para .cor-card, .pintura-card, .event-card):
+   fundo --surface, borda fantasma --outline-variant, raio --radius, --shadow-sm
+   em repouso e --shadow-md no hover (a sombra cresce, o card sobe), transição
+   base só na sombra. Sem translateY e sem a sombra ambiente (--shadow), que é
+   de overlay. Stat cards ficam flat de propósito: não são interativos. */
 .pedido-row {
   position: relative;
   min-height: 4.25rem;
@@ -3627,18 +3632,19 @@ html {
 
 .pintura-card {
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   cursor: grab;
   user-select: none;
-  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+  /* receita de card (ver .pedido-row): só a sombra anima no hover; a opacidade
+     fica para o estado de arrasto */
+  transition: opacity var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .pintura-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
 }
 
 .pintura-card:active {
@@ -4182,7 +4188,7 @@ html {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm); /* receita de card (ver .pedido-row); --shadow-card era a sombra de overlay */
   display: flex;
   flex-direction: column;
   transition: box-shadow var(--duration-base) var(--ease-standard);
