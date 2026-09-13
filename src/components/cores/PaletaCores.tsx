@@ -10,6 +10,7 @@ import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
+import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import SearchField from "../ui/SearchField";
 import MenuSurface from "../ui/MenuSurface";
 import SkeletonSwap from "../ui/SkeletonSwap";
@@ -49,6 +50,9 @@ function PaletaCores() {
     const [acabamento, setAcabamento] = useState<"" | Acabamento>("");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("nome-asc");
     const [view, setView] = useState<"grid" | "list">(() => (localStorage.getItem("coresView") === "list" ? "list" : "grid"));
+    // Celular: só a grade cabe; o toggle some e a preferência salva volta a valer acima de 768px.
+    const mobile = useMediaQuery(MOBILE_QUERY);
+    const viewEfetiva = mobile ? "grid" : view;
 
     const [menuAberto, setMenuAberto] = useState<MenuAberto>(null);
     const [modalAberto, setModalAberto] = useState(false);
@@ -348,15 +352,17 @@ function PaletaCores() {
                             )}
                         </div>
 
-                        <ViewToggle
-                            value={view}
-                            onChange={alternarView}
-                            ariaLabel={t("cores.paleta.viewModeAria")}
-                            options={[
-                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("cores.paleta.viewGrid") },
-                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("cores.paleta.viewList") },
-                            ]}
-                        />
+                        {!mobile && (
+                            <ViewToggle
+                                value={view}
+                                onChange={alternarView}
+                                ariaLabel={t("cores.paleta.viewModeAria")}
+                                options={[
+                                    { value: "grid", icon: <GridViewIcon size={16} />, label: t("cores.paleta.viewGrid") },
+                                    { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("cores.paleta.viewList") },
+                                ]}
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -387,8 +393,8 @@ function PaletaCores() {
                             )}
                         </div>
                     ) : (
-                        <div key={view} ref={listaRef} className={view === "grid" ? "cores-grid" : "cores-list"}>
-                            {view === "list" && (
+                        <div key={viewEfetiva} ref={listaRef} className={viewEfetiva === "grid" ? "cores-grid" : "cores-list"}>
+                            {viewEfetiva === "list" && (
                                 <div className="cor-row-head" aria-hidden="true">
                                     <span />
                                     <span>{t("cores.paleta.headColor")}</span>
@@ -403,7 +409,7 @@ function PaletaCores() {
                                     key={cor.id}
                                     cor={cor}
                                     index={i}
-                                    view={view}
+                                    view={viewEfetiva}
                                     onEditar={setCorEditando}
                                     onDeletar={handleDeletar}
                                 />
