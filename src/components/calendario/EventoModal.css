@@ -120,7 +120,7 @@
 
 .field-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
@@ -304,7 +304,7 @@
 
   /* data ocupa a linha inteira; os dois horarios dividem a de baixo */
   .field-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
   }
 
@@ -315,7 +315,7 @@
 
 @media (max-width: 480px) {
   .field-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
