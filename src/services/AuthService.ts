@@ -1,8 +1,6 @@
-
 const API_URL = "http://localhost:8081/auth";
 const USERS_URL = "http://localhost:8081/users";
 const EQUIPES_URL = "http://localhost:8081/equipes";
-
 
 // =========================================================
 // LOGIN
@@ -40,17 +38,21 @@ export async function login(
     };
 }
 
-
 // =========================================================
-// CADASTRO
+// DADOS DE CADASTRO
 // =========================================================
 
 interface RegisterData {
     nome: string;
     email: string;
     senha: string;
-    role: string;
+    cpf: string;
+    telefone: string;
 }
+
+// =========================================================
+// CADASTRO DE CLIENTE
+// =========================================================
 
 export async function register(
     user: RegisterData
@@ -74,6 +76,34 @@ export async function register(
     return await response.json();
 }
 
+// =========================================================
+// CADASTRO DE GERENTE
+// =========================================================
+
+export async function registerGerente(
+    user: RegisterData
+): Promise<{
+    mensagem: string;
+}> {
+
+    const response = await fetch(
+        `${API_URL}/cadastro-gerente`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        }
+    );
+
+    if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg);
+    }
+
+    return await response.json();
+}
 
 // =========================================================
 // CONFIRMAR EMAIL
@@ -101,7 +131,6 @@ export async function confirmarEmail(
 
     return await response.json();
 }
-
 
 // =========================================================
 // ESQUECI A SENHA
@@ -131,7 +160,6 @@ export async function esqueciSenha(
 
     return await response.text();
 }
-
 
 // =========================================================
 // REDEFINIR SENHA
@@ -165,7 +193,6 @@ export async function redefinirSenha(
 
     return await response.text();
 }
-
 
 // =========================================================
 // SOLICITAR MUDANÇA DE EMAIL
@@ -201,7 +228,6 @@ export async function solicitarMudancaEmail(
     return await response.json();
 }
 
-
 // =========================================================
 // CONFIRMAR MUDANÇA DE EMAIL
 // =========================================================
@@ -224,7 +250,6 @@ export async function confirmarMudancaEmail(
     return await response.json();
 }
 
-
 // =========================================================
 // BUSCAR CONVITE DE EQUIPE
 // =========================================================
@@ -244,7 +269,6 @@ export async function buscarConviteEquipe(
 
     return await response.json();
 }
-
 
 // =========================================================
 // ACEITAR CONVITE DE EQUIPE
@@ -268,7 +292,6 @@ export async function aceitarConviteEquipe(
 
     return await response.json();
 }
-
 
 // =========================================================
 // RECUSAR CONVITE DE EQUIPE

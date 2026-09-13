@@ -1,0 +1,190 @@
+.register-choice-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  box-sizing: border-box;
+
+  background: #111111;
+}
+
+.register-choice-card {
+  width: 100%;
+  max-width: 620px;
+  padding: 48px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border-radius: 18px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.register-choice-content {
+  width: 100%;
+  text-align: center;
+}
+
+.register-choice-content h1 {
+  margin: 0;
+
+  color: #111111;
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.register-choice-description {
+  margin: 14px 0 32px;
+
+  color: #666666;
+
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.register-choice-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.register-choice-button {
+  width: 100%;
+  min-height: 110px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 22px 24px;
+
+  border: 2px solid transparent;
+  border-radius: 12px;
+
+  background: #f7f7f7;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.register-choice-button:hover {
+  transform: translateY(-2px);
+
+  background: #ffffff;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.register-choice-button:active {
+  transform: translateY(0);
+}
+
+.register-choice-button:focus-visible {
+  outline: 3px solid rgba(251, 74, 20, 0.3);
+  outline-offset: 3px;
+}
+
+.register-choice-client {
+  border-color: #e5e5e5;
+}
+
+.register-choice-client:hover {
+  border-color: #fb4a14;
+}
+
+.register-choice-manager {
+  border-color: #e5e5e5;
+}
+
+.register-choice-manager:hover {
+  border-color: #111111;
+}
+
+.register-choice-button-title {
+  display: block;
+
+  color: #111111;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.register-choice-button-description {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #666666;
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.register-choice-back {
+  margin-top: 28px;
+
+  border: none;
+  background: transparent;
+
+  color: #666666;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.register-choice-back:hover {
+  color: #fb4a14;
+}
+
+.register-choice-back:focus-visible {
+  outline: 2px solid #fb4a14;
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  .register-choice-page {
+    padding: 20px 16px;
+  }
+
+  .register-choice-card {
+    padding: 32px 22px;
+    border-radius: 14px;
+  }
+
+  .register-choice-content h1 {
+    font-size: 25px;
+  }
+
+  .register-choice-description {
+    font-size: 15px;
+  }
+
+  .register-choice-button {
+    min-height: 100px;
+    padding: 20px;
+  }
+
+  .register-choice-button-title {
+    font-size: 17px;
+  }
+
+  .register-choice-button-description {
+    font-size: 13px;
+  }
+}
