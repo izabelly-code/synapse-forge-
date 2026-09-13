@@ -1102,6 +1102,34 @@ body {
   .filtros-actions { width: 100%; }
   .filtro-menu { flex: 1; }
   .filtro-action { width: 100%; justify-content: space-between; }
+
+  /* SYN-76 fase 6: as abas de status deixam de quebrar linha e ganham scroll
+     horizontal próprio. Em 390px os seis filtros com contador empilhavam em três
+     fileiras e empurravam a lista (e o botão primário da toolbar acima dela) para
+     fora da primeira tela; numa faixa rolável a barra ocupa uma linha só.
+     A barra de rolagem fica escondida — o recorte da última aba já sinaliza que
+     há mais conteúdo, e `scroll-snap` encaixa a aba no início da faixa.
+     O `:not(:has(.filtro-menu))` deixa de fora a variante de Cores, em que o
+     mesmo contêiner guarda gatilhos de menu suspenso: um contêiner de scroll
+     recortaria o `.filtro-dropdown`, que é absoluto. Lá o wrap continua valendo. */
+  .filtros-tabs:not(:has(.filtro-menu)) {
+    flex-wrap: nowrap;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .filtros-tabs:not(:has(.filtro-menu))::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filtro-btn {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
 }
 
 
@@ -1346,9 +1374,17 @@ body {
 .tag-warn { background: var(--secondary-fixed); color: var(--secondary); }
 
 
+/* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
+   breakpoint de viewport (eram `repeat(3,1fr)` em 1024 e `repeat(2,1fr)` em 640,
+   que mediam a janela e não a coluna). 168px é o min-content medido do cartão
+   (12+12 de padding + 2 de borda + 40 do ícone + 14 de gap + 95px do rótulo mais
+   longo, "Total de Pedidos" a 12px/500) arredondado PARA BAIXO: em 1280px — a
+   janela mais estreita em que a regra antiga ainda mostrava 5 colunas — a coluna
+   de conteúdo vale 920px e 5 faixas de 168 + 4 gaps de 16 dão 904px, então as 5
+   colunas sobrevivem. Acima disso nada muda. */
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-7);
 }
@@ -1468,12 +1504,14 @@ body {
   grid-template-columns: 84px minmax(120px, 1fr) minmax(140px, 1.2fr) 104px minmax(290px, 2.4fr) 48px;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-3-5) var(--space-5);
+  /* 1.6vw chega aos 20px do desktop em 1250px; piso de 16px (fase 6). O cabeçalho
+     da lista usa a MESMA expressão para as colunas continuarem alinhadas. */
+  padding: var(--space-3-5) clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
 
 .pedidos-row-head {
-  padding: 0 var(--space-5) var(--space-1);
+  padding: 0 clamp(var(--space-4), 1.6vw, var(--space-5)) var(--space-1);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   text-transform: uppercase;
@@ -1912,10 +1950,6 @@ body {
 }
 
 
-@media (max-width: 1024px) {
-  .stat-cards { grid-template-columns: repeat(3, 1fr); }
-}
-
 /* Empilhamento da linha de pedido. 960px é a largura da LISTA (não do viewport):
    a linha tem 906px de min-content (84 + 120 + 140 + 104 + 290 + 5 gaps de 16 +
    40 de padding), então 960 é o último ponto em que ela ainda respira. Com
@@ -1958,8 +1992,6 @@ body {
 }
 
 @media (max-width: 640px) {
-  .stat-cards { grid-template-columns: repeat(2, 1fr); }
-
   .toolbar-actions { width: 100%; flex-wrap: wrap; }
   .ui-search-field--pill { flex: 1 1 100%; order: 3; }
   .ui-search-field--pill input { width: 100%; }
@@ -2036,7 +2068,9 @@ body {
   box-shadow: var(--shadow-ambient);
   width: 100%;
   max-width: 460px;
-  padding: var(--space-8);
+  /* 2.5vw chega aos 32px do desktop em 1280px; piso de 16px (fase 6) — 32px de
+     respiro num modal de 390px de largura comia 16% da caixa. */
+  padding: clamp(var(--space-4), 2.5vw, var(--space-8));
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
 }
@@ -2179,7 +2213,9 @@ body {
 /* ===== DETALHE DO PEDIDO ===== */
 .pedido-detalhe-modal {
   max-width: 860px;
-  padding: var(--space-6);
+  /* 1.9vw chega aos 24px do desktop em 1263px; piso de 16px (fase 6). Substitui o
+     degrau `padding: var(--space-5)` que o bloco de ≤768px aplicava. */
+  padding: clamp(var(--space-4), 1.9vw, var(--space-6));
 }
 
 .pedido-detalhe-header {
@@ -2622,10 +2658,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .pedido-detalhe-modal {
-    padding: var(--space-5);
-  }
-
   .pedido-detalhe-info-grid {
     grid-template-columns: 1fr;
   }
@@ -3155,10 +3187,14 @@ html {
 }
 
 
-/* Largura padrao das telas do painel */
+/* Largura padrao das telas do painel.
+   SYN-76 fase 6: o respiro da página é fluido em vez de dar um salto de 16→40px
+   no breakpoint de 1024. `3.2vw` chega aos 40px do desktop em 1250px de janela,
+   então de 1280px para cima o resultado é idêntico ao de antes; abaixo disso ele
+   desce suavemente até o piso de 16px (atingido em 500px). */
 .dashboard-shell .dashboard-main {
   max-width: 1380px;
-  padding: var(--space-10) var(--space-10);
+  padding: clamp(var(--space-4), 3.2vw, var(--space-10));
 }
 
 
@@ -3257,10 +3293,8 @@ html {
     transform: none;
   }
 
-  .dashboard-shell .dashboard-main {
-    padding: var(--space-6) var(--space-4);
-  }
-
+  /* O padding da .dashboard-main é fluido (clamp) desde a fase 6 e não precisa
+     mais de degrau aqui. */
   .dashboard-shell .calendar-page {
     padding: var(--space-4);
   }
@@ -3280,18 +3314,25 @@ html {
 
 /* ===== KANBAN DE ORDENS DE PINTURA ===== */
 .pintura-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--surface-container-low);
   color: var(--on-background);
 }
 
+/* Mesma curva fluida da .dashboard-main (fase 6): 40px em ≥1250px, piso de 16px. */
 .pintura-content {
-  padding: var(--space-10) var(--space-10);
+  padding: clamp(var(--space-4), 3.2vw, var(--space-10));
 }
 
+/* `flex-wrap: wrap` na regra base porque o scroll horizontal agora é do quadro e
+   não mais da seção inteira: sem isso a barra de ferramentas, que só quebrava
+   linha abaixo de 1100px DE JANELA, vazava da coluna de conteúdo (que vale
+   `janela − 280px` de sidebar) e era cortada pelo `overflow-x: clip` do
+   `.dashboard-content`. Quando os controles cabem, nada muda. */
 .pintura-toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2-5);
   margin-bottom: var(--space-4);
 }
@@ -3364,19 +3405,28 @@ html {
   color: var(--primary);
 }
 
+/* SYN-76 fase 6: o scroll horizontal é do PRÓPRIO quadro, não da seção de
+   conteúdo — com `overflow-x: auto` na `.pintura-content` o cabeçalho e a barra de
+   ferramentas deslizavam junto com as colunas. O grid é o contêiner de scroll: as
+   seis faixas de 185px não caberem é exatamente o caso em que ele deve rolar.
+   `padding-bottom` reserva a barra de rolagem sem cortar a sombra dos cartões. */
 .pintura-board {
   display: grid;
   grid-template-columns: repeat(6, minmax(185px, 1fr));
   gap: var(--space-3);
-  overflow: visible;
-}
-
-.pintura-content:has(.pintura-board) {
   overflow-x: auto;
+  padding-bottom: var(--space-2);
+  overscroll-behavior-x: contain;
 }
 
+/* 610px fixo dava ~3,7 mil px de altura empilhado no celular mesmo com o quadro
+   vazio. As colunas são itens de grid com `align-items: stretch`, então já se
+   igualam à mais alta; o mínimo só precisa garantir uma zona de soltura visível
+   no desktop, e abaixo de 768px nem isso (a coluna fica do tamanho do conteúdo). */
 .pintura-column {
-  min-height: 610px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -3423,11 +3473,15 @@ html {
 .tone-done > header { background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface)); color: var(--color-success); }
 .tone-rework > header { background: color-mix(in srgb, var(--color-error) 8%, var(--color-surface)); color: var(--color-error); }
 
+/* O corpo da coluna é a zona de soltura do arrasto, então precisa ocupar a coluna
+   inteira — mas por altura FLEXÍVEL, não por um piso de 558px (que, somado ao
+   cabeçalho, era o que fazia os 610px de cada coluna vazia). */
 .pintura-column-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  min-height: 558px;
+  flex: 1;
+  min-height: 0;
   padding: var(--space-1-5);
 }
 
@@ -3755,12 +3809,12 @@ html {
 }
 
 @media (max-width: 768px) {
-  .pintura-content {
-    padding: var(--space-5) var(--space-4);
-  }
-
   .ui-search-field--compact {
     width: 100%;
+  }
+
+  .pintura-column {
+    min-height: 0;
   }
 
   .pintura-modal-grid {
@@ -4301,7 +4355,7 @@ html {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
-  padding: var(--space-5);
+  padding: clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
 .mistura-card-head {
@@ -4750,7 +4804,7 @@ html {
 
 /* ===== STATUS / ACCESS SCREENS ===== */
 .status-screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4906,7 +4960,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-6);
+  padding: clamp(var(--space-4), 1.9vw, var(--space-6));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -5465,4 +5519,106 @@ html {
    com o botão de mostrar senha já tinha. */
 .input-wrapper:has(.field-status) input {
   padding-right: var(--space-9);
+}
+
+
+/* ============================================================================
+   CAMADA DE TOQUE (SYN-76, fase 6)
+   Fica no fim do arquivo de propósito: são ajustes que precisam vencer as regras
+   base com a mesma especificidade. Dois gatilhos distintos, que não querem dizer
+   a mesma coisa:
+   · `max-width: 768px` — janela estreita (inclui um desktop com a janela puxada);
+   · `pointer: coarse`  — o ponteiro é um dedo, em qualquer largura.
+   Nada aqui muda o tamanho de nada com mouse em janela larga.
+   ========================================================================== */
+
+/* S6 — o iOS Safari dá zoom em qualquer campo com fonte abaixo de 16px no foco, e
+   o zoom não volta sozinho: o usuário fica com a tela deslocada. Os campos do app
+   logado estão em 15px (`--text-lg`), então sobem para 16px (`--text-xl`) em toque
+   ou janela estreita. Os tipos que não recebem digitação ficam de fora (caixa de
+   seleção, rádio, faixa, arquivo, cor) — neles `font-size` só mexeria no controle
+   nativo. As telas de autenticação não estão no `.dashboard-shell` e ficam para a
+   SYN-92.
+   Os campos numéricos do app já são todos `type="number"` (preço, estoque,
+   densidade, custo, tempo), que no iOS já abre o teclado numérico — não houve
+   `inputMode` a acrescentar. */
+@media (max-width: 768px), (pointer: coarse) {
+  .dashboard-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  .dashboard-shell select,
+  .dashboard-shell textarea {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (pointer: coarse) {
+  /* S7 — alvo mínimo de 44px. A maioria dos controles já mede pelo
+     `--control-h`, então um único passo no token cobre botões primários e
+     secundários, abas de filtro, gatilhos de seleção, campo de busca em pílula,
+     itens de navegação da gaveta, hambúrguer e fechar-gaveta de uma vez. */
+  :root {
+    --control-h: 2.75rem;   /* 44px no toque (36px com mouse) */
+  }
+
+  /* Botões-ícone que não usam o token (tinham 32px, 25px, 30px). */
+  .kebab-btn,
+  .modal-close {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .pintura-card-menu-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* O grupo soma 44px: 40px do botão + os 2px de padding de cada lado. */
+  .view-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .pintura-view-toggle button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .pintura-filter-static,
+  .pintura-view-toggle,
+  .pintura-toolbar .ui-select-filter .filtro-action {
+    min-height: 2.75rem;
+  }
+
+  .pintura-updated button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* Itens de menu suspenso: o alvo cresce pela altura mínima, não pelo padding,
+     para o texto continuar colado na borda de cima do menu. */
+  .filtro-option,
+  .kebab-item,
+  .sidebar-lang-option {
+    min-height: 2.75rem;
+  }
+
+  /* Caixa de seleção: o controle nativo de 13px vira 20px e a etiqueta inteira
+     passa a ser o alvo (o `<label>` já envolve o campo e o texto). */
+  .material-check {
+    min-height: 2.75rem;
+  }
+
+  .material-check input {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* O atalho ⌘K não existe num teclado de toque; sem ele o campo de busca também
+     não precisa reservar o espaço da tecla à direita. */
+  .search-kbd {
+    display: none;
+  }
+
+  .ui-search-field--pill input {
+    padding-right: var(--space-4);
+  }
 }
