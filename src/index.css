@@ -394,7 +394,7 @@ body {
 
 @media (max-width: 768px) {
   .screen-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     height: auto;
     min-height: 100vh;
   }
@@ -478,13 +478,13 @@ body {
 /* Two-column row inside the auth card */
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
 @media (max-width: 480px) {
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 }
@@ -513,6 +513,7 @@ body {
 }
 
 .input-group input {
+  min-width: 0; /* campos em grid/flex não podem impor a própria largura intrínseca */
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: 1.5px solid var(--color-border-strong);
@@ -1466,7 +1467,7 @@ body {
 
 .pedidos-grid .pedido-row {
   position: relative;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2-5);
   padding: var(--space-4) var(--space-4-5);
 }
@@ -1960,7 +1961,7 @@ body {
   .pedidos-row-head:not(.material-row):not(.orcamento-row) { display: none; }
 
   .pedido-row:not(.material-row):not(.orcamento-row) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
@@ -2218,7 +2219,14 @@ body {
 
 
 /* Textarea — mesma aparência dos inputs */
+/* select do mesmo grupo: mesma regra de largura intrínseca dos inputs */
+.input-group select {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .input-group textarea {
+  min-width: 0;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: 1.5px solid var(--outline-variant);
@@ -2741,7 +2749,7 @@ body {
 
 @media (max-width: 768px) {
   .pedido-detalhe-info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pedido-arquivo-3d {
@@ -2753,8 +2761,11 @@ body {
     width: 100%;
   }
 
+  /* minmax(0, 1fr), não `1fr`: `1fr` sozinho é minmax(auto, 1fr) e a coluna
+     nunca encolhe abaixo da largura intrínseca do input (grande no celular,
+     ainda mais no type="date"), estourando o modal para o lado. */
   .pedido-edit-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pedido-edit-section-title {
@@ -3294,7 +3305,7 @@ html {
    conteúdo ainda contava com os 280px da sidebar. */
 @media (max-width: 1024px) {
   .dashboard-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   /* A gaveta: mesma marcação e mesmo visual da sidebar fixa, só fora do fluxo.
@@ -3681,7 +3692,7 @@ html {
 
 .pintura-card-menu > div {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-1);
 }
 
@@ -3904,7 +3915,7 @@ html {
   }
 
   .pintura-modal-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -3987,7 +3998,7 @@ html {
   .pedidos-row-head.material-row { display: none; }
 
   .pedido-row.material-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
@@ -4671,7 +4682,7 @@ html {
 
 .mistura-preview-codigos {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3-5);
   margin-bottom: var(--space-4);
 }
@@ -4864,7 +4875,7 @@ html {
    toolbar (quando os controles deixam de caber numa linha), não pelo device */
 @media (max-width: 1100px) {
   .mistura-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -4883,7 +4894,7 @@ html {
   }
 
   .mistura-preview-codigos {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -5141,7 +5152,7 @@ html {
    ponto real era ~1180px de viewport). */
 @container sf-pane (max-width: 820px) {
   .orcamento-form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .orcamento-preview-card {
@@ -5157,7 +5168,7 @@ html {
   }
 
   .pedido-row.orcamento-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
     padding: var(--space-4) var(--space-4-5);
   }
