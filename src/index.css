@@ -2485,6 +2485,34 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2-5);
+  flex-shrink: 0;
+}
+
+/* Celular: título e ações não cabem lado a lado (o nome do projeto quebrava em
+   duas linhas espremido contra Editar/PDF/fechar). As ações sobem para uma linha
+   própria alinhada à direita e o kicker + título ocupam a largura toda abaixo. */
+@media (max-width: 640px) {
+  .pedido-detalhe-header {
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .pedido-detalhe-header > div:first-child {
+    order: 2;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .pedido-detalhe-header-actions {
+    order: 1;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .pedido-detalhe-header h2 {
+    font-size: var(--text-3xl);
+    overflow-wrap: anywhere;
+  }
 }
 
 .pedido-edit-btn,

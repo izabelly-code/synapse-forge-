@@ -18,6 +18,11 @@ interface SelectProps {
     label?: string;
     icon?: ReactNode;
     ariaLabel?: string;
+    disabled?: boolean;
+    /** Estado de erro de validação: marca o gatilho como inválido (aria + .input-error). */
+    invalid?: boolean;
+    /** id da mensagem de erro/ajuda associada ao campo. */
+    describedBy?: string;
 }
 
 function Select({
@@ -30,6 +35,9 @@ function Select({
     label,
     icon,
     ariaLabel,
+    disabled = false,
+    invalid = false,
+    describedBy,
 }: SelectProps) {
     const [aberto, setAberto] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -54,11 +62,14 @@ function Select({
                 className={
                     variant === "filter"
                         ? cn("filtro-action", filtroAtivo && "is-active")
-                        : cn("ui-select-trigger", !selecionada && "is-placeholder")
+                        : cn("ui-select-trigger", !selecionada && "is-placeholder", invalid && "input-error")
                 }
                 aria-haspopup="listbox"
                 aria-expanded={aberto}
                 aria-label={ariaLabel}
+                aria-invalid={invalid || undefined}
+                aria-describedby={describedBy}
+                disabled={disabled}
                 onClick={() => setAberto((v) => !v)}
             >
                 {icon}
