@@ -49,7 +49,8 @@
     "languageAria": "Mudar idioma / Change language",
     "logout": "Sign out",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "estoque": "Stock"
   },
   "pedidos": {
     "status": {
@@ -479,6 +480,94 @@
       "ML": "Milliliters (ml)",
       "L": "Liters (L)",
       "UN": "Units (un)"
+    }
+  },
+  "estoque": {
+    "tipoInsumo": {
+      "MATERIAL": "Material",
+      "COR": "Color"
+    },
+    "dashboard": {
+      "title": "Stock",
+      "subtitle": "Balances, alerts and movements of production supplies",
+      "newEntry": "Record entry",
+      "newAdjustment": "Record adjustment",
+      "errorLoad": "Could not load stock. Check that the server is running.",
+      "errorLoadInsumos": "Could not load the supplies list. The selectors may be incomplete.",
+      "alertsTitle": "Supplies on alert",
+      "alertsSubtitle": "Materials and colors at or below their minimum stock. Record an entry to restock.",
+      "alertsCount_one": "{{count}} supply on alert",
+      "alertsCount_other": "{{count}} supplies on alert",
+      "emptyAlertsTitle": "No supplies on alert",
+      "emptyAlertsSubtitle": "Every balance is above its minimum.",
+      "colInsumo": "Supply",
+      "colType": "Type",
+      "colStock": "Stock",
+      "colMinimum": "Minimum",
+      "lowStock": "Below minimum",
+      "entryAction": "Entry",
+      "historyAction": "History"
+    },
+    "historico": {
+      "title": "Movement history",
+      "subtitle": "Every entry, consumption, reversal and adjustment of the supply, with the resulting balance and the originating stage.",
+      "filterType": "Type",
+      "filterInsumo": "Supply",
+      "insumoPlaceholder": "Select a supply",
+      "errorLoad": "Could not load the movements for this supply.",
+      "emptySelectTitle": "Select a supply",
+      "emptySelectSubtitle": "Pick the type and the supply above, or use “History” on an alert row.",
+      "emptyTitle": "No movements",
+      "emptySubtitle": "{{name}} has no entries, consumption, reversals or adjustments yet.",
+      "colDate": "Date",
+      "colType": "Movement",
+      "colQuantity": "Quantity",
+      "colBalance": "Balance after",
+      "colStage": "Originating stage",
+      "colReason": "Reason",
+      "tipo": {
+        "ENTRADA": "Entry",
+        "BAIXA": "Consumption",
+        "ESTORNO": "Reversal",
+        "AJUSTE": "Adjustment"
+      },
+      "stageManual": "Manual",
+      "noReason": "No reason given",
+      "orderRef": "Order {{ref}}"
+    },
+    "modal": {
+      "titleEntry": "Record entry",
+      "titleAdjustment": "Record adjustment",
+      "close": "Close",
+      "typeLabel": "Supply type",
+      "insumoLabel": "Supply",
+      "insumoPlaceholder": "Select a supply",
+      "insumoEmpty": "No supplies available",
+      "currentStock": "Current stock",
+      "currentStockLoading": "Checking stock...",
+      "currentStockUnavailable": "Stock unavailable",
+      "quantityLabel": "Quantity",
+      "quantityPlaceholderEntry": "e.g. 500",
+      "quantityPlaceholderAdjustment": "e.g. -50",
+      "quantityHintEntry": "Always positive: adds to the balance.",
+      "quantityHintAdjustment": "Positive adds to the balance, negative removes from it.",
+      "unitLabel": "Unit",
+      "unitPlaceholder": "Select the supply first",
+      "unitHint": "Only units compatible with the supply (base: {{base}}).",
+      "reasonLabel": "Reason",
+      "reasonLabelOptional": "Reason (optional)",
+      "reasonPlaceholderEntry": "e.g. purchase, invoice 1234",
+      "reasonPlaceholderAdjustment": "e.g. inventory count, loss, breakage",
+      "cancel": "Cancel",
+      "submitEntry": "Record entry",
+      "submitAdjustment": "Record adjustment",
+      "submitting": "Recording...",
+      "errorInsumo": "Select the supply.",
+      "errorQuantityEntry": "Enter a quantity greater than zero.",
+      "errorQuantityAdjustment": "Enter a quantity other than zero.",
+      "errorReason": "Enter the reason for the adjustment.",
+      "errorSaveEntry": "Could not record the entry. Please try again.",
+      "errorSaveAdjustment": "Could not record the adjustment. Please try again."
     }
   },
   "orcamento": {

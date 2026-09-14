@@ -49,7 +49,8 @@
     "languageAria": "Mudar idioma / Change language",
     "logout": "Sair",
     "openMenu": "Abrir menu",
-    "closeMenu": "Fechar menu"
+    "closeMenu": "Fechar menu",
+    "estoque": "Estoque"
   },
   "pedidos": {
     "status": {
@@ -479,6 +480,94 @@
       "ML": "Mililitros (ml)",
       "L": "Litros (L)",
       "UN": "Unidades (un)"
+    }
+  },
+  "estoque": {
+    "tipoInsumo": {
+      "MATERIAL": "Material",
+      "COR": "Cor"
+    },
+    "dashboard": {
+      "title": "Estoque",
+      "subtitle": "Saldos, alertas e movimentações dos insumos de produção",
+      "newEntry": "Registrar entrada",
+      "newAdjustment": "Registrar ajuste",
+      "errorLoad": "Erro ao carregar o estoque. Verifique se o servidor está rodando.",
+      "errorLoadInsumos": "Não foi possível carregar a lista de insumos. Os seletores podem ficar incompletos.",
+      "alertsTitle": "Insumos em alerta",
+      "alertsSubtitle": "Materiais e cores com saldo no mínimo ou abaixo dele. Registre uma entrada para repor.",
+      "alertsCount_one": "{{count}} insumo em alerta",
+      "alertsCount_other": "{{count}} insumos em alerta",
+      "emptyAlertsTitle": "Nenhum insumo em alerta",
+      "emptyAlertsSubtitle": "Todos os saldos estão acima do mínimo cadastrado.",
+      "colInsumo": "Insumo",
+      "colType": "Tipo",
+      "colStock": "Saldo",
+      "colMinimum": "Mínimo",
+      "lowStock": "Abaixo do mínimo",
+      "entryAction": "Entrada",
+      "historyAction": "Histórico"
+    },
+    "historico": {
+      "title": "Histórico de movimentações",
+      "subtitle": "Cada entrada, baixa, estorno e ajuste do insumo, com o saldo resultante e a etapa de origem.",
+      "filterType": "Tipo",
+      "filterInsumo": "Insumo",
+      "insumoPlaceholder": "Selecione um insumo",
+      "errorLoad": "Não foi possível carregar as movimentações deste insumo.",
+      "emptySelectTitle": "Selecione um insumo",
+      "emptySelectSubtitle": "Escolha o tipo e o insumo acima, ou use “Histórico” numa linha em alerta.",
+      "emptyTitle": "Nenhuma movimentação",
+      "emptySubtitle": "{{name}} ainda não teve entradas, baixas, estornos ou ajustes.",
+      "colDate": "Data",
+      "colType": "Movimento",
+      "colQuantity": "Quantidade",
+      "colBalance": "Saldo após",
+      "colStage": "Etapa de origem",
+      "colReason": "Motivo",
+      "tipo": {
+        "ENTRADA": "Entrada",
+        "BAIXA": "Baixa",
+        "ESTORNO": "Estorno",
+        "AJUSTE": "Ajuste"
+      },
+      "stageManual": "Manual",
+      "noReason": "Sem motivo informado",
+      "orderRef": "Pedido {{ref}}"
+    },
+    "modal": {
+      "titleEntry": "Registrar entrada",
+      "titleAdjustment": "Registrar ajuste",
+      "close": "Fechar",
+      "typeLabel": "Tipo de insumo",
+      "insumoLabel": "Insumo",
+      "insumoPlaceholder": "Selecione um insumo",
+      "insumoEmpty": "Nenhum insumo disponível",
+      "currentStock": "Saldo atual",
+      "currentStockLoading": "Consultando saldo...",
+      "currentStockUnavailable": "Saldo indisponível",
+      "quantityLabel": "Quantidade",
+      "quantityPlaceholderEntry": "Ex: 500",
+      "quantityPlaceholderAdjustment": "Ex: -50",
+      "quantityHintEntry": "Sempre positiva: soma ao saldo.",
+      "quantityHintAdjustment": "Positiva acrescenta, negativa retira do saldo.",
+      "unitLabel": "Unidade",
+      "unitPlaceholder": "Selecione o insumo primeiro",
+      "unitHint": "Só unidades compatíveis com o insumo (base: {{base}}).",
+      "reasonLabel": "Motivo",
+      "reasonLabelOptional": "Motivo (opcional)",
+      "reasonPlaceholderEntry": "Ex: compra, nota fiscal 1234",
+      "reasonPlaceholderAdjustment": "Ex: contagem de inventário, perda, quebra",
+      "cancel": "Cancelar",
+      "submitEntry": "Registrar entrada",
+      "submitAdjustment": "Registrar ajuste",
+      "submitting": "Registrando...",
+      "errorInsumo": "Selecione o insumo.",
+      "errorQuantityEntry": "Informe uma quantidade maior que zero.",
+      "errorQuantityAdjustment": "Informe uma quantidade diferente de zero.",
+      "errorReason": "Informe o motivo do ajuste.",
+      "errorSaveEntry": "Erro ao registrar entrada. Tente novamente.",
+      "errorSaveAdjustment": "Erro ao registrar ajuste. Tente novamente."
     }
   },
   "orcamento": {
