@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
+import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, Layers01Icon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
-import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
+import { getPedidos, avancarStatus, regredirStatus, deletarPedido, EtapaError } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
@@ -13,11 +13,18 @@ import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
 import SearchField from "../ui/SearchField";
 import MenuSurface from "../ui/MenuSurface";
+import AddAction from "../ui/AddAction";
+import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import SkeletonSwap from "../ui/SkeletonSwap";
 import ValueFlash from "../ui/ValueFlash";
 import { useFlipList } from "../../hooks/useFlipList";
 
-const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO", "CANCELADO"];
+
+/** FINALIZADO e CANCELADO são terminais: saem da produção e não têm prazo a cobrar. */
+function encerrado(p: Pedido): boolean {
+    return p.status === "FINALIZADO" || p.status === "CANCELADO";
+}
 
 const CACHE_KEY = "pedidos:all";
 
@@ -46,7 +53,7 @@ function dentroDoPeriodo(p: Pedido, periodo: PeriodoKey): boolean {
     if (periodo === "all") return true;
     const t = new Date(p.prazo).getTime();
     const inicio = startOfToday();
-    if (periodo === "atrasados") return p.status !== "FINALIZADO" && t < inicio;
+    if (periodo === "atrasados") return !encerrado(p) && t < inicio;
     if (periodo === "semana") return t >= inicio && t < inicio + 7 * 24 * 60 * 60 * 1000;
     const agora = new Date();
     const iniMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
@@ -84,9 +91,13 @@ function PedidosDashboard() {
     const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
-    const [menuAberto, setMenuAberto] = useState<null | "periodo" | "filtros">(null);
+    const [menuAberto, setMenuAberto] = useState<null | "status" | "periodo" | "filtros">(null);
     const [recemAvancado, setRecemAvancado] = useState<string | null>(null);
     const [view, setView] = useState<"list" | "grid">(() => (localStorage.getItem("pedidosView") === "grid" ? "grid" : "list"));
+    // Celular: a grade é a única visão que cabe, então o toggle some e a
+    // preferência salva só volta a valer acima de 768px.
+    const mobile = useMediaQuery(MOBILE_QUERY);
+    const viewEfetiva = mobile ? "grid" : view;
 
     function alternarView(v: "list" | "grid") {
         setView(v);
@@ -94,6 +105,7 @@ function PedidosDashboard() {
     }
 
     const buscaRef = useRef<HTMLInputElement>(null);
+    const statusRef = useRef<HTMLDivElement>(null);
     const periodoRef = useRef<HTMLDivElement>(null);
     const filtrosRef = useRef<HTMLDivElement>(null);
     const avancoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,11 +121,13 @@ function PedidosDashboard() {
         });
     }
 
-    async function fetchPedidos() {
-        if (getCached<Pedido[]>(CACHE_KEY) === undefined) setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders.
+    // O estado inicial de `fetching`/`error` já reflete o cache (useState acima).
+    async function buscarPedidos() {
         try {
             updatePedidos(await getPedidos());
+            setError("");
         } catch {
             setError(t("pedidos.dashboard.errorLoad"));
         } finally {
@@ -121,8 +135,20 @@ function PedidosDashboard() {
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchPedidos() {
+        if (getCached<Pedido[]>(CACHE_KEY) === undefined) setFetching(true);
+        setError("");
+        return buscarPedidos();
+    }
+
     useEffect(() => {
-        fetchPedidos();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarPedidos();
+        }
+        void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -139,7 +165,7 @@ function PedidosDashboard() {
 
     useDismissable({
         enabled: menuAberto !== null,
-        refs: [periodoRef, filtrosRef],
+        refs: [statusRef, periodoRef, filtrosRef],
         onDismiss: () => setMenuAberto(null),
     });
 
@@ -152,8 +178,8 @@ function PedidosDashboard() {
     const stats = useMemo(() => {
         let emProducao = 0, hoje = 0, atrasados = 0, finalizados = 0;
         for (const p of pedidos) {
-            const fim = p.status === "FINALIZADO";
-            if (fim) { finalizados++; continue; }
+            if (p.status === "FINALIZADO") { finalizados++; continue; }
+            if (p.status === "CANCELADO") continue;
             emProducao++;
             if (ehAtrasado(p.prazo)) atrasados++;
             else if (ehHoje(p.prazo)) hoje++;
@@ -212,8 +238,9 @@ function PedidosDashboard() {
             setRecemAvancado(id);
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
-        } catch {
-            setError(t("pedidos.dashboard.errorAdvance"));
+        } catch (err) {
+            // 422 (estoque insuficiente) lista os insumos faltantes no corpo; não engolir.
+            setError(err instanceof EtapaError && err.estoqueInsuficiente ? err.message : t("pedidos.dashboard.errorAdvance"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -232,8 +259,8 @@ function PedidosDashboard() {
             setRecemAvancado(id);
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
-        } catch {
-            setError(t("pedidos.dashboard.errorRegress"));
+        } catch (err) {
+            setError(err instanceof EtapaError && err.estoqueInsuficiente ? err.message : t("pedidos.dashboard.errorRegress"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -282,10 +309,7 @@ function PedidosDashboard() {
 
 
                         {podeGerenciarPedidos && (
-                            <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                                <PlusSignIcon size={16} strokeWidth={2.25} />
-                                {t("pedidos.dashboard.newOrder")}
-                            </button>
+                            <AddAction label={t("pedidos.dashboard.newOrder")} onClick={() => setModalAberto(true)} />
                         )}
                     </div>
                 </header>
@@ -308,29 +332,72 @@ function PedidosDashboard() {
                 </section>
 
                 <div className="filtros-bar">
-                    <div className="filtros-tabs">
-                        {FILTRO_VALUES.map((valor) => (
+                    {mobile ? (
+                        /* No celular as seis abas com contador não cabem numa linha;
+                           viram um dropdown no mesmo padrão dos outros filtros. */
+                        <div className="filtro-menu filtro-menu-status" ref={statusRef}>
                             <button
-                                key={valor}
-                                className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
-                                onClick={() => setFiltro(valor)}
+                                type="button"
+                                className={cn("filtro-action", filtro !== "" && "is-active")}
+                                aria-haspopup="menu"
+                                aria-expanded={menuAberto === "status"}
+                                onClick={() => setMenuAberto((m) => (m === "status" ? null : "status"))}
                             >
-                                {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
-                                <span className="filtro-count">{counts[valor] ?? 0}</span>
+                                <Layers01Icon size={15} />
+                                <span className="filtro-action-label">
+                                    {filtro === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${filtro}`)}
+                                </span>
+                                <span className="filtro-count">{counts[filtro] ?? 0}</span>
+                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
-                        ))}
-                    </div>
+                            {menuAberto === "status" && (
+                                <MenuSurface className="filtro-dropdown" role="menu">
+                                    {FILTRO_VALUES.map((valor) => (
+                                        <button
+                                            key={valor}
+                                            type="button"
+                                            role="menuitemradio"
+                                            aria-checked={filtro === valor}
+                                            className={cn("filtro-option", filtro === valor && "selected")}
+                                            onClick={() => { setFiltro(valor); setMenuAberto(null); }}
+                                        >
+                                            {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
+                                            <span className="filtro-option-trail">
+                                                <span className="filtro-count">{counts[valor] ?? 0}</span>
+                                                {filtro === valor && <Tick02Icon size={15} />}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </MenuSurface>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="filtros-tabs">
+                            {FILTRO_VALUES.map((valor) => (
+                                <button
+                                    key={valor}
+                                    className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
+                                    onClick={() => setFiltro(valor)}
+                                >
+                                    {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
+                                    <span className="filtro-count">{counts[valor] ?? 0}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <div className="filtros-actions">
-                        <ViewToggle
-                            value={view}
-                            onChange={alternarView}
-                            ariaLabel={t("pedidos.dashboard.viewModeAria")}
-                            options={[
-                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
-                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
-                            ]}
-                        />
+                        {!mobile && (
+                            <ViewToggle
+                                value={view}
+                                onChange={alternarView}
+                                ariaLabel={t("pedidos.dashboard.viewModeAria")}
+                                options={[
+                                    { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
+                                    { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
+                                ]}
+                            />
+                        )}
 
                         <div className="filtro-menu" ref={periodoRef}>
                             <button
@@ -423,8 +490,8 @@ function PedidosDashboard() {
                             )}
                         </div>
                     ) : (
-                        <div key={view} ref={listaRef} className={view === "grid" ? "pedidos-grid" : "pedidos-list"}>
-                            {view === "list" && (
+                        <div key={viewEfetiva} ref={listaRef} className={viewEfetiva === "grid" ? "pedidos-grid" : "pedidos-list"}>
+                            {viewEfetiva === "list" && (
                                 <div className="pedidos-row-head" aria-hidden="true">
                                     <span>{t("pedidos.dashboard.headOrder")}</span>
                                     <span>{t("pedidos.dashboard.headClient")}</span>
@@ -451,6 +518,7 @@ function PedidosDashboard() {
                         </div>
                     )}
                 </SkeletonSwap>
+
             </main>
         </>
     );

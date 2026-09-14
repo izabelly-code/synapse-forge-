@@ -1,4 +1,5 @@
 import i18n from "../i18n";
+import { convertFromBRL, displayCurrency } from "./currency";
 
 /** Formata data conforme o idioma ativo (Intl, sem biblioteca adicional). */
 export function formatDate(
@@ -8,9 +9,15 @@ export function formatDate(
     return new Intl.DateTimeFormat(i18n.language, options).format(new Date(date));
 }
 
-/** Formata moeda conforme o idioma ativo. Padrão: BRL. */
-export function formatCurrency(value: number, currency = "BRL"): string {
-    return new Intl.NumberFormat(i18n.language, { style: "currency", currency }).format(value);
+/**
+ * Formata um valor em BRL na moeda de exibição do idioma ativo (pt-BR → R$, en-US → US$),
+ * convertendo pela cotação do dia. Os dados nunca deixam de ser BRL; só a exibição muda.
+ */
+export function formatCurrency(valueBRL: number, options?: Intl.NumberFormatOptions): string {
+    const currency = displayCurrency();
+    return new Intl.NumberFormat(i18n.language, { style: "currency", currency, ...options }).format(
+        convertFromBRL(valueBRL, currency),
+    );
 }
 
 /** Formata número conforme o idioma ativo. */

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowDown01Icon, Tick02Icon } from "hugeicons-react";
 import { FiFile, FiImage, FiX } from "react-icons/fi";
 import { getMateriais } from "../../services/MaterialService";
@@ -7,17 +8,14 @@ import { Material } from "../../models/Material";
 import { CalcularOrcamentoInput, Orcamento } from "../../models/Orcamento";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
-
-const moedaBR = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-});
+import { formatCurrency } from "../../utils/format";
 
 interface OrcamentoCalculatorProps {
     onSalvo: () => void;
 }
 
 function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
+    const { t } = useTranslation();
     const [materiais, setMateriais] = useState<Material[]>([]);
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
@@ -45,7 +43,8 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
     useEffect(() => {
         getMateriais()
             .then((lista) => setMateriais(lista.filter((m) => m.ativo)))
-            .catch(() => setErro("Erro ao carregar materiais. Verifique se o servidor está rodando."));
+            .catch(() => setErro(t("orcamento.calculator.errorLoadMaterials")));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useDismissable({
@@ -103,7 +102,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
             } catch {
                 if (!cancelado) {
                     setPreview(null);
-                    setErro("Falha ao calcular orçamento. Tente novamente.");
+                    setErro(t("orcamento.calculator.errorCalculate"));
                 }
             } finally {
                 if (!cancelado) setCalculando(false);
@@ -125,11 +124,11 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
         setSucesso("");
         try {
             await salvarOrcamento(input);
-            setSucesso("Orçamento salvo com sucesso.");
+            setSucesso(t("orcamento.calculator.saved"));
             limparForm();
             onSalvo();
         } catch {
-            setErro("Falha ao salvar orçamento. Tente novamente.");
+            setErro(t("orcamento.calculator.errorSave"));
         } finally {
             setSalvando(false);
         }
@@ -168,16 +167,14 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
     }
 
     const materialSelecionado = materiais.find((m) => m.id === materialId);
-    const valor = (v: number | undefined) => (v === undefined ? "—" : moedaBR.format(v));
+    const valor = (v: number | undefined) => (v === undefined ? "—" : formatCurrency(v));
 
     return (
         <section className="orcamento-calculator">
             <header className="materiais-toolbar">
                 <div>
-                    <h1 className="dashboard-title">Calcular Orçamento</h1>
-                    <p className="dashboard-subtitle">
-                        Cálculo automático baseado em volume, material e tempos de produção
-                    </p>
+                    <h1 className="dashboard-title">{t("orcamento.calculator.title")}</h1>
+                    <p className="dashboard-subtitle">{t("orcamento.calculator.subtitle")}</p>
                 </div>
             </header>
 
@@ -244,7 +241,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                         <span className="input-hint">Você pode selecionar mais de uma imagem.</span>
                     </div>
                     <div className="input-group" ref={menuRef}>
-                        <label>Material</label>
+                        <label>{t("orcamento.calculator.materialLabel")}</label>
                         <div className="filtro-menu orcamento-material-menu">
                             <button
                                 type="button"
@@ -253,13 +250,13 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                 aria-expanded={menuAberto}
                                 onClick={() => setMenuAberto((m) => !m)}
                             >
-                                {materialSelecionado ? materialSelecionado.nome : "Selecione um material"}
+                                {materialSelecionado ? materialSelecionado.nome : t("orcamento.calculator.materialPlaceholder")}
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
                             {menuAberto && (
                                 <div className="filtro-dropdown" role="menu">
                                     {materiais.length === 0 ? (
-                                        <span className="orcamento-material-vazio">Nenhum material disponível</span>
+                                        <span className="orcamento-material-vazio">{t("orcamento.calculator.materialEmpty")}</span>
                                     ) : (
                                         materiais.map((m) => (
                                             <button
@@ -281,7 +278,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="volume">Volume da peça (cm³)</label>
+                        <label htmlFor="volume">{t("orcamento.calculator.volumeLabel")}</label>
                         <input
                             id="volume"
                             type="number"
@@ -289,12 +286,12 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0.01"
                             value={volume}
                             onChange={(e) => setVolume(e.target.value)}
-                            placeholder="Ex: 25.00"
+                            placeholder={t("orcamento.calculator.volumePlaceholder")}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="tempoImpressao">Tempo de impressão (horas)</label>
+                        <label htmlFor="tempoImpressao">{t("orcamento.calculator.printTimeLabel")}</label>
                         <input
                             id="tempoImpressao"
                             type="number"
@@ -302,12 +299,12 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0"
                             value={tempoImpressao}
                             onChange={(e) => setTempoImpressao(e.target.value)}
-                            placeholder="Ex: 4.5"
+                            placeholder={t("orcamento.calculator.printTimePlaceholder")}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="tempoMaoDeObra">Tempo de mão de obra (horas)</label>
+                        <label htmlFor="tempoMaoDeObra">{t("orcamento.calculator.laborTimeLabel")}</label>
                         <input
                             id="tempoMaoDeObra"
                             type="number"
@@ -315,12 +312,12 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0"
                             value={tempoMaoDeObra}
                             onChange={(e) => setTempoMaoDeObra(e.target.value)}
-                            placeholder="Ex: 1.0"
+                            placeholder={t("orcamento.calculator.laborTimePlaceholder")}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="custoMaquina">Custo da hora-máquina (R$)</label>
+                        <label htmlFor="custoMaquina">{t("orcamento.calculator.machineCostLabel")}</label>
                         <input
                             id="custoMaquina"
                             type="number"
@@ -328,12 +325,12 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0"
                             value={custoMaquina}
                             onChange={(e) => setCustoMaquina(e.target.value)}
-                            placeholder="Ex: 5.00"
+                            placeholder={t("orcamento.calculator.machineCostPlaceholder")}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="custoMaoDeObra">Custo da hora de mão de obra (R$)</label>
+                        <label htmlFor="custoMaoDeObra">{t("orcamento.calculator.laborCostLabel")}</label>
                         <input
                             id="custoMaoDeObra"
                             type="number"
@@ -341,12 +338,12 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0"
                             value={custoMaoDeObra}
                             onChange={(e) => setCustoMaoDeObra(e.target.value)}
-                            placeholder="Ex: 30.00"
+                            placeholder={t("orcamento.calculator.laborCostPlaceholder")}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="margem">Margem de lucro (%)</label>
+                        <label htmlFor="margem">{t("orcamento.calculator.marginLabel")}</label>
                         <input
                             id="margem"
                             type="number"
@@ -354,30 +351,30 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                             min="0"
                             value={margem}
                             onChange={(e) => setMargem(e.target.value)}
-                            placeholder="Ex: 50.0"
+                            placeholder={t("orcamento.calculator.marginPlaceholder")}
                         />
                     </div>
                 </div>
 
                 <div className={cn("orcamento-preview-card", calculando && "is-calculando")}>
                     <div className="orcamento-preview-row">
-                        <span>Custo do Material</span>
+                        <span>{t("orcamento.calculator.materialCost")}</span>
                         <span>{valor(preview?.custoMaterial)}</span>
                     </div>
                     <div className="orcamento-preview-row">
-                        <span>Custo da Máquina</span>
+                        <span>{t("orcamento.calculator.machineCost")}</span>
                         <span>{valor(preview?.custoMaquina)}</span>
                     </div>
                     <div className="orcamento-preview-row">
-                        <span>Custo de Mão de Obra</span>
+                        <span>{t("orcamento.calculator.laborCost")}</span>
                         <span>{valor(preview?.custoMaoDeObra)}</span>
                     </div>
                     <div className="orcamento-preview-row orcamento-preview-total">
-                        <span>Custo Total</span>
+                        <span>{t("orcamento.calculator.totalCost")}</span>
                         <span>{valor(preview?.custoTotal)}</span>
                     </div>
                     <div className="orcamento-preview-row orcamento-preview-final">
-                        <span>Preço Final</span>
+                        <span>{t("orcamento.calculator.finalPrice")}</span>
                         <span>{valor(preview?.precoFinal)}</span>
                     </div>
 
@@ -387,7 +384,7 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                         onClick={handleSalvar}
                         disabled={!preview || calculando || salvando}
                     >
-                        {salvando ? "Salvando..." : "Salvar Orçamento"}
+                        {salvando ? t("orcamento.calculator.saving") : t("orcamento.calculator.save")}
                     </button>
                 </div>
             </div>
