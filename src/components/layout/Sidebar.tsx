@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
+import { Calendar03Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, PackageIcon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getMyUser } from "../../services/UserService";
 import { getUserRole } from "../../hooks/useAuth";
@@ -56,6 +56,7 @@ const NAV_GROUPS: NavGroup[] = [
             { labelKey: "sidebar.paletaCores", path: "/paleta-cores", icon: <DropletIcon size={18} /> },
             { labelKey: "sidebar.calculadoraMistura", path: "/calculadora-mistura", icon: <SlidersHorizontalIcon size={18} /> },
             { labelKey: "sidebar.materiais", path: "/materiais", icon: <WarehouseIcon size={18} /> },
+            { labelKey: "sidebar.estoque", path: "/estoque", icon: <PackageIcon size={18} /> },
         ],
     },
     {

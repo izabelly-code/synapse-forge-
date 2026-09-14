@@ -4310,6 +4310,177 @@ html {
 }
 
 
+/* ===== ESTOQUE (RF11) ===== */
+/* Reaproveita a página de Materiais (toolbar, linhas .pedido-row, selo de
+   alerta) e a receita de lista de Pedidos. Só o que é próprio fica aqui. */
+.estoque-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.estoque-page .materiais-toolbar {
+  margin-bottom: 0;
+}
+
+.estoque-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  scroll-margin-top: calc(var(--mobile-header-h) + var(--space-4));
+}
+
+.estoque-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  flex-wrap: wrap;
+}
+
+.estoque-section-head .dashboard-title {
+  font-size: var(--text-3xl);
+}
+
+.estoque-btn-ajuste {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--control-h);
+}
+
+.estoque-alertas-contagem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--badge-h);
+  padding: 0 var(--space-2-5);
+  border-radius: var(--radius-pill);
+  background: var(--secondary-fixed);
+  color: var(--secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-historico-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2-5);
+}
+
+/* Linhas de alerta e de movimento: tabelares, sem clique (as ações são botões). */
+.pedidos-row-head.estoque-row,
+.pedido-row.estoque-row {
+  grid-template-columns: minmax(160px, 1.8fr) minmax(90px, 0.8fr) minmax(170px, 1.3fr) minmax(110px, 1fr) 190px;
+}
+
+.pedidos-row-head.estoque-mov-row,
+.pedido-row.estoque-mov-row {
+  grid-template-columns: minmax(120px, 1fr) minmax(110px, 0.9fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1.6fr);
+}
+
+.pedido-row.estoque-row,
+.pedido-row.estoque-mov-row {
+  cursor: default;
+  font-size: var(--text-base);
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.pedido-row.estoque-row:hover,
+.pedido-row.estoque-mov-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.estoque-insumo-nome {
+  overflow-wrap: anywhere;
+}
+
+.estoque-tipo-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-h);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Tipo do movimento: ícone + texto, uma cor por natureza (entra/sai/estorna/ajusta). */
+.estoque-mov-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--badge-h);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-mov-chip.mov-ENTRADA { background: var(--success-container); color: var(--success-color); }
+.estoque-mov-chip.mov-BAIXA { background: var(--error-container); color: var(--error-color); }
+.estoque-mov-chip.mov-ESTORNO { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
+.estoque-mov-chip.mov-AJUSTE { background: var(--secondary-fixed); color: var(--secondary); }
+
+.estoque-mov-qtd {
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-mov-qtd.is-positiva { color: var(--success-color); }
+.estoque-mov-qtd.is-negativa { color: var(--error-color); }
+
+.estoque-mov-data {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-05);
+  min-width: 0;
+}
+
+.estoque-mov-sub {
+  color: var(--on-surface-variant);
+  font-size: var(--text-xs);
+}
+
+.estoque-mov-motivo {
+  color: var(--on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* Vazios de seção (não de página): menos respiro que .pedidos-empty. */
+.estoque-empty-compacto {
+  padding: var(--space-10) var(--space-4);
+}
+
+.estoque-empty-ok {
+  background: var(--success-container);
+  color: var(--success-color);
+}
+
+/* As linhas de estoque empilham pelo bloco genérico de `.pedido-row` (960px de
+   lista); aqui só o que ele não cobre: as ações alinham à esquerda. */
+@container sf-list (max-width: 960px) {
+  .pedido-row.estoque-row .material-row-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .estoque-btn-ajuste { flex: 1 1 auto; justify-content: center; }
+  .estoque-historico-filtros { width: 100%; }
+  .estoque-historico-filtros .ui-select { flex: 1 1 auto; min-width: 0; }
+}
+
+
 /* ===== PALETA DE CORES ===== */
 
 .cores-filtros .cores-filtros-left {
