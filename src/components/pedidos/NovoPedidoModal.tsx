@@ -49,9 +49,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     // RF12: pedido é vinculado a um usuário CLIENTE; o backend devolve só usuários com essa role.
     useEffect(() => {
+        // `carregandoClientes` já nasce true e `erroClientes` vazio no useState,
+        // então o effect não precisa (nem deve) setar estado de forma síncrona.
         const token = localStorage.getItem("token");
-        setCarregandoClientes(true);
-        setErroClientes("");
         getClientes(token)
             .then((usuarios) => setClientes(usuarios))
             .catch(() => setErroClientes(t("pedidos.form.errorLoadClients")))
