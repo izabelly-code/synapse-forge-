@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, Layers01Icon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
-import { getPedidos, avancarStatus, regredirStatus, deletarPedido } from "../../services/PedidoService";
+import { getPedidos, avancarStatus, regredirStatus, deletarPedido, EtapaError } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
 import NovoPedidoModal from "./NovoPedidoModal";
@@ -19,7 +19,12 @@ import SkeletonSwap from "../ui/SkeletonSwap";
 import ValueFlash from "../ui/ValueFlash";
 import { useFlipList } from "../../hooks/useFlipList";
 
-const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO", "CANCELADO"];
+
+/** FINALIZADO e CANCELADO são terminais: saem da produção e não têm prazo a cobrar. */
+function encerrado(p: Pedido): boolean {
+    return p.status === "FINALIZADO" || p.status === "CANCELADO";
+}
 
 const CACHE_KEY = "pedidos:all";
 
@@ -48,7 +53,7 @@ function dentroDoPeriodo(p: Pedido, periodo: PeriodoKey): boolean {
     if (periodo === "all") return true;
     const t = new Date(p.prazo).getTime();
     const inicio = startOfToday();
-    if (periodo === "atrasados") return p.status !== "FINALIZADO" && t < inicio;
+    if (periodo === "atrasados") return !encerrado(p) && t < inicio;
     if (periodo === "semana") return t >= inicio && t < inicio + 7 * 24 * 60 * 60 * 1000;
     const agora = new Date();
     const iniMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
@@ -159,8 +164,8 @@ function PedidosDashboard() {
     const stats = useMemo(() => {
         let emProducao = 0, hoje = 0, atrasados = 0, finalizados = 0;
         for (const p of pedidos) {
-            const fim = p.status === "FINALIZADO";
-            if (fim) { finalizados++; continue; }
+            if (p.status === "FINALIZADO") { finalizados++; continue; }
+            if (p.status === "CANCELADO") continue;
             emProducao++;
             if (ehAtrasado(p.prazo)) atrasados++;
             else if (ehHoje(p.prazo)) hoje++;
@@ -219,8 +224,9 @@ function PedidosDashboard() {
             setRecemAvancado(id);
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
-        } catch {
-            setError(t("pedidos.dashboard.errorAdvance"));
+        } catch (err) {
+            // 422 (estoque insuficiente) lista os insumos faltantes no corpo; não engolir.
+            setError(err instanceof EtapaError && err.estoqueInsuficiente ? err.message : t("pedidos.dashboard.errorAdvance"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);
@@ -239,8 +245,8 @@ function PedidosDashboard() {
             setRecemAvancado(id);
             if (avancoTimer.current) clearTimeout(avancoTimer.current);
             avancoTimer.current = setTimeout(() => setRecemAvancado(null), 600);
-        } catch {
-            setError(t("pedidos.dashboard.errorRegress"));
+        } catch (err) {
+            setError(err instanceof EtapaError && err.estoqueInsuficiente ? err.message : t("pedidos.dashboard.errorRegress"));
         } finally {
             setLoadingIds((prev) => {
                 const next = new Set(prev);

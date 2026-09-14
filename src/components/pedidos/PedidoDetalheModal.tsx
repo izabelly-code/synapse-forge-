@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Add01Icon, Calendar03Icon, Cancel01Icon, CubeIcon, Delete02Icon, Download01Icon, File01Icon, Image02Icon, PencilEdit02Icon, UserIcon } from "hugeicons-react";
+import { Add01Icon, ArrowLeft02Icon, ArrowRight02Icon, Calendar03Icon, Cancel01Icon, CancelCircleIcon, CubeIcon, Delete02Icon, Download01Icon, File01Icon, Image02Icon, PencilEdit02Icon, UserIcon } from "hugeicons-react";
 
 import {
+    EtapaError,
+    avancarStatus,
     baixarObjeto3D,
+    cancelarPedido,
     editarPedido,
     getPedido,
-    gerarOrdemServico
+    gerarOrdemServico,
+    regredirStatus
 } from "../../services/PedidoService";
 
 import { useTranslation } from "react-i18next";
-import { Pedido, PedidoStatus } from "../../types";
-import Select from "../ui/Select";
+import { Pedido } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatDate } from "../../utils/format";
 import { cn } from "../../utils/cn";
@@ -18,8 +21,10 @@ import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
+import { getUserRole } from "../../hooks/useAuth";
 
-const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+/** Ação de etapa em andamento; uma por vez, os três botões travam juntos. */
+type AcaoEtapa = "avancar" | "regredir" | "cancelar";
 
 function formatPrazoLongo(iso: string): string {
     const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
@@ -55,11 +60,20 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [downloadError, setDownloadError] = useState("");
     const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
+    // Etapa: só muda pelos endpoints dedicados (avançar/regredir/cancelar), que
+    // fazem a baixa e o estorno de estoque. A edição do pedido não toca nela.
+    const [acaoEtapa, setAcaoEtapa] = useState<AcaoEtapa | null>(null);
+    const [erroEtapa, setErroEtapa] = useState("");
+    const [confirmandoCancelamento, setConfirmandoCancelamento] = useState(false);
+
+    /** RF12: CLIENTE só visualiza; mudar etapa é de TECNICO/GERENTE/ADMIN. */
+    const role = getUserRole();
+    const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
+
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
     const [prazo, setPrazo] = useState("");
-    const [status, setStatus] = useState<PedidoStatus>("MODELAGEM");
     const [objeto3D, setObjeto3D] = useState<File | null>(null);
     const [removerObjeto3D, setRemoverObjeto3D] = useState(false);
     const [novasImagens, setNovasImagens] = useState<NovaImagem[]>([]);
@@ -87,7 +101,6 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         setProjeto(alvo.projeto);
         setDescricao(alvo.descricao ?? "");
         setPrazo(alvo.prazo.slice(0, 10));
-        setStatus(alvo.status);
         setObjeto3D(null);
         setRemoverObjeto3D(false);
         limparNovasImagens();
@@ -222,7 +235,6 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                 projeto: projeto.trim(),
                 descricao: descricao.trim(),
                 prazo,
-                status,
                 objeto3D,
                 removerObjeto3D,
                 imagensReferencia: novasImagens.map(({ arquivo }) => arquivo),
@@ -238,6 +250,28 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
             setErroEdicao(t("pedidos.detalhe.errorSave"));
         } finally {
             setSalvando(false);
+        }
+    }
+
+    async function executarAcaoEtapa(acao: AcaoEtapa) {
+        if (!pedido || acaoEtapa || !podeMudarEtapa) return;
+        setAcaoEtapa(acao);
+        setErroEtapa("");
+        setConfirmandoCancelamento(false);
+        try {
+            const atualizado =
+                acao === "avancar" ? await avancarStatus(pedido.id)
+                : acao === "regredir" ? await regredirStatus(pedido.id)
+                : await cancelarPedido(pedido.id);
+            setPedido(atualizado);
+            onUpdated?.(atualizado);
+        } catch (err) {
+            // 422 (estoque insuficiente) traz a lista de insumos e quantidades
+            // faltantes no corpo; é essa mensagem que o usuário precisa ver.
+            const mensagemBackend = err instanceof EtapaError && err.estoqueInsuficiente ? err.message : "";
+            setErroEtapa(mensagemBackend || t(`pedidos.detalhe.errorStage.${acao}`));
+        } finally {
+            setAcaoEtapa(null);
         }
     }
 
@@ -355,15 +389,6 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 <span className="input-hint" id="pedido-prazo-erro">
                                     {erros.prazo && <span className="error-text">{erros.prazo}</span>}
                                 </span>
-                            </div>
-                            <div className="input-group">
-                                <label htmlFor="pedido-status">{t("pedidos.form.stageLabel")}</label>
-                                <Select
-                                    id="pedido-status"
-                                    value={status}
-                                    onChange={(v) => setStatus(v as PedidoStatus)}
-                                    options={STATUS_OPTIONS.map((opcao) => ({ value: opcao, label: t(`pedidos.status.${opcao}`) }))}
-                                />
                             </div>
                         </div>
 
@@ -517,11 +542,67 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                 ) : pedido && (
                     <div className="pedido-detalhe-content">
                         <div className="pedido-detalhe-meta">
-                            <span className={cn("pedido-chip", pedido.status === "FINALIZADO" ? "chip-done" : "chip-active")}>
+                            <span
+                                className={cn(
+                                    "pedido-chip",
+                                    pedido.status === "CANCELADO" ? "chip-cancelado" : pedido.status === "FINALIZADO" ? "chip-done" : "chip-active",
+                                )}
+                            >
+                                {pedido.status === "CANCELADO" && <CancelCircleIcon size={14} aria-hidden="true" />}
                                 {t(`pedidos.status.${pedido.status}`)}
                             </span>
                             <span className="pedido-detalhe-ref">#{pedido.id.replace(/[^a-zA-Z0-9]/g, "").slice(-5).toUpperCase()}</span>
                         </div>
+
+                        {podeMudarEtapa && (
+                            <div className="pedido-etapa-controles" role="group" aria-label={t("pedidos.detalhe.stageActionsAria")}>
+                                <div className="pedido-etapa-botoes">
+                                    <button
+                                        type="button"
+                                        className="pedido-edit-btn"
+                                        onClick={() => executarAcaoEtapa("regredir")}
+                                        disabled={acaoEtapa !== null || pedido.status === "MODELAGEM" || pedido.status === "CANCELADO"}
+                                    >
+                                        <ArrowLeft02Icon size={15} />
+                                        {acaoEtapa === "regredir" ? t("pedidos.detalhe.stageWorking") : t("pedidos.detalhe.regressStage")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="pedido-download-btn"
+                                        onClick={() => executarAcaoEtapa("avancar")}
+                                        disabled={acaoEtapa !== null || pedido.status === "FINALIZADO" || pedido.status === "CANCELADO"}
+                                    >
+                                        {acaoEtapa === "avancar" ? t("pedidos.detalhe.stageWorking") : t("pedidos.detalhe.advanceStage")}
+                                        <ArrowRight02Icon size={15} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="pedido-edit-btn pedido-etapa-cancelar"
+                                        onClick={() => setConfirmandoCancelamento(true)}
+                                        disabled={acaoEtapa !== null || confirmandoCancelamento || pedido.status === "FINALIZADO" || pedido.status === "CANCELADO"}
+                                    >
+                                        <CancelCircleIcon size={15} />
+                                        {acaoEtapa === "cancelar" ? t("pedidos.detalhe.stageWorking") : t("pedidos.detalhe.cancelOrder")}
+                                    </button>
+                                </div>
+
+                                {confirmandoCancelamento && (
+                                    <div className="pedido-removal-notice pedido-etapa-confirm" role="alertdialog" aria-label={t("pedidos.detalhe.cancelConfirmText")}>
+                                        <span>{t("pedidos.detalhe.cancelConfirmText")}</span>
+                                        <div className="pedido-etapa-confirm-actions">
+                                            <button type="button" onClick={() => setConfirmandoCancelamento(false)}>
+                                                {t("pedidos.detalhe.cancelConfirmNo")}
+                                            </button>
+                                            <button type="button" onClick={() => executarAcaoEtapa("cancelar")}>
+                                                {t("pedidos.detalhe.cancelConfirmYes")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {erroEtapa && <p className="pedido-edit-error" role="alert">{erroEtapa}</p>}
+                            </div>
+                        )}
 
                         <div className="pedido-detalhe-info-grid">
                             <div className="pedido-detalhe-info">
