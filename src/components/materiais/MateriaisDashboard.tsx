@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { InboxIcon } from "hugeicons-react";
+import { AlertCircleIcon, InboxIcon } from "hugeicons-react";
 import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
@@ -7,6 +7,12 @@ import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
 import { formatCurrency, formatNumber } from "../../utils/format";
 import SkeletonSwap from "../ui/SkeletonSwap";
+import { cn } from "../../utils/cn";
+
+/** Saldo no mínimo ou abaixo dele: a mesma regra de GET /estoque/alertas. */
+function emAlerta(m: Material): boolean {
+    return (m.saldo ?? 0) <= (m.estoqueMinimo ?? 0);
+}
 
 function MateriaisDashboard() {
     const { t } = useTranslation();
@@ -99,6 +105,7 @@ function MateriaisDashboard() {
                                 <span>{t("materiais.dashboard.colType")}</span>
                                 <span>{t("materiais.dashboard.colDensity")}</span>
                                 <span>{t("materiais.dashboard.colPricePerGram")}</span>
+                                <span>{t("materiais.dashboard.colStock")}</span>
                                 <span />
                             </div>
                             {materiais.map((m) => (
@@ -123,6 +130,18 @@ function MateriaisDashboard() {
                                     <span>
                                         <span className="cell-label">{t("materiais.dashboard.colPricePerGram")}</span>
                                         {formatCurrency(m.precoPorGrama, { minimumFractionDigits: 3 })}
+                                    </span>
+                                    <span className="material-saldo-cell">
+                                        <span className="cell-label">{t("materiais.dashboard.colStock")}</span>
+                                        <span className={cn("material-saldo", emAlerta(m) && "is-baixo")}>
+                                            {formatNumber(m.saldo ?? 0)} {t(`materiais.unidade.${m.unidade ?? "G"}`)}
+                                        </span>
+                                        {emAlerta(m) && (
+                                            /* Ícone + texto, não só cor: o alerta precisa ser perceptível sem depender do vermelho. */
+                                            <span className="cor-estoque-baixo" title={t("materiais.dashboard.lowStockTitle")}>
+                                                <AlertCircleIcon size={12} aria-hidden="true" /> {t("materiais.dashboard.lowStock")}
+                                            </span>
+                                        )}
                                     </span>
                                     <div className="material-row-actions">
                                         <button

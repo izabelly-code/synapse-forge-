@@ -428,7 +428,10 @@
       "colPricePerGram": "Price/gram ($)",
       "densityValue": "{{value}} g/cm³",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "colStock": "Stock",
+      "lowStock": "Below minimum",
+      "lowStockTitle": "Stock at or below the minimum"
     },
     "modal": {
       "titleNew": "New Material",
@@ -453,7 +456,29 @@
       "errorDensity": "Enter a density greater than zero.",
       "errorPrice": "Enter a valid price.",
       "errorSaveEdit": "Could not save the material. Please try again.",
-      "errorSaveNew": "Could not create the material. Please try again."
+      "errorSaveNew": "Could not create the material. Please try again.",
+      "unitLabel": "Unit of measure",
+      "unitHint": "Unit in which this material’s stock and movements are counted.",
+      "minStockLabel": "Minimum stock ({{unit}})",
+      "minStockPlaceholder": "e.g. 500",
+      "minStockHint": "Below this value the material shows up in the alerts list.",
+      "errorMinStock": "Enter a minimum stock of zero or more.",
+      "stockLabel": "Stock on hand",
+      "stockReadOnlyHint": "Stock is not edited here: it only changes through entries, adjustments, consumption or reversals on the Stock screen."
+    },
+    "unidade": {
+      "G": "g",
+      "KG": "kg",
+      "ML": "ml",
+      "L": "L",
+      "UN": "un"
+    },
+    "unidadeNome": {
+      "G": "Grams (g)",
+      "KG": "Kilograms (kg)",
+      "ML": "Milliliters (ml)",
+      "L": "Liters (L)",
+      "UN": "Units (un)"
     }
   },
   "orcamento": {

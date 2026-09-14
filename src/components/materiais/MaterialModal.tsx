@@ -2,12 +2,14 @@ import { useRef, useState } from "react";
 import { Cancel01Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { criarMaterial, editarMaterial } from "../../services/MaterialService";
-import { Material } from "../../models/Material";
+import { Material, UNIDADES, UnidadeMedida } from "../../models/Material";
+import { formatNumber } from "../../utils/format";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
 import LoadingButton from "../ui/LoadingButton";
+import Select from "../ui/Select";
 
 interface MaterialModalProps {
     material?: Material;
@@ -15,7 +17,7 @@ interface MaterialModalProps {
     onSalvo: () => void;
 }
 
-type CampoErro = "nome" | "tipo" | "densidadeGcm3" | "precoPorGrama";
+type CampoErro = "nome" | "tipo" | "densidadeGcm3" | "precoPorGrama" | "estoqueMinimo";
 type Erros = Partial<Record<CampoErro, string>>;
 
 function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
@@ -27,6 +29,10 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
     const [densidade, setDensidade] = useState(material ? String(material.densidadeGcm3) : "");
     const [preco, setPreco] = useState(material ? String(material.precoPorGrama) : "");
     const [ativo, setAtivo] = useState(material?.ativo ?? true);
+    const [unidade, setUnidade] = useState<UnidadeMedida>(
+        material && UNIDADES.includes(material.unidade as UnidadeMedida) ? (material.unidade as UnidadeMedida) : "G",
+    );
+    const [estoqueMinimo, setEstoqueMinimo] = useState(material ? String(material.estoqueMinimo ?? 0) : "0");
     const [loading, setLoading] = useState(false);
     const [erros, setErros] = useState<Erros>({});
     const [erroEnvio, setErroEnvio] = useState("");
@@ -35,6 +41,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
     const tipoRef = useRef<HTMLInputElement>(null);
     const densidadeRef = useRef<HTMLInputElement>(null);
     const precoRef = useRef<HTMLInputElement>(null);
+    const estoqueMinimoRef = useRef<HTMLInputElement>(null);
     const painelRef = useRef<HTMLDivElement>(null);
 
     useEscapeKey(onClose);
@@ -58,6 +65,8 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
         if (!densidade || isNaN(dens) || dens <= 0) e.densidadeGcm3 = t("materiais.modal.errorDensity");
         const prc = Number(preco);
         if (!preco || isNaN(prc) || prc < 0) e.precoPorGrama = t("materiais.modal.errorPrice");
+        const minimo = Number(estoqueMinimo);
+        if (estoqueMinimo === "" || isNaN(minimo) || minimo < 0) e.estoqueMinimo = t("materiais.modal.errorMinStock");
         return e;
     }
 
@@ -72,6 +81,7 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
             else if (novosErros.tipo) tipoRef.current?.focus();
             else if (novosErros.densidadeGcm3) densidadeRef.current?.focus();
             else if (novosErros.precoPorGrama) precoRef.current?.focus();
+            else if (novosErros.estoqueMinimo) estoqueMinimoRef.current?.focus();
             return;
         }
 
@@ -81,6 +91,8 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
             densidadeGcm3: Number(densidade),
             precoPorGrama: Number(preco),
             ativo: editando ? ativo : true,
+            unidade,
+            estoqueMinimo: Number(estoqueMinimo),
         };
 
         try {
@@ -191,6 +203,46 @@ function MaterialModal({ material, onClose, onSalvo }: MaterialModalProps) {
                         <span className="input-hint" id="preco-erro">
                             {erros.precoPorGrama && <span className="error-text">{erros.precoPorGrama}</span>}
                         </span>
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="unidade">{t("materiais.modal.unitLabel")}</label>
+                        <Select
+                            id="unidade"
+                            value={unidade}
+                            onChange={(v) => setUnidade(v as UnidadeMedida)}
+                            options={UNIDADES.map((u) => ({ value: u, label: t(`materiais.unidadeNome.${u}`) }))}
+                        />
+                        <span className="input-hint">{t("materiais.modal.unitHint")}</span>
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="estoque-minimo">{t("materiais.modal.minStockLabel", { unit: t(`materiais.unidade.${unidade}`) })}</label>
+                        <input
+                            id="estoque-minimo"
+                            ref={estoqueMinimoRef}
+                            type="number"
+                            step="any"
+                            min="0"
+                            className={erros.estoqueMinimo ? "input-error" : ""}
+                            value={estoqueMinimo}
+                            onChange={(e) => { setEstoqueMinimo(e.target.value); limparErro("estoqueMinimo"); }}
+                            placeholder={t("materiais.modal.minStockPlaceholder")}
+                            aria-invalid={!!erros.estoqueMinimo}
+                            aria-describedby={erros.estoqueMinimo ? "estoque-minimo-erro" : "estoque-minimo-hint"}
+                        />
+                        <span className="input-hint" id={erros.estoqueMinimo ? "estoque-minimo-erro" : "estoque-minimo-hint"}>
+                            {erros.estoqueMinimo ? <span className="error-text">{erros.estoqueMinimo}</span> : t("materiais.modal.minStockHint")}
+                        </span>
+                    </div>
+
+                    {/* Saldo: só leitura. Muda por entrada, ajuste, baixa ou estorno (tela de Estoque). */}
+                    <div className="material-saldo-info" role="note">
+                        <span className="material-saldo-label">{t("materiais.modal.stockLabel")}</span>
+                        <strong className="material-saldo-valor">
+                            {formatNumber(material?.saldo ?? 0)} {t(`materiais.unidade.${unidade}`)}
+                        </strong>
+                        <span className="material-saldo-hint">{t("materiais.modal.stockReadOnlyHint")}</span>
                     </div>
 
                     {editando && (
