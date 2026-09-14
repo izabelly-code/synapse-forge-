@@ -310,6 +310,10 @@ function Calendar() {
 
       {erro && <div className="calendar-error"><Alert02Icon size={16} /> {erro}</div>}
 
+      {carregando && eventos.length === 0 && (
+        <p className="dashboard-subtitle">{t('agenda.calendar.loading')}</p>
+      )}
+
       <div className="calendar-layout">
         <section className="calendar-card">
           <div className="calendar-card-header">
