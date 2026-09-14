@@ -428,7 +428,10 @@
       "colPricePerGram": "Preço/grama (R$)",
       "densityValue": "{{value}} g/cm³",
       "edit": "Editar",
-      "delete": "Excluir"
+      "delete": "Excluir",
+      "colStock": "Saldo",
+      "lowStock": "Abaixo do mínimo",
+      "lowStockTitle": "Saldo no mínimo ou abaixo dele"
     },
     "modal": {
       "titleNew": "Novo Material",
@@ -453,7 +456,29 @@
       "errorDensity": "Informe uma densidade positiva.",
       "errorPrice": "Informe um preço válido.",
       "errorSaveEdit": "Erro ao salvar material. Tente novamente.",
-      "errorSaveNew": "Erro ao criar material. Tente novamente."
+      "errorSaveNew": "Erro ao criar material. Tente novamente.",
+      "unitLabel": "Unidade de medida",
+      "unitHint": "Unidade em que o saldo e as movimentações deste material são contados.",
+      "minStockLabel": "Estoque mínimo ({{unit}})",
+      "minStockPlaceholder": "Ex: 500",
+      "minStockHint": "Abaixo deste valor o material entra na lista de alertas.",
+      "errorMinStock": "Informe um estoque mínimo igual ou maior que zero.",
+      "stockLabel": "Saldo em estoque",
+      "stockReadOnlyHint": "O saldo não é editado aqui: ele só muda por entrada, ajuste, baixa ou estorno na tela de Estoque."
+    },
+    "unidade": {
+      "G": "g",
+      "KG": "kg",
+      "ML": "ml",
+      "L": "L",
+      "UN": "un"
+    },
+    "unidadeNome": {
+      "G": "Gramas (g)",
+      "KG": "Quilogramas (kg)",
+      "ML": "Mililitros (ml)",
+      "L": "Litros (L)",
+      "UN": "Unidades (un)"
     }
   },
   "orcamento": {
