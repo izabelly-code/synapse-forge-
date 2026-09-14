@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ArrowLeft02Icon, ArrowRight02Icon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon, Tick02Icon } from "hugeicons-react";
+import { ArrowLeft02Icon, ArrowRight02Icon, CancelCircleIcon, Delete02Icon, MoreVerticalIcon, PencilEdit02Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Pedido, PedidoStatus } from '../../types';
@@ -70,6 +70,17 @@ function ProgressStepper({ status }: { status: PedidoStatus }) {
     const total = STATUS_SEQUENCE.length;
     const finalizado = status === "FINALIZADO";
 
+    // CANCELADO não é etapa da linha de produção (indexOf devolve -1): é estado
+    // terminal e aparece como selo próprio, não como posição no stepper.
+    if (status === "CANCELADO") {
+        return (
+            <span className="stepper-cancelado" role="status">
+                <CancelCircleIcon size={14} aria-hidden="true" />
+                {t("pedidos.status.CANCELADO")}
+            </span>
+        );
+    }
+
     return (
         <div
             className={cn("stepper", finalizado && "completo")}
@@ -117,8 +128,10 @@ interface PedidoRowProps {
 function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar, loading, index = 0, justAdvanced = false }: PedidoRowProps) {
     const { t } = useTranslation();
     const finalizado = pedido.status === "FINALIZADO";
+    const cancelado = pedido.status === "CANCELADO";
+    const encerrado = finalizado || cancelado;
     const naPrimeiraEtapa = pedido.status === "MODELAGEM";
-    const restante = finalizado ? null : tempoRestante(pedido.prazo, t);
+    const restante = encerrado ? null : tempoRestante(pedido.prazo, t);
     const tom: Tom = restante?.tom ?? "normal";
 
     const prazoClasse = tom === "atrasado" ? "prazo-atrasado" : tom === "urgente" ? "prazo-urgente" : "";
@@ -151,7 +164,7 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
 
     return (
         <div
-            className={cn("pedido-row", justAdvanced && "is-advancing")}
+            className={cn("pedido-row", justAdvanced && "is-advancing", cancelado && "is-cancelado")}
             style={{ "--row-index": indexEntrada } as React.CSSProperties}
             data-flip-id={pedido.id}
             role="button"
@@ -188,6 +201,14 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                         <span className="row-prazo row-prazo-done">
                             <Tick02Icon size={14} />
                             {t("pedidos.status.FINALIZADO")}
+                        </span>
+                        <span className="row-prazo-sub">{tempoRelativo(pedido.atualizadoEm, t)}</span>
+                    </>
+                ) : cancelado ? (
+                    <>
+                        <span className="row-prazo row-prazo-cancelado">
+                            <CancelCircleIcon size={14} />
+                            {t("pedidos.status.CANCELADO")}
                         </span>
                         <span className="row-prazo-sub">{tempoRelativo(pedido.atualizadoEm, t)}</span>
                     </>
@@ -231,12 +252,12 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
                         <MenuSurface className="kebab-menu" role="menu">
                             {!confirmDel ? (
                                 <>
-                                    {!finalizado && (
+                                    {!encerrado && (
                                         <button className="kebab-item" role="menuitem" disabled={loading} onClick={() => { onAvancar(pedido.id); fecharMenu(); }}>
                                             <ArrowRight02Icon size={15} /> {t("pedidos.row.advanceStage")}
                                         </button>
                                     )}
-                                    {!naPrimeiraEtapa && (
+                                    {!naPrimeiraEtapa && !cancelado && (
                                         <button className="kebab-item" role="menuitem" disabled={loading} onClick={() => { onRegredir(pedido.id); fecharMenu(); }}>
                                             <ArrowLeft02Icon size={15} /> {t("pedidos.row.regressStage")}
                                         </button>

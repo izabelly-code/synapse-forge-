@@ -68,7 +68,6 @@
       "descriptionLabel": "Descrição",
       "descriptionPlaceholder": "Detalhes do pedido, referências, acabamento desejado...",
       "deadlineLabel": "Prazo",
-      "stageLabel": "Etapa",
       "object3dFormats": "Formatos aceitos: STL, OBJ, FBX, GLB, GLTF, 3MF",
       "removeFile": "Retirar",
       "cancel": "Cancelar",
@@ -131,7 +130,20 @@
       "viewObject3dEmpty": "Nenhum objeto 3D foi enviado.",
       "viewImagesEmpty": "Nenhuma imagem de referência foi enviada.",
       "zoomImageAria": "Ampliar imagem {{index}}",
-      "imageAlt": "Referência {{index}} do pedido {{project}}"
+      "imageAlt": "Referência {{index}} do pedido {{project}}",
+      "stageActionsAria": "Mudar etapa do pedido",
+      "advanceStage": "Avançar etapa",
+      "regressStage": "Regredir etapa",
+      "cancelOrder": "Cancelar pedido",
+      "stageWorking": "Aguarde...",
+      "cancelConfirmText": "Cancelar este pedido? O estoque já consumido não volta e a ação não pode ser desfeita.",
+      "cancelConfirmNo": "Manter pedido",
+      "cancelConfirmYes": "Sim, cancelar",
+      "errorStage": {
+        "avancar": "Não foi possível avançar a etapa. Tente novamente.",
+        "regredir": "Não foi possível regredir a etapa. Tente novamente.",
+        "cancelar": "Não foi possível cancelar o pedido. Tente novamente."
+      }
     },
     "row": {
       "deadlineLabel": "Prazo",

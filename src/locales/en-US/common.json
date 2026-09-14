@@ -68,7 +68,6 @@
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Order details, references, desired finish...",
       "deadlineLabel": "Deadline",
-      "stageLabel": "Stage",
       "object3dFormats": "Accepted formats: STL, OBJ, FBX, GLB, GLTF, 3MF",
       "removeFile": "Remove",
       "cancel": "Cancel",
@@ -131,7 +130,20 @@
       "viewObject3dEmpty": "No 3D object was uploaded.",
       "viewImagesEmpty": "No reference images were uploaded.",
       "zoomImageAria": "Enlarge image {{index}}",
-      "imageAlt": "Reference {{index}} of order {{project}}"
+      "imageAlt": "Reference {{index}} of order {{project}}",
+      "stageActionsAria": "Change order stage",
+      "advanceStage": "Advance stage",
+      "regressStage": "Go back a stage",
+      "cancelOrder": "Cancel order",
+      "stageWorking": "Please wait...",
+      "cancelConfirmText": "Cancel this order? Stock already consumed is not returned and this cannot be undone.",
+      "cancelConfirmNo": "Keep order",
+      "cancelConfirmYes": "Yes, cancel",
+      "errorStage": {
+        "avancar": "Could not advance the stage. Please try again.",
+        "regredir": "Could not go back a stage. Please try again.",
+        "cancelar": "Could not cancel the order. Please try again."
+      }
     },
     "row": {
       "deadlineLabel": "Deadline",
