@@ -46,7 +46,7 @@ flowchart LR
     E --> E1["Materiais (atual /materiais)"]
     E --> E2["Paleta de Cores"]
     E --> E3["Calculadora de Mistura"]
-    E --> E4["Inventário de Insumos — SYN-16*"]
+    E --> E4["Estoque (alertas, entradas e movimentações) — SYN-68"]
     E --> E5["Pedidos de Compra — SYN-14*"]
 
     ADM --> AD1["Perfil"]
@@ -77,6 +77,7 @@ flowchart LR
 | `/orcamento` | Orçamentos | Mantém |
 | `/calendar` | Agenda → Calendário | Mantém |
 | `/materiais` | Estoque & Cores → Materiais | Mantém |
+| *(nova)* `/estoque` | Estoque & Cores → Estoque | Criar |
 | `/paleta-cores` | Estoque & Cores → Paleta de Cores | Mantém |
 | `/calculadora-mistura` | Estoque & Cores → Calculadora | Mantém |
 | `/perfil` | Admin → Perfil | Mantém |
