@@ -113,6 +113,10 @@
   --z-lightbox: 200;       /* visualizador de imagem em tela cheia */
   --z-modal-top: 1000;     /* fora da escala: overlay do modal do calendário */
 
+  /* Shell compacto (≤1024px): altura do header mobile; páginas que se ancoram
+     na viewport (Kanban) descontam esse valor. */
+  --mobile-header-h: 64px;
+
   /* ---- Movimento ---- */
   --duration-fast: 0.15s;    /* hover/foco de controles */
   --duration-base: 0.2s;     /* borda + sombra, mudanças de elevação */
@@ -136,7 +140,12 @@
        640px  (sm)  · telefone
        768px  (md)  · tablet retrato / colapso geral
       1024px  (lg)  · tablet paisagem
-     Exceções documentadas em docs/design-tokens.md (540px, 900px, 1100px). */
+     Exceções documentadas em docs/design-tokens.md (540px, 1100px).
+     Conteúdo que vive dentro da coluna do dashboard (listas, grid do formulário
+     de orçamento) NÃO usa @media: mede a própria largura com @container, porque
+     acima de 1024px a coluna vale `viewport − 280px − 80px`. Contêineres
+     nomeados: `sf-list` (listas de linhas) e `sf-pane` (painel do orçamento);
+     pontos de empilhamento em comentário junto de cada @container. */
 
   /* Controles — spec */
   --control-h: 2.25rem;       /* botões: 36px */
@@ -389,7 +398,7 @@ body {
 
 @media (max-width: 768px) {
   .screen-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     height: auto;
     min-height: 100vh;
   }
@@ -473,13 +482,13 @@ body {
 /* Two-column row inside the auth card */
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
 @media (max-width: 480px) {
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 }
@@ -508,6 +517,7 @@ body {
 }
 
 .input-group input {
+  min-width: 0; /* campos em grid/flex não podem impor a própria largura intrínseca */
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: 1.5px solid var(--color-border-strong);
@@ -827,50 +837,6 @@ body {
 
 
 /* ===== DASHBOARD LAYOUT ===== */
-.app-container {
-  min-height: 100vh;
-  background: var(--surface-container-low);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 60px; /* fora da escala: recuo do topo próprio desta tela (lista de usuários), não é um passo de espaçamento */
-}
-
-.dashboard-layout {
-  min-height: 100vh;
-  background: var(--surface-container-low);
-}
-
-
-/* Header — surface on surface-container-low: tonal shift defines boundary, no border */
-.dashboard-header {
-  background: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  box-shadow: var(--shadow-card);
-}
-
-.dashboard-header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-  height: 85px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-logo {
-  height: 100px;
-  width: auto;
-}
-
-.dashboard-header-inner .link {
-  margin-top: 0;
-  font-size: var(--text-base);
-}
-
 .dashboard-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -891,6 +857,10 @@ body {
 .btn-novo-pedido {
   width: auto;
   white-space: nowrap;
+  /* S5: o rótulo pode ser longo ("Novo pedido de cliente") em 360px */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   gap: var(--space-1-5);
   padding: 0 var(--space-4) 0 var(--space-3-5);
 }
@@ -935,6 +905,8 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .view-toggle {
@@ -1007,6 +979,7 @@ body {
 
 
 .filtro-count {
+  flex-shrink: 0;
   min-width: var(--badge-h);
   height: var(--badge-h);
   padding: 0 var(--space-1-5);
@@ -1028,6 +1001,11 @@ body {
 
 .filtro-menu {
   position: relative;
+  /* cap em vez de `min-width: 0`: o item de flex precisa poder ser recortado
+     quando é mais largo que a barra, mas NÃO pode encolher abaixo do conteúdo
+     antes de quebrar a linha (senão três filtros viram três rótulos cortados
+     em 390px em vez de quebrarem). */
+  max-width: 100%;
 }
 
 .filtro-action {
@@ -1044,8 +1022,18 @@ body {
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
   cursor: pointer;
+  /* S5: nowrap num item de flex precisa de min-width: 0 + corte, senão o rótulo
+     (nome de fornecedor, de técnico) empurra a barra de filtros para fora. */
   white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.filtro-action .filtro-action-chev {
+  flex-shrink: 0;
 }
 
 .filtro-action:hover {
@@ -1066,11 +1054,18 @@ body {
   transform: rotate(180deg);
 }
 
+/* Padrão único dos popovers ancorados (SYN-76, fase 3): nunca mais largo que a
+   viewport, nunca mais alto que ela, e deslocado de volta para dentro pelo
+   `--menu-shift` que o MenuSurface calcula (ver hooks/useMenuClamp.ts). */
 .filtro-dropdown {
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 190px;
+  max-width: calc(100vw - 2rem);
+  max-height: min(60vh, 320px);
+  overflow-y: auto;
+  transform: translateX(var(--menu-shift, 0px));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -1112,6 +1107,34 @@ body {
   .filtros-actions { width: 100%; }
   .filtro-menu { flex: 1; }
   .filtro-action { width: 100%; justify-content: space-between; }
+
+  /* SYN-76 fase 6: as abas de status deixam de quebrar linha e ganham scroll
+     horizontal próprio. Em 390px os seis filtros com contador empilhavam em três
+     fileiras e empurravam a lista (e o botão primário da toolbar acima dela) para
+     fora da primeira tela; numa faixa rolável a barra ocupa uma linha só.
+     A barra de rolagem fica escondida — o recorte da última aba já sinaliza que
+     há mais conteúdo, e `scroll-snap` encaixa a aba no início da faixa.
+     O `:not(:has(.filtro-menu))` deixa de fora a variante de Cores, em que o
+     mesmo contêiner guarda gatilhos de menu suspenso: um contêiner de scroll
+     recortaria o `.filtro-dropdown`, que é absoluto. Lá o wrap continua valendo. */
+  .filtros-tabs:not(:has(.filtro-menu)) {
+    flex-wrap: nowrap;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .filtros-tabs:not(:has(.filtro-menu))::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filtro-btn {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
 }
 
 
@@ -1248,17 +1271,22 @@ body {
 
 .notif-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 1.05rem;
-  height: 1.05rem;
-  padding: 0 var(--space-1);
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  box-sizing: border-box;
   border-radius: var(--radius-pill);
   background: var(--error-color);
   color: var(--on-primary);
   font-size: var(--text-2xs);
   font-weight: var(--weight-bold);
-  display: flex;
+  /* line-height 1: o herdado (1.5 → 15px) não cabia nos ~14px internos do
+     círculo e empurrava o número para baixo do centro */
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--surface);
@@ -1269,6 +1297,8 @@ body {
   top: calc(100% + 0.5rem);
   right: 0;
   width: 300px;
+  /* nunca mais largo que a viewport menos uma margem de respiro (SYN-76) */
+  max-width: calc(100vw - 2rem);
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -1354,9 +1384,17 @@ body {
 .tag-warn { background: var(--secondary-fixed); color: var(--secondary); }
 
 
+/* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
+   breakpoint de viewport (eram `repeat(3,1fr)` em 1024 e `repeat(2,1fr)` em 640,
+   que mediam a janela e não a coluna). 168px é o min-content medido do cartão
+   (12+12 de padding + 2 de borda + 40 do ícone + 14 de gap + 95px do rótulo mais
+   longo, "Total de Pedidos" a 12px/500) arredondado PARA BAIXO: em 1280px — a
+   janela mais estreita em que a regra antiga ainda mostrava 5 colunas — a coluna
+   de conteúdo vale 920px e 5 faixas de 168 + 4 gaps de 16 dão 904px, então as 5
+   colunas sobrevivem. Acima disso nada muda. */
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-7);
 }
@@ -1403,10 +1441,37 @@ body {
 }
 
 
+/* Contêiner de consulta das linhas (SYN-76, fase 2). O empilhamento das linhas
+   precisa medir a LARGURA REAL disponível, não o viewport: acima de 1024px o
+   conteúdo vale `viewport − 280px (sidebar) − 80px (padding)`, e um breakpoint
+   de viewport erra essa conta (era a "faixa morta" 1025–1266px do audit).
+   O `container-type` fica na lista — e não no `.dashboard-content` — porque
+   `container-type` implica `contain: layout`, que faria do elemento o bloco
+   contêiner de descendentes `position: fixed`: os overlays de modal (inset: 0)
+   passariam a cobrir só a coluna de conteúdo. Nenhuma lista tem filho fixed.
+   `overflow-x: auto` é a rede de segurança da fase 2: se uma linha ainda não
+   couber, rola a lista e não o documento. */
 .pedidos-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  container-type: inline-size;
+  container-name: sf-list;
+  overflow-x: auto;
+  /* `hidden` explícito no eixo Y: com `overflow-x: auto` o Y viraria `auto`, e o
+     translateY(8px) da animação de entrada da última linha abria uma barra de
+     rolagem vertical dentro da lista por um instante, roubando 15px de largura
+     de todas as linhas. A lista cresce com o conteúdo; nunca precisa rolar. */
+  overflow-y: hidden;
+}
+
+/* Enquanto um kebab está aberto o clip sai de cena: o popover é absoluto e seria
+   recortado pelo contêiner de scroll (o guard do documento continua sendo o
+   `overflow-x: clip` do `.dashboard-content`). */
+.pedidos-list:has(.kebab-menu),
+.cores-list:has(.kebab-menu) {
+  /* os dois eixos: `visible` num eixo só vira `auto` quando o outro não é visible */
+  overflow: visible;
 }
 
 .pedidos-grid {
@@ -1417,17 +1482,15 @@ body {
 
 .pedidos-grid .pedido-row {
   position: relative;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2-5);
   padding: var(--space-4) var(--space-4-5);
 }
 
-.pedidos-grid .cell-label {
+/* No mosaico o card já é autoexplicativo: só o prazo leva rótulo (como antes de
+   a linha empilhada ganhar o conjunto completo de rótulos). */
+.pedidos-grid .cell-prazo .cell-label {
   display: inline;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--on-surface-variant);
-  margin-right: var(--space-2);
 }
 
 .pedidos-grid .cell-prazo {
@@ -1457,12 +1520,14 @@ body {
   grid-template-columns: 84px minmax(120px, 1fr) minmax(140px, 1.2fr) 104px minmax(290px, 2.4fr) 48px;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-3-5) var(--space-5);
+  /* 1.6vw chega aos 20px do desktop em 1250px; piso de 16px (fase 6). O cabeçalho
+     da lista usa a MESMA expressão para as colunas continuarem alinhadas. */
+  padding: var(--space-3-5) clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
 
 .pedidos-row-head {
-  padding: 0 var(--space-5) var(--space-1);
+  padding: 0 clamp(var(--space-4), 1.6vw, var(--space-5)) var(--space-1);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   text-transform: uppercase;
@@ -1471,6 +1536,11 @@ body {
 }
 
 
+/* RECEITA DE CARD (fonte de verdade para .cor-card, .pintura-card, .event-card):
+   fundo --surface, borda fantasma --outline-variant, raio --radius, --shadow-sm
+   em repouso e --shadow-md no hover (a sombra cresce, o card sobe), transição
+   base só na sombra. Sem translateY e sem a sombra ambiente (--shadow), que é
+   de overlay. Stat cards ficam flat de propósito: não são interativos. */
 .pedido-row {
   position: relative;
   min-height: 4.25rem;
@@ -1522,7 +1592,16 @@ body {
 }
 
 .cell { min-width: 0; }
-.cell-label { display: none; }
+
+/* Rótulo de célula: escondido quando existe cabeçalho de coluna, visível quando
+   a linha empilha (cada bloco de empilhamento só liga o `display`). */
+.cell-label {
+  display: none;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--on-surface-variant);
+  margin-right: var(--space-2);
+}
 
 .row-ref {
   font-size: var(--text-sm);
@@ -1748,6 +1827,28 @@ body {
 .step.done .step-label { color: var(--on-surface-variant); }
 .step.current .step-label { color: var(--primary); font-weight: var(--weight-semibold); }
 
+/* CANCELADO no lugar do stepper: estado terminal, não posição na linha de
+   produção. Selo com ícone + texto (não depende só da cor), tom de erro. */
+.stepper-cancelado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--badge-h);
+  padding: 0 var(--space-2-5);
+  border-radius: var(--radius-pill);
+  background: var(--error-container);
+  color: var(--error-color);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.row-prazo.row-prazo-cancelado { color: var(--error-color); }
+
+/* A linha cancelada perde ênfase, mas continua legível. */
+.pedido-row.is-cancelado .row-projeto-nome,
+.pedido-row.is-cancelado .row-cliente-nome { color: var(--on-surface-variant); }
+
 @media (prefers-reduced-motion: reduce) {
   .step-line-fill,
   .step-check,
@@ -1785,11 +1886,14 @@ body {
   background: var(--state-hover);
 }
 
+/* mesmo padrão do .filtro-dropdown: clamp de largura + `--menu-shift` */
 .kebab-menu {
   position: absolute;
   top: calc(100% + 0.375rem);
   right: 0;
   min-width: 172px;
+  max-width: calc(100vw - 2rem);
+  transform: translateX(var(--menu-shift, 0px));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -1889,38 +1993,126 @@ body {
 }
 
 
-@media (max-width: 1024px) {
-  .stat-cards { grid-template-columns: repeat(3, 1fr); }
-}
+/* Empilhamento da linha de pedido. 960px é a largura da LISTA (não do viewport):
+   a linha tem 906px de min-content (84 + 120 + 140 + 104 + 290 + 5 gaps de 16 +
+   40 de padding), então 960 é o último ponto em que ela ainda respira. Com
+   sidebar isso equivale a ~1320px de viewport; sem sidebar (≤1024px), a ~1000px.
+   Substitui o antigo `@media (max-width: 768px)`, que deixava a linha estourando
+   em toda a faixa 769–1265px. */
+@container sf-list (max-width: 960px) {
+  .pedidos-row-head:not(.material-row):not(.orcamento-row) { display: none; }
 
-@media (max-width: 768px) {
-  .pedidos-row-head { display: none; }
-
-  .pedido-row {
-    grid-template-columns: 1fr;
+  .pedido-row:not(.material-row):not(.orcamento-row) {
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
 
-  .cell-label {
-    display: inline;
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    color: var(--on-surface-variant);
-    margin-right: var(--space-2);
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-label { display: inline; }
+
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-prazo { align-items: flex-start; }
+
+  .pedido-row:not(.material-row):not(.orcamento-row) .cell-acoes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
-  .cell-prazo { align-items: flex-start; }
-  .cell-acoes { justify-content: flex-start; flex-wrap: wrap; }
+  /* Com o kebab à esquerda, `right: 0` jogava o menu ~122px fora da tela. */
+  .pedido-row:not(.material-row):not(.orcamento-row) .kebab-menu {
+    left: 0;
+    right: auto;
+  }
+}
+
+/* Abaixo de ~420px de lista as 5 etiquetas de 10px do stepper se sobrepõem;
+   ficam só os pontos (o stepper já tem aria-label e aria-valuenow). */
+@container sf-list (max-width: 420px) {
+  .step-label { display: none; }
+
+  /* Sem espaço para o selo inteiro; o próprio valor de estoque já aparece na
+     cor de alerta (`.cor-metric-value.is-baixo`), então a informação não some. */
+  .cor-row .cor-estoque-baixo { display: none; }
 }
 
 @media (max-width: 640px) {
-  .stat-cards { grid-template-columns: repeat(2, 1fr); }
-
   .toolbar-actions { width: 100%; flex-wrap: wrap; }
   .ui-search-field--pill { flex: 1 1 100%; order: 3; }
   .ui-search-field--pill input { width: 100%; }
 }
+
+/* ===== CELULAR (≤768px): decisões de layout da página de Pedidos =====
+   O React troca os componentes (abas → dropdown de status, botão da toolbar →
+   FAB, toggle lista/grade some) via useMediaQuery(MOBILE_QUERY), com o mesmo
+   768px daqui. */
+@media (max-width: 768px) {
+  /* "Total de Pedidos" ocupa a linha inteira; os outros quatro formam dois pares.
+     Cinco cards em duas colunas deixavam um órfão no fim. */
+  .stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .stat-cards .stat-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Barra de filtros: status em linha própria, prazo e ordenação lado a lado. */
+  .filtros-bar { align-items: stretch; }
+  .filtro-menu-status { flex: 1 1 100%; }
+  .filtros-actions { width: 100%; }
+  .filtros-actions .filtro-menu { flex: 1 1 40%; }
+  .filtros-actions .filtro-action { width: 100%; justify-content: space-between; }
+}
+
+.filtro-menu-status .filtro-action {
+  width: 100%;
+}
+
+/* o dropdown de status acompanha a largura do gatilho, que ocupa a linha toda */
+.filtro-menu-status .filtro-dropdown {
+  left: 0;
+  right: 0;
+}
+
+.filtro-action-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.filtro-option-trail {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ===== FAB (ilha redonda de ação primária no celular) ===== */
+.fab {
+  position: fixed;
+  right: max(var(--space-5), env(safe-area-inset-right));
+  bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  width: 3.5rem;
+  height: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  color: var(--on-primary);
+  cursor: pointer;
+  /* abaixo do scrim da gaveta (--z-menu) e dos popovers; acima do conteúdo sticky */
+  z-index: var(--z-sticky);
+  box-shadow: var(--shadow-ambient), 0 6px 16px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  transition: filter var(--duration-base) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.fab:hover { filter: brightness(0.92); }
+.fab:active { transform: scale(0.96); box-shadow: var(--shadow-ambient); }
+.fab:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 
 
 /* ===== DASHBOARD ERROR / EMPTY ===== */
@@ -1993,9 +2185,19 @@ body {
   box-shadow: var(--shadow-ambient);
   width: 100%;
   max-width: 460px;
-  padding: var(--space-8);
+  /* 2.5vw chega aos 32px do desktop em 1280px; piso de 16px (fase 6) — 32px de
+     respiro num modal de 390px de largura comia 16% da caixa. */
+  padding: clamp(var(--space-4), 2.5vw, var(--space-8));
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
+  overflow-x: hidden; /* o que não couber quebra ou corta; o modal nunca rola de lado */
+}
+
+.modal-card input,
+.modal-card select,
+.modal-card textarea {
+  min-width: 0;
+  max-width: 100%;
 }
 
 
@@ -2059,7 +2261,14 @@ body {
 
 
 /* Textarea — mesma aparência dos inputs */
+/* select do mesmo grupo: mesma regra de largura intrínseca dos inputs */
+.input-group select {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .input-group textarea {
+  min-width: 0;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   border: 1.5px solid var(--outline-variant);
@@ -2136,7 +2345,9 @@ body {
 /* ===== DETALHE DO PEDIDO ===== */
 .pedido-detalhe-modal {
   max-width: 860px;
-  padding: var(--space-6);
+  /* 1.9vw chega aos 24px do desktop em 1263px; piso de 16px (fase 6). Substitui o
+     degrau `padding: var(--space-5)` que o bloco de ≤768px aplicava. */
+  padding: clamp(var(--space-4), 1.9vw, var(--space-6));
 }
 
 .pedido-detalhe-header {
@@ -2174,6 +2385,88 @@ body {
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
+}
+
+/* Chip de etapa do cabeçalho: em produção (primário), finalizado (sucesso) e
+   cancelado (erro, com ícone — estado terminal fora da linha de produção). */
+.pedido-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--badge-h);
+  padding: 0 var(--space-2-5);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+.pedido-chip.chip-active {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.pedido-chip.chip-done {
+  background: var(--success-container);
+  color: var(--success-color);
+}
+
+.pedido-chip.chip-cancelado {
+  background: var(--error-container);
+  color: var(--error-color);
+}
+
+/* Controles de etapa: avançar/regredir/cancelar chamam os endpoints dedicados
+   (que debitam e estornam estoque). Os botões reaproveitam .pedido-edit-btn e
+   .pedido-download-btn; a confirmação de cancelamento é o aviso de remoção. */
+.pedido-etapa-controles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pedido-etapa-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2-5);
+}
+
+.pedido-etapa-botoes .pedido-edit-btn:disabled,
+.pedido-etapa-botoes .pedido-download-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: none;
+}
+
+.pedido-etapa-cancelar {
+  margin-left: auto;
+  background: var(--error-container);
+  color: var(--error-color);
+}
+
+.pedido-etapa-confirm {
+  flex-wrap: wrap;
+}
+
+.pedido-etapa-confirm-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.pedido-etapa-confirm-actions button {
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-sm);
+}
+
+.pedido-etapa-confirm-actions button:last-child {
+  background: var(--error-color);
+  color: var(--on-primary);
+}
+
+@media (max-width: 640px) {
+  .pedido-etapa-botoes > button { flex: 1 1 100%; }
+  .pedido-etapa-cancelar { margin-left: 0; }
 }
 
 .pedido-detalhe-info-grid {
@@ -2316,6 +2609,34 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2-5);
+  flex-shrink: 0;
+}
+
+/* Celular: título e ações não cabem lado a lado (o nome do projeto quebrava em
+   duas linhas espremido contra Editar/PDF/fechar). As ações sobem para uma linha
+   própria alinhada à direita e o kicker + título ocupam a largura toda abaixo. */
+@media (max-width: 640px) {
+  .pedido-detalhe-header {
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .pedido-detalhe-header > div:first-child {
+    order: 2;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .pedido-detalhe-header-actions {
+    order: 1;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .pedido-detalhe-header h2 {
+    font-size: var(--text-3xl);
+    overflow-wrap: anywhere;
+  }
 }
 
 .pedido-edit-btn,
@@ -2579,12 +2900,8 @@ body {
 }
 
 @media (max-width: 768px) {
-  .pedido-detalhe-modal {
-    padding: var(--space-5);
-  }
-
   .pedido-detalhe-info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pedido-arquivo-3d {
@@ -2596,8 +2913,11 @@ body {
     width: 100%;
   }
 
+  /* minmax(0, 1fr), não `1fr`: `1fr` sozinho é minmax(auto, 1fr) e a coluna
+     nunca encolhe abaixo da largura intrínseca do input (grande no celular,
+     ainda mais no type="date"), estourando o modal para o lado. */
   .pedido-edit-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pedido-edit-section-title {
@@ -2718,14 +3038,22 @@ body {
 
 /* ===== SIDEBAR LAYOUT ===== */
 .dashboard-shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 280px 1fr;
   background: var(--surface-container-low);
 }
 
+/* `overflow-x: clip` e não `auto`/`hidden`: é o único valor que pode conviver com
+   `overflow-y: visible`, então o guard não transforma a coluna de conteúdo em
+   contêiner de scroll — as barras sticky das telas e os modais `position: fixed`
+   continuam ancorados na viewport (verificado no Chrome). Rede de segurança: um
+   estouro pontual de uma lista não vira scroll horizontal do documento inteiro,
+   que arrastaria o drawer/scrim junto. As listas ganham o próprio
+   `overflow-x: auto` na fase 2 da SYN-76. */
 .dashboard-content {
   min-width: 0;
+  overflow-x: clip;
   scrollbar-gutter: stable;
 }
 
@@ -2743,7 +3071,7 @@ html {
      barras sticky do conteúdo (--z-sticky) sem passar dos modais. */
   z-index: var(--z-menu);
   top: 0;
-  height: 100vh;
+  height: 100dvh;
   background: var(--surface);
   border-right: 1px solid var(--outline-variant);
   padding: var(--space-5) var(--space-3-5);
@@ -3012,6 +3340,7 @@ html {
   left: 50%;
   transform: translateX(-50%);
   min-width: 168px;
+  max-width: calc(100vw - 2rem);
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -3071,10 +3400,46 @@ html {
 }
 
 
-/* Largura padrao das telas do painel */
+/* ===== SHELL COMPACTO: HEADER MOBILE E SCRIM DO DRAWER (SYN-76 fase 1) ===== */
+/* Abaixo de 1024px a Sidebar sai do fluxo e vira gaveta; quem abre é o
+   hambúrguer deste header, renderizado pelo DashboardLayout só no modo compacto
+   (o `display: none` aqui é a segunda trava, para o caso de o header sobrar numa
+   transição de viewport). */
+.mobile-header {
+  display: none;
+}
+
+.mobile-header-logo {
+  height: 40px; /* logo 3:1 → 120px de largura; a 32px ficava miúda no celular */
+  width: auto;
+}
+
+/* Scrim da gaveta. Fica acima das barras sticky do conteúdo (--z-sticky) e
+   abaixo da própria gaveta (--z-popover). */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: var(--z-menu);
+  border: none;
+  padding: 0;
+  animation: drawer-scrim-in var(--duration-base) var(--ease-standard);
+}
+
+@keyframes drawer-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+/* Largura padrao das telas do painel.
+   SYN-76 fase 6: o respiro da página é fluido em vez de dar um salto de 16→40px
+   no breakpoint de 1024. `3.2vw` chega aos 40px do desktop em 1250px de janela,
+   então de 1280px para cima o resultado é idêntico ao de antes; abaixo disso ele
+   desce suavemente até o piso de 16px (atingido em 500px). */
 .dashboard-shell .dashboard-main {
   max-width: 1380px;
-  padding: var(--space-10) var(--space-10);
+  padding: clamp(var(--space-4), 3.2vw, var(--space-10));
 }
 
 
@@ -3086,91 +3451,137 @@ html {
   padding: var(--space-10) var(--space-10);
 }
 
-/* fora do conjunto canônico: 900px é o colapso estrutural da sidebar (e o do
-   formulário de orçamento, alinhado a ele); mover para 1024px mudaria o layout
-   de tablets em paisagem */
-@media (max-width: 900px) {
+/* Colapso estrutural do shell no passo canônico lg (SYN-76 fase 1). Era 900px e
+   virava uma barra horizontal com scroll lateral cego — agora a Sidebar sai do
+   fluxo e vira gaveta, o que também mata a faixa morta 901–1266px em que o
+   conteúdo ainda contava com os 280px da sidebar. */
+@media (max-width: 1024px) {
   .dashboard-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
+  /* A gaveta: mesma marcação e mesmo visual da sidebar fixa, só fora do fluxo.
+     O `transform` faz dela o containing block dos filhos `position: fixed` — é
+     de propósito: nada dentro dela precisa escapar. */
   .sidebar {
-    position: static;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    border-right: none;
-    border-bottom: 1px solid var(--outline-variant);
-    overflow-x: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 86vw);
+    height: 100dvh;
+    z-index: var(--z-popover);
+    transform: translateX(-100%);
+    transition: transform var(--duration-slow) var(--ease-settle);
+    box-shadow: var(--shadow-ambient);
   }
 
-  .sidebar-brand,
-  .sidebar-account {
-    flex-shrink: 0;
-    border-bottom: none;
+  .sidebar.is-drawer-open {
+    transform: translateX(0);
+  }
+
+  /* Fechar a gaveta sem depender do scrim (o hambúrguer fica atrás dele). */
+  .sidebar-brand {
+    position: relative;
+  }
+
+  .sidebar-drawer-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex: 0 0 auto;
+    width: var(--control-h);
     padding: 0;
-    background: transparent;
   }
 
-  .sidebar-user-info {
-    display: none;
-  }
-
-  /* Na barra horizontal não cabe rótulo de área: o agrupamento passa a ser
-     comunicado só pelo espaço maior entre os blocos de itens. */
-  .sidebar-nav {
-    flex-direction: row;
+  .mobile-header {
+    display: flex;
     align-items: center;
-    flex: 1;
-    gap: var(--space-4);
-    overflow-x: auto;
-    overflow-y: visible;
+    justify-content: center; /* logo centralizada; o hambúrguer sai do fluxo à esquerda */
+    gap: var(--space-3);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    height: var(--mobile-header-h); /* fora da escala: altura de barra de aplicativo, com respiro para a logo de 40px */
+    padding: 0 var(--space-4);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
   }
 
-  .sidebar-nav-group-label {
-    display: none;
+  /* O `flex: 1` do .sidebar-icon-btn serve à linha de controles do rodapé da
+     gaveta; aqui o hambúrguer é um alvo quadrado encostado na borda. */
+  .mobile-header-toggle {
+    position: absolute;
+    left: var(--space-2);
+    top: 50%;
+    transform: translateY(-50%);
+    width: var(--control-h);
   }
 
-  .sidebar-nav-list {
-    flex-direction: row;
-    gap: var(--space-1);
+  /* Os popovers do rodapé passam a ser medidos na linha de controles inteira:
+     na largura da gaveta eles não caberiam ancorados num único botão (o painel
+     de 300px do sino estouraria para fora da tela). A gaveta não tem
+     `overflow` nenhum, então nada é recortado. */
+  .sidebar .sidebar-controls {
+    position: relative;
   }
 
-  .sidebar-nav-item {
-    white-space: nowrap;
-    padding: 0 var(--space-3);
+  .sidebar .sidebar-lang-wrap,
+  .sidebar .notif-wrap {
+    position: static;
   }
 
-  .sidebar-logo {
-    height: 36px;
+  .sidebar .sidebar-lang-menu,
+  .sidebar .notif-wrap--up .notif-panel {
+    left: 0;
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    transform: none;
   }
 
-  .dashboard-shell .dashboard-main {
-    padding: var(--space-6) var(--space-4);
-  }
-
+  /* O padding da .dashboard-main é fluido (clamp) desde a fase 6 e não precisa
+     mais de degrau aqui. */
   .dashboard-shell .calendar-page {
     padding: var(--space-4);
+  }
+}
+
+/* Depois do bloco acima de propósito: precisa vencer a `transition` da gaveta. */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+
+  .drawer-scrim {
+    animation: none;
   }
 }
 
 
 /* ===== KANBAN DE ORDENS DE PINTURA ===== */
 .pintura-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--surface-container-low);
   color: var(--on-background);
 }
 
+/* Mesma curva fluida da .dashboard-main (fase 6): 40px em ≥1250px, piso de 16px. */
 .pintura-content {
-  padding: var(--space-10) var(--space-10);
+  padding: clamp(var(--space-4), 3.2vw, var(--space-10));
 }
 
+/* `flex-wrap: wrap` na regra base porque o scroll horizontal agora é do quadro e
+   não mais da seção inteira: sem isso a barra de ferramentas, que só quebrava
+   linha abaixo de 1100px DE JANELA, vazava da coluna de conteúdo (que vale
+   `janela − 280px` de sidebar) e era cortada pelo `overflow-x: clip` do
+   `.dashboard-content`. Quando os controles cabem, nada muda. */
 .pintura-toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2-5);
   margin-bottom: var(--space-4);
 }
@@ -3243,19 +3654,28 @@ html {
   color: var(--primary);
 }
 
+/* SYN-76 fase 6: o scroll horizontal é do PRÓPRIO quadro, não da seção de
+   conteúdo — com `overflow-x: auto` na `.pintura-content` o cabeçalho e a barra de
+   ferramentas deslizavam junto com as colunas. O grid é o contêiner de scroll: as
+   seis faixas de 185px não caberem é exatamente o caso em que ele deve rolar.
+   `padding-bottom` reserva a barra de rolagem sem cortar a sombra dos cartões. */
 .pintura-board {
   display: grid;
   grid-template-columns: repeat(6, minmax(185px, 1fr));
   gap: var(--space-3);
-  overflow: visible;
-}
-
-.pintura-content:has(.pintura-board) {
   overflow-x: auto;
+  padding-bottom: var(--space-2);
+  overscroll-behavior-x: contain;
 }
 
+/* 610px fixo dava ~3,7 mil px de altura empilhado no celular mesmo com o quadro
+   vazio. As colunas são itens de grid com `align-items: stretch`, então já se
+   igualam à mais alta; o mínimo só precisa garantir uma zona de soltura visível
+   no desktop, e abaixo de 768px nem isso (a coluna fica do tamanho do conteúdo). */
 .pintura-column {
-  min-height: 610px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -3295,35 +3715,40 @@ html {
   font-weight: var(--weight-bold);
 }
 
-.tone-waiting > header { background: #f3f3f5; color: var(--color-text-muted); }
+.tone-waiting > header { background: var(--surface-container-high); color: var(--color-text-muted); }
 .tone-mixing > header { background: color-mix(in srgb, var(--color-info) 8%, var(--color-surface)); color: var(--color-info); }
 .tone-painting > header { background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface)); color: var(--color-warning); }
 .tone-drying > header { background: color-mix(in srgb, var(--color-violet) 8%, var(--color-surface)); color: var(--color-violet); }
 .tone-done > header { background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface)); color: var(--color-success); }
 .tone-rework > header { background: color-mix(in srgb, var(--color-error) 8%, var(--color-surface)); color: var(--color-error); }
 
+/* O corpo da coluna é a zona de soltura do arrasto, então precisa ocupar a coluna
+   inteira — mas por altura FLEXÍVEL, não por um piso de 558px (que, somado ao
+   cabeçalho, era o que fazia os 610px de cada coluna vazia). */
 .pintura-column-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  min-height: 558px;
+  flex: 1;
+  min-height: 0;
   padding: var(--space-1-5);
 }
 
 .pintura-card {
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   cursor: grab;
   user-select: none;
-  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+  /* receita de card (ver .pedido-row): só a sombra anima no hover; a opacidade
+     fica para o estado de arrasto */
+  transition: opacity var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .pintura-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
 }
 
 .pintura-card:active {
@@ -3420,7 +3845,7 @@ html {
 
 .pintura-card-menu > div {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-1);
 }
 
@@ -3633,17 +4058,111 @@ html {
   }
 }
 
+/* ===== KANBAN NO CELULAR (≤768px), no modelo do Trello mobile =====
+   A página ocupa exatamente a viewport (menos o header do shell) e NÃO rola;
+   quem rola é o quadro, na horizontal com snap por coluna, e cada coluna na
+   vertical. Cada coluna tem ~84% da largura da tela, deixando a vizinha
+   espiar na borda como pista de que há mais. Título só, sem subtítulo; busca
+   em linha própria; os três filtros dividem uma linha (só ícone + valor). */
 @media (max-width: 768px) {
-  .pintura-content {
-    padding: var(--space-5) var(--space-4);
-  }
-
   .ui-search-field--compact {
     width: 100%;
   }
 
+  .pintura-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--mobile-header-h));
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .pintura-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .pintura-content .pedidos-toolbar {
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .pintura-content .dashboard-subtitle {
+    display: none;
+  }
+
+  .pintura-toolbar {
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .pintura-toolbar .ui-select-filter {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .pintura-toolbar .ui-select-filter .filtro-action {
+    width: 100%;
+    justify-content: center;
+    gap: var(--space-1-5);
+    padding: 0 var(--space-2);
+  }
+
+  /* o ícone (técnico, prioridade, data) já identifica o filtro; sem prefixo e
+     sem chevron, "Todos" cabe nos ~88px de cada chip em 375px */
+  .pintura-toolbar .ui-select-label-prefix,
+  .pintura-toolbar .ui-select-filter .ui-select-chev {
+    display: none;
+  }
+
+  .pintura-toolbar .pintura-updated {
+    flex: 0 0 auto;
+  }
+
+  .pintura-board {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-3);
+    /* sangra até as bordas da tela: o padding da página vira scroll-padding */
+    margin-inline: calc(-1 * var(--space-4));
+    padding-inline: var(--space-4);
+    padding-bottom: var(--space-4);
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--space-4);
+    scrollbar-width: none;
+  }
+
+  .pintura-board::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pintura-column {
+    flex: 0 0 min(84vw, 320px);
+    scroll-snap-align: start;
+    min-height: 0;
+    max-height: 100%;
+  }
+
+  .pintura-column-body {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    padding: var(--space-2);
+    /* o último card precisa poder rolar para cima da ilha de adicionar (56px + margem) */
+    padding-bottom: 4.5rem;
+  }
+
+  .pintura-card {
+    padding: var(--space-2-5);
+  }
+
   .pintura-modal-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -3662,7 +4181,61 @@ html {
 
 .pedidos-row-head.material-row,
 .pedido-row.material-row {
-  grid-template-columns: minmax(140px, 1.6fr) minmax(100px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) 168px;
+  grid-template-columns: minmax(140px, 1.6fr) minmax(100px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(150px, 1.2fr) 168px;
+}
+
+/* Saldo do material: valor + unidade, e o selo de alerta (ícone + texto) quando
+   está no mínimo ou abaixo — o mesmo selo que a Paleta de Cores já usa. */
+.material-saldo-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+.material-saldo {
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.material-saldo.is-baixo {
+  color: var(--secondary);
+}
+
+/* Bloco só-leitura do saldo no modal de material: o saldo muda por
+   movimentação de estoque, nunca pelo cadastro. */
+.material-saldo-info {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-05) var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-3-5);
+  border: 1px dashed var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.material-saldo-label {
+  color: var(--on-surface-variant);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.material-saldo-valor {
+  color: var(--on-surface);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+}
+
+.material-saldo-hint {
+  grid-column: 1 / -1;
+  color: var(--on-surface-variant);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
 }
 
 .pedido-row.material-row {
@@ -3720,16 +4293,191 @@ html {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
+/* 980px = min-content da linha de material (918px: 140 + 100 + 120 + 120 + 150 +
+   168 + 5 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 980px) {
   .pedidos-row-head.material-row { display: none; }
 
   .pedido-row.material-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
 
+  .pedido-row.material-row .cell-label { display: inline; }
+
   .material-row-actions { justify-content: flex-start; flex-wrap: wrap; }
+}
+
+
+/* ===== ESTOQUE (RF11) ===== */
+/* Reaproveita a página de Materiais (toolbar, linhas .pedido-row, selo de
+   alerta) e a receita de lista de Pedidos. Só o que é próprio fica aqui. */
+.estoque-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.estoque-page .materiais-toolbar {
+  margin-bottom: 0;
+}
+
+.estoque-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  scroll-margin-top: calc(var(--mobile-header-h) + var(--space-4));
+}
+
+.estoque-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  flex-wrap: wrap;
+}
+
+.estoque-section-head .dashboard-title {
+  font-size: var(--text-3xl);
+}
+
+.estoque-btn-ajuste {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--control-h);
+}
+
+.estoque-alertas-contagem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--badge-h);
+  padding: 0 var(--space-2-5);
+  border-radius: var(--radius-pill);
+  background: var(--secondary-fixed);
+  color: var(--secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-historico-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2-5);
+}
+
+/* Linhas de alerta e de movimento: tabelares, sem clique (as ações são botões). */
+.pedidos-row-head.estoque-row,
+.pedido-row.estoque-row {
+  grid-template-columns: minmax(160px, 1.8fr) minmax(90px, 0.8fr) minmax(170px, 1.3fr) minmax(110px, 1fr) 190px;
+}
+
+.pedidos-row-head.estoque-mov-row,
+.pedido-row.estoque-mov-row {
+  grid-template-columns: minmax(120px, 1fr) minmax(110px, 0.9fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1.6fr);
+}
+
+.pedido-row.estoque-row,
+.pedido-row.estoque-mov-row {
+  cursor: default;
+  font-size: var(--text-base);
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.pedido-row.estoque-row:hover,
+.pedido-row.estoque-mov-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.estoque-insumo-nome {
+  overflow-wrap: anywhere;
+}
+
+.estoque-tipo-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-h);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Tipo do movimento: ícone + texto, uma cor por natureza (entra/sai/estorna/ajusta). */
+.estoque-mov-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--badge-h);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-mov-chip.mov-ENTRADA { background: var(--success-container); color: var(--success-color); }
+.estoque-mov-chip.mov-BAIXA { background: var(--error-container); color: var(--error-color); }
+.estoque-mov-chip.mov-ESTORNO { background: color-mix(in srgb, var(--color-info) 12%, transparent); color: var(--color-info); }
+.estoque-mov-chip.mov-AJUSTE { background: var(--secondary-fixed); color: var(--secondary); }
+
+.estoque-mov-qtd {
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.estoque-mov-qtd.is-positiva { color: var(--success-color); }
+.estoque-mov-qtd.is-negativa { color: var(--error-color); }
+
+.estoque-mov-data {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-05);
+  min-width: 0;
+}
+
+.estoque-mov-sub {
+  color: var(--on-surface-variant);
+  font-size: var(--text-xs);
+}
+
+.estoque-mov-motivo {
+  color: var(--on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* Vazios de seção (não de página): menos respiro que .pedidos-empty. */
+.estoque-empty-compacto {
+  padding: var(--space-10) var(--space-4);
+}
+
+.estoque-empty-ok {
+  background: var(--success-container);
+  color: var(--success-color);
+}
+
+/* As linhas de estoque empilham pelo bloco genérico de `.pedido-row` (960px de
+   lista); aqui só o que ele não cobre: as ações alinham à esquerda. */
+@container sf-list (max-width: 960px) {
+  .pedido-row.estoque-row .material-row-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .estoque-btn-ajuste { flex: 1 1 auto; justify-content: center; }
+  .estoque-historico-filtros { width: 100%; }
+  .estoque-historico-filtros .ui-select { flex: 1 1 auto; min-width: 0; }
 }
 
 
@@ -3769,7 +4517,7 @@ html {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-sm); /* receita de card (ver .pedido-row); --shadow-card era a sombra de overlay */
   display: flex;
   flex-direction: column;
   transition: box-shadow var(--duration-base) var(--ease-standard);
@@ -3931,10 +4679,19 @@ html {
 
 
 /* List view */
+/* mesmo contêiner de consulta das listas de pedidos/materiais (ver .pedidos-list) */
 .cores-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  container-type: inline-size;
+  container-name: sf-list;
+  overflow-x: auto;
+  /* `hidden` explícito no eixo Y: com `overflow-x: auto` o Y viraria `auto`, e o
+     translateY(8px) da animação de entrada da última linha abria uma barra de
+     rolagem vertical dentro da lista por um instante, roubando 15px de largura
+     de todas as linhas. A lista cresce com o conteúdo; nunca precisa rolar. */
+  overflow-y: hidden;
 }
 
 .cor-row-head,
@@ -4110,7 +4867,11 @@ html {
   .cores-filtros .filtros-actions {
     width: 100%;
   }
+}
 
+/* 800px = min-content da linha de cor (736px: 40 + 140 + 110 + 120 + 110 + 96 +
+   5 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 800px) {
   .cor-row-head {
     display: none;
   }
@@ -4137,6 +4898,13 @@ html {
     grid-row: 1;
     align-self: start;
   }
+
+  /* S5: o selo é nowrap e travava a coluna 3 em ~147px, estourando a linha. */
+  .cor-row .cor-estoque-baixo {
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+  }
 }
 
 
@@ -4160,8 +4928,8 @@ html {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  padding: var(--space-5);
+  box-shadow: var(--shadow-sm); /* painel estático: sombra de repouso da receita de card, não a de overlay */
+  padding: clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
 .mistura-card-head {
@@ -4391,7 +5159,7 @@ html {
 
 .mistura-preview-codigos {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3-5);
   margin-bottom: var(--space-4);
 }
@@ -4584,7 +5352,7 @@ html {
    toolbar (quando os controles deixam de caber numa linha), não pelo device */
 @media (max-width: 1100px) {
   .mistura-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -4603,14 +5371,14 @@ html {
   }
 
   .mistura-preview-codigos {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 
 /* ===== STATUS / ACCESS SCREENS ===== */
 .status-screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4711,6 +5479,13 @@ html {
   gap: var(--space-10);
 }
 
+/* contêiner de consulta do formulário de orçamento (ver .pedidos-list para o
+   porquê de medir o contêiner e não o viewport) */
+.orcamento-calculator {
+  container-type: inline-size;
+  container-name: sf-pane;
+}
+
 .orcamento-form-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -4797,7 +5572,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-6);
+  padding: clamp(var(--space-4), 1.9vw, var(--space-6));
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
@@ -4976,7 +5751,7 @@ html {
 
 @media (max-width: 900px) {
   .orcamento-form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .orcamento-preview-card {
@@ -4984,16 +5759,20 @@ html {
   }
 }
 
-@media (max-width: 768px) {
+/* 640px = min-content da linha de orçamento (588px: 140 + 90 + 150 + 120 +
+   3 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
+@container sf-list (max-width: 640px) {
   .pedidos-row-head.orcamento-row {
     display: none;
   }
 
   .pedido-row.orcamento-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
     padding: var(--space-4) var(--space-4-5);
   }
+
+  .pedido-row.orcamento-row .cell-label { display: inline; }
 
   .orcamento-row-preco {
     text-align: left;
@@ -5444,4 +6223,106 @@ html {
    com o botão de mostrar senha já tinha. */
 .input-wrapper:has(.field-status) input {
   padding-right: var(--space-9);
+}
+
+
+/* ============================================================================
+   CAMADA DE TOQUE (SYN-76, fase 6)
+   Fica no fim do arquivo de propósito: são ajustes que precisam vencer as regras
+   base com a mesma especificidade. Dois gatilhos distintos, que não querem dizer
+   a mesma coisa:
+   · `max-width: 768px` — janela estreita (inclui um desktop com a janela puxada);
+   · `pointer: coarse`  — o ponteiro é um dedo, em qualquer largura.
+   Nada aqui muda o tamanho de nada com mouse em janela larga.
+   ========================================================================== */
+
+/* S6 — o iOS Safari dá zoom em qualquer campo com fonte abaixo de 16px no foco, e
+   o zoom não volta sozinho: o usuário fica com a tela deslocada. Os campos do app
+   logado estão em 15px (`--text-lg`), então sobem para 16px (`--text-xl`) em toque
+   ou janela estreita. Os tipos que não recebem digitação ficam de fora (caixa de
+   seleção, rádio, faixa, arquivo, cor) — neles `font-size` só mexeria no controle
+   nativo. As telas de autenticação não estão no `.dashboard-shell` e ficam para a
+   SYN-92.
+   Os campos numéricos do app já são todos `type="number"` (preço, estoque,
+   densidade, custo, tempo), que no iOS já abre o teclado numérico — não houve
+   `inputMode` a acrescentar. */
+@media (max-width: 768px), (pointer: coarse) {
+  .dashboard-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  .dashboard-shell select,
+  .dashboard-shell textarea {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (pointer: coarse) {
+  /* S7 — alvo mínimo de 44px. A maioria dos controles já mede pelo
+     `--control-h`, então um único passo no token cobre botões primários e
+     secundários, abas de filtro, gatilhos de seleção, campo de busca em pílula,
+     itens de navegação da gaveta, hambúrguer e fechar-gaveta de uma vez. */
+  :root {
+    --control-h: 2.75rem;   /* 44px no toque (36px com mouse) */
+  }
+
+  /* Botões-ícone que não usam o token (tinham 32px, 25px, 30px). */
+  .kebab-btn,
+  .modal-close {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .pintura-card-menu-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* O grupo soma 44px: 40px do botão + os 2px de padding de cada lado. */
+  .view-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .pintura-view-toggle button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .pintura-filter-static,
+  .pintura-view-toggle,
+  .pintura-toolbar .ui-select-filter .filtro-action {
+    min-height: 2.75rem;
+  }
+
+  .pintura-updated button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* Itens de menu suspenso: o alvo cresce pela altura mínima, não pelo padding,
+     para o texto continuar colado na borda de cima do menu. */
+  .filtro-option,
+  .kebab-item,
+  .sidebar-lang-option {
+    min-height: 2.75rem;
+  }
+
+  /* Caixa de seleção: o controle nativo de 13px vira 20px e a etiqueta inteira
+     passa a ser o alvo (o `<label>` já envolve o campo e o texto). */
+  .material-check {
+    min-height: 2.75rem;
+  }
+
+  .material-check input {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* O atalho ⌘K não existe num teclado de toque; sem ele o campo de busca também
+     não precisa reservar o espaço da tecla à direita. */
+  .search-kbd {
+    display: none;
+  }
+
+  .ui-search-field--pill input {
+    padding-right: var(--space-4);
+  }
 }

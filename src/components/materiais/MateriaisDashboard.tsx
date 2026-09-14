@@ -1,37 +1,56 @@
 import { useEffect, useState } from "react";
-import { InboxIcon } from "hugeicons-react";
+import { AlertCircleIcon, InboxIcon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
+import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
 import MaterialModal from "./MaterialModal";
 import { Material } from "../../models/Material";
+import { formatCurrency, formatNumber } from "../../utils/format";
 import SkeletonSwap from "../ui/SkeletonSwap";
+import { cn } from "../../utils/cn";
 
-const moedaBR = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 3,
-});
+/** Saldo no mínimo ou abaixo dele: a mesma regra de GET /estoque/alertas. */
+function emAlerta(m: Material): boolean {
+    return (m.saldo ?? 0) <= (m.estoqueMinimo ?? 0);
+}
 
 function MateriaisDashboard() {
+    const { t } = useTranslation();
     const [materiais, setMateriais] = useState<Material[]>([]);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [materialEditando, setMaterialEditando] = useState<Material | null>(null);
 
-    async function fetchMateriais() {
-        setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders
+    // (`fetching` já nasce true e `error` vazio no useState acima).
+    async function buscarMateriais() {
         try {
             setMateriais(await getMateriais());
+            setError("");
         } catch {
-            setError("Erro ao carregar materiais. Verifique se o servidor está rodando.");
+            setError(t("materiais.dashboard.errorLoad"));
         } finally {
             setFetching(false);
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchMateriais() {
+        setFetching(true);
+        setError("");
+        return buscarMateriais();
+    }
+
     useEffect(() => {
-        fetchMateriais();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarMateriais();
+        }
+        void carregarNaMontagem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function fecharModal() {
@@ -40,12 +59,12 @@ function MateriaisDashboard() {
     }
 
     async function handleExcluir(id: string) {
-        if (!window.confirm("Deseja realmente excluir este material?")) return;
+        if (!window.confirm(t("materiais.dashboard.confirmDelete"))) return;
         try {
             await inativarMaterial(id);
             setMateriais((prev) => prev.filter((m) => m.id !== id));
         } catch {
-            setError("Falha ao excluir material.");
+            setError(t("materiais.dashboard.errorDelete"));
         }
     }
 
@@ -62,14 +81,12 @@ function MateriaisDashboard() {
             <main className="dashboard-main materiais-page">
                 <header className="materiais-toolbar">
                     <div>
-                        <h1 className="dashboard-title">Materiais</h1>
-                        <p className="dashboard-subtitle">Cadastre os materiais usados na produção</p>
+                        <h1 className="dashboard-title">{t("materiais.dashboard.title")}</h1>
+                        <p className="dashboard-subtitle">{t("materiais.dashboard.subtitle")}</p>
                     </div>
 
                     <div className="toolbar-actions">
-                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + Novo Material
-                        </button>
+                        <AddAction label={t("materiais.dashboard.newMaterial")} onClick={() => setModalAberto(true)} />
                     </div>
                 </header>
 
@@ -77,7 +94,7 @@ function MateriaisDashboard() {
 
                 <SkeletonSwap
                     ready={!fetching}
-                    label="Materiais"
+                    label={t("materiais.dashboard.title")}
                     skeleton={
                         <div className="pedidos-list">
                             {[1, 2, 3, 4].map((i) => (
@@ -89,41 +106,71 @@ function MateriaisDashboard() {
                     {fetching ? null : materiais.length === 0 ? (
                         <div className="pedidos-empty">
                             <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                            <p className="empty-title">Nenhum material cadastrado</p>
-                            <p className="empty-sub">Cadastre o primeiro material para começar.</p>
+                            <p className="empty-title">{t("materiais.dashboard.emptyTitle")}</p>
+                            <p className="empty-sub">{t("materiais.dashboard.emptySubtitle")}</p>
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
-                                + Novo Material
+                                {t("materiais.dashboard.newMaterial")}
                             </button>
                         </div>
                     ) : (
                         <div className="pedidos-list">
                             <div className="pedidos-row-head material-row" aria-hidden="true">
-                                <span>Nome</span>
-                                <span>Tipo</span>
-                                <span>Densidade (g/cm³)</span>
-                                <span>Preço/grama (R$)</span>
+                                <span>{t("materiais.dashboard.colName")}</span>
+                                <span>{t("materiais.dashboard.colType")}</span>
+                                <span>{t("materiais.dashboard.colDensity")}</span>
+                                <span>{t("materiais.dashboard.colPricePerGram")}</span>
+                                <span>{t("materiais.dashboard.colStock")}</span>
                                 <span />
                             </div>
                             {materiais.map((m) => (
                                 <div key={m.id} className="pedido-row material-row">
-                                    <span className="row-projeto-nome">{m.nome}</span>
-                                    <span>{m.tipo}</span>
-                                    <span>{m.densidadeGcm3.toFixed(2)} g/cm³</span>
-                                    <span>{moedaBR.format(m.precoPorGrama)}</span>
+                                    <span className="row-projeto-nome">
+                                        <span className="cell-label">{t("materiais.dashboard.colName")}</span>
+                                        {m.nome}
+                                    </span>
+                                    <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colType")}</span>
+                                        {m.tipo}
+                                    </span>
+                                    <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colDensity")}</span>
+                                        {t("materiais.dashboard.densityValue", {
+                                            value: formatNumber(m.densidadeGcm3, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            }),
+                                        })}
+                                    </span>
+                                    <span>
+                                        <span className="cell-label">{t("materiais.dashboard.colPricePerGram")}</span>
+                                        {formatCurrency(m.precoPorGrama, { minimumFractionDigits: 3 })}
+                                    </span>
+                                    <span className="material-saldo-cell">
+                                        <span className="cell-label">{t("materiais.dashboard.colStock")}</span>
+                                        <span className={cn("material-saldo", emAlerta(m) && "is-baixo")}>
+                                            {formatNumber(m.saldo ?? 0)} {t(`materiais.unidade.${m.unidade ?? "G"}`)}
+                                        </span>
+                                        {emAlerta(m) && (
+                                            /* Ícone + texto, não só cor: o alerta precisa ser perceptível sem depender do vermelho. */
+                                            <span className="cor-estoque-baixo" title={t("materiais.dashboard.lowStockTitle")}>
+                                                <AlertCircleIcon size={12} aria-hidden="true" /> {t("materiais.dashboard.lowStock")}
+                                            </span>
+                                        )}
+                                    </span>
                                     <div className="material-row-actions">
                                         <button
                                             type="button"
                                             className="btn-acao-pequeno"
                                             onClick={() => setMaterialEditando(m)}
                                         >
-                                            Editar
+                                            {t("materiais.dashboard.edit")}
                                         </button>
                                         <button
                                             type="button"
                                             className="btn-acao-pequeno btn-acao-perigo"
                                             onClick={() => handleExcluir(m.id)}
                                         >
-                                            Excluir
+                                            {t("materiais.dashboard.delete")}
                                         </button>
                                     </div>
                                 </div>

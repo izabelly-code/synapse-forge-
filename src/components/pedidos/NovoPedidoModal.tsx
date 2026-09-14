@@ -10,6 +10,7 @@ import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
 import LoadingButton from "../ui/LoadingButton";
+import Select from "../ui/Select";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -43,7 +44,6 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [erroEnvio, setErroEnvio] = useState("");
     const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
-    const clienteRef = useRef<HTMLSelectElement>(null);
     const projetoRef = useRef<HTMLInputElement>(null);
     const prazoRef = useRef<HTMLInputElement>(null);
     const painelRef = useRef<HTMLElement>(null);
@@ -56,9 +56,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
     // RF12: pedido é vinculado a um usuário CLIENTE; o backend devolve só usuários com essa role.
     useEffect(() => {
+        // `carregandoClientes` já nasce true e `erroClientes` vazio no useState,
+        // então o effect não precisa (nem deve) setar estado de forma síncrona.
         const token = localStorage.getItem("token");
-        setCarregandoClientes(true);
-        setErroClientes("");
         getClientes(token)
             .then((usuarios) => setClientes(usuarios))
             .catch(() => setErroClientes(t("pedidos.form.errorLoadClients")))
@@ -190,26 +190,26 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                     <div className="pedido-edit-grid">
                         <div className="input-group">
                             <label htmlFor="cliente">{t("pedidos.form.clientLabel")}</label>
-                            <select
+                            {/* Select próprio no lugar do <select> nativo: o painel do sistema
+                                fugia do tema e da tipografia do app (e no celular abria um menu
+                                nativo minúsculo). */}
+                            <Select
                                 id="cliente"
-                                ref={clienteRef}
-                                className={erros.cliente ? "input-error" : ""}
                                 value={clienteId}
-                                onChange={(e) => handleClienteChange(e.target.value)}
-                                aria-invalid={!!erros.cliente}
-                                aria-describedby={erros.cliente ? "cliente-erro" : undefined}
-                                autoFocus
+                                onChange={handleClienteChange}
+                                invalid={!!erros.cliente}
+                                describedBy={erros.cliente ? "cliente-erro" : undefined}
                                 disabled={carregandoClientes}
-                            >
-                                <option value="">
-                                    {carregandoClientes ? t("pedidos.form.loadingClients") : t("pedidos.form.noClientLinked")}
-                                </option>
-                                {!carregandoClientes && clientes.map((usuario) => (
-                                    <option key={usuario.id} value={usuario.id}>
-                                        {usuario.nome} — {usuario.email}
-                                    </option>
-                                ))}
-                            </select>
+                                options={[
+                                    {
+                                        value: "",
+                                        label: carregandoClientes ? t("pedidos.form.loadingClients") : t("pedidos.form.noClientLinked"),
+                                    },
+                                    ...(carregandoClientes
+                                        ? []
+                                        : clientes.map((usuario) => ({ value: String(usuario.id), label: `${usuario.nome} — ${usuario.email}` }))),
+                                ]}
+                            />
                             {erroClientes && <span className="error-text">{erroClientes}</span>}
                             <span className="input-hint" id="cliente-erro">
                                 {erros.cliente && <span className="error-text">{erros.cliente}</span>}

@@ -1,44 +1,35 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { InboxIcon } from "hugeicons-react";
 import { aprovarOrcamento, getOrcamentos, rejeitarOrcamento } from "../../services/OrcamentoService";
-import { Orcamento, OrcamentoStatus } from "../../models/Orcamento";
+import { Orcamento } from "../../models/Orcamento";
 import { useFlipList } from "../../hooks/useFlipList";
-import { FiCheck, FiClock, FiX } from "react-icons/fi";
+import { FiCheck, FiX } from "react-icons/fi";
+import { formatCurrency, formatDate } from "../../utils/format";
 
-const moedaBR = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-});
-
-const dataBR = new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-});
 
 function formatarData(criadoEm: string | null) {
     if (!criadoEm) return "—";
     const data = new Date(criadoEm);
-    return Number.isNaN(data.getTime()) ? "—" : dataBR.format(data);
+    return Number.isNaN(data.getTime())
+        ? "—"
+        : formatDate(data, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-function statusOrcamento(orcamento: Orcamento): OrcamentoStatus {
+function statusOrcamento(orcamento: Orcamento): NonNullable<Orcamento["status"]> {
     return orcamento.status ?? "PENDENTE";
 }
 
-function statusLabel(status: OrcamentoStatus) {
-    if (status === "PENDENTE") return "Pendente";
-    return status === "APROVADO" ? "Aprovado" : "Rejeitado";
+function statusLabel(status: NonNullable<Orcamento["status"]>) {
+    return status === "PENDENTE" ? "Pendente" : status === "APROVADO" ? "Aprovado" : "Rejeitado";
 }
 
-function statusIcon(status: OrcamentoStatus) {
-    if (status === "PENDENTE") return <FiClock size={14} />;
-    return status === "APROVADO" ? <FiCheck size={14} /> : <FiX size={14} />;
+function statusIcon(status: NonNullable<Orcamento["status"]>) {
+    return status === "APROVADO" ? <FiCheck size={14} /> : status === "REJEITADO" ? <FiX size={14} /> : null;
 }
 
 function OrcamentoHistorico() {
+    const { t } = useTranslation();
     const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState("");
@@ -52,12 +43,13 @@ function OrcamentoHistorico() {
             try {
                 setOrcamentos(await getOrcamentos());
             } catch {
-                setError("Erro ao carregar histórico. Verifique se o servidor está rodando.");
+                setError(t("orcamento.historico.errorLoad"));
             } finally {
                 setFetching(false);
             }
         }
         fetchOrcamentos();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Quando o histórico muda de ordem, as linhas viajam para o novo lugar.
@@ -101,7 +93,7 @@ function OrcamentoHistorico() {
                 <span className="row-projeto-nome">{o.nomeMaterial}</span>
                 <span>{o.volumeCm3} cm³</span>
                 <span>{formatarData(o.criadoEm)}</span>
-                <span className="orcamento-row-preco">{moedaBR.format(o.precoFinal)}</span>
+                <span className="orcamento-row-preco">{formatCurrency(o.precoFinal)}</span>
                 <span className={`orcamento-status orcamento-status-${status.toLowerCase()}`}>
                     {statusIcon(status)}
                     {statusLabel(status)}
