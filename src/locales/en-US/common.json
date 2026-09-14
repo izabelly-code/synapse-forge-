@@ -57,7 +57,8 @@
       "IMPRESSAO": "Printing",
       "PINTURA": "Painting",
       "ACABAMENTO": "Finishing",
-      "FINALIZADO": "Completed"
+      "FINALIZADO": "Completed",
+      "CANCELADO": "Cancelled"
     },
     "form": {
       "clientLabel": "Client",
