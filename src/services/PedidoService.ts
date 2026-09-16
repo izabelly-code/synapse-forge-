@@ -194,6 +194,32 @@ export interface PedidoFormData {
 
     clienteId?: string;
 
+    orcamentoId?: string;
+
+    materialId?: string;
+
+    volumeCm3?: number;
+
+    tempoImpressaoHoras?: number;
+
+    tempoMaoDeObraHoras?: number;
+
+    custoMaquinaHora?: number;
+
+    custoMaoDeObraHora?: number;
+
+    margemLucro?: number;
+
+    custoMaterial?: number;
+
+    custoMaquina?: number;
+
+    custoMaoDeObra?: number;
+
+    custoTotal?: number;
+
+    precoFinal?: number;
+
     cliente: string;
 
     projeto: string;
@@ -260,6 +286,29 @@ function toFormData(
         "prazo",
         data.prazo
     );
+
+    const camposOrcamento: Array<keyof PedidoFormData> = [
+        "orcamentoId",
+        "materialId",
+        "volumeCm3",
+        "tempoImpressaoHoras",
+        "tempoMaoDeObraHoras",
+        "custoMaquinaHora",
+        "custoMaoDeObraHora",
+        "margemLucro",
+        "custoMaterial",
+        "custoMaquina",
+        "custoMaoDeObra",
+        "custoTotal",
+        "precoFinal",
+    ];
+
+    camposOrcamento.forEach((campo) => {
+        const valor = data[campo];
+        if (valor !== undefined && valor !== null && valor !== "") {
+            formData.append(campo, String(valor));
+        }
+    });
 
 
     formData.append(
