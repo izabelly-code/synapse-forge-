@@ -2524,6 +2524,49 @@ body {
   line-height: var(--leading-relaxed);
 }
 
+.pedido-orcamento-detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.pedido-orcamento-detalhe-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-orcamento-detalhe-grid span {
+  color: var(--on-surface-variant);
+  font-size: var(--text-sm);
+}
+
+.pedido-orcamento-detalhe-grid strong {
+  min-width: 0;
+  color: var(--on-surface);
+  font-size: var(--text-base);
+  overflow-wrap: anywhere;
+}
+
+.pedido-orcamento-detalhe-final {
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface-container-lowest)) !important;
+}
+
+.pedido-orcamento-detalhe-final strong {
+  color: var(--primary);
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 640px) {
+  .pedido-orcamento-detalhe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .pedido-arquivo-3d {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr) auto;
