@@ -12,6 +12,7 @@ import {
     Mail01Icon,
     UserRemove01Icon,
     Refresh01Icon,
+    Edit02Icon,
 } from "hugeicons-react";
 
 import { useTranslation } from "react-i18next";
@@ -40,6 +41,7 @@ interface Integrante {
     telefone?: string | null;
     role: string;
     equipeId?: string | null;
+    funcaoVisual?: string | null;
 }
 
 interface ClienteDisponivel {
@@ -121,6 +123,15 @@ function EquipePage() {
     const [saindoDaEquipe, setSaindoDaEquipe] = useState(false);
 
     const [atualizando, setAtualizando] = useState(false);
+
+    const [funcaoVisualEditando, setFuncaoVisualEditando] =
+        useState<string | null>(null);
+
+    const [funcaoVisualValor, setFuncaoVisualValor] =
+        useState("");
+
+    const [salvandoFuncaoVisual, setSalvandoFuncaoVisual] =
+        useState(false);
 
     /*
      * =========================================================
@@ -1147,6 +1158,108 @@ function EquipePage() {
 
     /*
      * =========================================================
+     * EDITAR FUNÇÃO VISUAL
+     * =========================================================
+     */
+
+    function iniciarEdicaoFuncaoVisual(
+        integrante: Integrante
+    ) {
+        if (!isGerente && !isAdmin) {
+            return;
+        }
+
+        setFuncaoVisualEditando(integrante.id);
+        setFuncaoVisualValor(
+            integrante.funcaoVisual ?? ""
+        );
+        setErro(null);
+    }
+
+    function cancelarEdicaoFuncaoVisual() {
+        if (salvandoFuncaoVisual) {
+            return;
+        }
+
+        setFuncaoVisualEditando(null);
+        setFuncaoVisualValor("");
+    }
+
+    async function salvarFuncaoVisual(
+        usuarioId: string
+    ) {
+        if (!isGerente && !isAdmin) {
+            return;
+        }
+
+        try {
+            setSalvandoFuncaoVisual(true);
+            setErro(null);
+
+            const token = obterToken();
+
+            const response = await fetch(
+                `${API_URL}/equipes/minha/integrantes/${usuarioId}/funcao-visual`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(
+                        funcaoVisualValor.trim()
+                    ),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    await obterMensagemErro(
+                        response,
+                        i18n.language === "en-US"
+                            ? "Could not update the visual function."
+                            : "Não foi possível atualizar a função visual."
+                    )
+                );
+            }
+
+            const atualizado: Integrante =
+                await response.json();
+
+            setIntegrantes((anteriores) =>
+                anteriores.map((integrante) =>
+                    integrante.id === usuarioId
+                        ? {
+                              ...integrante,
+                              funcaoVisual:
+                                  atualizado.funcaoVisual,
+                          }
+                        : integrante
+                )
+            );
+
+            setFuncaoVisualEditando(null);
+            setFuncaoVisualValor("");
+        } catch (error) {
+            console.error(
+                "Erro ao atualizar função visual:",
+                error
+            );
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : i18n.language === "en-US"
+                        ? "Could not update the visual function."
+                        : "Não foi possível atualizar a função visual."
+            );
+        } finally {
+            setSalvandoFuncaoVisual(false);
+        }
+    }
+
+    /*
+     * =========================================================
      * TÉCNICO SAIR DA EQUIPE
      * =========================================================
      */
@@ -1543,14 +1656,124 @@ function EquipePage() {
                                                         </div>
                                                     </div>
 
-                                                    <span className="equipe-member-role">
-                                                        {traduzirRole(
-                                                            integrante.role
+                                                    <div className="equipe-member-info">
+                                                        <span className="equipe-member-role">
+                                                            {traduzirRole(
+                                                                integrante.role
+                                                            )}
+                                                        </span>
+
+                                                        {funcaoVisualEditando ===
+                                                        integrante.id ? (
+                                                            <div className="equipe-member-function-edit">
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        funcaoVisualValor
+                                                                    }
+                                                                    onChange={(event) =>
+                                                                        setFuncaoVisualValor(
+                                                                            event.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder={
+                                                                        i18n.language ===
+                                                                        "en-US"
+                                                                            ? "Visual function"
+                                                                            : "Função visual"
+                                                                    }
+                                                                    maxLength={
+                                                                        80
+                                                                    }
+                                                                    autoFocus
+                                                                    disabled={
+                                                                        salvandoFuncaoVisual
+                                                                    }
+                                                                />
+
+                                                                <button
+                                                                    type="button"
+                                                                    className="equipe-function-save"
+                                                                    onClick={() =>
+                                                                        salvarFuncaoVisual(
+                                                                            integrante.id
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        salvandoFuncaoVisual
+                                                                    }
+                                                                >
+                                                                    {salvandoFuncaoVisual
+                                                                        ? "..."
+                                                                        : i18n.language ===
+                                                                            "en-US"
+                                                                            ? "Save"
+                                                                            : "Salvar"}
+                                                                </button>
+
+                                                                <button
+                                                                    type="button"
+                                                                    className="equipe-function-cancel"
+                                                                    onClick={
+                                                                        cancelarEdicaoFuncaoVisual
+                                                                    }
+                                                                    disabled={
+                                                                        salvandoFuncaoVisual
+                                                                    }
+                                                                >
+                                                                    {i18n.language ===
+                                                                    "en-US"
+                                                                        ? "Cancel"
+                                                                        : "Cancelar"}
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="equipe-member-function">
+                                                                {integrante.funcaoVisual?.trim()
+                                                                    ? integrante.funcaoVisual
+                                                                    : i18n.language ===
+                                                                        "en-US"
+                                                                        ? "Function not defined"
+                                                                        : "Função não definida"}
+                                                            </span>
                                                         )}
-                                                    </span>
+                                                    </div>
 
                                                     {podeGerenciarEquipe && (
                                                         <div className="equipe-member-actions">
+                                                            {(isGerente ||
+                                                                isAdmin) &&
+                                                                funcaoVisualEditando !==
+                                                                    integrante.id && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="equipe-icon-button"
+                                                                        title={
+                                                                            i18n.language ===
+                                                                            "en-US"
+                                                                                ? "Edit visual function"
+                                                                                : "Editar função visual"
+                                                                        }
+                                                                        aria-label={
+                                                                            i18n.language ===
+                                                                            "en-US"
+                                                                                ? "Edit visual function"
+                                                                                : "Editar função visual"
+                                                                        }
+                                                                        onClick={() =>
+                                                                            iniciarEdicaoFuncaoVisual(
+                                                                                integrante
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Edit02Icon
+                                                                            size={
+                                                                                17
+                                                                            }
+                                                                        />
+                                                                    </button>
+                                                                )}
+
                                                             <button
                                                                 type="button"
                                                                 className="equipe-icon-button"
