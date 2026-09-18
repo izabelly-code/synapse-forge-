@@ -108,9 +108,17 @@ function App() {
                             />
 
                             <Route
-                                path="/orcamento"
-                                element={<OrcamentoPageWrapper />}
-                            />
+                                element={
+                                    <ProtectedRoute
+                                        allowedRoles={["GERENTE"]}
+                                    />
+                                }
+                            >
+                                <Route
+                                    path="/orcamento"
+                                    element={<OrcamentoPageWrapper />}
+                                />
+                            </Route>
 
                             <Route
                                 path="/calendar"

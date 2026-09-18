@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Add01Icon, Calendar03Icon, Cancel01Icon, CubeIcon, Delete02Icon, Download01Icon, File01Icon, Image02Icon, PencilEdit02Icon, UserIcon } from "hugeicons-react";
+import { getUserRole } from "../../hooks/useAuth";
 
 import {
     baixarObjeto3D,
@@ -20,6 +21,9 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
+
+const role = getUserRole();
+const isGerente = role === "GERENTE";
 
 function formatPrazoLongo(iso: string): string {
     const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
@@ -281,14 +285,16 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             </button>
                         )}
 
-                        <button
-                            type="button"
-                            className="pedido-edit-btn"
-                            onClick={() => gerarOrdemServico(pedidoId)}
-                        >
-                            <Download01Icon size={15} />
-                            {t("pedidos.detalhe.pdf")}
-                        </button>
+                        {isGerente && (
+                            <button
+                                type="button"
+                                className="pedido-edit-btn"
+                                onClick={() => gerarOrdemServico(pedidoId)}
+                            >
+                                <Download01Icon size={15} />
+                                {t("pedidos.detalhe.pdf")}
+                            </button>
+                        )}
                         <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                             <Cancel01Icon size={18} />
                         </IconButton>
