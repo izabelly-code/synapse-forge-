@@ -85,27 +85,38 @@ function OrcamentoHistorico() {
             <div
                 key={o.id}
                 className="pedido-row orcamento-row"
-                role="button"
-                tabIndex={0}
                 onClick={() => setOrcamentoSelecionado(o)}
-                onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setOrcamentoSelecionado(o);
-                    }
-                }}
-                aria-label={t("orcamento.historico.openDetails", { project: o.nomeMaterial })}
             >
                 <span className="orcamento-row-cliente">{o.cliente}</span>
-                <span className="orcamento-row-projeto">{o.projeto}</span>
+                <span className="orcamento-row-projeto">
+                    {/* O botao e o alvo real de teclado/leitor de tela: a linha
+                        inteira nao pode ser um control porque contem botoes. */}
+                    <button
+                        type="button"
+                        className="orcamento-row-projeto-btn"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            setOrcamentoSelecionado(o);
+                        }}
+                        aria-label={t("orcamento.historico.openDetails", { project: o.projeto })}
+                    >
+                        {o.projeto}
+                    </button>
+                </span>
                 <span className="orcamento-row-preco">{formatCurrency(o.precoFinal)}</span>
                 <span>{formatarData(o.criadoEm)}</span>
+                {!comAcoes && (
+                    <span className={`orcamento-status orcamento-status-${statusOrcamento(o).toLowerCase()}`}>
+                        {statusOrcamento(o) === "APROVADO" ? <FiCheck size={14} /> : <FiX size={14} />}
+                        {t(`orcamento.status.${statusOrcamento(o)}`)}
+                    </span>
+                )}
                 {comAcoes && (
                     <span className="orcamento-acoes" onClick={(event) => event.stopPropagation()}>
-                        <button type="button" className="orcamento-decisao orcamento-aprovar" onClick={() => decidirOrcamento(o, "aprovar")} disabled={carregando} aria-label={t("orcamento.historico.approveAria", { project: o.nomeMaterial })}>
+                        <button type="button" className="orcamento-decisao orcamento-aprovar" onClick={() => decidirOrcamento(o, "aprovar")} disabled={carregando} aria-label={t("orcamento.historico.approveAria", { project: o.projeto })}>
                             <FiCheck size={16} /> {t("orcamento.historico.approve")}
                         </button>
-                        <button type="button" className="orcamento-decisao orcamento-rejeitar" onClick={() => decidirOrcamento(o, "rejeitar")} disabled={carregando} aria-label={t("orcamento.historico.rejectAria", { project: o.nomeMaterial })}>
+                        <button type="button" className="orcamento-decisao orcamento-rejeitar" onClick={() => decidirOrcamento(o, "rejeitar")} disabled={carregando} aria-label={t("orcamento.historico.rejectAria", { project: o.projeto })}>
                             <FiX size={16} /> {t("orcamento.historico.reject")}
                         </button>
                     </span>
@@ -122,6 +133,7 @@ function OrcamentoHistorico() {
                     <span>{t("orcamento.historico.colProject")}</span>
                     <span>{t("orcamento.historico.colFinalPrice")}</span>
                     <span>{t("orcamento.historico.colDate")}</span>
+                    {!comAcoes && <span>{t("orcamento.historico.colStatus")}</span>}
                     {comAcoes && <span>{t("orcamento.historico.colActions")}</span>}
                 </div>
                 {lista.map((o) => renderLinha(o, comAcoes))}
@@ -140,8 +152,8 @@ function OrcamentoHistorico() {
         pendentesConteudo = (
             <div className="pedidos-empty">
                 <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                        <p className="empty-title">{t("orcamento.historico.emptyTitle")}</p>
-                        <p className="empty-sub">{t("orcamento.historico.emptySub")}</p>
+                <p className="empty-title">{t("orcamento.historico.emptyTitle")}</p>
+                <p className="empty-sub">{t("orcamento.historico.emptySub")}</p>
             </div>
         );
     } else {

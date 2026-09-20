@@ -5710,7 +5710,7 @@ html {
 
 .pedidos-row-head.orcamento-row,
 .pedido-row.orcamento-row {
-  grid-template-columns: minmax(140px, 1.4fr) minmax(140px, 1.4fr) minmax(120px, 1fr) minmax(150px, 1.2fr);
+  grid-template-columns: minmax(140px, 1.4fr) minmax(140px, 1.4fr) minmax(120px, 1fr) minmax(150px, 1.2fr) minmax(120px, 0.9fr);
 }
 
 .pedidos-row-head.orcamento-row-pendente,
@@ -5725,13 +5725,30 @@ html {
   font-variant-numeric: tabular-nums;
 }
 
+.orcamento-row-projeto-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Mesmo anel que a linha usava quando ela mesma era o control. */
+.orcamento-row-projeto-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
 .orcamento-row-preco {
   font-weight: var(--weight-bold);
   color: var(--primary);
   text-align: right;
 }
 
-.pedidos-row-head.orcamento-row > span:last-child {
+.pedidos-row-head.orcamento-row-pendente > span:last-child {
   text-align: right;
 }
 
