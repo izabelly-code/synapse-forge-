@@ -106,7 +106,6 @@
       "save": "Save changes",
       "saving": "Saving...",
       "budgetSectionTitle": "Budget details",
-      "budgetId": "Budget ID",
       "materialId": "Material",
       "volume": "Volume",
       "printTime": "Print time",
@@ -638,8 +637,6 @@
       "errorLoad": "Could not load history. Make sure the server is running.",
       "emptyTitle": "No quotes saved yet",
       "emptySub": "Calculate and save a quote to see it here.",
-      "colMaterial": "Material",
-      "colVolume": "Volume",
       "colClient": "Client",
       "colProject": "Project",
       "colDate": "Date",
@@ -653,9 +650,9 @@
       "reject": "Reject",
       "openDetails": "Open details for project {{project}}",
       "approveAria": "Approve quote for {{project}}",
-      "rejectAria": "Reject quote for {{project}}"
-      ,"errorApprove": "Could not approve the quote. Please try again."
-      ,"errorReject": "Could not reject the quote. Please try again."
+      "rejectAria": "Reject quote for {{project}}",
+      "errorApprove": "Could not approve the quote. Please try again.",
+      "errorReject": "Could not reject the quote. Please try again."
     },
     "status": {
       "PENDENTE": "Pending",
@@ -682,7 +679,6 @@
       "laborCost": "Labor cost",
       "totalCost": "Total cost",
       "finalPrice": "Final price",
-      "attachments": "Attachments",
       "object3d": "3D object",
       "object3dName": "Quote 3D object",
       "object3dHint": "Model file submitted for production",
@@ -693,7 +689,6 @@
       "zoomImageAria": "Enlarge image {{index}}",
       "imageAlt": "Reference {{index}} of project {{project}}",
       "noImages": "No reference images were uploaded.",
-      "attached": "Uploaded",
       "notAttached": "Not uploaded"
     }
   },

@@ -166,7 +166,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
         fetchMaterialNome();
         return () => { active = false; };
-    }, [pedido, pedido?.materialId, pedido?.nomeMaterial]);
+    }, [pedido]);
 
     useEscapeKey(() => {
         if (editando) {
@@ -668,7 +668,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <h3>{t("pedidos.detalhe.budgetSectionTitle")}</h3>
                             {pedido.materialId || pedido.nomeMaterial || materialNome || pedido.volumeCm3 !== undefined || pedido.precoFinal !== undefined ? (
                                 <div className="pedido-orcamento-detalhe-grid">
-                                    <div><span>{t("pedidos.detalhe.materialId")}</span><strong>{pedido.nomeMaterial ?? materialNome ?? pedido.materialId ?? "—"}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.materialId")}</span><strong>{pedido.nomeMaterial || materialNome || pedido.materialId || "—"}</strong></div>
                                     <div><span>{t("pedidos.detalhe.volume")}</span><strong>{formatOrcamentoNumber(pedido.volumeCm3, " cm³")}</strong></div>
                                     <div><span>{t("pedidos.detalhe.printTime")}</span><strong>{formatOrcamentoNumber(pedido.tempoImpressaoHoras, " h")}</strong></div>
                                     <div><span>{t("pedidos.detalhe.laborTime")}</span><strong>{formatOrcamentoNumber(pedido.tempoMaoDeObraHoras, " h")}</strong></div>
