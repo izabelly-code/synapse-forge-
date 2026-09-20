@@ -49,9 +49,6 @@ function OrcamentoHistorico() {
     // Quando o histórico muda de ordem, as linhas viajam para o novo lugar.
     useFlipList(listaRef, orcamentos.map((o) => o.id).join("|"));
 
-    // Quando o histórico muda de ordem, as linhas viajam para o novo lugar.
-    useFlipList(listaRef, orcamentos.map((o) => o.id).join("|"));
-
     async function decidirOrcamento(orcamento: Orcamento, decisao: "aprovar" | "rejeitar") {
         if (!orcamento.id) return;
         setLoadingIds((ids) => new Set(ids).add(orcamento.id as string));
