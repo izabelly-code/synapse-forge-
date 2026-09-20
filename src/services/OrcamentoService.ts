@@ -80,3 +80,52 @@ export async function rejeitarOrcamento(id: string): Promise<Orcamento> {
     if (!response.ok) throw new Error("Falha ao rejeitar orçamento");
     return response.json();
 }
+
+function parseContentDispositionFileName(disposition: string | null): string | null {
+    if (!disposition) return null;
+    const encodedMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+    const regularMatch = disposition.match(/filename="?([^";]+)"?/i);
+    const rawFileName = encodedMatch?.[1] || regularMatch?.[1];
+    if (!rawFileName) return null;
+
+    try {
+        return decodeURIComponent(rawFileName.trim());
+    } catch {
+        return rawFileName.trim();
+    }
+}
+
+function extensionFromMimeType(mimeType: string | null): string {
+    const extensions: Record<string, string> = {
+        "model/stl": ".stl",
+        "application/sla": ".stl",
+        "model/obj": ".obj",
+        "text/plain": ".obj",
+        "model/3mf": ".3mf",
+    };
+    return mimeType ? extensions[mimeType.toLowerCase()] || "" : "";
+}
+
+export async function baixarObjeto3DOrcamento(id: string): Promise<void> {
+    const response = await fetch(`${API_URL}/${id}/obj3d`, {
+        headers: getAuthHeader(),
+    });
+
+    if (!response.ok) throw new Error("Falha ao baixar o objeto 3D");
+
+    const blob = await response.blob();
+    if (blob.size === 0) throw new Error("O arquivo 3D está vazio");
+
+    let fileName = parseContentDispositionFileName(response.headers.get("Content-Disposition")) || "objeto-3d";
+    fileName = fileName.split(/[\\/]+/).pop() || "objeto-3d";
+    if (!fileName.includes(".")) fileName += extensionFromMimeType(blob.type) || ".obj";
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}

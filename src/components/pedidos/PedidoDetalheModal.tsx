@@ -15,9 +15,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { Pedido } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
-import { formatDate } from "../../utils/format";
+import { formatCurrency, formatDate, formatNumber } from "../../utils/format";
 import { cn } from "../../utils/cn";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { getMaterialById } from "../../services/MaterialService";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
@@ -30,6 +31,10 @@ function formatPrazoLongo(iso: string): string {
     const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
     if (Number.isNaN(date.getTime())) return iso;
     return formatDate(date, { day: "2-digit", month: "long", year: "numeric" });
+}
+
+function formatOrcamentoNumber(value: number | undefined, suffix = ""): string {
+    return value === undefined ? "—" : `${formatNumber(value)}${suffix}`;
 }
 
 interface PedidoDetalheModalProps {
@@ -51,6 +56,7 @@ type Erros = Partial<Record<CampoErro, string>>;
 function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = false }: PedidoDetalheModalProps) {
     const { t } = useTranslation();
     const [pedido, setPedido] = useState<Pedido | null>(null);
+    const [materialNome, setMaterialNome] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [editando, setEditando] = useState(false);
@@ -120,6 +126,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                 const data = await getPedido(pedidoId);
                 if (active) {
                     setPedido(data);
+                    setMaterialNome(data.nomeMaterial ?? "");
                     if (abrirEmEdicao) iniciarEdicao(data);
                 }
             } catch {
@@ -132,6 +139,34 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         fetchPedido();
         return () => { active = false; };
     }, [pedidoId, abrirEmEdicao, iniciarEdicao, t]);
+
+    useEffect(() => {
+        const pedidoAtual = pedido;
+        if (!pedidoAtual) return;
+
+        const materialId = pedidoAtual.materialId ?? "";
+        if (!materialId) {
+            return;
+        }
+
+        if (pedidoAtual.nomeMaterial) {
+            return;
+        }
+
+        let active = true;
+
+        async function fetchMaterialNome() {
+            try {
+                const material = await getMaterialById(materialId);
+                if (active) setMaterialNome(material.nome || materialId);
+            } catch {
+                if (active) setMaterialNome(materialId);
+            }
+        }
+
+        fetchMaterialNome();
+        return () => { active = false; };
+    }, [pedido]);
 
     useEscapeKey(() => {
         if (editando) {
@@ -628,6 +663,28 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 <p>{pedido.descricao}</p>
                             </div>
                         )}
+
+                        <div className="pedido-detalhe-section">
+                            <h3>{t("pedidos.detalhe.budgetSectionTitle")}</h3>
+                            {pedido.materialId || pedido.nomeMaterial || materialNome || pedido.volumeCm3 !== undefined || pedido.precoFinal !== undefined ? (
+                                <div className="pedido-orcamento-detalhe-grid">
+                                    <div><span>{t("pedidos.detalhe.materialId")}</span><strong>{pedido.nomeMaterial || materialNome || pedido.materialId || "—"}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.volume")}</span><strong>{formatOrcamentoNumber(pedido.volumeCm3, " cm³")}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.printTime")}</span><strong>{formatOrcamentoNumber(pedido.tempoImpressaoHoras, " h")}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.laborTime")}</span><strong>{formatOrcamentoNumber(pedido.tempoMaoDeObraHoras, " h")}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.machineHourlyCost")}</span><strong>{pedido.custoMaquinaHora === undefined ? "—" : formatCurrency(pedido.custoMaquinaHora)}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.laborHourlyCost")}</span><strong>{pedido.custoMaoDeObraHora === undefined ? "—" : formatCurrency(pedido.custoMaoDeObraHora)}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.profitMargin")}</span><strong>{formatOrcamentoNumber(pedido.margemLucro, "%")}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.materialCost")}</span><strong>{pedido.custoMaterial === undefined ? "—" : formatCurrency(pedido.custoMaterial)}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.machineCost")}</span><strong>{pedido.custoMaquina === undefined ? "—" : formatCurrency(pedido.custoMaquina)}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.laborCost")}</span><strong>{pedido.custoMaoDeObra === undefined ? "—" : formatCurrency(pedido.custoMaoDeObra)}</strong></div>
+                                    <div><span>{t("pedidos.detalhe.totalCost")}</span><strong>{pedido.custoTotal === undefined ? "—" : formatCurrency(pedido.custoTotal)}</strong></div>
+                                    <div className="pedido-orcamento-detalhe-final"><span>{t("pedidos.detalhe.finalPrice")}</span><strong>{pedido.precoFinal === undefined ? "—" : formatCurrency(pedido.precoFinal)}</strong></div>
+                                </div>
+                            ) : (
+                                <p>{t("pedidos.detalhe.budgetEmpty")}</p>
+                            )}
+                        </div>
 
                         <div className="pedido-detalhe-section">
                             <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>

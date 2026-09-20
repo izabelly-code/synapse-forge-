@@ -193,15 +193,10 @@ export async function cancelarPedido(
 export interface PedidoFormData {
 
     clienteId?: string;
-
     orcamentoId?: string;
-
     cliente: string;
-
     projeto: string;
-
     descricao: string;
-
     prazo: string;
     materialId?: string;
     volumeCm3?: number;
