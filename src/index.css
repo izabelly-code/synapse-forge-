@@ -2517,6 +2517,30 @@ body {
   font-weight: var(--weight-bold);
 }
 
+.pedido-orcamento-detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-5);
+}
+
+.pedido-orcamento-detalhe-grid > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.pedido-orcamento-detalhe-grid span {
+  color: var(--on-surface-variant);
+}
+
+.pedido-orcamento-detalhe-grid strong {
+  color: var(--on-surface);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .pedido-detalhe-section p {
   margin: 0;
   color: var(--on-surface-variant);
@@ -2901,6 +2925,10 @@ body {
 
 @media (max-width: 768px) {
   .pedido-detalhe-info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pedido-orcamento-detalhe-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -5682,16 +5710,16 @@ html {
 
 .pedidos-row-head.orcamento-row,
 .pedido-row.orcamento-row {
-  grid-template-columns: minmax(140px, 1.6fr) minmax(90px, 1fr) minmax(150px, 1.2fr) minmax(120px, 1fr) minmax(120px, 0.9fr);
+  grid-template-columns: minmax(140px, 1.4fr) minmax(140px, 1.4fr) minmax(120px, 1fr) minmax(150px, 1.2fr);
 }
 
 .pedidos-row-head.orcamento-row-pendente,
 .pedido-row.orcamento-row:has(.orcamento-acoes) {
-  grid-template-columns: minmax(140px, 1.4fr) minmax(80px, 0.8fr) minmax(140px, 1fr) minmax(110px, 0.9fr) minmax(110px, 0.8fr) minmax(230px, 1.6fr);
+  grid-template-columns: minmax(140px, 1.3fr) minmax(140px, 1.3fr) minmax(120px, 1fr) minmax(150px, 1.2fr) minmax(230px, 1.6fr);
 }
 
 .pedido-row.orcamento-row {
-  cursor: default;
+  cursor: pointer;
   font-size: var(--text-base);
   color: var(--on-surface);
   font-variant-numeric: tabular-nums;

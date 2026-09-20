@@ -6,6 +6,7 @@ import { Orcamento } from "../../models/Orcamento";
 import { useFlipList } from "../../hooks/useFlipList";
 import { FiCheck, FiX } from "react-icons/fi";
 import { formatCurrency, formatDate } from "../../utils/format";
+import OrcamentoDetalheModal from "./OrcamentoDetalheModal";
 
 
 function formatarData(criadoEm: string | null) {
@@ -20,14 +21,6 @@ function statusOrcamento(orcamento: Orcamento): NonNullable<Orcamento["status"]>
     return orcamento.status ?? "PENDENTE";
 }
 
-function statusLabel(status: NonNullable<Orcamento["status"]>) {
-    return status === "PENDENTE" ? "Pendente" : status === "APROVADO" ? "Aprovado" : "Rejeitado";
-}
-
-function statusIcon(status: NonNullable<Orcamento["status"]>) {
-    return status === "APROVADO" ? <FiCheck size={14} /> : status === "REJEITADO" ? <FiX size={14} /> : null;
-}
-
 function OrcamentoHistorico() {
     const { t } = useTranslation();
     const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
@@ -35,6 +28,7 @@ function OrcamentoHistorico() {
     const [error, setError] = useState("");
     const listaRef = useRef<HTMLDivElement>(null);
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
+    const [orcamentoSelecionado, setOrcamentoSelecionado] = useState<Orcamento | null>(null);
 
     useEffect(() => {
         async function fetchOrcamentos() {
@@ -72,7 +66,7 @@ function OrcamentoHistorico() {
                     : item
             )));
         } catch {
-            setError(`Falha ao ${decisao} orçamento. Tente novamente.`);
+            setError(t(decisao === "aprovar" ? "orcamento.historico.errorApprove" : "orcamento.historico.errorReject"));
         } finally {
             setLoadingIds((ids) => {
                 const next = new Set(ids);
@@ -86,25 +80,33 @@ function OrcamentoHistorico() {
     const decididos = orcamentos.filter((o) => statusOrcamento(o) !== "PENDENTE");
 
     function renderLinha(o: Orcamento, comAcoes = false) {
-        const status = statusOrcamento(o);
         const carregando = o.id ? loadingIds.has(o.id) : false;
         return (
-            <div key={o.id} className="pedido-row orcamento-row">
-                <span className="row-projeto-nome">{o.nomeMaterial}</span>
-                <span>{o.volumeCm3} cm³</span>
-                <span>{formatarData(o.criadoEm)}</span>
+            <div
+                key={o.id}
+                className="pedido-row orcamento-row"
+                role="button"
+                tabIndex={0}
+                onClick={() => setOrcamentoSelecionado(o)}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setOrcamentoSelecionado(o);
+                    }
+                }}
+                aria-label={t("orcamento.historico.openDetails", { project: o.nomeMaterial })}
+            >
+                <span className="orcamento-row-cliente">{o.cliente}</span>
+                <span className="orcamento-row-projeto">{o.projeto}</span>
                 <span className="orcamento-row-preco">{formatCurrency(o.precoFinal)}</span>
-                <span className={`orcamento-status orcamento-status-${status.toLowerCase()}`}>
-                    {statusIcon(status)}
-                    {statusLabel(status)}
-                </span>
+                <span>{formatarData(o.criadoEm)}</span>
                 {comAcoes && (
-                    <span className="orcamento-acoes">
-                        <button type="button" className="orcamento-decisao orcamento-aprovar" onClick={() => decidirOrcamento(o, "aprovar")} disabled={carregando} aria-label={`Aprovar orçamento de ${o.nomeMaterial}`}>
-                            <FiCheck size={16} /> Aprovar
+                    <span className="orcamento-acoes" onClick={(event) => event.stopPropagation()}>
+                        <button type="button" className="orcamento-decisao orcamento-aprovar" onClick={() => decidirOrcamento(o, "aprovar")} disabled={carregando} aria-label={t("orcamento.historico.approveAria", { project: o.nomeMaterial })}>
+                            <FiCheck size={16} /> {t("orcamento.historico.approve")}
                         </button>
-                        <button type="button" className="orcamento-decisao orcamento-rejeitar" onClick={() => decidirOrcamento(o, "rejeitar")} disabled={carregando} aria-label={`Rejeitar orçamento de ${o.nomeMaterial}`}>
-                            <FiX size={16} /> Rejeitar
+                        <button type="button" className="orcamento-decisao orcamento-rejeitar" onClick={() => decidirOrcamento(o, "rejeitar")} disabled={carregando} aria-label={t("orcamento.historico.rejectAria", { project: o.nomeMaterial })}>
+                            <FiX size={16} /> {t("orcamento.historico.reject")}
                         </button>
                     </span>
                 )}
@@ -116,12 +118,11 @@ function OrcamentoHistorico() {
         return (
             <div className="pedidos-list">
                 <div className={`pedidos-row-head orcamento-row ${comAcoes ? "orcamento-row-pendente" : ""}`} aria-hidden="true">
-                    <span>Material</span>
-                    <span>Volume</span>
-                    <span>Data</span>
-                    <span>Preço Final</span>
-                    <span>Status</span>
-                    {comAcoes && <span>Ações</span>}
+                    <span>{t("orcamento.historico.colClient")}</span>
+                    <span>{t("orcamento.historico.colProject")}</span>
+                    <span>{t("orcamento.historico.colFinalPrice")}</span>
+                    <span>{t("orcamento.historico.colDate")}</span>
+                    {comAcoes && <span>{t("orcamento.historico.colActions")}</span>}
                 </div>
                 {lista.map((o) => renderLinha(o, comAcoes))}
             </div>
@@ -139,18 +140,18 @@ function OrcamentoHistorico() {
         pendentesConteudo = (
             <div className="pedidos-empty">
                 <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                <p className="empty-title">Nenhum orçamento salvo ainda</p>
-                <p className="empty-sub">Calcule e salve um orçamento para vê-lo aqui.</p>
+                        <p className="empty-title">{t("orcamento.historico.emptyTitle")}</p>
+                        <p className="empty-sub">{t("orcamento.historico.emptySub")}</p>
             </div>
         );
     } else {
         pendentesConteudo = (
             <>
                 <div className="orcamento-secao-head">
-                    <p>Revise os valores antes de liberar o orçamento.</p>
+                    <p>{t("orcamento.historico.pendingSubtitle")}</p>
                     <span className="orcamento-contador">{pendentes.length}</span>
                 </div>
-                {pendentes.length === 0 ? <p className="orcamento-lista-vazia">Nenhum orçamento aguardando aprovação.</p> : renderLista(pendentes, true)}
+                {pendentes.length === 0 ? <p className="orcamento-lista-vazia">{t("orcamento.historico.pendingEmpty")}</p> : renderLista(pendentes, true)}
             </>
         );
     }
@@ -158,10 +159,10 @@ function OrcamentoHistorico() {
     const historicoConteudo = fetching || orcamentos.length === 0 ? null : (
         <>
             <div className="orcamento-secao-head">
-                <p>Orçamentos aprovados ou rejeitados.</p>
+                <p>{t("orcamento.historico.decidedSubtitle")}</p>
                 <span className="orcamento-contador">{decididos.length}</span>
             </div>
-            {decididos.length === 0 ? <p className="orcamento-lista-vazia">Nenhuma decisão registrada.</p> : renderLista(decididos)}
+            {decididos.length === 0 ? <p className="orcamento-lista-vazia">{t("orcamento.historico.decidedEmpty")}</p> : renderLista(decididos)}
         </>
     );
 
@@ -169,17 +170,23 @@ function OrcamentoHistorico() {
         <>
             <section className="orcamento-pendentes">
                 <div className="orcamento-historico-head">
-                    <h2 className="dashboard-title orcamento-historico-title">Orçamentos pendentes de aprovação</h2>
+                    <h2 className="dashboard-title orcamento-historico-title">{t("orcamento.historico.pendingTitle")}</h2>
                 </div>
                 {error && <div className="dashboard-error">{error}</div>}
                 {pendentesConteudo}
             </section>
             <section className="orcamento-historico">
                 <div className="orcamento-historico-head">
-                    <h2 className="dashboard-title orcamento-historico-title">Histórico de Orçamentos</h2>
+                    <h2 className="dashboard-title orcamento-historico-title">{t("orcamento.historico.title")}</h2>
                 </div>
                 {historicoConteudo}
             </section>
+            {orcamentoSelecionado && (
+                <OrcamentoDetalheModal
+                    orcamento={orcamentoSelecionado}
+                    onClose={() => setOrcamentoSelecionado(null)}
+                />
+            )}
         </>
     );
 }

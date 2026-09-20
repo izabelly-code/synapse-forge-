@@ -593,6 +593,19 @@
       "errorCalculate": "Could not calculate the quote. Please try again.",
       "errorSave": "Could not save the quote. Please try again.",
       "saved": "Quote saved successfully.",
+      "clientLabel": "Client",
+      "clientPlaceholder": "Client name",
+      "projectLabel": "Project",
+      "projectPlaceholder": "Project name",
+      "deadlineLabel": "Deadline",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Order details",
+      "object3dLabel": "3D object",
+      "object3dFormats": "Accepted formats: STL, OBJ, FBX, GLB, GLTF, and 3MF.",
+      "removeObject3dAria": "Remove 3D object",
+      "referenceImagesLabel": "Reference images",
+      "removeImageAria": "Remove {{name}}",
+      "referenceImagesHint": "You can select more than one image.",
       "materialLabel": "Material",
       "materialPlaceholder": "Select a material",
       "materialEmpty": "No materials available",
@@ -631,6 +644,7 @@
       "colProject": "Project",
       "colDate": "Date",
       "colFinalPrice": "Final price",
+      "colStatus": "Status",
       "colActions": "Actions",
       "volumeValue": "{{value}} cm³",
       "pendingEmpty": "No quote waiting for approval.",
@@ -640,6 +654,8 @@
       "openDetails": "Open details for project {{project}}",
       "approveAria": "Approve quote for {{project}}",
       "rejectAria": "Reject quote for {{project}}"
+      ,"errorApprove": "Could not approve the quote. Please try again."
+      ,"errorReject": "Could not reject the quote. Please try again."
     },
     "status": {
       "PENDENTE": "Pending",

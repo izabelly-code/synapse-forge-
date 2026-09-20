@@ -50,7 +50,6 @@ function OrcamentoDetalheModal({ orcamento, onClose }: OrcamentoDetalheModalProp
             }
         }
 
-        setOrcamentoDetalhado(null);
         carregarDetalhes();
         return () => { ativo = false; };
     }, [orcamento.id]);
