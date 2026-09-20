@@ -593,6 +593,19 @@
       "errorCalculate": "Falha ao calcular orçamento. Tente novamente.",
       "errorSave": "Falha ao salvar orçamento. Tente novamente.",
       "saved": "Orçamento salvo com sucesso.",
+      "clientLabel": "Cliente",
+      "clientPlaceholder": "Nome do cliente",
+      "projectLabel": "Projeto",
+      "projectPlaceholder": "Nome do projeto",
+      "deadlineLabel": "Prazo",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Detalhes do pedido",
+      "object3dLabel": "Objeto 3D",
+      "object3dFormats": "Formatos aceitos: STL, OBJ, FBX, GLB, GLTF e 3MF.",
+      "removeObject3dAria": "Remover objeto 3D",
+      "referenceImagesLabel": "Imagens de referência",
+      "removeImageAria": "Remover {{name}}",
+      "referenceImagesHint": "Você pode selecionar mais de uma imagem.",
       "materialLabel": "Material",
       "materialPlaceholder": "Selecione um material",
       "materialEmpty": "Nenhum material disponível",
@@ -631,6 +644,7 @@
       "colProject": "Projeto",
       "colDate": "Data",
       "colFinalPrice": "Preço Final",
+      "colStatus": "Status",
       "colActions": "Ações",
       "volumeValue": "{{value}} cm³",
       "pendingEmpty": "Nenhum orçamento aguardando aprovação.",
@@ -640,6 +654,8 @@
       "openDetails": "Abrir detalhes do projeto {{project}}",
       "approveAria": "Aprovar orçamento de {{project}}",
       "rejectAria": "Rejeitar orçamento de {{project}}"
+      ,"errorApprove": "Falha ao aprovar orçamento. Tente novamente."
+      ,"errorReject": "Falha ao rejeitar orçamento. Tente novamente."
     },
     "status": {
       "PENDENTE": "Pendente",

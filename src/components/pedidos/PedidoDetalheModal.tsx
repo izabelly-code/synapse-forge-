@@ -141,13 +141,15 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     }, [pedidoId, abrirEmEdicao, iniciarEdicao, t]);
 
     useEffect(() => {
-        if (!pedido?.materialId) {
-            setMaterialNome((prev) => prev || "");
+        const pedidoAtual = pedido;
+        if (!pedidoAtual) return;
+
+        const materialId = pedidoAtual.materialId ?? "";
+        if (!materialId) {
             return;
         }
 
-        if (pedido.nomeMaterial) {
-            setMaterialNome(pedido.nomeMaterial);
+        if (pedidoAtual.nomeMaterial) {
             return;
         }
 
@@ -155,16 +157,16 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
         async function fetchMaterialNome() {
             try {
-                const material = await getMaterialById(pedido.materialId!);
-                if (active) setMaterialNome(material.nome || pedido.materialId || "");
+                const material = await getMaterialById(materialId);
+                if (active) setMaterialNome(material.nome || materialId);
             } catch {
-                if (active) setMaterialNome(pedido.materialId || "");
+                if (active) setMaterialNome(materialId);
             }
         }
 
         fetchMaterialNome();
         return () => { active = false; };
-    }, [pedido?.materialId, pedido?.nomeMaterial]);
+    }, [pedido, pedido?.materialId, pedido?.nomeMaterial]);
 
     useEscapeKey(() => {
         if (editando) {

@@ -184,23 +184,23 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
             <div className="orcamento-form-grid">
                 <div className="orcamento-form-fields">
                     <div className="input-group">
-                        <label htmlFor="orcamento-cliente">Cliente</label>
-                        <input id="orcamento-cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder="Nome do cliente" />
+                        <label htmlFor="orcamento-cliente">{t("orcamento.calculator.clientLabel")}</label>
+                        <input id="orcamento-cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder={t("orcamento.calculator.clientPlaceholder")} />
                     </div>
                     <div className="input-group">
-                        <label htmlFor="orcamento-projeto">Projeto</label>
-                        <input id="orcamento-projeto" value={projeto} onChange={(e) => setProjeto(e.target.value)} placeholder="Nome do projeto" />
+                        <label htmlFor="orcamento-projeto">{t("orcamento.calculator.projectLabel")}</label>
+                        <input id="orcamento-projeto" value={projeto} onChange={(e) => setProjeto(e.target.value)} placeholder={t("orcamento.calculator.projectPlaceholder")} />
                     </div>
                     <div className="input-group">
-                        <label htmlFor="orcamento-prazo">Prazo</label>
+                        <label htmlFor="orcamento-prazo">{t("orcamento.calculator.deadlineLabel")}</label>
                         <input id="orcamento-prazo" type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
                     </div>
                     <div className="input-group">
-                        <label htmlFor="orcamento-descricao">Descrição</label>
-                        <textarea id="orcamento-descricao" rows={3} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Detalhes do pedido" />
+                        <label htmlFor="orcamento-descricao">{t("orcamento.calculator.descriptionLabel")}</label>
+                        <textarea id="orcamento-descricao" rows={3} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder={t("orcamento.calculator.descriptionPlaceholder")} />
                     </div>
                     <div className="input-group">
-                        <label htmlFor="orcamento-objeto-3d">Objeto 3D</label>
+                        <label htmlFor="orcamento-objeto-3d">{t("orcamento.calculator.object3dLabel")}</label>
                         <input
                             id="orcamento-objeto-3d"
                             type="file"
@@ -210,15 +210,15 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                         {objeto3D && (
                             <span className="orcamento-upload-file">
                                 <FiFile size={15} /> {objeto3D.name}
-                                <button type="button" onClick={() => setObjeto3D(null)} aria-label="Remover objeto 3D">
+                                <button type="button" onClick={() => setObjeto3D(null)} aria-label={t("orcamento.calculator.removeObject3dAria")}>
                                     <FiX size={15} />
                                 </button>
                             </span>
                         )}
-                        <span className="input-hint">Formatos aceitos: STL, OBJ, FBX, GLB, GLTF e 3MF.</span>
+                        <span className="input-hint">{t("orcamento.calculator.object3dFormats")}</span>
                     </div>
                     <div className="input-group">
-                        <label htmlFor="orcamento-imagens">Imagens de referência</label>
+                        <label htmlFor="orcamento-imagens">{t("orcamento.calculator.referenceImagesLabel")}</label>
                         <input
                             id="orcamento-imagens"
                             type="file"
@@ -231,14 +231,14 @@ function OrcamentoCalculator({ onSalvo }: OrcamentoCalculatorProps) {
                                 {imagensReferencia.map((imagem, index) => (
                                     <span key={`${imagem.name}-${imagem.size}-${index}`} className="orcamento-upload-file">
                                         <FiImage size={15} /> {imagem.name}
-                                        <button type="button" onClick={() => removerImagem(index)} aria-label={`Remover ${imagem.name}`}>
+                                        <button type="button" onClick={() => removerImagem(index)} aria-label={t("orcamento.calculator.removeImageAria", { name: imagem.name })}>
                                             <FiX size={15} />
                                         </button>
                                     </span>
                                 ))}
                             </div>
                         )}
-                        <span className="input-hint">Você pode selecionar mais de uma imagem.</span>
+                        <span className="input-hint">{t("orcamento.calculator.referenceImagesHint")}</span>
                     </div>
                     <div className="input-group" ref={menuRef}>
                         <label>{t("orcamento.calculator.materialLabel")}</label>
