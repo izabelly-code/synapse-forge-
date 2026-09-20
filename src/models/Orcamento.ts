@@ -38,4 +38,6 @@ export interface Orcamento {
     criadoEm: string | null;
     status?: OrcamentoStatus;
     pedidoId?: string;
+    objeto3DFileId?: string | null;
+    imagensReferenciaUrls?: string[];
 }

@@ -7,6 +7,7 @@ export interface Pedido {
   descricao?: string;
   orcamentoId?: string;
   materialId?: string;
+  nomeMaterial?: string;
   volumeCm3?: number;
   tempoImpressaoHoras?: number;
   tempoMaoDeObraHoras?: number;
