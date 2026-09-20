@@ -193,40 +193,24 @@ export async function cancelarPedido(
 export interface PedidoFormData {
 
     clienteId?: string;
-
     orcamentoId?: string;
-
-    materialId?: string;
-
-    volumeCm3?: number;
-
-    tempoImpressaoHoras?: number;
-
-    tempoMaoDeObraHoras?: number;
-
-    custoMaquinaHora?: number;
-
-    custoMaoDeObraHora?: number;
-
-    margemLucro?: number;
-
-    custoMaterial?: number;
-
-    custoMaquina?: number;
-
-    custoMaoDeObra?: number;
-
-    custoTotal?: number;
-
-    precoFinal?: number;
-
     cliente: string;
-
     projeto: string;
-
     descricao: string;
-
     prazo: string;
+    materialId?: string;
+    volumeCm3?: number;
+    tempoImpressaoHoras?: number;
+    tempoMaoDeObraHoras?: number;
+    custoMaquinaHora?: number;
+    custoMaoDeObraHora?: number;
+    margemLucro?: number;
+    custoMaterial?: number;
+    custoMaquina?: number;
+    custoMaoDeObra?: number;
+    custoTotal?: number;
+    precoFinal?: number;
+    status?: PedidoStatus;
 
     objeto3D?: File | null;
 
