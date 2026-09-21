@@ -20,6 +20,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SessionExpiredPage from "./pages/SessionExpiredPage";
 import EquipePage from "./pages/EquipePage";
 import ConviteEquipePage from "./pages/ConviteEquipePage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
     return (
@@ -148,6 +149,21 @@ function App() {
                             path="/perfil"
                             element={<UserProfilePage />}
                         />
+
+                        
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={["ADMIN"]}
+                                />
+                            }
+                        >
+                            <Route
+                                path="/admin"
+                                element={<AdminPage />}
+                            />
+                        </Route>
+
 
                     </Route>
 

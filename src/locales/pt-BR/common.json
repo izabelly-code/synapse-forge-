@@ -278,6 +278,101 @@
     "languageAria": "Mudar idioma / Change language",
     "logout": "Sair"
   },
+  "admin": {
+    "kicker": "Administração",
+    "title": "Administração do sistema",
+    "subtitle": "Gerencie usuários e pedidos armazenados no sistema.",
+    
+    
+
+
+
+    "actions": {
+      "refresh": "Atualizar",
+      "refreshing": "Atualizando...",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "save": "Salvar alterações",
+      "saving": "Salvando...",
+      "delete": "Excluir"
+    },
+
+    "tabs": {
+      "users": "Usuários",
+      "orders": "Pedidos"
+    },
+
+    "search": {
+      "usersPlaceholder": "Buscar por nome, email ou função...",
+      "ordersPlaceholder": "Buscar por cliente, projeto ou status...",
+      "aria": "Buscar dados da administração"
+    },
+
+    "results": {
+      "users": "{{count}} usuário",
+      "users_other": "{{count}} usuários",
+      "orders": "{{count}} pedido",
+      "orders_other": "{{count}} pedidos"
+    },
+
+    "loading": "Carregando dados...",
+
+    "errors": {
+      "load": "Não foi possível carregar os dados da administração.",
+      "save": "Não foi possível atualizar o usuário.",
+      "deleteUser": "Não foi possível excluir o usuário."
+    },
+
+    "empty": {
+      "users": "Nenhum usuário encontrado.",
+      "orders": "Nenhum pedido encontrado."
+    },
+
+    "users": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "team": "Equipe",
+      "function": "Função visual",
+      "status": "Status",
+      "createdAt": "Criado em",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "noTeam": "Sem equipe",
+      "noFunction": "Não definida",
+      "editTitle": "Editar usuário",
+      "editDescription": "Atualize as informações do usuário no sistema.",
+      "deleteConfirm": "Tem certeza de que deseja excluir este usuário?",
+      "fields": {
+        "name": "Nome",
+        "email": "Email",
+        "cpf": "CPF",
+        "phone": "Telefone",
+        "role": "Função",
+        "team": "ID da equipe",
+        "function": "Função visual",
+        "active": "Ativo"
+      }
+    },
+
+    "orders": {
+      "project": "Projeto",
+      "client": "Cliente",
+      "status": "Status",
+      "deadline": "Prazo",
+      "price": "Preço final",
+      "images": "Imagens",
+      "createdAt": "Criado em",
+      "editTitle": "Editar pedido",
+      "editDescription": "Atualize as informações do pedido.",
+      "deleteOrder": "Não foi possível excluir o pedido."
+    },
+
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    }
+  },
   "pedidos": {
     "status": {
       "MODELAGEM": "Modelagem",

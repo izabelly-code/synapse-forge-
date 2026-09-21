@@ -44,7 +44,7 @@ interface NavGroup {
 }
 
 /**
- * Taxonomia das 5 áreas do mapa SYN-53 (docs/syn-53-mapa-menu.md).
+ * Taxonomia das áreas do mapa SYN-53 (docs/syn-53-mapa-menu.md).
  * Agrupamento é só visual: todos os itens ficam sempre visíveis, sem expandir/colapsar.
  */
 const NAV_GROUPS: NavGroup[] = [
@@ -127,6 +127,11 @@ const NAV_GROUPS: NavGroup[] = [
                 path: "/perfil",
                 icon: <UserIcon size={18} />,
             },
+            {
+                labelKey: "sidebar.areaAdmin",
+                path: "/admin",
+                icon: <SlidersHorizontalIcon size={18} />,
+            },
         ],
     },
 ];
@@ -142,10 +147,34 @@ const LANGUAGES = [
     },
 ];
 
-/** RF12: CLIENTE só enxerga os próprios pedidos e o perfil; demais perfis veem tudo. */
-function podeVerItem(path: string, role: string | null): boolean {
+/**
+ * Controle de visibilidade dos itens do menu.
+ *
+ * CLIENTE:
+ * - dashboard
+ * - perfil
+ *
+ * ADMIN:
+ * - todos os itens normais
+ * - administração
+ *
+ * GERENTE/TECNICO:
+ * - todos os itens normais
+ * - nunca /admin
+ */
+function podeVerItem(
+    path: string,
+    role: string | null
+): boolean {
     if (role === "CLIENTE") {
-        return path === "/dashboard" || path === "/perfil";
+        return (
+            path === "/dashboard" ||
+            path === "/perfil"
+        );
+    }
+
+    if (path === "/admin") {
+        return role === "ADMIN";
     }
 
     return true;
@@ -168,14 +197,17 @@ function Sidebar() {
         () => localStorage.getItem("userEmail") ?? ""
     );
 
-    const [langMenuAberto, setLangMenuAberto] = useState(false);
+    const [langMenuAberto, setLangMenuAberto] =
+        useState(false);
 
-    const langMenuRef = useRef<HTMLDivElement>(null);
+    const langMenuRef =
+        useRef<HTMLDivElement>(null);
 
     useDismissable({
         enabled: langMenuAberto,
         refs: langMenuRef,
-        onDismiss: () => setLangMenuAberto(false),
+        onDismiss: () =>
+            setLangMenuAberto(false),
     });
 
     useEffect(() => {
@@ -191,8 +223,15 @@ function Sidebar() {
                 setNome(nextNome);
                 setEmail(nextEmail);
 
-                localStorage.setItem("userNome", nextNome);
-                localStorage.setItem("userEmail", nextEmail);
+                localStorage.setItem(
+                    "userNome",
+                    nextNome
+                );
+
+                localStorage.setItem(
+                    "userEmail",
+                    nextEmail
+                );
             }
         });
     }, []);
@@ -207,34 +246,59 @@ function Sidebar() {
     }
 
     function getInitial() {
-        return nome ? nome.charAt(0).toUpperCase() : "?";
+        return nome
+            ? nome.charAt(0).toUpperCase()
+            : "?";
     }
 
-    const { pedidosUrgentes, ordensUrgentes } =
-        useNotificacoesUrgentes();
+    const {
+        pedidosUrgentes,
+        ordensUrgentes
+    } = useNotificacoesUrgentes();
 
     const notificacoes: NotificationItem[] = [
-        ...pedidosUrgentes.map(({ pedido, atrasado }) => ({
-            id: `pedido-${pedido.id}`,
-            title: pedido.projeto,
-            subtitle: pedido.cliente,
-            tone: atrasado ? ("danger" as const) : ("warn" as const),
-            tagLabel: atrasado
-                ? t("pedidos.dashboard.tagLate")
-                : t("pedidos.dashboard.tagDueToday"),
-            onSelect: () => navigate("/dashboard"),
-        })),
+        ...pedidosUrgentes.map(
+            ({ pedido, atrasado }) => ({
+                id: `pedido-${pedido.id}`,
+                title: pedido.projeto,
+                subtitle: pedido.cliente,
+                tone: atrasado
+                    ? ("danger" as const)
+                    : ("warn" as const),
+                tagLabel: atrasado
+                    ? t(
+                        "pedidos.dashboard.tagLate"
+                    )
+                    : t(
+                        "pedidos.dashboard.tagDueToday"
+                    ),
+                onSelect: () =>
+                    navigate("/dashboard"),
+            })
+        ),
 
-        ...ordensUrgentes.map(({ ordem, atrasada }) => ({
-            id: `ordem-${ordem.id}`,
-            title: ordem.corNome,
-            subtitle: `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
-            tone: atrasada ? ("danger" as const) : ("warn" as const),
-            tagLabel: atrasada
-                ? t("pedidos.dashboard.tagLate")
-                : t("pedidos.dashboard.tagDueToday"),
-            onSelect: () => navigate("/ordens-pintura"),
-        })),
+        ...ordensUrgentes.map(
+            ({ ordem, atrasada }) => ({
+                id: `ordem-${ordem.id}`,
+                title: ordem.corNome,
+                subtitle:
+                    `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
+                tone: atrasada
+                    ? ("danger" as const)
+                    : ("warn" as const),
+                tagLabel: atrasada
+                    ? t(
+                        "pedidos.dashboard.tagLate"
+                    )
+                    : t(
+                        "pedidos.dashboard.tagDueToday"
+                    ),
+                onSelect: () =>
+                    navigate(
+                        "/ordens-pintura"
+                    ),
+            })
+        ),
     ];
 
     return (
@@ -248,30 +312,47 @@ function Sidebar() {
                     }
                     alt="SynapseForge"
                     className="sidebar-logo"
-                    onClick={() => navigate("/")}
-                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                        navigate("/")
+                    }
+                    style={{
+                        cursor: "pointer"
+                    }}
                 />
             </div>
 
             <nav
                 className="sidebar-nav"
-                aria-label={t("sidebar.navAria")}
+                aria-label={t(
+                    "sidebar.navAria"
+                )}
             >
                 {NAV_GROUPS
                     .map((group) => ({
                         ...group,
-                        items: group.items.filter((item) =>
-                            podeVerItem(item.path, role)
-                        ),
+                        items:
+                            group.items.filter(
+                                (item) =>
+                                    podeVerItem(
+                                        item.path,
+                                        role
+                                    )
+                            ),
                     }))
-                    .filter((group) => group.items.length > 0)
+                    .filter(
+                        (group) =>
+                            group.items.length > 0
+                    )
                     .map((group) => {
-                        const headingId = `sidebar-area-${group.id}`;
+                        const headingId =
+                            `sidebar-area-${group.id}`;
 
-                        const grupoAtivo = group.items.some(
-                            (item) =>
-                                item.path === location.pathname
-                        );
+                        const grupoAtivo =
+                            group.items.some(
+                                (item) =>
+                                    item.path ===
+                                    location.pathname
+                            );
 
                         /*
                          * CLIENTE:
@@ -283,7 +364,8 @@ function Sidebar() {
                          * os textos originais.
                          */
                         const groupLabelKey =
-                            isCliente && group.id === "admin"
+                            isCliente &&
+                            group.id === "admin"
                                 ? "sidebar.areaClienteConta"
                                 : group.labelKey;
 
@@ -292,59 +374,76 @@ function Sidebar() {
                                 key={group.id}
                                 className={cn(
                                     "sidebar-nav-group",
-                                    grupoAtivo && "is-current"
+                                    grupoAtivo &&
+                                        "is-current"
                                 )}
-                                aria-labelledby={headingId}
+                                aria-labelledby={
+                                    headingId
+                                }
                             >
                                 <h2
                                     className="sidebar-nav-group-label"
                                     id={headingId}
                                 >
-                                    {t(groupLabelKey)}
+                                    {t(
+                                        groupLabelKey
+                                    )}
                                 </h2>
 
                                 <ul className="sidebar-nav-list">
-                                    {group.items.map((item) => {
-                                        const active =
-                                            location.pathname ===
-                                            item.path;
+                                    {group.items.map(
+                                        (item) => {
+                                            const active =
+                                                location.pathname ===
+                                                item.path;
 
-                                        const itemLabelKey =
-                                            isCliente &&
-                                            item.path === "/dashboard"
-                                                ? "sidebar.pedidosCliente"
-                                                : item.labelKey;
+                                            const itemLabelKey =
+                                                isCliente &&
+                                                item.path ===
+                                                    "/dashboard"
+                                                    ? "sidebar.pedidosCliente"
+                                                    : item.labelKey;
 
-                                        return (
-                                            <li key={item.path}>
-                                                <button
-                                                    type="button"
-                                                    className={cn(
-                                                        "sidebar-nav-item",
-                                                        active && "active"
-                                                    )}
-                                                    aria-current={
-                                                        active
-                                                            ? "page"
-                                                            : undefined
-                                                    }
-                                                    onClick={() =>
-                                                        navigate(
-                                                            item.path
-                                                        )
+                                            return (
+                                                <li
+                                                    key={
+                                                        item.path
                                                     }
                                                 >
-                                                    <span className="sidebar-nav-icon">
-                                                        {item.icon}
-                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        className={cn(
+                                                            "sidebar-nav-item",
+                                                            active &&
+                                                                "active"
+                                                        )}
+                                                        aria-current={
+                                                            active
+                                                                ? "page"
+                                                                : undefined
+                                                        }
+                                                        onClick={() =>
+                                                            navigate(
+                                                                item.path
+                                                            )
+                                                        }
+                                                    >
+                                                        <span className="sidebar-nav-icon">
+                                                            {
+                                                                item.icon
+                                                            }
+                                                        </span>
 
-                                                    <span className="sidebar-nav-label">
-                                                        {t(itemLabelKey)}
-                                                    </span>
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
+                                                        <span className="sidebar-nav-label">
+                                                            {t(
+                                                                itemLabelKey
+                                                            )}
+                                                        </span>
+                                                    </button>
+                                                </li>
+                                            );
+                                        }
+                                    )}
                                 </ul>
                             </section>
                         );
@@ -357,13 +456,21 @@ function Sidebar() {
                     onClick={toggleTheme}
                     aria-label={
                         theme === "dark"
-                            ? t("sidebar.themeToLightAria")
-                            : t("sidebar.themeToDarkAria")
+                            ? t(
+                                "sidebar.themeToLightAria"
+                            )
+                            : t(
+                                "sidebar.themeToDarkAria"
+                            )
                     }
                     title={
                         theme === "dark"
-                            ? t("sidebar.themeToLight")
-                            : t("sidebar.themeToDark")
+                            ? t(
+                                "sidebar.themeToLight"
+                            )
+                            : t(
+                                "sidebar.themeToDark"
+                            )
                     }
                 >
                     {theme === "dark" ? (
@@ -380,10 +487,13 @@ function Sidebar() {
                     <IconButton
                         variant="sidebar"
                         className={cn(
-                            langMenuAberto && "is-open"
+                            langMenuAberto &&
+                                "is-open"
                         )}
                         onClick={() =>
-                            setLangMenuAberto((o) => !o)
+                            setLangMenuAberto(
+                                (o) => !o
+                            )
                         }
                         aria-label={t(
                             "sidebar.languageAria"
@@ -392,7 +502,9 @@ function Sidebar() {
                             "sidebar.languageAria"
                         )}
                         aria-haspopup="menu"
-                        aria-expanded={langMenuAberto}
+                        aria-expanded={
+                            langMenuAberto
+                        }
                     >
                         <Globe02Icon size={18} />
                     </IconButton>
@@ -402,41 +514,49 @@ function Sidebar() {
                             className="sidebar-lang-menu"
                             role="menu"
                         >
-                            {LANGUAGES.map((lang) => (
-                                <button
-                                    key={lang.code}
-                                    type="button"
-                                    role="menuitemradio"
-                                    aria-checked={
-                                        i18n.language ===
-                                        lang.code
-                                    }
-                                    className={cn(
-                                        "sidebar-lang-option",
-                                        i18n.language ===
-                                            lang.code &&
-                                            "selected"
-                                    )}
-                                    onClick={() => {
-                                        i18n.changeLanguage(
+                            {LANGUAGES.map(
+                                (lang) => (
+                                    <button
+                                        key={
                                             lang.code
-                                        );
+                                        }
+                                        type="button"
+                                        role="menuitemradio"
+                                        aria-checked={
+                                            i18n.language ===
+                                            lang.code
+                                        }
+                                        className={cn(
+                                            "sidebar-lang-option",
+                                            i18n.language ===
+                                                lang.code &&
+                                                "selected"
+                                        )}
+                                        onClick={() => {
+                                            i18n.changeLanguage(
+                                                lang.code
+                                            );
 
-                                        setLangMenuAberto(
-                                            false
-                                        );
-                                    }}
-                                >
-                                    {t(lang.labelKey)}
+                                            setLangMenuAberto(
+                                                false
+                                            );
+                                        }}
+                                    >
+                                        {t(
+                                            lang.labelKey
+                                        )}
 
-                                    {i18n.language ===
-                                        lang.code && (
-                                        <Tick02Icon
-                                            size={15}
-                                        />
-                                    )}
-                                </button>
-                            ))}
+                                        {i18n.language ===
+                                            lang.code && (
+                                            <Tick02Icon
+                                                size={
+                                                    15
+                                                }
+                                            />
+                                        )}
+                                    </button>
+                                )
+                            )}
                         </MenuSurface>
                     )}
                 </div>
@@ -461,7 +581,9 @@ function Sidebar() {
                 <div
                     className={cn(
                         "sidebar-avatar",
-                        avatarPalette(email || nome)
+                        avatarPalette(
+                            email || nome
+                        )
                     )}
                 >
                     {getInitial()}
@@ -470,7 +592,9 @@ function Sidebar() {
                 <div className="sidebar-user-info">
                     <span className="sidebar-user-name">
                         {nome ||
-                            t("sidebar.userFallback")}
+                            t(
+                                "sidebar.userFallback"
+                            )}
                     </span>
 
                     {email && (
@@ -484,8 +608,12 @@ function Sidebar() {
                     variant="sidebar"
                     className="sidebar-account-logout"
                     onClick={handleLogout}
-                    aria-label={t("sidebar.logout")}
-                    title={t("sidebar.logout")}
+                    aria-label={t(
+                        "sidebar.logout"
+                    )}
+                    title={t(
+                        "sidebar.logout"
+                    )}
                 >
                     <Logout03Icon size={18} />
                 </IconButton>
