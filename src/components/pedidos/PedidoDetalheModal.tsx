@@ -22,9 +22,6 @@ import IconButton from "../ui/IconButton";
 
 const STATUS_OPTIONS: PedidoStatus[] = ["MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO"];
 
-const role = getUserRole();
-const isGerente = role === "GERENTE";
-
 function formatPrazoLongo(iso: string): string {
     const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
     if (Number.isNaN(date.getTime())) return iso;
@@ -49,6 +46,8 @@ type Erros = Partial<Record<CampoErro, string>>;
 
 function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = false }: PedidoDetalheModalProps) {
     const { t } = useTranslation();
+    const role = getUserRole();
+    const isGerente = role === "GERENTE";
     const [pedido, setPedido] = useState<Pedido | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");

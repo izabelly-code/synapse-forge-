@@ -76,6 +76,12 @@ function AdminPage() {
 
     const [formulario, setFormulario] = useState<FormularioUsuario | null>(null);
 
+    const [errosUsuario, setErrosUsuario] = useState<{
+        nome?: string;
+        email?: string;
+        role?: string;
+    }>({});
+
     const [pedidoEditando, setPedidoEditando] =
         useState<AdminPedido | null>(null);
 
@@ -217,6 +223,7 @@ function AdminPage() {
     }
 
     function abrirEdicao(usuario: AdminUser) {
+        setErrosUsuario({});
         setUsuarioEditando(usuario);
 
         setFormulario({
@@ -487,6 +494,7 @@ function AdminPage() {
 
         setUsuarioEditando(null);
         setFormulario(null);
+        setErrosUsuario({});
     }
 
     function atualizarCampo<K extends keyof FormularioUsuario>(
@@ -503,6 +511,13 @@ function AdminPage() {
                 [campo]: valor,
             };
         });
+
+        if (campo === "nome" || campo === "email" || campo === "role") {
+            setErrosUsuario((atuais) => ({
+                ...atuais,
+                [campo]: undefined,
+            }));
+        }
     }
 
     async function salvarUsuario() {
@@ -513,19 +528,60 @@ function AdminPage() {
             return;
         }
 
+        const nome = formulario.nome.trim();
+        const email = formulario.email.trim();
+        const role = formulario.role?.trim();
+
+        const novosErros: {
+            nome?: string;
+            email?: string;
+            role?: string;
+        } = {};
+
+        if (!nome) {
+            novosErros.nome = t(
+                "admin.users.validation.nameRequired",
+                "O nome é obrigatório."
+            );
+        }
+
+        if (!email) {
+            novosErros.email = t(
+                "admin.users.validation.emailRequired",
+                "O e-mail é obrigatório."
+            );
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            novosErros.email = t(
+                "admin.users.validation.emailInvalid",
+                "Informe um e-mail válido."
+            );
+        }
+
+        if (!role) {
+            novosErros.role = t(
+                "admin.users.validation.roleRequired",
+                "A função é obrigatória."
+            );
+        }
+
+        if (Object.keys(novosErros).length > 0) {
+            setErrosUsuario(novosErros);
+            return;
+        }
+
         try {
             setSalvando(true);
             setErro(null);
 
             const dados: AdminUserUpdateData = {
-                nome: formulario.nome,
-                email: formulario.email,
-                cpf: formulario.cpf,
-                telefone: formulario.telefone,
+                nome,
+                email,
+                cpf: formulario.cpf.trim() || undefined,
+                telefone: formulario.telefone.trim() || undefined,
                 role: formulario.role,
-                equipeId: formulario.equipeId,
+                equipeId: formulario.equipeId.trim() || undefined,
                 funcaoVisual:
-                    formulario.funcaoVisual,
+                    formulario.funcaoVisual.trim() || undefined,
                 ativo: formulario.ativo,
             };
 
@@ -1107,6 +1163,11 @@ function AdminPage() {
                                             )
                                         }
                                     />
+                                    {errosUsuario.nome && (
+                                        <span className="error-text">
+                                            {errosUsuario.nome}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="input-group">
@@ -1132,6 +1193,11 @@ function AdminPage() {
                                             )
                                         }
                                     />
+                                    {errosUsuario.email && (
+                                        <span className="error-text">
+                                            {errosUsuario.email}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="input-group">
@@ -1230,6 +1296,12 @@ function AdminPage() {
                                             )}
                                         </option>
                                     </select>
+
+                                    {errosUsuario.role && (
+                                        <span className="error-text">
+                                            {errosUsuario.role}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="input-group">

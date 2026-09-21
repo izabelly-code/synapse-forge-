@@ -177,6 +177,10 @@ function podeVerItem(
         return role === "ADMIN";
     }
 
+    if (path === "/orcamento") {
+        return role === "GERENTE" || role === "ADMIN";
+    }
+
     return true;
 }
 
