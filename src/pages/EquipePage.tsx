@@ -400,11 +400,10 @@ function EquipePage() {
      * =========================================================
      */
 
+    // Só roda na montagem: `carregando` já nasce true e `erro` nasce null, então
+    // nenhum setState antes do primeiro await (regra set-state-in-effect).
     async function carregarDados() {
         try {
-            setCarregando(true);
-            setErro(null);
-
             const minhaEquipe =
                 await buscarMinhaEquipe();
 
@@ -499,7 +498,12 @@ function EquipePage() {
     }
 
     useEffect(() => {
-        carregarDados();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador.
+        async function carregarNaMontagem() {
+            await carregarDados();
+        }
+        void carregarNaMontagem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     /*
