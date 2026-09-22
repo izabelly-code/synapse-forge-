@@ -5,16 +5,15 @@ import { useTranslation } from "react-i18next";
 
 import {
     AdminPedido,
-    AdminPedidoUpdateData,
     AdminUser,
     AdminUserUpdateData,
-    atualizarAdminPedido,
     atualizarAdminUser,
     deletarAdminUser,
     getAdminPedidos,
     getAdminUsers,
     deletarAdminPedido
 } from "../services/adminService";
+import { editarPedido, getPedido } from "../services/PedidoService";
 
 
 
@@ -38,20 +37,20 @@ type FormularioPedido = {
     cliente: string;
     projeto: string;
     descricao: string;
-    materialId: string;
-    volumeCm3: string;
-    tempoImpressaoHoras: string;
-    tempoMaoDeObraHoras: string;
-    custoMaquinaHora: string;
-    custoMaoDeObraHora: string;
-    margemLucro: string;
-    custoMaterial: string;
-    custoMaquina: string;
-    custoMaoDeObra: string;
-    custoTotal: string;
-    precoFinal: string;
-    status: string;
     prazo: string;
+};
+
+type ErrosPedido = {
+    cliente?: string;
+    projeto?: string;
+    prazo?: string;
+};
+
+type PedidoComArquivos = AdminPedido & {
+    objeto3DFileId?: string | null;
+    imagensBase64?: (string | null)[];
+    imagensReferenciaFileIds?: string[];
+    imagensReferenciaIds?: string[];
 };
 
 
@@ -85,17 +84,52 @@ function AdminPage() {
     const [pedidoEditando, setPedidoEditando] =
         useState<AdminPedido | null>(null);
 
+    const [pedidoComArquivos, setPedidoComArquivos] =
+        useState<PedidoComArquivos | null>(null);
+
+    const [carregandoArquivosPedido, setCarregandoArquivosPedido] =
+        useState(false);
+
     const [formularioPedido, setFormularioPedido] =
         useState<FormularioPedido | null>(null);
+
+    const [errosPedido, setErrosPedido] =
+        useState<ErrosPedido>({});
+
+    const [objeto3D, setObjeto3D] =
+        useState<File | null>(null);
+
+    const [removerObjeto3D, setRemoverObjeto3D] =
+        useState(false);
+
+    const [novasImagens, setNovasImagens] =
+        useState<File[]>([]);
+
+    const [imagensRemover, setImagensRemover] =
+        useState<Set<string>>(new Set());
 
     const [salvandoPedido, setSalvandoPedido] =
         useState(false);
 
-
     const [excluindoPedido, setExcluindoPedido] =
-    useState(false);
+        useState(false);
 
+    const novasImagensPreviews = useMemo(
+        () =>
+            novasImagens.map((arquivo) => ({
+                arquivo,
+                url: URL.createObjectURL(arquivo),
+            })),
+        [novasImagens]
+    );
 
+    useEffect(() => {
+        return () => {
+            novasImagensPreviews.forEach(
+                ({ url }) => URL.revokeObjectURL(url)
+            );
+        };
+    }, [novasImagensPreviews]);
 
 
     useEffect(() => {
@@ -246,61 +280,139 @@ function AdminPage() {
     }
 
 
-    function abrirEdicaoPedido(pedido: AdminPedido) {
+    async function abrirEdicaoPedido(pedido: AdminPedido) {
         setPedidoEditando(pedido);
+        setPedidoComArquivos(null);
+        setCarregandoArquivosPedido(true);
+        setErrosPedido({});
+        setObjeto3D(null);
+        setRemoverObjeto3D(false);
+        setNovasImagens([]);
+        setImagensRemover(new Set());
 
         setFormularioPedido({
             clienteId: pedido.clienteId || "",
             cliente: pedido.cliente || "",
             projeto: pedido.projeto || "",
             descricao: pedido.descricao || "",
-            materialId: pedido.materialId || "",
-            volumeCm3:
-                pedido.volumeCm3 !== undefined
-                    ? String(pedido.volumeCm3)
-                    : "",
-            tempoImpressaoHoras:
-                pedido.tempoImpressaoHoras !== undefined
-                    ? String(pedido.tempoImpressaoHoras)
-                    : "",
-            tempoMaoDeObraHoras:
-                pedido.tempoMaoDeObraHoras !== undefined
-                    ? String(pedido.tempoMaoDeObraHoras)
-                    : "",
-            custoMaquinaHora:
-                pedido.custoMaquinaHora !== undefined
-                    ? String(pedido.custoMaquinaHora)
-                    : "",
-            custoMaoDeObraHora:
-                pedido.custoMaoDeObraHora !== undefined
-                    ? String(pedido.custoMaoDeObraHora)
-                    : "",
-            margemLucro:
-                pedido.margemLucro !== undefined
-                    ? String(pedido.margemLucro)
-                    : "",
-            custoMaterial:
-                pedido.custoMaterial !== undefined
-                    ? String(pedido.custoMaterial)
-                    : "",
-            custoMaquina:
-                pedido.custoMaquina !== undefined
-                    ? String(pedido.custoMaquina)
-                    : "",
-            custoMaoDeObra:
-                pedido.custoMaoDeObra !== undefined
-                    ? String(pedido.custoMaoDeObra)
-                    : "",
-            custoTotal:
-                pedido.custoTotal !== undefined
-                    ? String(pedido.custoTotal)
-                    : "",
-            precoFinal:
-                pedido.precoFinal !== undefined
-                    ? String(pedido.precoFinal)
-                    : "",
-            status: pedido.status || "",
-            prazo: pedido.prazo || "",
+            prazo: pedido.prazo
+                ? String(pedido.prazo).slice(0, 10)
+                : "",
+        });
+
+        try {
+            const detalhe = await getPedido(pedido.id);
+            setPedidoComArquivos(detalhe as PedidoComArquivos);
+        } catch (error) {
+            console.error(
+                "Erro ao carregar arquivos do pedido:",
+                error
+            );
+            // O modal continua funcionando mesmo se os arquivos
+            // não puderem ser carregados.
+        } finally {
+            setCarregandoArquivosPedido(false);
+        }
+    }
+
+
+    function limparErroPedido(campo: keyof ErrosPedido) {
+        setErrosPedido((atuais) => ({
+            ...atuais,
+            [campo]: undefined,
+        }));
+    }
+
+
+    function validarPedido(): ErrosPedido {
+        const erros: ErrosPedido = {};
+
+        if (!formularioPedido?.projeto.trim()) {
+            erros.projeto = t(
+                "pedidos.form.errorProject",
+                "O nome do pedido é obrigatório."
+            );
+        }
+
+        const hoje =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+        if (!formularioPedido?.prazo) {
+            erros.prazo = t(
+                "pedidos.form.errorDeadline",
+                "O prazo é obrigatório."
+            );
+        } else if (
+            formularioPedido.prazo < hoje
+        ) {
+            erros.prazo = t(
+                "pedidos.form.errorDeadlinePast",
+                "O prazo não pode ser anterior a hoje."
+            );
+        }
+
+        return erros;
+    }
+
+
+    function removerNovaImagem(index: number) {
+        setNovasImagens((atuais) =>
+            atuais.filter(
+                (_, indice) => indice !== index
+            )
+        );
+    }
+
+
+    function adicionarImagens(files: FileList | null) {
+        if (!files) {
+            return;
+        }
+
+        const selecionadas = Array.from(files)
+            .filter((arquivo) =>
+                arquivo.type.startsWith("image/")
+            );
+
+        setNovasImagens((atuais) => {
+            const chaves = new Set(
+                atuais.map(
+                    (arquivo) =>
+                        `${arquivo.name}-${arquivo.size}`
+                )
+            );
+
+            const unicas = selecionadas.filter(
+                (arquivo) =>
+                    !chaves.has(
+                        `${arquivo.name}-${arquivo.size}`
+                    )
+            );
+
+            return [...atuais, ...unicas];
+        });
+    }
+
+
+    function alternarRemocaoImagem(
+        imagemId: string
+    ) {
+        if (!imagemId) {
+            return;
+        }
+
+        setImagensRemover((atuais) => {
+            const proximo = new Set(atuais);
+
+            if (proximo.has(imagemId)) {
+                proximo.delete(imagemId);
+            } else {
+                proximo.add(imagemId);
+            }
+
+            return proximo;
         });
     }
 
@@ -311,12 +423,25 @@ function AdminPage() {
         }
 
         setPedidoEditando(null);
+        setPedidoComArquivos(null);
         setFormularioPedido(null);
+        setErrosPedido({});
+        setObjeto3D(null);
+        setRemoverObjeto3D(false);
+        setNovasImagens([]);
+        setImagensRemover(new Set());
     }
 
-    
+
     async function salvarPedido() {
         if (!pedidoEditando || !formularioPedido) {
+            return;
+        }
+
+        const novosErros = validarPedido();
+
+        if (Object.keys(novosErros).length > 0) {
+            setErrosPedido(novosErros);
             return;
         }
 
@@ -324,114 +449,34 @@ function AdminPage() {
             setSalvandoPedido(true);
             setErro(null);
 
-            const dados: AdminPedidoUpdateData = {
-                clienteId:
-                    formularioPedido.clienteId || undefined,
-
-                cliente:
-                    formularioPedido.cliente || undefined,
-
-                projeto:
-                    formularioPedido.projeto || undefined,
-
-                descricao:
-                    formularioPedido.descricao || undefined,
-
-                materialId:
-                    formularioPedido.materialId || undefined,
-
-                volumeCm3:
-                    formularioPedido.volumeCm3 !== ""
-                        ? Number(formularioPedido.volumeCm3)
-                        : undefined,
-
-                tempoImpressaoHoras:
-                    formularioPedido.tempoImpressaoHoras !== ""
-                        ? Number(
-                            formularioPedido.tempoImpressaoHoras
-                        )
-                        : undefined,
-
-                tempoMaoDeObraHoras:
-                    formularioPedido.tempoMaoDeObraHoras !== ""
-                        ? Number(
-                            formularioPedido.tempoMaoDeObraHoras
-                        )
-                        : undefined,
-
-                custoMaquinaHora:
-                    formularioPedido.custoMaquinaHora !== ""
-                        ? Number(
-                            formularioPedido.custoMaquinaHora
-                        )
-                        : undefined,
-
-                custoMaoDeObraHora:
-                    formularioPedido.custoMaoDeObraHora !== ""
-                        ? Number(
-                            formularioPedido.custoMaoDeObraHora
-                        )
-                        : undefined,
-
-                margemLucro:
-                    formularioPedido.margemLucro !== ""
-                        ? Number(
-                            formularioPedido.margemLucro
-                        )
-                        : undefined,
-
-                custoMaterial:
-                    formularioPedido.custoMaterial !== ""
-                        ? Number(
-                            formularioPedido.custoMaterial
-                        )
-                        : undefined,
-
-                custoMaquina:
-                    formularioPedido.custoMaquina !== ""
-                        ? Number(
-                            formularioPedido.custoMaquina
-                        )
-                        : undefined,
-
-                custoMaoDeObra:
-                    formularioPedido.custoMaoDeObra !== ""
-                        ? Number(
-                            formularioPedido.custoMaoDeObra
-                        )
-                        : undefined,
-
-                custoTotal:
-                    formularioPedido.custoTotal !== ""
-                        ? Number(
-                            formularioPedido.custoTotal
-                        )
-                        : undefined,
-
-                precoFinal:
-                    formularioPedido.precoFinal !== ""
-                        ? Number(
-                            formularioPedido.precoFinal
-                        )
-                        : undefined,
-
-                status:
-                    formularioPedido.status || undefined,
-
-                prazo:
-                    formularioPedido.prazo || undefined,
-            };
-
             const pedidoAtualizado =
-                await atualizarAdminPedido(
+                await editarPedido(
                     pedidoEditando.id,
-                    dados
+                    {
+                        clienteId:
+                            formularioPedido.clienteId ||
+                            undefined,
+                        cliente:
+                            formularioPedido.cliente.trim(),
+                        projeto:
+                            formularioPedido.projeto.trim(),
+                        descricao:
+                            formularioPedido.descricao.trim(),
+                        prazo:
+                            formularioPedido.prazo,
+                        objeto3D,
+                        imagensReferencia:
+                            novasImagens,
+                        removerObjeto3D,
+                        imagensRemover:
+                            Array.from(imagensRemover),
+                    }
                 );
 
             setPedidos((atuais) =>
                 atuais.map((pedido) =>
                     pedido.id === pedidoAtualizado.id
-                        ? pedidoAtualizado
+                        ? (pedidoAtualizado as AdminPedido)
                         : pedido
                 )
             );
@@ -444,14 +489,16 @@ function AdminPage() {
             );
 
             setErro(
-                t("admin.errors.save")
+                error instanceof Error
+                    ? error.message
+                    : t("admin.errors.save")
             );
         } finally {
             setSalvandoPedido(false);
         }
     }
 
-    
+
     async function excluirPedido(pedido: AdminPedido) {
         const confirmar = window.confirm(
             t("admin.orders.deleteConfirm")
@@ -1424,274 +1471,644 @@ function AdminPage() {
                 )}
 
                 
-                {pedidoEditando && formularioPedido && (
-                    <div
-                        className="modal-overlay"
-                        role="presentation"
-                        onMouseDown={(event) => {
-                            if (
-                                event.target ===
-                                event.currentTarget
-                            ) {
-                                fecharEdicaoPedido();
-                            }
-                        }}
-                    >
-                        <div
-                            className="modal-card"
-                            role="dialog"
-                            aria-modal="true"
-                            aria-labelledby="admin-edit-order-title"
-                        >
-                            <div className="modal-header">
-                                <div>
-                                    <span className="pedido-detalhe-kicker">
-                                        {t("admin.orders.editTitle")}
-                                    </span>
+                {pedidoEditando && formularioPedido && (() => {
+                    const imagensAtuais =
+                        pedidoComArquivos?.imagensReferenciaFileIds ??
+                        [];
 
-                                    <h2 id="admin-edit-order-title">
-                                        {pedidoEditando.projeto}
-                                    </h2>
+                    const idsImagens =
+                        pedidoComArquivos?.imagensReferenciaIds ??
+                        [];
+
+                    return (
+                        <div
+                            className="modal-overlay"
+                            role="presentation"
+                            onMouseDown={(event) => {
+                                if (
+                                    event.target ===
+                                    event.currentTarget
+                                ) {
+                                    fecharEdicaoPedido();
+                                }
+                            }}
+                        >
+                            <div
+                                className="modal-card pedido-detalhe-modal is-editing"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="admin-edit-order-title"
+                            >
+                                <div className="modal-header pedido-detalhe-header">
+                                    <div>
+                                        <span className="pedido-detalhe-kicker">
+                                            {t("admin.orders.editTitle")}
+                                        </span>
+
+                                        <h2 id="admin-edit-order-title">
+                                            {formularioPedido.projeto ||
+                                                t("admin.orders.editTitle")}
+                                        </h2>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        className="modal-close"
+                                        onClick={fecharEdicaoPedido}
+                                        disabled={salvandoPedido}
+                                        aria-label={t(
+                                            "admin.actions.cancel"
+                                        )}
+                                    >
+                                        ×
+                                    </button>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className="modal-close"
-                                    onClick={fecharEdicaoPedido}
-                                    disabled={salvandoPedido}
-                                    aria-label={t(
-                                        "admin.actions.cancel"
-                                    )}
-                                >
-                                    ×
-                                </button>
-                            </div>
+                                <p className="dashboard-subtitle">
+                                    {t("admin.orders.editDescription")}
+                                </p>
 
-                            <p className="dashboard-subtitle">
-                                {t("admin.orders.editDescription")}
-                            </p>
-
-                           
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: "var(--space-4)",
-                                        marginTop: "var(--space-5)",
+                                <form
+                                    className="pedido-edit-form"
+                                    onSubmit={(event) => {
+                                        event.preventDefault();
+                                        void salvarPedido();
                                     }}
+                                    noValidate
                                 >
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.client")}
-                                        </label>
+                                    {erro && (
+                                        <p
+                                            className="pedido-edit-error"
+                                            role="alert"
+                                        >
+                                            {erro}
+                                        </p>
+                                    )}
 
-                                        <input
-                                            type="text"
-                                            value={formularioPedido.cliente}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            cliente:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
-                                                )
-                                            }
-                                        />
+                                    <div className="pedido-edit-grid">
+                                        <div className="input-group">
+                                            <label htmlFor="admin-pedido-cliente">
+                                                {t(
+                                                    "admin.orders.fields.client"
+                                                )}
+                                            </label>
+
+                                            <select
+                                                id="admin-pedido-cliente"
+                                                value={
+                                                    formularioPedido.clienteId
+                                                }
+                                                onChange={(event) => {
+                                                    const id =
+                                                        event.target.value;
+
+                                                    const clienteSelecionado =
+                                                        usuarios.find(
+                                                            (usuario) =>
+                                                                usuario.id ===
+                                                                    id &&
+                                                                usuario.role ===
+                                                                    "CLIENTE"
+                                                        );
+
+                                                    setFormularioPedido(
+                                                        (atual) =>
+                                                            atual
+                                                                ? {
+                                                                    ...atual,
+                                                                    clienteId:
+                                                                        id,
+                                                                    cliente:
+                                                                        clienteSelecionado?.nome ??
+                                                                        "",
+                                                                }
+                                                                : atual
+                                                    );
+
+                                                    limparErroPedido(
+                                                        "cliente"
+                                                    );
+                                                }}
+                                                disabled={salvandoPedido}
+                                            >
+                                                <option value="">
+                                                    {t(
+                                                        "pedidos.form.noClientLinked",
+                                                        "Nenhum cliente vinculado"
+                                                    )}
+                                                </option>
+
+                                                {usuarios
+                                                    .filter(
+                                                        (usuario) =>
+                                                            usuario.role ===
+                                                            "CLIENTE"
+                                                    )
+                                                    .map(
+                                                        (usuario) => (
+                                                            <option
+                                                                key={
+                                                                    usuario.id
+                                                                }
+                                                                value={
+                                                                    usuario.id
+                                                                }
+                                                            >
+                                                                {
+                                                                    usuario.nome
+                                                                }{" "}
+                                                                —{" "}
+                                                                {
+                                                                    usuario.email
+                                                                }
+                                                            </option>
+                                                        )
+                                                    )}
+                                            </select>
+
+                                            {errosPedido.cliente && (
+                                                <span className="error-text">
+                                                    {errosPedido.cliente}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="input-group">
+                                            <label htmlFor="admin-pedido-projeto">
+                                                {t(
+                                                    "admin.orders.fields.project"
+                                                )}
+                                            </label>
+
+                                            <input
+                                                id="admin-pedido-projeto"
+                                                type="text"
+                                                className={
+                                                    errosPedido.projeto
+                                                        ? "input-error"
+                                                        : ""
+                                                }
+                                                value={
+                                                    formularioPedido.projeto
+                                                }
+                                                onChange={(event) => {
+                                                    setFormularioPedido(
+                                                        (atual) =>
+                                                            atual
+                                                                ? {
+                                                                    ...atual,
+                                                                    projeto:
+                                                                        event
+                                                                            .target
+                                                                            .value,
+                                                                }
+                                                                : atual
+                                                    );
+
+                                                    limparErroPedido(
+                                                        "projeto"
+                                                    );
+                                                }}
+                                                disabled={salvandoPedido}
+                                                aria-invalid={
+                                                    !!errosPedido.projeto
+                                                }
+                                            />
+
+                                            {errosPedido.projeto && (
+                                                <span className="error-text">
+                                                    {errosPedido.projeto}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="input-group">
+                                            <label htmlFor="admin-pedido-prazo">
+                                                {t(
+                                                    "admin.orders.fields.deadline"
+                                                )}
+                                            </label>
+
+                                            <input
+                                                id="admin-pedido-prazo"
+                                                type="date"
+                                                className={
+                                                    errosPedido.prazo
+                                                        ? "input-error"
+                                                        : ""
+                                                }
+                                                value={
+                                                    formularioPedido.prazo
+                                                }
+                                                min={
+                                                    new Date()
+                                                        .toISOString()
+                                                        .split("T")[0]
+                                                }
+                                                onChange={(event) => {
+                                                    setFormularioPedido(
+                                                        (atual) =>
+                                                            atual
+                                                                ? {
+                                                                    ...atual,
+                                                                    prazo:
+                                                                        event
+                                                                            .target
+                                                                            .value,
+                                                                }
+                                                                : atual
+                                                    );
+
+                                                    limparErroPedido(
+                                                        "prazo"
+                                                    );
+                                                }}
+                                                disabled={salvandoPedido}
+                                                aria-invalid={
+                                                    !!errosPedido.prazo
+                                                }
+                                            />
+
+                                            {errosPedido.prazo && (
+                                                <span className="error-text">
+                                                    {errosPedido.prazo}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.clientId")}
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            value={formularioPedido.clienteId}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            clienteId:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
-                                                )
-                                            }
-                                        />
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.project")}
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            value={formularioPedido.projeto}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            projeto:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
-                                                )
-                                            }
-                                        />
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.description")}
+                                        <label htmlFor="admin-pedido-descricao">
+                                            {t(
+                                                "admin.orders.fields.description"
+                                            )}
                                         </label>
 
                                         <textarea
-                                            value={formularioPedido.descricao}
+                                            id="admin-pedido-descricao"
+                                            rows={4}
+                                            value={
+                                                formularioPedido.descricao
+                                            }
                                             onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            descricao:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
+                                                setFormularioPedido(
+                                                    (atual) =>
+                                                        atual
+                                                            ? {
+                                                                ...atual,
+                                                                descricao:
+                                                                    event
+                                                                        .target
+                                                                        .value,
+                                                            }
+                                                            : atual
                                                 )
                                             }
+                                            disabled={salvandoPedido}
                                         />
                                     </div>
 
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.material")}
+                                    <div className="pedido-edit-section">
+                                        <div className="pedido-edit-section-title">
+                                            <div>
+                                                <h3>
+                                                    {t(
+                                                        "pedidos.detalhe.object3dSectionTitle",
+                                                        "Objeto 3D"
+                                                    )}
+                                                </h3>
+
+                                                <span>
+                                                    {t(
+                                                        "pedidos.novo.object3dSectionHint",
+                                                        "Arquivo 3D do pedido."
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {pedidoComArquivos?.objeto3DFileId &&
+                                            !removerObjeto3D && (
+                                                <div className="pedido-edit-file">
+                                                    <div>
+                                                        <strong>
+                                                            Objeto 3D cadastrado
+                                                        </strong>
+
+                                                        <span>
+                                                            O pedido já possui
+                                                            um arquivo 3D.
+                                                        </span>
+                                                    </div>
+
+                                                    <button
+                                                        type="button"
+                                                        className="pedido-remove-btn"
+                                                        onClick={() =>
+                                                            setRemoverObjeto3D(
+                                                                true
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            salvandoPedido
+                                                        }
+                                                    >
+                                                        Remover
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                        {removerObjeto3D && (
+                                            <div className="pedido-edit-file is-new">
+                                                <div>
+                                                    <strong>
+                                                        Objeto 3D marcado para remoção
+                                                    </strong>
+
+                                                    <span>
+                                                        Selecione outro arquivo abaixo
+                                                        para substituir.
+                                                    </span>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    className="pedido-remove-btn"
+                                                    onClick={() =>
+                                                        setRemoverObjeto3D(
+                                                            false
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        salvandoPedido
+                                                    }
+                                                >
+                                                    Desfazer
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {objeto3D && (
+                                            <div className="pedido-edit-file is-new">
+                                                <div>
+                                                    <strong>
+                                                        {objeto3D.name}
+                                                    </strong>
+
+                                                    <span>
+                                                        Novo arquivo selecionado.
+                                                    </span>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    className="pedido-remove-btn"
+                                                    onClick={() =>
+                                                        setObjeto3D(null)
+                                                    }
+                                                    disabled={
+                                                        salvandoPedido
+                                                    }
+                                                >
+                                                    Remover
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <label className="pedido-upload-btn">
+                                            +
+                                            {objeto3D
+                                                ? "Substituir objeto 3D"
+                                                : "Adicionar objeto 3D"}
+
+                                            <input
+                                                type="file"
+                                                accept=".stl,.obj,.fbx,.glb,.gltf,.3mf"
+                                                onChange={(event) => {
+                                                    const arquivo =
+                                                        event.target
+                                                            .files?.[0] ??
+                                                        null;
+
+                                                    setObjeto3D(
+                                                        arquivo
+                                                    );
+
+                                                    if (arquivo) {
+                                                        setRemoverObjeto3D(
+                                                            false
+                                                        );
+                                                    }
+
+                                                    event.target.value = "";
+                                                }}
+                                                disabled={
+                                                    salvandoPedido
+                                                }
+                                            />
                                         </label>
 
-                                        <input
-                                            type="text"
-                                            value={formularioPedido.materialId}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            materialId:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
-                                                )
-                                            }
-                                        />
+                                        <span className="input-hint">
+                                            {t(
+                                                "pedidos.form.object3dFormats",
+                                                "Formatos: STL, OBJ, FBX, GLB, GLTF e 3MF."
+                                            )}
+                                        </span>
                                     </div>
 
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.deadline")}
-                                        </label>
+                                    <div className="pedido-edit-section">
+                                        <div className="pedido-edit-section-title">
+                                            <div>
+                                                <h3>
+                                                    {t(
+                                                        "pedidos.detalhe.imagesSectionTitle",
+                                                        "Imagens de referência"
+                                                    )}
+                                                </h3>
 
-                                        <input
-                                            type="date"
-                                            value={formularioPedido.prazo}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            prazo:
-                                                                event.target.value,
-                                                        }
-                                                        : atual
-                                                )
-                                            }
-                                        />
-                                    </div>
+                                                <span>
+                                                    {t(
+                                                        "pedidos.novo.imagesSectionHint",
+                                                        "Adicione imagens de referência ao pedido."
+                                                    )}
+                                                </span>
+                                            </div>
 
-                                    <div className="input-group">
-                                        <label>
-                                            {t("admin.orders.fields.status")}
-                                        </label>
+                                            <label className="pedido-upload-btn">
+                                                +
+                                                {t(
+                                                    "pedidos.novo.imagesAdd",
+                                                    "Adicionar imagens"
+                                                )}
 
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={(event) => {
+                                                        adicionarImagens(
+                                                            event.target.files
+                                                        );
 
-                                        <div className="input-group">
-                                            <label>
-                                                {t("admin.orders.fields.status")}
+                                                        event.target.value =
+                                                            "";
+                                                    }}
+                                                    disabled={
+                                                        salvandoPedido
+                                                    }
+                                                />
                                             </label>
+                                        </div>
 
-                                        <select
-                                            value={formularioPedido.status}
-                                            onChange={(event) =>
-                                                setFormularioPedido((atual) =>
-                                                    atual
-                                                        ? {
-                                                            ...atual,
-                                                            status:
-                                                                event.target.value,
+                                        {carregandoArquivosPedido && (
+                                            <p className="input-hint">
+                                                Carregando arquivos atuais...
+                                            </p>
+                                        )}
+
+                                        {imagensAtuais.length > 0 && (
+                                            <div className="pedido-edit-images">
+                                                {imagensAtuais.map(
+                                                    (
+                                                        imagem,
+                                                        indice
+                                                    ) => {
+                                                        const imagemId =
+                                                            idsImagens[
+                                                                indice
+                                                            ] ?? "";
+
+                                                        const marcadaParaRemocao =
+                                                            imagemId
+                                                                ? imagensRemover.has(
+                                                                    imagemId
+                                                                )
+                                                                : false;
+
+                                                        if (!imagem) {
+                                                            return null;
                                                         }
-                                                        : atual
-                                                )
-                                            }
+
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    imagemId ||
+                                                                    `imagem-atual-${indice}`
+                                                                }
+                                                                className={
+                                                                    "pedido-edit-image" +
+                                                                    (marcadaParaRemocao
+                                                                        ? " is-new"
+                                                                        : "")
+                                                                }
+                                                            >
+                                                                <img
+                                                                    src={
+                                                                        imagem
+                                                                    }
+                                                                    alt={`Imagem de referência ${indice + 1}`}
+                                                                />
+
+                                                                {imagemId && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            alternarRemocaoImagem(
+                                                                                imagemId
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            salvandoPedido
+                                                                        }
+                                                                    >
+                                                                        {marcadaParaRemocao
+                                                                            ? "Desfazer remoção"
+                                                                            : "Remover"}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {novasImagensPreviews.length > 0 && (
+                                            <div className="pedido-edit-images">
+                                                {novasImagensPreviews.map(
+                                                    (
+                                                        preview,
+                                                        indice
+                                                    ) => (
+                                                        <div
+                                                            key={`${preview.arquivo.name}-${preview.arquivo.size}-${indice}`}
+                                                            className="pedido-edit-image is-new"
+                                                        >
+                                                            <img
+                                                                src={preview.url}
+                                                                alt={
+                                                                    preview.arquivo.name
+                                                                }
+                                                            />
+
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    removerNovaImagem(
+                                                                        indice
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    salvandoPedido
+                                                                }
+                                                            >
+                                                                Remover
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {imagensAtuais.length === 0 &&
+                                            novasImagensPreviews.length === 0 && (
+                                                <p className="pedido-detalhe-empty">
+                                                    Nenhuma imagem de referência.
+                                                </p>
+                                            )}
+                                    </div>
+
+                                    <div className="modal-actions pedido-edit-actions">
+                                        <button
+                                            type="button"
+                                            className="btn-secondary"
+                                            onClick={fecharEdicaoPedido}
+                                            disabled={salvandoPedido}
                                         >
-                                            <option value="">
-                                                —
-                                            </option>
+                                            {t(
+                                                "admin.actions.cancel"
+                                            )}
+                                        </button>
 
-                                            <option value="MODELAGEM">
-                                                {t("pedidos.status.MODELAGEM")}
-                                            </option>
-
-                                            <option value="IMPRESSAO">
-                                                {t("pedidos.status.IMPRESSAO")}
-                                            </option>
-
-                                            <option value="PINTURA">
-                                                {t("pedidos.status.PINTURA")}
-                                            </option>
-
-                                            <option value="ACABAMENTO">
-                                                {t("pedidos.status.ACABAMENTO")}
-                                            </option>
-
-                                            <option value="FINALIZADO">
-                                                {t("pedidos.status.FINALIZADO")}
-                                            </option>
-                                        </select>
+                                        <button
+                                            type="submit"
+                                            className="button button-primary"
+                                            disabled={salvandoPedido}
+                                        >
+                                            {salvandoPedido
+                                                ? t(
+                                                    "admin.actions.saving"
+                                                )
+                                                : t(
+                                                    "admin.actions.save"
+                                                )}
+                                        </button>
                                     </div>
-
-
-                                    </div>
-                                </div>
-
-                                <div className="modal-actions">
-                                    <button
-                                        type="button"
-                                        className="btn-secondary"
-                                        onClick={fecharEdicaoPedido}
-                                        disabled={salvandoPedido}
-                                    >
-                                        {t("admin.actions.cancel")}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="button button-primary"
-                                        onClick={salvarPedido}
-                                        disabled={salvandoPedido}
-                                    >
-                                        {salvandoPedido
-                                            ? t("admin.actions.saving")
-                                            : t("admin.actions.save")}
-                                    </button>
-                                </div>
-
-
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
 
 
 
