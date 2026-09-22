@@ -76,6 +76,51 @@ export async function getPedido(
 }
 
 
+/**
+ * Erro de mudança de etapa. Quando o backend recusa por falta de insumo ele
+ * responde 422 com a mensagem em texto puro (já listando os insumos e as
+ * quantidades faltantes); essa mensagem precisa chegar inteira ao usuário.
+ */
+export class EtapaError extends Error {
+
+    readonly status: number;
+
+    readonly estoqueInsuficiente: boolean;
+
+    constructor(
+        message: string,
+        status: number
+    ) {
+        super(message);
+        this.name = "EtapaError";
+        this.status = status;
+        this.estoqueInsuficiente = status === 422;
+    }
+}
+
+
+async function lancarErroEtapa(
+    response: Response,
+    fallback: string
+): Promise<never> {
+
+    const texto =
+        await response
+            .text()
+            .catch(() => "");
+
+    const mensagem =
+        response.status === 422 && texto.trim()
+            ? texto.trim()
+            : fallback;
+
+    throw new EtapaError(
+        mensagem,
+        response.status
+    );
+}
+
+
 export async function avancarStatus(
     id: string
 ): Promise<Pedido> {
@@ -89,7 +134,8 @@ export async function avancarStatus(
     );
 
     if (!response.ok) {
-        throw new Error(
+        return lancarErroEtapa(
+            response,
             "Falha ao avançar status"
         );
     }
@@ -111,8 +157,32 @@ export async function regredirStatus(
     );
 
     if (!response.ok) {
-        throw new Error(
+        return lancarErroEtapa(
+            response,
             "Falha ao regredir status"
+        );
+    }
+
+    return response.json();
+}
+
+
+export async function cancelarPedido(
+    id: string
+): Promise<Pedido> {
+
+    const response = await fetch(
+        `${API_URL}/${id}/cancelar`,
+        {
+            method: "PATCH",
+            headers: getHeaders(),
+        }
+    );
+
+    if (!response.ok) {
+        return lancarErroEtapa(
+            response,
+            "Falha ao cancelar pedido"
         );
     }
 
@@ -123,15 +193,23 @@ export async function regredirStatus(
 export interface PedidoFormData {
 
     clienteId?: string;
-
+    orcamentoId?: string;
     cliente: string;
-
     projeto: string;
-
     descricao: string;
-
     prazo: string;
-
+    materialId?: string;
+    volumeCm3?: number;
+    tempoImpressaoHoras?: number;
+    tempoMaoDeObraHoras?: number;
+    custoMaquinaHora?: number;
+    custoMaoDeObraHora?: number;
+    margemLucro?: number;
+    custoMaterial?: number;
+    custoMaquina?: number;
+    custoMaoDeObra?: number;
+    custoTotal?: number;
+    precoFinal?: number;
     status?: PedidoStatus;
 
     objeto3D?: File | null;
@@ -193,14 +271,28 @@ function toFormData(
         data.prazo
     );
 
+    const camposOrcamento: Array<keyof PedidoFormData> = [
+        "orcamentoId",
+        "materialId",
+        "volumeCm3",
+        "tempoImpressaoHoras",
+        "tempoMaoDeObraHoras",
+        "custoMaquinaHora",
+        "custoMaoDeObraHora",
+        "margemLucro",
+        "custoMaterial",
+        "custoMaquina",
+        "custoMaoDeObra",
+        "custoTotal",
+        "precoFinal",
+    ];
 
-    if (data.status) {
-
-        formData.append(
-            "status",
-            data.status
-        );
-    }
+    camposOrcamento.forEach((campo) => {
+        const valor = data[campo];
+        if (valor !== undefined && valor !== null && valor !== "") {
+            formData.append(campo, String(valor));
+        }
+    });
 
 
     formData.append(

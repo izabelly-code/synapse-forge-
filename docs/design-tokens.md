@@ -138,8 +138,34 @@ alguém escrever `class="text-sm"`, vai receber os nossos 12px, não os 14px do 
 | `--z-modal-top` | 1000 | o modal do calendário nasceu com escala própria; alinhar a 100 exigiria revalidar a sobreposição com o lightbox |
 | `border-radius: 50%` (6x) | 50% | forma (círculo), não medida |
 | `@media (max-width: 540px)` | 540px | ponto em que os dois campos de senha deixam de caber lado a lado |
-| `@media (max-width: 900px)` (2x) | 900px | colapso estrutural da sidebar (e do formulário de orçamento, alinhado a ele) |
 | `@media (max-width: 1100px)` (2x) | 1100px | ditado pela largura do conteúdo da toolbar, não pelo device |
+
+**900px não existe mais (SYN-76).** O colapso do shell foi para o passo canônico 1024px (fase 1,
+sidebar vira drawer) e o último 900px — o `.orcamento-form-grid` — virou `@container sf-pane
+(max-width: 820px)` na fase 2.
+
+## Breakpoints de contêiner (@container)
+
+Media query mede o **viewport**; o conteúdo do app logado vive numa coluna que vale
+`viewport − 280px` (sidebar) `− 80px` (padding) acima de 1024px. Era a "faixa morta" do audit de
+responsividade: as linhas de lista estouravam entre ~1025px e ~1266px de viewport porque o
+breakpoint de empilhamento (768px) media a janela, não a coluna. Desde a SYN-76 o que depende da
+largura disponível usa `@container`, com o ponto de empilhamento calculado a partir do
+**min-content real** da linha:
+
+| contêiner | onde declarado | consulta | min-content da peça |
+|---|---|---|---|
+| `sf-list` | `.pedidos-list`, `.cores-list` | `max-width: 960px` → linha de pedido empilha | 906px |
+| `sf-list` | idem | `max-width: 820px` → linha de material empilha | 752px |
+| `sf-list` | idem | `max-width: 800px` → linha de cor empilha | 736px |
+| `sf-list` | idem | `max-width: 640px` → linha de orçamento empilha | 588px |
+| `sf-list` | idem | `max-width: 420px` → etiquetas do stepper somem | — |
+| `sf-pane` | `.orcamento-calculator` | `max-width: 820px` → formulário vira 1 coluna | — |
+
+O `container-type: inline-size` fica na **lista** (e no painel do orçamento), nunca no
+`.dashboard-content`: `container-type` implica `contain: layout`, o que tornaria o elemento o
+bloco contêiner dos descendentes `position: fixed` — os overlays de modal (`inset: 0`) passariam
+a cobrir só a coluna de conteúdo em vez da viewport.
 
 ## Breakpoints normalizados
 
