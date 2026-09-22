@@ -41,7 +41,7 @@ export function useNotificacoesUrgentes() {
         const hoje = inicioDoDia();
         const amanha = hoje + 24 * 60 * 60 * 1000;
         return pedidos
-            .filter((p) => p.status !== "FINALIZADO" && new Date(p.prazo).getTime() < amanha)
+            .filter((p) => p.status !== "FINALIZADO" && p.status !== "CANCELADO" && new Date(p.prazo).getTime() < amanha)
             .sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime())
             .map((pedido) => ({ pedido, atrasado: new Date(pedido.prazo).getTime() < hoje }));
     }, [pedidos]);

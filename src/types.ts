@@ -1,10 +1,24 @@
-export type PedidoStatus = 'MODELAGEM' | 'IMPRESSAO' | 'PINTURA' | 'ACABAMENTO' | 'FINALIZADO';
+export type PedidoStatus = 'MODELAGEM' | 'IMPRESSAO' | 'PINTURA' | 'ACABAMENTO' | 'FINALIZADO' | 'CANCELADO';
 
 export interface Pedido {
   id: string;
   cliente: string;
   projeto: string;
   descricao?: string;
+  orcamentoId?: string;
+  materialId?: string;
+  nomeMaterial?: string;
+  volumeCm3?: number;
+  tempoImpressaoHoras?: number;
+  tempoMaoDeObraHoras?: number;
+  custoMaquinaHora?: number;
+  custoMaoDeObraHora?: number;
+  margemLucro?: number;
+  custoMaterial?: number;
+  custoMaquina?: number;
+  custoMaoDeObra?: number;
+  custoTotal?: number;
+  precoFinal?: number;
   objeto3DFileId?: string;
   imagensReferenciaFileIds?: string[];
   imagensReferenciaIds?: string[];

@@ -9,15 +9,13 @@ function ConfirmEmailPage() {
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
 
-    const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-    const [erro, setErro] = useState("");
+    // Sem token nem há requisição a fazer: o erro é estado inicial derivado da URL,
+    // não um setState síncrono dentro do effect.
+    const [status, setStatus] = useState<"loading" | "success" | "error">(() => (token ? "loading" : "error"));
+    const [erro, setErro] = useState(() => (token ? "" : "Link inválido."));
 
     useEffect(() => {
-        if (!token) {
-            setErro("Link inválido.");
-            setStatus("error");
-            return;
-        }
+        if (!token) return;
 
         const controller = new AbortController();
 

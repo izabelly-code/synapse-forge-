@@ -3,9 +3,11 @@ import { getUserById, searchUsersByName } from '../../services/UserService';
 import { EventData, User } from '../../types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Cancel01Icon } from "hugeicons-react";
+import { useTranslation } from 'react-i18next';
 import './EventoModal.css';
 import IconButton from '../ui/IconButton';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { formatDate } from '../../utils/format';
 
 interface EventoModalProps {
   evento: Partial<EventData>;
@@ -26,7 +28,15 @@ interface FormData {
   participantes: string[];
 }
 
+/** "HH:mm" → hora no idioma ativo; devolve o valor original se não for parseável. */
+function formatarHorario(horario: string): string {
+  const [horas, minutos] = horario.split(':').map(Number);
+  if (Number.isNaN(horas) || Number.isNaN(minutos)) return horario;
+  return formatDate(new Date(2000, 0, 1, horas, minutos), { hour: '2-digit', minute: '2-digit' });
+}
+
 function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuccess }: Readonly<EventoModalProps>) {
+  const { t } = useTranslation();
   const isCreateMode = mode === 'create';
   
   const [newParticipant, setNewParticipant] = useState('');
@@ -92,7 +102,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
     );
 
     if (!matchedUser) {
-      globalThis.alert('Selecione um usuário válido da lista para adicionar como participante.');
+      globalThis.alert(t('agenda.modal.errorInvalidParticipant'));
       return;
     }
 
@@ -132,7 +142,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
 
   const handleSalvar = async () => {
     if (!formData.nome.trim() || !formData.data) {
-      globalThis.alert('Por favor, preencha o título e a data do evento.');
+      globalThis.alert(t('agenda.modal.errorRequired'));
       return;
     }
 
@@ -157,11 +167,11 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
             onClose();
           }
         } else {
-          globalThis.alert('Não foi possível criar o evento. Tente novamente.');
+          globalThis.alert(t('agenda.modal.errorCreate'));
         }
       } catch (error) {
         console.error('Erro ao criar evento via EventService:', error);
-        globalThis.alert('Não foi possível criar o evento. Tente novamente.');
+        globalThis.alert(t('agenda.modal.errorCreate'));
       }
     } else if (onUpdate && evento.id) {
       try {
@@ -169,7 +179,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         setEditando(false);
       } catch (error_) {
         console.error('Erro ao atualizar evento:', error_);
-        globalThis.alert('Não foi possível salvar as alterações. Tente novamente.');
+        globalThis.alert(t('agenda.modal.errorSave'));
       }
     }
   };
@@ -192,7 +202,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
   };
 
   const handleDeletar = async () => {
-    if (globalThis.confirm('Tem certeza que deseja deletar este evento?')) {
+    if (globalThis.confirm(t('agenda.modal.confirmDelete'))) {
       if (evento.id) {
         const sucesso = await onDelete(evento.id);
         if (sucesso) {
@@ -202,26 +212,27 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
               onClose();
             }  
           }else {
-              globalThis.alert('Não foi possível deletar o evento. Tente novamente.');
+              globalThis.alert(t('agenda.modal.errorDelete'));
             }
       }
         else {
-          globalThis.alert('Não foi possível deletar o evento. Tente novamente.');
+          globalThis.alert(t('agenda.modal.errorDelete'));
         }
 
     }
   };
 
+  /** "AAAA-MM-DD" → data curta no idioma ativo (construída em horário local para não deslocar o dia). */
   const formatarData = (dataStr: string) => {
-    const [ano, mes, dia] = dataStr.split('-');
-    return `${dia}/${mes}/${ano}`;
+    const [ano, mes, dia] = dataStr.split('-').map(Number);
+    return formatDate(new Date(ano, mes - 1, dia), { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  let modalTitle = 'Detalhes do evento';
+  let modalTitle = t('agenda.modal.titleDetails');
   if (isCreateMode) {
-    modalTitle = 'Criar novo evento';
+    modalTitle = t('agenda.modal.titleCreate');
   } else if (editando) {
-    modalTitle = 'Editar Evento';
+    modalTitle = t('agenda.modal.titleEdit');
   } else if (evento.nome) {
     modalTitle = evento.nome;
   }
@@ -242,7 +253,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
         {/* Header */}
         <div className="evento-modal-header">
           <h2 className="evento-modal-titulo" id="evento-modal-titulo">{modalTitle}</h2>
-          <IconButton variant="modal-close" onClick={onClose} aria-label="Fechar">
+          <IconButton variant="modal-close" onClick={onClose} aria-label={t('agenda.modal.close')}>
             <Cancel01Icon size={18} />
           </IconButton>
         </div>
@@ -252,32 +263,32 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
           {editando ? (
             <form className="evento-form" onSubmit={(e) => e.preventDefault()}>
               <div className="form-group">
-                <label htmlFor="nome">Título do Evento</label>
+                <label htmlFor="nome">{t('agenda.modal.nameLabel')}</label>
                 <input
                   type="text"
                   id="nome"
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
-                  placeholder="Digite o título do evento"
+                  placeholder={t('agenda.modal.namePlaceholder')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="descricao">Descrição</label>
+                <label htmlFor="descricao">{t('agenda.modal.descriptionLabel')}</label>
                 <textarea
                   id="descricao"
                   name="descricao"
                   value={formData.descricao}
                   onChange={handleInputChange}
-                  placeholder="Digite a descrição do evento"
+                  placeholder={t('agenda.modal.descriptionPlaceholder')}
                   rows={4}
                 />
               </div>
 
               <div className="field-row">
                 <div className="form-group">
-                  <label htmlFor="data">Data</label>
+                  <label htmlFor="data">{t('agenda.modal.dateLabel')}</label>
                   <input
                     type="date"
                     id="data"
@@ -287,7 +298,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="horarioInicio">Início</label>
+                  <label htmlFor="horarioInicio">{t('agenda.modal.startLabel')}</label>
                   <input
                     type="time"
                     id="horarioInicio"
@@ -297,7 +308,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="horarioFim">Fim</label>
+                  <label htmlFor="horarioFim">{t('agenda.modal.endLabel')}</label>
                   <input
                     type="time"
                     id="horarioFim"
@@ -309,7 +320,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
               </div>
 
               <div className="form-group">
-                <label htmlFor="participantes">Participantes</label>
+                <label htmlFor="participantes">{t('agenda.modal.participantsLabel')}</label>
                 <div className="participants-input-row">
                   <div style={{ position: 'relative', flex: 1 }}>
                     <input
@@ -318,7 +329,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                       name="participantes"
                       value={newParticipant}
                       onChange={handleParticipantInputChange}
-                      placeholder="Digite o nome do participante"
+                      placeholder={t('agenda.modal.participantPlaceholder')}
                     />
                     {showUserSuggestions && filteredUsers.length > 0 && (
                       <div className="user-suggestions-dropdown">
@@ -344,7 +355,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                     onClick={handleAdicionarParticipante}
                     disabled={!newParticipant.trim()}
                   >
-                    Adicionar
+                    {t('agenda.modal.add')}
                   </button>
                 </div>
                 <div className="participants-list">
@@ -352,7 +363,7 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                     participantNames.map((nome, index) => (
                       <span key={`${nome}-${index}`} className="participant-chip">
                         {nome}
-                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover ${nome}`}>
+                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={t('agenda.modal.removeParticipantAria', { name: nome })}>
                           <Cancel01Icon size={12} />
                         </button>
                       </span>
@@ -361,13 +372,13 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                     formData.participantes.map((id, index) => (
                       <span key={`${id}-${index}`} className="participant-chip">
                         {id}
-                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={`Remover participante`}>
+                        <button type="button" onClick={() => handleRemoverParticipante(index)} aria-label={t('agenda.modal.removeParticipantGenericAria')}>
                           <Cancel01Icon size={12} />
                         </button>
                       </span>
                     ))
                   ) : (
-                    <p className="no-participants">Nenhum participante adicionado.</p>
+                    <p className="no-participants">{t('agenda.modal.noParticipantsAdded')}</p>
                   )}
                 </div>
               </div>
@@ -376,32 +387,32 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
           ) : (
             <div className="evento-detalhes">
               <div className="detalhe-item">
-                <span className="detalhe-label">Data</span>
+                <span className="detalhe-label">{t('agenda.modal.dateLabel')}</span>
                 <span className="detalhe-valor">{evento.data ? formatarData(evento.data) : ''}</span>
               </div>
 
               {evento.descricao && (
                 <div className="detalhe-item">
-                  <span className="detalhe-label">Descrição</span>
+                  <span className="detalhe-label">{t('agenda.modal.descriptionLabel')}</span>
                   <span className="detalhe-valor">{evento.descricao}</span>
                 </div>
               )}
 
               {evento.horarioInicio && evento.horarioFim && (
                 <div className="detalhe-item">
-                  <span className="detalhe-label">Horário</span>
-                  <span className="detalhe-valor">{evento.horarioInicio} - {evento.horarioFim}</span>
+                  <span className="detalhe-label">{t('agenda.modal.timeLabel')}</span>
+                  <span className="detalhe-valor">{formatarHorario(evento.horarioInicio)} - {formatarHorario(evento.horarioFim)}</span>
                 </div>
               )}
 
               <div className="detalhe-item">
-                <span className="detalhe-label">Participantes</span>
+                <span className="detalhe-label">{t('agenda.modal.participantsLabel')}</span>
                 <span className="detalhe-valor">
                   {participantNames.length > 0
                     ? participantNames.join(', ')
                     : evento.participantes?.length
                       ? evento.participantes.join(', ')
-                      : 'Nenhum participante'}
+                      : t('agenda.modal.noParticipants')}
                 </span>
               </div>
             </div>
@@ -416,10 +427,10 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                 className="btn btn-secondary"
                 onClick={handleCancelar}
               >
-                Cancelar
+                {t('agenda.modal.cancel')}
               </button>
               <button className="btn btn-primary" onClick={handleSalvar}>
-                {isCreateMode ? 'Criar Evento' : 'Salvar Alterações'}
+                {isCreateMode ? t('agenda.modal.create') : t('agenda.modal.saveChanges')}
               </button>
             </>
           ) : (
@@ -428,19 +439,19 @@ function EventoModal({ evento, mode = 'view', onClose, onDelete, onUpdate, onSuc
                 className="btn btn-danger"
                 onClick={handleDeletar}
               >
-                Deletar
+                {t('agenda.modal.delete')}
               </button>
               <button
                 className="btn btn-secondary"
                 onClick={onClose}
               >
-                Fechar
+                {t('agenda.modal.close')}
               </button>
               <button
                 className="btn btn-primary"
                 onClick={() => setEditando(true)}
               >
-                Editar
+                {t('agenda.modal.edit')}
               </button>
             </>
           )}

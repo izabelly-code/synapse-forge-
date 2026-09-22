@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown01Icon, DropletIcon, GridViewIcon, LeftToRightListBulletIcon, Tick02Icon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import { getCores, deletarCor } from "../../services/CorService";
 import { getCached, setCached } from "../../services/cache";
@@ -9,6 +10,7 @@ import { Cor, Acabamento } from "../../types";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
 import ViewToggle from "../ui/ViewToggle";
+import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import SearchField from "../ui/SearchField";
 import MenuSurface from "../ui/MenuSurface";
 import SkeletonSwap from "../ui/SkeletonSwap";
@@ -48,6 +50,9 @@ function PaletaCores() {
     const [acabamento, setAcabamento] = useState<"" | Acabamento>("");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("nome-asc");
     const [view, setView] = useState<"grid" | "list">(() => (localStorage.getItem("coresView") === "list" ? "list" : "grid"));
+    // Celular: só a grade cabe; o toggle some e a preferência salva volta a valer acima de 768px.
+    const mobile = useMediaQuery(MOBILE_QUERY);
+    const viewEfetiva = mobile ? "grid" : view;
 
     const [menuAberto, setMenuAberto] = useState<MenuAberto>(null);
     const [modalAberto, setModalAberto] = useState(false);
@@ -70,11 +75,13 @@ function PaletaCores() {
         });
     }
 
-    async function fetchCores() {
-        if (getCached<Cor[]>(CACHE_KEY) === undefined) setFetching(true);
-        setError("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders.
+    // O estado inicial de `fetching`/`error` já reflete o cache (useState acima).
+    async function buscarCores() {
         try {
             updateCores(await getCores());
+            setError("");
         } catch {
             setError(t("cores.paleta.errorLoad"));
         } finally {
@@ -82,8 +89,20 @@ function PaletaCores() {
         }
     }
 
+    // Recarga disparada por handlers: reexibe o skeleton e limpa o erro na hora.
+    function fetchCores() {
+        if (getCached<Cor[]>(CACHE_KEY) === undefined) setFetching(true);
+        setError("");
+        return buscarCores();
+    }
+
     useEffect(() => {
-        fetchCores();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarCores();
+        }
+        void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -184,9 +203,7 @@ function PaletaCores() {
                     </div>
 
                     <div className="toolbar-actions">
-                        <button className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                            + {t("cores.paleta.newColor")}
-                        </button>
+                        <AddAction label={t("cores.paleta.newColor")} onClick={() => setModalAberto(true)} />
                     </div>
                 </header>
 
@@ -349,15 +366,17 @@ function PaletaCores() {
                             )}
                         </div>
 
-                        <ViewToggle
-                            value={view}
-                            onChange={alternarView}
-                            ariaLabel={t("cores.paleta.viewModeAria")}
-                            options={[
-                                { value: "grid", icon: <GridViewIcon size={16} />, label: t("cores.paleta.viewGrid") },
-                                { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("cores.paleta.viewList") },
-                            ]}
-                        />
+                        {!mobile && (
+                            <ViewToggle
+                                value={view}
+                                onChange={alternarView}
+                                ariaLabel={t("cores.paleta.viewModeAria")}
+                                options={[
+                                    { value: "grid", icon: <GridViewIcon size={16} />, label: t("cores.paleta.viewGrid") },
+                                    { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("cores.paleta.viewList") },
+                                ]}
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -388,8 +407,8 @@ function PaletaCores() {
                             )}
                         </div>
                     ) : (
-                        <div key={view} ref={listaRef} className={view === "grid" ? "cores-grid" : "cores-list"}>
-                            {view === "list" && (
+                        <div key={viewEfetiva} ref={listaRef} className={viewEfetiva === "grid" ? "cores-grid" : "cores-list"}>
+                            {viewEfetiva === "list" && (
                                 <div className="cor-row-head" aria-hidden="true">
                                     <span />
                                     <span>{t("cores.paleta.headColor")}</span>
@@ -404,7 +423,7 @@ function PaletaCores() {
                                     key={cor.id}
                                     cor={cor}
                                     index={i}
-                                    view={view}
+                                    view={viewEfetiva}
                                     onEditar={setCorEditando}
                                     onDeletar={handleDeletar}
                                 />

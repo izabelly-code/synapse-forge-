@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
+import { ArrowLeft01Icon, ArrowRight01Icon, Calendar03Icon, Cancel01Icon, Delete02Icon, FilterIcon, Flag02Icon, GridViewIcon, LeftToRightListBulletIcon, MoreVerticalIcon, PencilEdit02Icon, RefreshIcon, UserIcon } from "hugeicons-react";
+import AddAction from "../ui/AddAction";
+import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import Select from "../ui/Select";
@@ -228,14 +230,19 @@ function OrdensPinturaKanban() {
     const [ordemEditando, setOrdemEditando] = useState<OrdemPintura | null>(null);
     const [menuOrdemId, setMenuOrdemId] = useState<string | null>(null);
     const [confirmarExclusaoId, setConfirmarExclusaoId] = useState<string | null>(null);
+    // "Mover para…" no kebab: o arrasto HTML5 não existe em touch, então no
+    // celular esse submenu é o único jeito de trocar a etapa de uma ordem.
+    const [moverMenuId, setMoverMenuId] = useState<string | null>(null);
+    const mobile = useMediaQuery(MOBILE_QUERY);
     const [arrastandoId, setArrastandoId] = useState<string | null>(null);
     const [colunaAtiva, setColunaAtiva] = useState<EtapaOrdemPintura | null>(null);
     const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null);
 
 
-    async function carregar() {
-        setLoading(true);
-        setErro("");
+    // Só a parte assíncrona: nenhum setState antes do primeiro await, para poder
+    // ser chamada direto do effect de montagem sem cascata de renders
+    // (`loading` já nasce true e `erro` vazio no useState acima).
+    async function buscarDados() {
         try {
             const [ordensData, pedidosData, coresData] = await Promise.all([
                 getOrdensPintura(),
@@ -246,6 +253,7 @@ function OrdensPinturaKanban() {
             setPedidos(pedidosData);
             setCores(coresData);
             setAtualizadoEm(new Date());
+            setErro("");
         } catch {
             setErro(t("pintura.errorLoad"));
         } finally {
@@ -253,10 +261,21 @@ function OrdensPinturaKanban() {
         }
     }
 
+    // Recarga disparada pelo botão de atualizar: volta ao estado de carregando.
+    function carregar() {
+        setLoading(true);
+        setErro("");
+        return buscarDados();
+    }
+
     useEffect(() => {
-        // Initial synchronization with the persisted Kanban data.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        void carregar();
+        // Declarada aqui dentro para que o `await` fique visível ao analisador:
+        // na montagem nenhum setState acontece antes da resposta da API.
+        async function carregarNaMontagem() {
+            await buscarDados();
+        }
+        void carregarNaMontagem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const ordensFiltradas = useMemo(() => {
@@ -344,10 +363,7 @@ function OrdensPinturaKanban() {
                         </div>
 
                         <div className="toolbar-actions">
-
-                            <button type="button" className="button btn-novo-pedido" onClick={() => setModalAberto(true)}>
-                                + {t("pintura.newOrder")}
-                            </button>
+                            <AddAction label={t("pintura.newOrder")} onClick={() => setModalAberto(true)} />
                         </div>
                     </header>
 
@@ -358,7 +374,9 @@ function OrdensPinturaKanban() {
                             onChange={setBusca}
                             placeholder={t("pintura.searchPlaceholder")}
                         />
-                        <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> {t("pintura.filters")}</button>
+                        {!mobile && (
+                            <button type="button" className="pintura-filter-static"><FilterIcon size={16} /> {t("pintura.filters")}</button>
+                        )}
                         <Select
                             variant="filter"
                             label={t("pintura.technicianLabel")}
@@ -400,13 +418,15 @@ function OrdensPinturaKanban() {
                         />
                         <div className="pintura-toolbar-spacer" />
                         <span className="pintura-updated">
-                            {atualizadoEm ? t("pintura.updatedNow") : t("pintura.loadingShort")}
+                            {!mobile && (atualizadoEm ? t("pintura.updatedNow") : t("pintura.loadingShort"))}
                             <button type="button" onClick={carregar} aria-label={t("pintura.refreshAria")}><RefreshIcon size={15} /></button>
                         </span>
-                        <div className="pintura-view-toggle">
-                            <button type="button" className="active" aria-label={t("pintura.kanbanAria")}><GridViewIcon size={17} /></button>
-                            <button type="button" aria-label={t("pintura.listAria")}><LeftToRightListBulletIcon size={17} /></button>
-                        </div>
+                        {!mobile && (
+                            <div className="pintura-view-toggle">
+                                <button type="button" className="active" aria-label={t("pintura.kanbanAria")}><GridViewIcon size={17} /></button>
+                                <button type="button" aria-label={t("pintura.listAria")}><LeftToRightListBulletIcon size={17} /></button>
+                            </div>
+                        )}
                     </div>
 
                     {erro && <div className="dashboard-error">{erro}</div>}
@@ -471,6 +491,7 @@ function OrdensPinturaKanban() {
                                                                 onClick={() => {
                                                                     setMenuOrdemId((atual) => atual === ordem.id ? null : ordem.id);
                                                                     setConfirmarExclusaoId(null);
+                                                                    setMoverMenuId(null);
                                                                 }}
                                                             >
                                                                 <MoreVerticalIcon size={15} />
@@ -491,6 +512,25 @@ function OrdensPinturaKanban() {
                                                                                 </button>
                                                                             </div>
                                                                         </>
+                                                                    ) : moverMenuId === ordem.id ? (
+                                                                        <>
+                                                                            <button type="button" onClick={() => setMoverMenuId(null)}>
+                                                                                <ArrowLeft01Icon size={14} /> {t("pintura.card.back")}
+                                                                            </button>
+                                                                            {COLUNAS.filter((c) => c.etapa !== ordem.etapa).map((c) => (
+                                                                                <button
+                                                                                    key={c.etapa}
+                                                                                    type="button"
+                                                                                    onClick={() => {
+                                                                                        setMenuOrdemId(null);
+                                                                                        setMoverMenuId(null);
+                                                                                        void moverOrdem(ordem.id, c.etapa);
+                                                                                    }}
+                                                                                >
+                                                                                    <ArrowRight01Icon size={14} /> {t(`pintura.etapa.${c.etapa}`)}
+                                                                                </button>
+                                                                            ))}
+                                                                        </>
                                                                     ) : (
                                                                         <>
                                                                             <button
@@ -501,6 +541,9 @@ function OrdensPinturaKanban() {
                                                                                 }}
                                                                             >
                                                                                 <PencilEdit02Icon size={14} /> {t("pintura.card.edit")}
+                                                                            </button>
+                                                                            <button type="button" onClick={() => setMoverMenuId(ordem.id)}>
+                                                                                <ArrowRight01Icon size={14} /> {t("pintura.card.moveTo")}
                                                                             </button>
                                                                             <button
                                                                                 type="button"

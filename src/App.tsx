@@ -7,6 +7,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PaletaCoresPage from "./pages/PaletaCoresPage";
 import CalculadoraMisturaPage from "./pages/CalculadoraMisturaPage";
 import MateriaisPage from "./pages/MateriaisPage";
+import EstoquePage from "./pages/EstoquePage";
 import OrcamentoPageWrapper from "./pages/OrcamentoPageWrapper";
 import RecoveryPage from "./pages/RecoveryPage";
 import Calendar from "./pages/Calendar";
@@ -106,6 +107,11 @@ function App() {
                             <Route
                                 path="/materiais"
                                 element={<MateriaisPage />}
+                            />
+
+                            <Route
+                                path="/estoque"
+                                element={<EstoquePage />}
                             />
 
                             <Route
