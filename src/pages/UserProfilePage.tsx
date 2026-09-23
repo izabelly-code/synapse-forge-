@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+    ERRO_SENHA_ATUAL,
     getMyUser,
-    updateMyUser
+    updateMyUser,
+    type PerfilUpdateData
 } from "../services/UserService";
 import { solicitarMudancaEmail } from "../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
@@ -16,7 +18,6 @@ function UserProfilePage() {
     const token = localStorage.getItem("token");
 
     const [nome, setNome] = useState("");
-    const [, setEmail] = useState("");
     const [emailOriginal, setEmailOriginal] = useState("");
     const [novoEmail, setNovoEmail] = useState("");
     const [emailPendente, setEmailPendente] = useState("");
@@ -49,7 +50,6 @@ function UserProfilePage() {
             .then((user) => {
                 if (user) {
                     setNome(user.nome ?? "");
-                    setEmail(user.email ?? "");
                     setEmailOriginal(user.email ?? "");
                 } else {
                     setErro(
@@ -98,14 +98,12 @@ function UserProfilePage() {
             }
         }
 
-        const payload: {
-            nome: string;
-            senha?: string;
-        } = {
+        const payload: PerfilUpdateData = {
             nome: nome.trim()
         };
 
         if (novaSenha) {
+            payload.senhaAtual = senhaAtual;
             payload.senha = novaSenha;
         }
 
@@ -118,7 +116,6 @@ function UserProfilePage() {
             );
 
             setNome(atualizado.nome ?? nome);
-            setEmail(atualizado.email ?? emailOriginal);
             setEmailOriginal(atualizado.email ?? emailOriginal);
 
             localStorage.setItem(
@@ -137,9 +134,11 @@ function UserProfilePage() {
             setNovaSenha("");
             setConfirmarSenha("");
 
-        } catch {
+        } catch (error) {
             setErro(
-                t("perfil.errors.save")
+                error instanceof Error && error.message === ERRO_SENHA_ATUAL
+                    ? t("perfil.errors.currentPasswordWrong")
+                    : t("perfil.errors.save")
             );
         } finally {
             setSaving(false);
@@ -152,15 +151,12 @@ function UserProfilePage() {
         setErroEmail("");
         setSucessoEmail("");
 
-        if (
-            !novoEmail.trim()
-            || !/\S+@\S+\.\S+/.test(novoEmail)
-        ) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail.trim())) {
             setErroEmail(t("perfil.errors.invalidEmail"));
             return;
         }
 
-        if (novoEmail === emailOriginal) {
+        if (novoEmail.trim().toLowerCase() === emailOriginal.toLowerCase()) {
             setErroEmail(t("perfil.errors.sameEmail"));
             return;
         }
@@ -179,11 +175,11 @@ function UserProfilePage() {
 
             await solicitarMudancaEmail(
                 userId,
-                novoEmail,
+                novoEmail.trim(),
                 token
             );
 
-            setEmailPendente(novoEmail);
+            setEmailPendente(novoEmail.trim());
             setNovoEmail("");
 
             setSucessoEmail(
@@ -321,6 +317,7 @@ function UserProfilePage() {
                             <button
                                 type="button"
                                 className="input-icon"
+                                aria-label={showSenhaAtual ? t("login.hidePassword") : t("login.showPassword")}
                                 onClick={() =>
                                     setShowSenhaAtual(
                                         !showSenhaAtual
@@ -365,6 +362,7 @@ function UserProfilePage() {
                                 <button
                                     type="button"
                                     className="input-icon"
+                                    aria-label={showNovaSenha ? t("login.hidePassword") : t("login.showPassword")}
                                     onClick={() =>
                                         setShowNovaSenha(
                                             !showNovaSenha
@@ -413,6 +411,7 @@ function UserProfilePage() {
                                 <button
                                     type="button"
                                     className="input-icon"
+                                    aria-label={showConfirmar ? t("login.hidePassword") : t("login.showPassword")}
                                     onClick={() =>
                                         setShowConfirmar(
                                             !showConfirmar

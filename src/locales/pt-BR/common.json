@@ -1154,6 +1154,7 @@
       "connection": "Erro de conexão. Verifique se o servidor está rodando.",
       "nameRequired": "O nome não pode ficar vazio.",
       "currentPasswordRequired": "Digite sua senha atual para alterá-la.",
+      "currentPasswordWrong": "A senha atual está incorreta.",
       "passwordTooShort": "A nova senha deve ter ao menos 6 caracteres.",
       "passwordsMismatch": "As senhas não coincidem.",
       "passwordsMismatchInline": "As senhas não coincidem",
@@ -1168,5 +1169,8 @@
       "saved": "Dados atualizados com sucesso!",
       "emailSent": "Email de confirmação enviado para {{email}}. Verifique sua caixa de entrada."
     }
+  },
+  "avisos": {
+    "semPermissao": "Você não tem permissão para esta ação."
   }
 }

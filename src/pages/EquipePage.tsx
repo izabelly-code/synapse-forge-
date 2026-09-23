@@ -69,6 +69,11 @@ interface Convite {
 
 type ModalEquipeModo = "criacao" | "edicao";
 
+/** Valores gravados antes da SYN-102 vieram com aspas literais ("Pintor"). */
+function limparFuncaoVisual(valor?: string | null): string {
+    return (valor ?? "").trim().replace(/^"(.*)"$/, "$1").trim();
+}
+
 function EquipePage() {
     const { t, i18n } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -167,37 +172,25 @@ function EquipePage() {
         return token;
     }
 
+    // O back responde erro como texto puro (GlobalExceptionHandler). O corpo só pode ser
+    // lido uma vez: antes o json() falhava, consumia o corpo e o text() também falhava.
     async function obterMensagemErro(
         response: Response,
         mensagemPadrao: string
     ): Promise<string> {
         try {
-            const data = await response.json();
-
-            if (data?.message) {
-                return data.message;
-            }
-
-            if (data?.mensagem) {
-                return data.mensagem;
-            }
-
-            if (typeof data === "string") {
-                return data;
+            const texto = (await response.text()).trim();
+            if (!texto) return mensagemPadrao;
+            try {
+                const data = JSON.parse(texto);
+                if (typeof data === "string") return data || mensagemPadrao;
+                return data?.message || data?.mensagem || mensagemPadrao;
+            } catch {
+                return texto;
             }
         } catch {
-            try {
-                const texto = await response.text();
-
-                if (texto) {
-                    return texto;
-                }
-            } catch {
-                // Mantém mensagem padrão.
-            }
+            return mensagemPadrao;
         }
-
-        return mensagemPadrao;
     }
 
     function formatarData(data: string): string {
@@ -1178,7 +1171,7 @@ function EquipePage() {
 
         setFuncaoVisualEditando(integrante.id);
         setFuncaoVisualValor(
-            integrante.funcaoVisual ?? ""
+            limparFuncaoVisual(integrante.funcaoVisual)
         );
         setErro(null);
     }
@@ -1307,9 +1300,11 @@ function EquipePage() {
                 );
             }
 
-            setEquipe(null);
-            setIntegrantes([]);
-            setConvites([]);
+            // O papel voltou a CLIENTE: o back devolve um token novo com o papel atual.
+            // Com o token antigo (TECNICO) a pessoa seguiria vendo telas de técnico.
+            const { access_token } = await response.json();
+            localStorage.setItem("token", access_token);
+            window.location.assign("/dashboard");
         } catch (error) {
             console.error(
                 "Erro ao sair da equipe:",
@@ -1724,8 +1719,8 @@ function EquipePage() {
                                                             </div>
                                                         ) : (
                                                             <span className="equipe-member-function">
-                                                                {integrante.funcaoVisual?.trim()
-                                                                    ? integrante.funcaoVisual
+                                                                {limparFuncaoVisual(integrante.funcaoVisual)
+                                                                    ? limparFuncaoVisual(integrante.funcaoVisual)
                                                                     : i18n.language ===
                                                                         "en-US"
                                                                         ? "Function not defined"
@@ -1734,7 +1729,8 @@ function EquipePage() {
                                                         )}
                                                     </div>
 
-                                                    {podeGerenciarEquipe && (
+                                                    {/* Só técnicos são removíveis/editáveis: a linha do próprio gerente não tem ações */}
+                                                    {podeGerenciarEquipe && integrante.role === "TECNICO" && (
                                                         <div className="equipe-member-actions">
                                                             {(isGerente ||
                                                                 isAdmin) &&
