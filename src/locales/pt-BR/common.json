@@ -320,7 +320,8 @@
       "cancel": "Cancelar",
       "save": "Salvar alterações",
       "saving": "Salvando...",
-      "delete": "Excluir"
+      "delete": "Excluir",
+      "deleting": "Excluindo..."
     },
 
     "tabs": {
@@ -346,7 +347,9 @@
     "errors": {
       "load": "Não foi possível carregar os dados da administração.",
       "save": "Não foi possível atualizar o usuário.",
-      "deleteUser": "Não foi possível excluir o usuário."
+      "deleteUser": "Não foi possível excluir o usuário.",
+      "deleteOrder": "Não foi possível excluir o pedido.",
+      "saveOrder": "Não foi possível atualizar o pedido."
     },
 
     "empty": {
@@ -369,6 +372,11 @@
       "editTitle": "Editar usuário",
       "editDescription": "Atualize as informações do usuário no sistema.",
       "deleteConfirm": "Tem certeza de que deseja excluir este usuário?",
+      "validation": {
+        "nameRequired": "O nome é obrigatório.",
+        "emailRequired": "O e-mail é obrigatório.",
+        "emailInvalid": "Informe um e-mail válido."
+      },
       "fields": {
         "name": "Nome",
         "email": "Email",
@@ -391,7 +399,13 @@
       "createdAt": "Criado em",
       "editTitle": "Editar pedido",
       "editDescription": "Atualize as informações do pedido.",
-      "deleteOrder": "Não foi possível excluir o pedido."
+      "deleteConfirm": "Tem certeza de que deseja excluir este pedido?",
+      "fields": {
+        "client": "Cliente",
+        "project": "Projeto",
+        "deadline": "Prazo",
+        "description": "Descrição"
+      }
     },
 
     "status": {

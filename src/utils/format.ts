@@ -24,3 +24,10 @@ export function formatCurrency(valueBRL: number, options?: Intl.NumberFormatOpti
 export function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(i18n.language, options).format(value);
 }
+
+/** Data de hoje no fuso local, em "AAAA-MM-DD" (o formato do input date). `toISOString` usaria UTC. */
+export function hojeISO(): string {
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+    return agora.toISOString().slice(0, 10);
+}
