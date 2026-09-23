@@ -102,6 +102,42 @@ export async function getClientes(
     return await response.json();
 }
 
+/** Cliente devolvido pela busca por e-mail exato (SYN-100): só id, nome e e-mail. */
+export interface ClienteResumo {
+    id: string;
+    nome: string;
+    email: string;
+}
+
+/**
+ * Busca um cliente pelo e-mail exato, sem diferenciar maiúsculas. Não existe listagem
+ * de clientes da plataforma: quem não é cliente, ou não existe, volta como null.
+ */
+export async function buscarClientePorEmail(
+    email: string,
+    token: string | null
+): Promise<ClienteResumo | null> {
+
+    const response = await fetch(
+        `${API_URL}/clientes/buscar?email=${encodeURIComponent(email.trim())}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    if (response.status === 404) {
+        return null;
+    }
+
+    if (!response.ok) {
+        throw new Error("Falha ao buscar cliente.");
+    }
+
+    return await response.json();
+}
+
 export async function searchUsersByName(
     nome: string,
     token: string | null

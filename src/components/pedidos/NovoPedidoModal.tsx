@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Add01Icon, Cancel01Icon, File01Icon, Image02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { criarPedido } from "../../services/PedidoService";
-import { getClientes, getUsers } from "../../services/UserService";
+import { buscarClientePorEmail, getClientes } from "../../services/UserService";
 import type { User } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
@@ -26,6 +26,9 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [carregandoClientes, setCarregandoClientes] = useState(true);
     const [erroClientes, setErroClientes] = useState("");
     const [clienteId, setClienteId] = useState("");
+    const [emailBusca, setEmailBusca] = useState("");
+    const [buscandoEmail, setBuscandoEmail] = useState(false);
+    const [avisoBusca, setAvisoBusca] = useState("");
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
@@ -60,21 +63,14 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     useBodyScrollLock();
     useFocusTrap(painelRef);
 
-    // RF12: pedido é vinculado a um usuário CLIENTE; o backend devolve só usuários com essa role.
+    // SYN-100: a lista traz os clientes que já têm pedido nesta equipe. Cliente novo
+    // para a loja entra pela busca por e-mail exato logo abaixo do select.
     useEffect(() => {
         // `carregandoClientes` já nasce true e `erroClientes` vazio no useState,
         // então o effect não precisa (nem deve) setar estado de forma síncrona.
         const token = localStorage.getItem("token");
         getClientes(token)
-            .then(async (usuarios) => {
-                if (usuarios.length > 0) {
-                    setClientes(usuarios);
-                    return;
-                }
-
-                const usuariosFallback = await getUsers(token);
-                setClientes(usuariosFallback.filter((usuario) => usuario.role === "CLIENTE"));
-            })
+            .then((usuarios) => setClientes(usuarios))
             .catch(() => setErroClientes(t("pedidos.form.errorLoadClients")))
             .finally(() => setCarregandoClientes(false));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,6 +85,33 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
         }
         const selecionado = clientes.find((usuario) => usuario.id === id);
         setCliente(selecionado?.nome ?? "");
+    }
+
+    async function buscarPorEmail() {
+        const email = emailBusca.trim();
+        if (!email) return;
+        setBuscandoEmail(true);
+        setAvisoBusca("");
+        try {
+            const encontrado = await buscarClientePorEmail(email, localStorage.getItem("token"));
+            if (!encontrado) {
+                setAvisoBusca(t("pedidos.form.clientNotFound"));
+                return;
+            }
+            setClientes((atual) =>
+                atual.some((usuario) => usuario.id === encontrado.id)
+                    ? atual
+                    : [...atual, { ...encontrado, role: "CLIENTE" }]
+            );
+            setClienteId(encontrado.id);
+            setCliente(encontrado.nome);
+            limparErro("cliente");
+            setEmailBusca("");
+        } catch {
+            setAvisoBusca(t("pedidos.form.errorSearchClient"));
+        } finally {
+            setBuscandoEmail(false);
+        }
     }
 
     const previews = useMemo(
@@ -231,6 +254,30 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                                 ]}
                             />
                             {erroClientes && <span className="error-text">{erroClientes}</span>}
+                            <div className="cliente-busca-email">
+                                <input
+                                    id="cliente-email"
+                                    type="email"
+                                    value={emailBusca}
+                                    onChange={(e) => { setEmailBusca(e.target.value); setAvisoBusca(""); }}
+                                    onKeyDown={(e) => {
+                                        // Enter aqui busca o cliente, não envia o pedido inteiro.
+                                        if (e.key === "Enter") { e.preventDefault(); buscarPorEmail(); }
+                                    }}
+                                    placeholder={t("pedidos.form.clientEmailPlaceholder")}
+                                    aria-label={t("pedidos.form.clientEmailPlaceholder")}
+                                    autoComplete="off"
+                                />
+                                <button
+                                    type="button"
+                                    className="cliente-busca-btn"
+                                    onClick={buscarPorEmail}
+                                    disabled={buscandoEmail || !emailBusca.trim()}
+                                >
+                                    {buscandoEmail ? t("pedidos.form.searchingClient") : t("pedidos.form.searchClient")}
+                                </button>
+                            </div>
+                            {avisoBusca && <span className="input-hint" role="status">{avisoBusca}</span>}
                             <span className="input-hint" id="cliente-erro">
                                 {erros.cliente && <span className="error-text">{erros.cliente}</span>}
                             </span>

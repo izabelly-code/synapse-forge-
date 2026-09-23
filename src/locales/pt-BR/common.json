@@ -152,7 +152,9 @@
     "empty": {
         "noTeamTitle": "Você ainda não possui uma equipe",
         "technicianNoTeam": "Você ainda não está vinculado a nenhuma equipe.",
-        "managerNoTeam": "Crie sua equipe para começar a organizar os integrantes e gerenciar sua produção."
+        "managerNoTeam": "Crie sua equipe para começar a organizar os integrantes e gerenciar sua produção.",
+        "redirectNotice": "Essa área precisa de uma equipe. Crie a sua para começar: pedidos, orçamentos, cores e estoque ficam vinculados a ela.",
+        "redirectNoticeInvite": "Essa área precisa de uma equipe. Peça ao gerente da loja um convite pelo seu e-mail."
     },
 
     "teamDescription": "Equipe de produção e desenvolvimento",
@@ -406,7 +408,12 @@
       "errorDeadlinePast": "O prazo não pode ser anterior a hoje.",
       "loadingClients": "Carregando clientes...",
       "noClientLinked": "Nenhum cliente vinculado",
-      "errorLoadClients": "Não foi possível carregar os clientes."
+      "errorLoadClients": "Não foi possível carregar os clientes.",
+      "clientEmailPlaceholder": "Cliente novo? Busque pelo e-mail exato",
+      "searchClient": "Buscar",
+      "searchingClient": "Buscando...",
+      "clientNotFound": "Nenhum cliente com esse e-mail.",
+      "errorSearchClient": "Não foi possível buscar o cliente."
     },
     "novo": {
       "kicker": "Criando pedido",

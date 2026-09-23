@@ -152,7 +152,9 @@
     "empty": {
         "noTeamTitle": "You do not have a team yet",
         "technicianNoTeam": "You are not currently assigned to a team.",
-        "managerNoTeam": "Create your team to start organizing members and managing your production."
+        "managerNoTeam": "Create your team to start organizing members and managing your production.",
+        "redirectNotice": "This area needs a team. Create yours to get started: orders, quotes, colors and stock belong to it.",
+        "redirectNoticeInvite": "This area needs a team. Ask the shop manager to invite you by email."
     },
 
     "teamDescription": "Production and development team",
@@ -405,7 +407,12 @@
       "errorDeadlinePast": "The deadline cannot be in the past.",
       "loadingClients": "Loading clients...",
       "noClientLinked": "No client linked",
-      "errorLoadClients": "Could not load the clients."
+      "errorLoadClients": "Could not load the clients.",
+      "clientEmailPlaceholder": "New customer? Search by exact email",
+      "searchClient": "Search",
+      "searchingClient": "Searching...",
+      "clientNotFound": "No customer has this email.",
+      "errorSearchClient": "Unable to search for the customer."
     },
     "novo": {
       "kicker": "Creating order",

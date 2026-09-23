@@ -16,10 +16,15 @@ import {
 } from "hugeicons-react";
 
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 import "./EquipePage.css";
 
 import { getUserRole, getToken } from "../hooks/useAuth";
+import {
+    buscarClientePorEmail as buscarClientePorEmailApi,
+    type ClienteResumo,
+} from "../services/UserService";
 
 const API_URL = "http://localhost:8081";
 
@@ -45,11 +50,7 @@ interface Integrante {
 }
 
 /** Resultado da busca de cliente por e-mail exato (convite de equipe). */
-interface ClienteEncontrado {
-    id: string;
-    nome: string;
-    email: string;
-}
+type ClienteEncontrado = ClienteResumo;
 
 interface Convite {
     id: string;
@@ -68,6 +69,10 @@ type ModalEquipeModo = "criacao" | "edicao";
 
 function EquipePage() {
     const { t, i18n } = useTranslation();
+    const [searchParams] = useSearchParams();
+
+    // Chegou aqui redirecionado (login de gerente sem equipe ou 403 SEM_EQUIPE).
+    const vindoSemEquipe = searchParams.get("semEquipe") === "1";
 
     const role = getUserRole();
 
@@ -319,34 +324,15 @@ function EquipePage() {
             setClienteNaoEncontrado(false);
             setClienteSelecionado("");
 
-            const token = obterToken();
-
-            const response = await fetch(
-                `${API_URL}/users/clientes/buscar?email=${encodeURIComponent(email)}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+            const data = await buscarClientePorEmailApi(
+                email,
+                obterToken()
             );
 
-            if (response.status === 404) {
+            if (!data) {
                 setClienteNaoEncontrado(true);
                 return;
             }
-
-            if (!response.ok) {
-                throw new Error(
-                    await obterMensagemErro(
-                        response,
-                        t("equipe.errors.searchClient")
-                    )
-                );
-            }
-
-            const data: ClienteEncontrado =
-                await response.json();
 
             setClienteEncontrado(data);
             setClienteSelecionado(data.id);
@@ -356,11 +342,7 @@ function EquipePage() {
                 error
             );
 
-            setErro(
-                error instanceof Error
-                    ? error.message
-                    : t("equipe.errors.searchClient")
-            );
+            setErro(t("equipe.errors.searchClient"));
         } finally {
             setBuscandoCliente(false);
         }
@@ -1434,6 +1416,14 @@ function EquipePage() {
                     </section>
                 ) : !equipe ? (
                     <section className="equipe-members-section">
+                        {vindoSemEquipe && (
+                            <div className="equipe-aviso" role="status">
+                                {podeGerenciarEquipe
+                                    ? t("equipe.empty.redirectNotice")
+                                    : t("equipe.empty.redirectNoticeInvite")}
+                            </div>
+                        )}
+
                         <div className="equipe-card equipe-empty-card">
                             <UserGroupIcon size={42} />
 
