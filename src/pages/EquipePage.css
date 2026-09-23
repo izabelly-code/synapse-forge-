@@ -1453,3 +1453,132 @@
         width: min(180px, 100%);
     }
 }
+/* =========================================================
+   CONVITE ENVIADO: CONFIRMAÇÃO
+   Momento raro (um convite por pessoa), então cabe um pequeno gesto:
+   o ícone aparece, o anel se desenha e o check fecha o traço; o texto
+   sobe logo atrás. Tudo em transform/opacity, exceto o traço do SVG.
+   ========================================================= */
+
+.equipe-convite-sucesso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: var(--space-2);
+    padding-block: var(--space-4) var(--space-2);
+
+    text-align: center;
+}
+
+.equipe-convite-check {
+    width: 56px;
+    height: 56px;
+    margin-bottom: var(--space-2);
+
+    overflow: visible;
+}
+
+.equipe-convite-check-ring {
+    /* o traço começa no topo (12h), não na lateral direita, que é o padrão do SVG */
+    transform: rotate(-90deg);
+    transform-box: fill-box;
+    transform-origin: center;
+
+    fill: color-mix(in srgb, var(--color-success) 10%, transparent);
+    stroke: var(--color-success);
+    stroke-width: 2.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+}
+
+.equipe-convite-check-tick {
+    fill: none;
+    stroke: var(--color-success);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+}
+
+.equipe-convite-sucesso h3 {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-tight);
+}
+
+.equipe-convite-sucesso p {
+    max-width: 36ch;
+    margin: 0;
+
+    color: var(--color-text-muted);
+
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .equipe-convite-check {
+        animation: equipe-convite-surge var(--duration-base) var(--ease-out-expo) both;
+    }
+
+    .equipe-convite-check-ring {
+        animation: equipe-convite-traco var(--duration-slower) var(--ease-out-expo)
+            calc(var(--stagger-step) * 1) both;
+    }
+
+    /* o check só começa quando o anel já está quase fechado */
+    .equipe-convite-check-tick {
+        animation: equipe-convite-traco var(--duration-slow) var(--ease-out-expo)
+            calc(var(--stagger-step) * 7) both;
+    }
+
+    .equipe-convite-sucesso h3 {
+        animation: equipe-convite-sobe var(--duration-slow) var(--ease-out-expo)
+            calc(var(--stagger-step) * 4) both;
+    }
+
+    .equipe-convite-sucesso p {
+        animation: equipe-convite-sobe var(--duration-slow) var(--ease-out-expo)
+            calc(var(--stagger-step) * 6) both;
+    }
+}
+
+/* Movimento reduzido: sem escala nem traço, só o conteúdo aparecendo. */
+@media (prefers-reduced-motion: reduce) {
+    .equipe-convite-sucesso {
+        animation: equipe-convite-aparece var(--duration-fast) var(--ease-standard) both;
+    }
+}
+
+@keyframes equipe-convite-surge {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+}
+
+@keyframes equipe-convite-traco {
+    from {
+        stroke-dashoffset: 1;
+    }
+}
+
+@keyframes equipe-convite-sobe {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+}
+
+@keyframes equipe-convite-aparece {
+    from {
+        opacity: 0;
+    }
+}
