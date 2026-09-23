@@ -14,6 +14,7 @@ import {
     deletarAdminPedido
 } from "../services/adminService";
 import { editarPedido, getPedido } from "../services/PedidoService";
+import { useRecarregarAoVoltar } from "../hooks/useRecarregarAoVoltar";
 
 
 
@@ -136,9 +137,10 @@ function AdminPage() {
         carregarDados();
     }, []);
 
-    async function carregarDados() {
+    // `silencioso`: recarga ao voltar para a aba, sem trocar a lista pelo "carregando".
+    async function carregarDados(silencioso = false) {
         try {
-            setCarregando(true);
+            if (!silencioso) setCarregando(true);
             setErro(null);
 
             const [usuariosData, pedidosData] =
@@ -160,6 +162,11 @@ function AdminPage() {
             setCarregando(false);
         }
     }
+
+    useRecarregarAoVoltar(
+        () => void carregarDados(true),
+        !usuarioEditando && !pedidoEditando
+    );
 
     const usuariosFiltrados = useMemo(() => {
         const termo = busca
@@ -751,20 +758,6 @@ function AdminPage() {
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        className="button"
-                        onClick={carregarDados}
-                        disabled={carregando}
-                    >
-                        {carregando
-                            ? t(
-                                  "admin.actions.refreshing"
-                              )
-                            : t(
-                                  "admin.actions.refresh"
-                              )}
-                    </button>
                 </div>
             </section>
 
@@ -861,7 +854,7 @@ function AdminPage() {
                 </div>
             ) : aba === "usuarios" ? (
 
-                <section>
+                <section className="pedidos-list">
 
                     <div className="pedidos-row-head material-row">
                         <span>
@@ -977,7 +970,7 @@ function AdminPage() {
 
             ) : (
 
-                <section>
+                <section className="pedidos-list">
 
                         <div className="pedidos-row-head material-row">
                             <span>

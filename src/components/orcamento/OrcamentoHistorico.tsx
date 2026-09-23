@@ -7,6 +7,7 @@ import { useFlipList } from "../../hooks/useFlipList";
 import { FiCheck, FiX } from "react-icons/fi";
 import { formatCurrency, formatDate } from "../../utils/format";
 import OrcamentoDetalheModal from "./OrcamentoDetalheModal";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 
 function formatarData(criadoEm: string | null) {
@@ -29,10 +30,13 @@ function OrcamentoHistorico() {
     const listaRef = useRef<HTMLDivElement>(null);
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
     const [orcamentoSelecionado, setOrcamentoSelecionado] = useState<Orcamento | null>(null);
+    // Incrementa ao voltar para a aba: refaz a busca sem voltar ao skeleton.
+    const [recarga, setRecarga] = useState(0);
+    useRecarregarAoVoltar(() => setRecarga((n) => n + 1), !orcamentoSelecionado);
 
     useEffect(() => {
         async function fetchOrcamentos() {
-            setFetching(true);
+            // `fetching` já nasce true: o skeleton cobre só a primeira carga.
             setError("");
             try {
                 setOrcamentos(await getOrcamentos());
@@ -44,7 +48,7 @@ function OrcamentoHistorico() {
         }
         fetchOrcamentos();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [recarga]);
 
     // Quando o histórico muda de ordem, as linhas viajam para o novo lugar.
     useFlipList(listaRef, orcamentos.map((o) => o.id).join("|"));

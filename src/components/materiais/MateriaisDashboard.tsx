@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertCircleIcon, InboxIcon } from "hugeicons-react";
+import { AlertCircleIcon, InboxIcon, PlusSignIcon } from "hugeicons-react";
 import AddAction from "../ui/AddAction";
 import { useTranslation } from "react-i18next";
 import { getMateriais, inativarMaterial } from "../../services/MaterialService";
@@ -8,6 +8,7 @@ import { Material } from "../../models/Material";
 import { formatCurrency, formatNumber } from "../../utils/format";
 import SkeletonSwap from "../ui/SkeletonSwap";
 import { cn } from "../../utils/cn";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 /** Saldo no mínimo ou abaixo dele: a mesma regra de GET /estoque/alertas. */
 function emAlerta(m: Material): boolean {
@@ -52,6 +53,9 @@ function MateriaisDashboard() {
         void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Recarrega ao voltar para a aba, sem skeleton (os dados já estão na tela).
+    useRecarregarAoVoltar(() => void buscarMateriais(), !modalAberto && !materialEditando);
 
     function fecharModal() {
         setModalAberto(false);
@@ -109,6 +113,7 @@ function MateriaisDashboard() {
                             <p className="empty-title">{t("materiais.dashboard.emptyTitle")}</p>
                             <p className="empty-sub">{t("materiais.dashboard.emptySubtitle")}</p>
                             <button className="button btn-novo-pedido empty-cta" onClick={() => setModalAberto(true)}>
+                                <PlusSignIcon size={16} strokeWidth={2.25} />
                                 {t("materiais.dashboard.newMaterial")}
                             </button>
                         </div>
