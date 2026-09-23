@@ -317,7 +317,8 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "save": "Save changes",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "deleting": "Deleting..."
     },
 
     "tabs": {
@@ -343,7 +344,9 @@
     "errors": {
       "load": "Unable to load administration data.",
       "save": "Unable to update the user.",
-      "deleteUser": "Unable to delete the user."
+      "deleteUser": "Unable to delete the user.",
+      "deleteOrder": "Could not delete the order.",
+      "saveOrder": "Could not update the order."
     },
 
     "empty": {
@@ -366,6 +369,11 @@
       "editTitle": "Edit user",
       "editDescription": "Update the user's system information.",
       "deleteConfirm": "Are you sure you want to delete this user?",
+      "validation": {
+        "nameRequired": "Name is required.",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Enter a valid email."
+      },
       "fields": {
         "name": "Name",
         "email": "Email",
@@ -388,7 +396,13 @@
       "createdAt": "Created",
       "editTitle": "Edit order",
       "editDescription": "Update the order information.",
-      "deleteOrder": "Unable to delete the order."
+      "deleteConfirm": "Are you sure you want to delete this order?",
+      "fields": {
+        "client": "Client",
+        "project": "Project",
+        "deadline": "Deadline",
+        "description": "Description"
+      }
 
     },
 
