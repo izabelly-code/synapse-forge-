@@ -53,6 +53,7 @@
 
   "fields": {
     "name": "Name",
+    "shopName": "Shop name",
     "email": "Email",
     "cpf": "CPF",
     "phone": "Phone",
@@ -62,6 +63,7 @@
 
   "placeholders": {
     "name": "Enter your name",
+    "shopName": "e.g. 3D Miniatures Studio",
     "email": "Enter your email",
     "cpf": "000.000.000-00",
     "phone": "(00) 00000-0000",
@@ -98,6 +100,7 @@
   "errors": {
     "nameRequired": "Please enter your name.",
     "nameMinLength": "Name must contain at least 3 characters.",
+    "shopNameRequired": "Please enter the shop name.",
     "emailRequired": "Please enter your email.",
     "emailInvalid": "Enter a valid email (e.g. name@email.com).",
     "cpfIncomplete": "Incomplete CPF.",
