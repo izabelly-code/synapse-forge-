@@ -6581,3 +6581,35 @@ html {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+/* ── Aviso global (SYN-102): 403 sem deslogar ─────────────────────────────── */
+.aviso-global {
+  position: fixed;
+  inset-inline: 0;
+  bottom: var(--space-6);
+  z-index: var(--z-lightbox);
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--space-4);
+  pointer-events: none;
+}
+
+.aviso-global-texto {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-button);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow);
+  animation: aviso-global-entra var(--duration-base) var(--ease-out-expo);
+}
+
+@keyframes aviso-global-entra {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aviso-global-texto { animation: none; }
+}

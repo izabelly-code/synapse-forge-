@@ -72,7 +72,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [erroEtapa, setErroEtapa] = useState("");
     const [confirmandoCancelamento, setConfirmandoCancelamento] = useState(false);
 
-    /** RF12: CLIENTE só visualiza; mudar etapa é de TECNICO/GERENTE/ADMIN. */
+    /** RF12: CLIENTE só visualiza; editar e mudar etapa é de TECNICO/GERENTE/ADMIN. */
     const role = getUserRole();
     const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
     const isGerente = role === "GERENTE";
@@ -344,7 +344,8 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                         </h2>
                     </div>
                     <div className="pedido-detalhe-header-actions">
-                        {pedido && !editando && (
+                        {/* CLIENTE só visualiza: o PUT /pedidos é negado para ele no back */}
+                        {pedido && !editando && podeMudarEtapa && (
                             <button type="button" className="pedido-edit-btn" onClick={() => iniciarEdicao(pedido)}>
                                 <PencilEdit02Icon size={15} />
                                 {t("pedidos.detalhe.edit")}

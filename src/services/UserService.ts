@@ -2,39 +2,21 @@ import { User } from '../types';
 
 const API_URL = "http://localhost:8081/users";
 
-export interface UpdateUserData {
+/** PUT /users/me: campo ausente não muda. E-mail só muda pelo fluxo com confirmação. */
+export interface PerfilUpdateData {
     nome?: string;
-    email?: string;
+    cpf?: string;
+    telefone?: string;
+    /** Obrigatória quando `senha` (a nova) vier preenchida; conferida no back. */
+    senhaAtual?: string;
     senha?: string;
 }
 
-export async function updateUser(
-    id: string,
-    data: UpdateUserData,
-    token: string | null
-): Promise<User> {
-
-    const response = await fetch(
-        `${API_URL}/${encodeURIComponent(id)}`,
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error("Falha ao atualizar usuário.");
-    }
-
-    return await response.json();
-}
+/** Mensagem do back quando a senha atual não confere (UserService.atualizarProprioPerfil). */
+export const ERRO_SENHA_ATUAL = "Senha atual incorreta";
 
 export async function updateMyUser(
-    data: UpdateUserData,
+    data: PerfilUpdateData,
     token: string | null
 ): Promise<User> {
 
@@ -55,7 +37,8 @@ export async function updateMyUser(
     );
 
     if (!response.ok) {
-        throw new Error("Falha ao atualizar o próprio perfil.");
+        // O back responde o motivo em texto (ex.: ERRO_SENHA_ATUAL).
+        throw new Error((await response.text()) || "Falha ao atualizar o próprio perfil.");
     }
 
     return await response.json();
