@@ -40,6 +40,7 @@ function Register({
     const [confirmSenha, setConfirmSenha] = useState("");
     const [cpf, setCpf] = useState("");
     const [telefone, setTelefone] = useState("");
+    const [nomeLoja, setNomeLoja] = useState("");
 
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
@@ -317,6 +318,12 @@ function Register({
             );
         }
 
+        if (tipoCadastro === "GERENTE" && !nomeLoja.trim()) {
+            return setErro(
+                t("register.errors.shopNameRequired")
+            );
+        }
+
         if (!email) {
             return setErro(
                 t("register.errors.emailRequired")
@@ -394,7 +401,10 @@ function Register({
             };
 
             if (tipoCadastro === "GERENTE") {
-                await registerGerente(dados);
+                await registerGerente({
+                    ...dados,
+                    nomeEquipe: nomeLoja.trim(),
+                });
             } else {
                 await register(dados);
             }
@@ -620,6 +630,34 @@ function Register({
                         />
 
                     </div>
+
+                    {tipoCadastro === "GERENTE" && (
+                        <div className="input-group">
+
+                            <label htmlFor="register-loja">
+                                {t("register.fields.shopName")}
+                            </label>
+
+                            <div className="input-wrapper">
+
+                                <input
+                                    id="register-loja"
+                                    value={nomeLoja}
+                                    onChange={(e) =>
+                                        setNomeLoja(e.target.value)
+                                    }
+                                    placeholder={t(
+                                        "register.placeholders.shopName"
+                                    )}
+                                />
+
+                            </div>
+
+                            {/* Mesmo slot de mensagem dos outros campos: mantém o espaçamento. */}
+                            <FieldMessage error={undefined} />
+
+                        </div>
+                    )}
 
                     <div className="input-group">
 

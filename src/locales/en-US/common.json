@@ -53,6 +53,7 @@
 
   "fields": {
     "name": "Name",
+    "shopName": "Shop name",
     "email": "Email",
     "cpf": "CPF",
     "phone": "Phone",
@@ -62,6 +63,7 @@
 
   "placeholders": {
     "name": "Enter your name",
+    "shopName": "e.g. 3D Miniatures Studio",
     "email": "Enter your email",
     "cpf": "000.000.000-00",
     "phone": "(00) 00000-0000",
@@ -98,6 +100,7 @@
   "errors": {
     "nameRequired": "Please enter your name.",
     "nameMinLength": "Name must contain at least 3 characters.",
+    "shopNameRequired": "Please enter the shop name.",
     "emailRequired": "Please enter your email.",
     "emailInvalid": "Enter a valid email (e.g. name@email.com).",
     "cpfIncomplete": "Incomplete CPF.",
@@ -121,7 +124,6 @@
   }
 },
   "equipe": {
-    "kicker": "Team",
     "title": "My team",
     "subtitle": "View and manage the members of your team.",
 
@@ -146,14 +148,15 @@
 
     "loading": {
         "team": "Loading team...",
-        "members": "Loading members...",
-        "clients": "Loading clients..."
+        "members": "Loading members..."
     },
 
     "empty": {
         "noTeamTitle": "You do not have a team yet",
         "technicianNoTeam": "You are not currently assigned to a team.",
-        "managerNoTeam": "Create your team to start organizing members and managing your production."
+        "managerNoTeam": "Create your team to start organizing members and managing your production.",
+        "redirectNotice": "This area needs a team. Create yours to get started: orders, quotes, colors and stock belong to it.",
+        "redirectNoticeInvite": "This area needs a team. Ask the shop manager to invite you by email."
     },
 
     "teamDescription": "Production and development team",
@@ -199,9 +202,17 @@
 
     "inviteModal": {
         "title": "Invite user",
-        "description": "Choose a customer to send an invitation to this team.",
-        "availableClients": "Available customers",
-        "noClients": "There are no customers available to invite."
+        "description": "Enter the email of a registered customer to invite them to this team.",
+        "emailLabel": "Customer email",
+        "emailPlaceholder": "customer@email.com",
+        "search": "Search",
+        "searching": "Searching...",
+        "hint": "For privacy, you can only invite people whose exact email you already know.",
+        "notFound": "No customer has this email. Check the address or ask them to sign up as a customer.",
+        "sentTitle": "Invite sent",
+        "sentDescription": "{{nome}} will get the link to join the team at {{email}}. The link is valid for 24 hours.",
+        "inviteAnother": "Invite someone else",
+        "done": "Done"
     },
 
     "images": {
@@ -220,7 +231,7 @@
         "sessionExpired": "Your session has expired. Please sign in again.",
         "loadTeam": "Unable to load the team.",
         "loadMembers": "Unable to load team members.",
-        "loadAvailableClients": "Unable to load available customers.",
+        "searchClient": "Unable to search for the customer.",
         "loadInvites": "Unable to load invitations.",
         "loadData": "Unable to load team data.",
         "updateData": "Unable to update the data.",
@@ -402,7 +413,12 @@
       "errorDeadlinePast": "The deadline cannot be in the past.",
       "loadingClients": "Loading clients...",
       "noClientLinked": "No client linked",
-      "errorLoadClients": "Could not load the clients."
+      "errorLoadClients": "Could not load the clients.",
+      "clientEmailPlaceholder": "New customer? Search by exact email",
+      "searchClient": "Search",
+      "searchingClient": "Searching...",
+      "clientNotFound": "No customer has this email.",
+      "errorSearchClient": "Unable to search for the customer."
     },
     "novo": {
       "kicker": "Creating order",

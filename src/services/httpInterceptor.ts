@@ -22,6 +22,20 @@ export function installHttpInterceptor(): void {
         const response = await originalFetch(input, init);
 
         const url = resolveUrl(input);
+
+        // SYN-100: 403 com SEM_EQUIPE não é sessão inválida, é usuário sem equipe.
+        // Leva para a página de Equipe (onde ele cria ou aguarda um convite) sem deslogar.
+        if (
+            response.status === 403 &&
+            url.startsWith(API_BASE) &&
+            response.headers.get("X-Codigo-Erro") === "SEM_EQUIPE"
+        ) {
+            if (!window.location.pathname.startsWith("/equipe")) {
+                window.location.assign("/equipe?semEquipe=1");
+            }
+            return response;
+        }
+
         const sessaoInvalida =
             (response.status === 401 || response.status === 403) &&
             url.startsWith(API_BASE) &&
