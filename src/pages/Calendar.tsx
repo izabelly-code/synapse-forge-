@@ -10,6 +10,7 @@ import { getCached, setCached } from '../services/cache';
 import { EventData } from '../types';
 import { cn } from '../utils/cn';
 import { formatDate } from '../utils/format';
+import { useRecarregarAoVoltar } from "../hooks/useRecarregarAoVoltar";
 
 type EventDataWithBackendId = EventData & {
   _id?: string | number;
@@ -109,6 +110,9 @@ function Calendar() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  // Incrementa ao voltar para a aba: refaz a busca do mês (com cache, sem spinner).
+  const [recarga, setRecarga] = useState(0);
+  useRecarregarAoVoltar(() => setRecarga((n) => n + 1), !createModalOpen);
 
   const initialEventos = (() => {
     const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') ?? '' : '';
@@ -180,7 +184,7 @@ function Calendar() {
     }
     fetchEventos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth, currentYear]);
+  }, [currentMonth, currentYear, recarga]);
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);

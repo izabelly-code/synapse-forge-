@@ -12,7 +12,6 @@ import {
     Image01Icon,
     Mail01Icon,
     UserRemove01Icon,
-    Refresh01Icon,
     Edit02Icon,
 } from "hugeicons-react";
 
@@ -23,6 +22,7 @@ import "./EquipePage.css";
 
 import { getUserRole, getToken } from "../hooks/useAuth";
 import { useAnimatedHeight } from "../hooks/useAnimatedHeight";
+import { useRecarregarAoVoltar } from "../hooks/useRecarregarAoVoltar";
 import {
     buscarClientePorEmail as buscarClientePorEmailApi,
     type ClienteResumo,
@@ -139,7 +139,6 @@ function EquipePage() {
 
     const [saindoDaEquipe, setSaindoDaEquipe] = useState(false);
 
-    const [atualizando, setAtualizando] = useState(false);
 
     const [funcaoVisualEditando, setFuncaoVisualEditando] =
         useState<string | null>(null);
@@ -509,7 +508,6 @@ function EquipePage() {
 
     async function atualizarDados() {
         try {
-            setAtualizando(true);
             setErro(null);
 
             const minhaEquipe =
@@ -556,10 +554,18 @@ function EquipePage() {
                     ? error.message
                     : t("equipe.errors.updateData")
             );
-        } finally {
-            setAtualizando(false);
         }
     }
+
+    // Sem botão "Atualizar": os dados recarregam quando a pessoa volta para a aba
+    // (ex.: alguém aceitou o convite enquanto ela estava em outra tela). Pausa com
+    // modal aberto para não trocar os dados de quem está editando.
+    useRecarregarAoVoltar(
+        () => {
+            if (equipe) void atualizarDados();
+        },
+        !modalAberto && !modalConviteAberto
+    );
 
     /*
      * =========================================================
@@ -1388,21 +1394,6 @@ function EquipePage() {
                     </div>
 
                     <div className="equipe-header-actions">
-                        {equipe && (
-                            <button
-                                type="button"
-                                className="equipe-button equipe-secondary-button"
-                                onClick={atualizarDados}
-                                disabled={atualizando}
-                            >
-                                <Refresh01Icon size={17} />
-
-                                {atualizando
-                                    ? t("equipe.actions.refreshing")
-                                    : t("equipe.actions.refresh")}
-                            </button>
-                        )}
-
                         {podeGerenciarEquipe && equipe && (
                             <button
                                 type="button"

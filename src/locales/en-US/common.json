@@ -128,8 +128,6 @@
     "subtitle": "View and manage the members of your team.",
 
     "actions": {
-        "refresh": "Refresh",
-        "refreshing": "Refreshing...",
         "inviteUser": "Invite user",
         "createTeam": "Create team",
         "editTeam": "Edit team",
@@ -315,8 +313,6 @@
     "subtitle": "Manage users and orders stored in the system.",
 
     "actions": {
-      "refresh": "Refresh",
-      "refreshing": "Refreshing...",
       "edit": "Edit",
       "delete": "Delete",
       "cancel": "Cancel",
@@ -791,7 +787,7 @@
     "dashboard": {
       "title": "Materials",
       "subtitle": "Manage the materials used in production",
-      "newMaterial": "+ New Material",
+      "newMaterial": "New Material",
       "errorLoad": "Could not load materials. Check that the server is running.",
       "errorDelete": "Could not delete the material.",
       "confirmDelete": "Are you sure you want to delete this material?",
@@ -1108,6 +1104,54 @@
       "errorCreate": "Could not create the event. Please try again.",
       "errorSave": "Could not save your changes. Please try again.",
       "errorDelete": "Could not delete the event. Please try again."
+    }
+  },
+  "perfil": {
+    "sections": {
+      "personalData": "Personal details",
+      "changePassword": "Change password",
+      "optional": "(optional)",
+      "changeEmail": "Change email"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "newEmail": "New email",
+      "newEmailPlaceholder": "new@email.com"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "sending": "Sending...",
+      "sendConfirmation": "Send confirmation"
+    },
+    "email": {
+      "current": "Current email:",
+      "pending": "⏳ Confirmation pending for",
+      "hint": "A confirmation email will be sent to the new address. Your email only changes after it is confirmed."
+    },
+    "errors": {
+      "loadData": "Could not load your data. Please try logging in again.",
+      "connection": "Connection error. Check that the server is running.",
+      "nameRequired": "Name cannot be empty.",
+      "currentPasswordRequired": "Enter your current password to change it.",
+      "passwordTooShort": "The new password must be at least 6 characters long.",
+      "passwordsMismatch": "Passwords do not match.",
+      "passwordsMismatchInline": "Passwords do not match",
+      "save": "Error saving. Check your details and try again.",
+      "invalidEmail": "Enter a valid email.",
+      "sameEmail": "The new email is the same as the current one.",
+      "accountNotFound": "Could not identify your account.",
+      "emailInUse": "This email is already in use.",
+      "requestEmail": "Error requesting the change. Please try again."
+    },
+    "success": {
+      "saved": "Details updated successfully!",
+      "emailSent": "Confirmation email sent to {{email}}. Check your inbox."
     }
   }
 }

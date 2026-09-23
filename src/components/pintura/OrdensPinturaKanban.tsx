@@ -25,6 +25,7 @@ import {
     Pedido,
     PrioridadeOrdemPintura,
 } from "../../types";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 interface Coluna {
     etapa: EtapaOrdemPintura;
@@ -277,6 +278,9 @@ function OrdensPinturaKanban() {
         void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Recarrega ao voltar para a aba, sem voltar ao estado de carregando.
+    useRecarregarAoVoltar(() => void buscarDados(), !modalAberto && !ordemEditando && !confirmarExclusaoId);
 
     const ordensFiltradas = useMemo(() => {
         const termo = busca.trim().toLowerCase();

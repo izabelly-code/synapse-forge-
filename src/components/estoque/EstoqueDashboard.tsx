@@ -11,6 +11,7 @@ import { Cor } from "../../types";
 import { formatNumber } from "../../utils/format";
 import MovimentoEstoqueModal, { InsumoRef, ModoMovimento } from "./MovimentoEstoqueModal";
 import HistoricoMovimentacoes from "./HistoricoMovimentacoes";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 interface ModalEstado {
     modo: ModoMovimento;
@@ -57,6 +58,15 @@ function EstoqueDashboard() {
         void fetchAlertas();
         void fetchInsumos();
     }, [fetchAlertas, fetchInsumos]);
+
+    // Recarrega ao voltar para a aba (o skeleton só cobre a primeira carga).
+    useRecarregarAoVoltar(
+        () => {
+            void fetchAlertas();
+            void fetchInsumos();
+        },
+        !modal && !historicoInsumo
+    );
 
     function abrirHistorico(insumo: InsumoRef) {
         setHistoricoInsumo(insumo);
