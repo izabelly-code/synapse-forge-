@@ -188,6 +188,22 @@
    ERRO
    ========================================================= */
 
+/* Aviso neutro para quem foi trazido à página por não ter equipe (SYN-100) */
+.equipe-aviso {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 13px 15px;
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: 10px;
+
+    background: var(--color-surface);
+    color: var(--color-text);
+
+    font-size: 14px;
+    line-height: 1.45;
+}
+
 .equipe-error {
     width: 100%;
     margin-bottom: 20px;
