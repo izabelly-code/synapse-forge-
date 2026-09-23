@@ -77,6 +77,7 @@ function PedidosDashboard() {
 
     /** RF12: CLIENTE só visualiza; criar/editar/avançar/deletar são de TECNICO/GERENTE/ADMIN. */
     const role = getUserRole();
+    const isCliente = role === "CLIENTE";
     const podeGerenciarPedidos = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
 
     const initialCached = getCached<Pedido[]>(CACHE_KEY);
@@ -292,8 +293,21 @@ function PedidosDashboard() {
             <main className="dashboard-main pedidos-page">
                 <header className="pedidos-toolbar">
                     <div>
-                        <h1 className="dashboard-title">{t("pedidos.dashboard.title")}</h1>
-                        <p className="dashboard-subtitle">{t("pedidos.dashboard.subtitle")}</p>
+                        <h1 className="dashboard-title">
+                            {t(
+                                isCliente
+                                    ? "pedidos.dashboard.clientTitle"
+                                    : "pedidos.dashboard.title"
+                            )}
+                        </h1>
+
+                        <p className="dashboard-subtitle">
+                            {t(
+                                isCliente
+                                    ? "pedidos.dashboard.clientSubtitle"
+                                    : "pedidos.dashboard.subtitle"
+                            )}
+                        </p>
                     </div>
 
                     <div className="toolbar-actions">
@@ -302,7 +316,11 @@ function PedidosDashboard() {
                             inputRef={buscaRef}
                             value={busca}
                             onChange={setBusca}
-                            placeholder={t("pedidos.dashboard.searchPlaceholder")}
+                            placeholder={t(
+                                isCliente
+                                    ? "pedidos.dashboard.clientSearchPlaceholder"
+                                    : "pedidos.dashboard.searchPlaceholder"
+                            )}
                             ariaLabel={t("pedidos.dashboard.searchAria")}
                             trailing={<kbd className="search-kbd">⌘K</kbd>}
                         />
@@ -411,6 +429,7 @@ function PedidosDashboard() {
                                 {t(PERIODO_I18N[periodo])}
                                 <ArrowDown01Icon size={15} className="filtro-action-chev" />
                             </button>
+
                             {menuAberto === "periodo" && (
                                 <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
@@ -441,6 +460,7 @@ function PedidosDashboard() {
                                 <FilterIcon size={15} />
                                 {t("pedidos.dashboard.filtersButton")}
                             </button>
+
                             {menuAberto === "filtros" && (
                                 <MenuSurface className="filtro-dropdown" role="menu">
                                     {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (

@@ -75,6 +75,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     /** RF12: CLIENTE só visualiza; mudar etapa é de TECNICO/GERENTE/ADMIN. */
     const role = getUserRole();
     const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
+    const isGerente = role === "GERENTE";
 
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
@@ -350,14 +351,16 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             </button>
                         )}
 
-                        <button
-                            type="button"
-                            className="pedido-edit-btn"
-                            onClick={() => gerarOrdemServico(pedidoId)}
-                        >
-                            <Download01Icon size={15} />
-                            {t("pedidos.detalhe.pdf")}
-                        </button>
+                        {isGerente && (
+                            <button
+                                type="button"
+                                className="pedido-edit-btn"
+                                onClick={() => gerarOrdemServico(pedidoId)}
+                            >
+                                <Download01Icon size={15} />
+                                {t("pedidos.detalhe.pdf")}
+                            </button>
+                        )}
                         <IconButton variant="modal-close" onClick={onClose} aria-label={t("pedidos.form.close")}>
                             <Cancel01Icon size={18} />
                         </IconButton>

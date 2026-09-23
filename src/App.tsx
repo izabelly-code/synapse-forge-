@@ -19,6 +19,9 @@ import OrdensPinturaPage from "./pages/OrdensPinturaPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import SessionExpiredPage from "./pages/SessionExpiredPage";
+import EquipePage from "./pages/EquipePage";
+import ConviteEquipePage from "./pages/ConviteEquipePage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
     return (
@@ -44,6 +47,10 @@ function App() {
                 <Route
                     path="/redefinir-senha"
                     element={<ResetPasswordPage />}
+                />
+                <Route
+                    path="/convite-equipe"
+                    element={<ConviteEquipePage />}
                 />
                 <Route
                     path="/sessao-expirada"
@@ -108,9 +115,17 @@ function App() {
                             />
 
                             <Route
-                                path="/orcamento"
-                                element={<OrcamentoPageWrapper />}
-                            />
+                                element={
+                                    <ProtectedRoute
+                                        allowedRoles={["GERENTE"]}
+                                    />
+                                }
+                            >
+                                <Route
+                                    path="/orcamento"
+                                    element={<OrcamentoPageWrapper />}
+                                />
+                            </Route>
 
                             <Route
                                 path="/calendar"
@@ -121,7 +136,14 @@ function App() {
                                 path="/ordens-pintura"
                                 element={<OrdensPinturaPage />}
                             />
+
+                            <Route
+                                path="/equipe"
+                                element={<EquipePage />}
+                            />
                         </Route>
+
+                        
 
 
                         {/* -------------------------------------------------
@@ -133,6 +155,21 @@ function App() {
                             path="/perfil"
                             element={<UserProfilePage />}
                         />
+
+                        
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={["ADMIN"]}
+                                />
+                            }
+                        >
+                            <Route
+                                path="/admin"
+                                element={<AdminPage />}
+                            />
+                        </Route>
+
 
                     </Route>
 
