@@ -22,6 +22,7 @@ import "./EquipePage.css";
 
 import { getUserRole, getToken } from "../hooks/useAuth";
 import { useAnimatedHeight } from "../hooks/useAnimatedHeight";
+import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useRecarregarAoVoltar } from "../hooks/useRecarregarAoVoltar";
 import {
     buscarClientePorEmail as buscarClientePorEmailApi,
@@ -1327,46 +1328,16 @@ function EquipePage() {
      * =========================================================
      */
 
-    useEffect(() => {
-        function handleEscape(
-            event: KeyboardEvent
-        ) {
-            if (event.key !== "Escape") {
-                return;
-            }
-
-            if (
-                modalAberto &&
-                !salvandoEquipe
-            ) {
-                fecharModalEquipe();
-            }
-
-            if (
-                modalConviteAberto &&
-                !enviandoConvite
-            ) {
-                fecharModalConvite();
-            }
+    // useEscapeKey guarda o handler num ref: sempre lê o estado atual, sem lista de dependências.
+    useEscapeKey(() => {
+        if (modalAberto && !salvandoEquipe) {
+            fecharModalEquipe();
         }
 
-        document.addEventListener(
-            "keydown",
-            handleEscape
-        );
-
-        return () => {
-            document.removeEventListener(
-                "keydown",
-                handleEscape
-            );
-        };
-    }, [
-        modalAberto,
-        salvandoEquipe,
-        modalConviteAberto,
-        enviandoConvite,
-    ]);
+        if (modalConviteAberto && !enviandoConvite) {
+            fecharModalConvite();
+        }
+    });
 
     /*
      * =========================================================
