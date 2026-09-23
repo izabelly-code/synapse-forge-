@@ -48,6 +48,8 @@ interface RegisterData {
     senha: string;
     cpf: string;
     telefone: string;
+    /** Só no cadastro de gerente: nome da loja, criada junto com a conta. */
+    nomeEquipe?: string;
 }
 
 // =========================================================
