@@ -36,11 +36,11 @@
     justify-content: center;
     gap: var(--space-2);
 
-    min-height: 42px;
+    height: var(--control-h);
     padding: 0 var(--space-4);
 
     border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-button);
 
     background: var(--color-surface);
     color: var(--color-text);
@@ -568,7 +568,7 @@
     padding: 0;
 
     border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-button);
 
     background: var(--color-surface);
     color: var(--color-text-muted);
@@ -1052,7 +1052,7 @@
     padding: 0 var(--space-4);
 
     border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-button);
 
     background: var(--color-surface);
     color: var(--color-text);
@@ -1352,6 +1352,11 @@
         padding: var(--space-5);
     }
 
+    /* o cabeçalho da equipe continua sem padding: banner de borda a borda */
+    .equipe-card.equipe-header-card {
+        padding: 0;
+    }
+
     .equipe-upload-grid {
         grid-template-columns: 1fr;
     }
@@ -1384,21 +1389,34 @@
         width: 100%;
     }
 
+    /* Linha do integrante em duas faixas: foto + nome/e-mail em cima; papel,
+       função e ações embaixo, alinhados ao texto (coluna 2) e à direita. */
     .equipe-member {
-        align-items: flex-start;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: var(--space-3);
+        row-gap: var(--space-2-5);
+    }
+
+    .equipe-member-avatar {
+        grid-column: 1;
+        grid-row: 1;
     }
 
     .equipe-member-main {
-        min-width: calc(100% - 60px);
+        grid-column: 2 / -1;
+        grid-row: 1;
     }
 
-    .equipe-member-role {
-        margin-left: 56px;
+    .equipe-member-info {
+        grid-column: 2;
+        grid-row: 2;
     }
 
     .equipe-member-actions {
-        margin-left: auto;
+        grid-column: 3;
+        grid-row: 2;
     }
 
     .equipe-modal-overlay {
@@ -1435,9 +1453,11 @@
     }
 
     .equipe-member-info {
-    align-items: flex-start;
-    width: calc(100% - 56px);
-    margin-left: 56px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2);
+        min-width: 0;
     }
 
     .equipe-member-function {

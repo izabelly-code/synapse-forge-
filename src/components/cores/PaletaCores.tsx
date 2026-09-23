@@ -15,6 +15,7 @@ import SearchField from "../ui/SearchField";
 import MenuSurface from "../ui/MenuSurface";
 import SkeletonSwap from "../ui/SkeletonSwap";
 import { useFlipList } from "../../hooks/useFlipList";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 const CACHE_KEY = "cores:all";
 
@@ -105,6 +106,9 @@ function PaletaCores() {
         void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Recarrega ao voltar para a aba, sem skeleton (os dados já estão na tela).
+    useRecarregarAoVoltar(() => void buscarCores(), !modalAberto && !corEditando);
 
     useDismissable({
         enabled: menuAberto !== null,

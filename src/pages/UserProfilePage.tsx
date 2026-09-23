@@ -8,9 +8,11 @@ import { solicitarMudancaEmail } from "../services/AuthService";
 import { ViewIcon, ViewOffSlashIcon } from "hugeicons-react";
 import { avatarPalette } from "../utils/avatarPalette";
 import { cn } from "../utils/cn";
+import { useTranslation } from "react-i18next";
 
 function UserProfilePage() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const token = localStorage.getItem("token");
 
     const [nome, setNome] = useState("");
@@ -51,19 +53,19 @@ function UserProfilePage() {
                     setEmailOriginal(user.email ?? "");
                 } else {
                     setErro(
-                        "Não foi possível carregar seus dados. Tente fazer login novamente."
+                        t("perfil.errors.loadData")
                     );
                 }
             })
             .catch(() => {
                 setErro(
-                    "Erro de conexão. Verifique se o servidor está rodando."
+                    t("perfil.errors.connection")
                 );
             })
             .finally(() => {
                 setLoading(false);
             });
-    }, [token, navigate]);
+    }, [token, navigate, t]);
 
     function getInitial() {
         return nome ? nome.charAt(0).toUpperCase() : "?";
@@ -75,23 +77,23 @@ function UserProfilePage() {
         setSucesso("");
 
         if (!nome.trim()) {
-            setErro("O nome não pode ficar vazio.");
+            setErro(t("perfil.errors.nameRequired"));
             return;
         }
 
         if (novaSenha || confirmarSenha) {
             if (!senhaAtual) {
-                setErro("Digite sua senha atual para alterá-la.");
+                setErro(t("perfil.errors.currentPasswordRequired"));
                 return;
             }
 
             if (novaSenha.length < 6) {
-                setErro("A nova senha deve ter ao menos 6 caracteres.");
+                setErro(t("perfil.errors.passwordTooShort"));
                 return;
             }
 
             if (novaSenha !== confirmarSenha) {
-                setErro("As senhas não coincidem.");
+                setErro(t("perfil.errors.passwordsMismatch"));
                 return;
             }
         }
@@ -129,7 +131,7 @@ function UserProfilePage() {
                 atualizado.email ?? emailOriginal
             );
 
-            setSucesso("Dados atualizados com sucesso!");
+            setSucesso(t("perfil.success.saved"));
 
             setSenhaAtual("");
             setNovaSenha("");
@@ -137,7 +139,7 @@ function UserProfilePage() {
 
         } catch {
             setErro(
-                "Erro ao salvar. Verifique os dados e tente novamente."
+                t("perfil.errors.save")
             );
         } finally {
             setSaving(false);
@@ -154,12 +156,12 @@ function UserProfilePage() {
             !novoEmail.trim()
             || !/\S+@\S+\.\S+/.test(novoEmail)
         ) {
-            setErroEmail("Digite um email válido.");
+            setErroEmail(t("perfil.errors.invalidEmail"));
             return;
         }
 
         if (novoEmail === emailOriginal) {
-            setErroEmail("O novo email é igual ao atual.");
+            setErroEmail(t("perfil.errors.sameEmail"));
             return;
         }
 
@@ -167,7 +169,7 @@ function UserProfilePage() {
 
         if (!userId) {
             setErroEmail(
-                "Não foi possível identificar sua conta."
+                t("perfil.errors.accountNotFound")
             );
             return;
         }
@@ -185,7 +187,7 @@ function UserProfilePage() {
             setNovoEmail("");
 
             setSucessoEmail(
-                `Email de confirmação enviado para ${novoEmail}. Verifique sua caixa de entrada.`
+                t("perfil.success.emailSent", { email: novoEmail })
             );
 
         } catch (error) {
@@ -197,8 +199,8 @@ function UserProfilePage() {
 
             setErroEmail(
                 msg.includes("uso")
-                    ? "Este email já está em uso."
-                    : "Erro ao solicitar alteração. Tente novamente."
+                    ? t("perfil.errors.emailInUse")
+                    : t("perfil.errors.requestEmail")
             );
 
         } finally {
@@ -253,7 +255,7 @@ function UserProfilePage() {
                     style={{ marginBottom: "1.25rem" }}
                 >
                     <h2 className="profile-section-title">
-                        Dados pessoais
+                        {t("perfil.sections.personalData")}
                     </h2>
 
                     {erro && (
@@ -270,7 +272,7 @@ function UserProfilePage() {
 
                     <div className="input-group">
                         <label htmlFor="nome">
-                            Nome
+                            {t("perfil.fields.name")}
                         </label>
 
                         <input
@@ -280,7 +282,7 @@ function UserProfilePage() {
                             onChange={(e) =>
                                 setNome(e.target.value)
                             }
-                            placeholder="Seu nome completo"
+                            placeholder={t("perfil.fields.namePlaceholder")}
                         />
                     </div>
 
@@ -289,16 +291,16 @@ function UserProfilePage() {
                         className="profile-section-title"
                         style={{ marginTop: "1.5rem" }}
                     >
-                        Alterar senha{" "}
+                        {t("perfil.sections.changePassword")}{" "}
                         <span className="label-opcional">
-                            (opcional)
+                            {t("perfil.sections.optional")}
                         </span>
                     </h2>
 
 
                     <div className="input-group">
                         <label htmlFor="senhaAtual">
-                            Senha atual
+                            {t("perfil.fields.currentPassword")}
                         </label>
 
                         <div className="input-wrapper">
@@ -338,10 +340,9 @@ function UserProfilePage() {
 
                         <div
                             className="input-group"
-                            style={{ flex: 1 }}
                         >
                             <label htmlFor="novaSenha">
-                                Nova senha
+                                {t("perfil.fields.newPassword")}
                             </label>
 
                             <div className="input-wrapper">
@@ -381,10 +382,9 @@ function UserProfilePage() {
 
                         <div
                             className="input-group"
-                            style={{ flex: 1 }}
                         >
                             <label htmlFor="confirmarSenha">
-                                Confirmar senha
+                                {t("perfil.fields.confirmPassword")}
                             </label>
 
                             <div className="input-wrapper">
@@ -430,7 +430,7 @@ function UserProfilePage() {
                                 && novaSenha !== confirmarSenha
                                 && (
                                     <span className="error-text">
-                                        As senhas não coincidem
+                                        {t("perfil.errors.passwordsMismatchInline")}
                                     </span>
                                 )
                             }
@@ -448,18 +448,17 @@ function UserProfilePage() {
                                 navigate("/dashboard")
                             }
                         >
-                            Cancelar
+                            {t("perfil.actions.cancel")}
                         </button>
 
                         <button
                             type="submit"
                             className="button"
                             disabled={saving}
-                            style={{ flex: 1 }}
                         >
                             {saving
-                                ? "Salvando..."
-                                : "Salvar alterações"
+                                ? t("perfil.actions.saving")
+                                : t("perfil.actions.saveChanges")
                             }
                         </button>
 
@@ -478,11 +477,11 @@ function UserProfilePage() {
                 >
 
                     <h2 className="profile-section-title">
-                        Alterar email
+                        {t("perfil.sections.changeEmail")}
                     </h2>
 
                     <p className="profile-email-atual">
-                        Email atual:{" "}
+                        {t("perfil.email.current")}{" "}
                         <strong>
                             {emailOriginal}
                         </strong>
@@ -493,7 +492,7 @@ function UserProfilePage() {
                         && !sucessoEmail
                         && (
                             <div className="profile-email-pendente">
-                                ⏳ Confirmação pendente para{" "}
+                                {t("perfil.email.pending")}{" "}
                                 <strong>
                                     {emailPendente}
                                 </strong>
@@ -518,7 +517,7 @@ function UserProfilePage() {
                     <div className="input-group">
 
                         <label htmlFor="novoEmail">
-                            Novo email
+                            {t("perfil.fields.newEmail")}
                         </label>
 
                         <input
@@ -531,7 +530,7 @@ function UserProfilePage() {
                                     e.target.value
                                 )
                             }
-                            placeholder="novo@email.com"
+                            placeholder={t("perfil.fields.newEmailPlaceholder")}
                         />
 
                     </div>
@@ -543,11 +542,10 @@ function UserProfilePage() {
                             type="submit"
                             className="button"
                             disabled={savingEmail}
-                            style={{ flex: 1 }}
                         >
                             {savingEmail
-                                ? "Enviando..."
-                                : "Enviar confirmação"
+                                ? t("perfil.actions.sending")
+                                : t("perfil.actions.sendConfirmation")
                             }
                         </button>
 
@@ -562,9 +560,7 @@ function UserProfilePage() {
                             marginBottom: 0
                         }}
                     >
-                        Um email de confirmação será enviado para
-                        o novo endereço. O email só muda após a
-                        confirmação.
+                        {t("perfil.email.hint")}
                     </p>
 
                 </form>

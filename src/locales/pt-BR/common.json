@@ -128,8 +128,6 @@
     "subtitle": "Visualize e gerencie os integrantes da sua equipe.",
 
     "actions": {
-        "refresh": "Atualizar",
-        "refreshing": "Atualizando...",
         "inviteUser": "Convidar usuário",
         "createTeam": "Criar equipe",
         "editTeam": "Editar equipe",
@@ -318,8 +316,6 @@
 
 
     "actions": {
-      "refresh": "Atualizar",
-      "refreshing": "Atualizando...",
       "edit": "Editar",
       "cancel": "Cancelar",
       "save": "Salvar alterações",
@@ -792,7 +788,7 @@
     "dashboard": {
       "title": "Materiais",
       "subtitle": "Cadastre os materiais usados na produção",
-      "newMaterial": "+ Novo Material",
+      "newMaterial": "Novo Material",
       "errorLoad": "Erro ao carregar materiais. Verifique se o servidor está rodando.",
       "errorDelete": "Falha ao excluir material.",
       "confirmDelete": "Deseja realmente excluir este material?",
@@ -1109,6 +1105,54 @@
       "errorCreate": "Não foi possível criar o evento. Tente novamente.",
       "errorSave": "Não foi possível salvar as alterações. Tente novamente.",
       "errorDelete": "Não foi possível deletar o evento. Tente novamente."
+    }
+  },
+  "perfil": {
+    "sections": {
+      "personalData": "Dados pessoais",
+      "changePassword": "Alterar senha",
+      "optional": "(opcional)",
+      "changeEmail": "Alterar email"
+    },
+    "fields": {
+      "name": "Nome",
+      "namePlaceholder": "Seu nome completo",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirmar senha",
+      "newEmail": "Novo email",
+      "newEmailPlaceholder": "novo@email.com"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar alterações",
+      "sending": "Enviando...",
+      "sendConfirmation": "Enviar confirmação"
+    },
+    "email": {
+      "current": "Email atual:",
+      "pending": "⏳ Confirmação pendente para",
+      "hint": "Um email de confirmação será enviado para o novo endereço. O email só muda após a confirmação."
+    },
+    "errors": {
+      "loadData": "Não foi possível carregar seus dados. Tente fazer login novamente.",
+      "connection": "Erro de conexão. Verifique se o servidor está rodando.",
+      "nameRequired": "O nome não pode ficar vazio.",
+      "currentPasswordRequired": "Digite sua senha atual para alterá-la.",
+      "passwordTooShort": "A nova senha deve ter ao menos 6 caracteres.",
+      "passwordsMismatch": "As senhas não coincidem.",
+      "passwordsMismatchInline": "As senhas não coincidem",
+      "save": "Erro ao salvar. Verifique os dados e tente novamente.",
+      "invalidEmail": "Digite um email válido.",
+      "sameEmail": "O novo email é igual ao atual.",
+      "accountNotFound": "Não foi possível identificar sua conta.",
+      "emailInUse": "Este email já está em uso.",
+      "requestEmail": "Erro ao solicitar alteração. Tente novamente."
+    },
+    "success": {
+      "saved": "Dados atualizados com sucesso!",
+      "emailSent": "Email de confirmação enviado para {{email}}. Verifique sua caixa de entrada."
     }
   }
 }
