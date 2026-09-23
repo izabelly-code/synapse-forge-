@@ -18,6 +18,7 @@ import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import SkeletonSwap from "../ui/SkeletonSwap";
 import ValueFlash from "../ui/ValueFlash";
 import { useFlipList } from "../../hooks/useFlipList";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 const FILTRO_VALUES: (PedidoStatus | "")[] = ["", "MODELAGEM", "IMPRESSAO", "PINTURA", "ACABAMENTO", "FINALIZADO", "CANCELADO"];
 
@@ -152,6 +153,9 @@ function PedidosDashboard() {
         void carregarNaMontagem();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Recarrega ao voltar para a aba, sem skeleton (os dados já estão na tela).
+    useRecarregarAoVoltar(() => void buscarPedidos(), !modalAberto && !pedidoDetalheId);
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {

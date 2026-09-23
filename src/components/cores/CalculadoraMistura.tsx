@@ -9,6 +9,7 @@ import Select from "../ui/Select";
 import { cn } from "../../utils/cn";
 import { formatCurrency, formatNumber } from "../../utils/format";
 import { useDismissable } from "../../hooks/useDismissable";
+import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
 
 const CACHE_KEY = "cores:all";
 const VOLUMES = [100, 250, 500, 1000, 2000];
@@ -48,6 +49,10 @@ function CalculadoraMistura() {
         onDismiss: () => setVolumeMenuAberto(false),
     });
 
+    // Incrementa ao voltar para a aba: recarrega as cores (estoque pode ter mudado).
+    const [recarga, setRecarga] = useState(0);
+    useRecarregarAoVoltar(() => setRecarga((n) => n + 1));
+
     useEffect(() => {
         getCores()
             .then((data) => {
@@ -56,7 +61,7 @@ function CalculadoraMistura() {
             })
             .catch(() => setErro(t("cores.mistura.errorLoad")));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [recarga]);
 
     const corPorId = useMemo(() => new Map(cores.map((c) => [c.id, c])), [cores]);
 

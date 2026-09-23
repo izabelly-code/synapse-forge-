@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getPedidos } from "../services/PedidoService";
 import { getOrdensPintura } from "../services/OrdemPinturaService";
 import { Pedido, OrdemPintura } from "../types";
+import { useRecarregarAoVoltar } from "./useRecarregarAoVoltar";
 
 function inicioDoDia(data: Date = new Date()): number {
     const d = new Date(data);
@@ -26,6 +27,9 @@ export interface OrdemUrgente {
 export function useNotificacoesUrgentes() {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [ordens, setOrdens] = useState<OrdemPintura[]>([]);
+    // O sino também se atualiza ao voltar para a aba.
+    const [recarga, setRecarga] = useState(0);
+    useRecarregarAoVoltar(() => setRecarga((n) => n + 1));
 
     useEffect(() => {
         let ativo = true;
@@ -35,7 +39,7 @@ export function useNotificacoesUrgentes() {
             if (o.status === "fulfilled") setOrdens(o.value);
         });
         return () => { ativo = false; };
-    }, []);
+    }, [recarga]);
 
     const pedidosUrgentes = useMemo<PedidoUrgente[]>(() => {
         const hoje = inicioDoDia();

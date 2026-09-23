@@ -99,6 +99,9 @@
   /* --radius (12px) é o padrão e fica declarado no fim deste bloco */
   --radius-lg: 1.5rem;     /* 24px */
   --radius-pill: 50px;
+  /* Raio único de todo botão e controle de toolbar (Victor, 23/09: pílula).
+     Trocar aqui muda o app inteiro; cards e campos de formulário não usam. */
+  --radius-button: var(--radius-pill);
 
   /* ---- Camadas de empilhamento (z-index) ----
      Ordem crescente; nomear evita a escalada de números mágicos. */
@@ -226,7 +229,7 @@
     0 1px 2px -0.5px rgba(0, 0, 0, 0.05),
     0 3px 4px -1.5px rgba(0, 0, 0, 0.05),
     0 6px 8px -3px rgba(0, 0, 0, 0.05);
-  --shadow-card: var(--shadow);
+  --shadow-card: var(--shadow-sm); /* card em repouso: a mesma sombra curta das linhas e cards das listas */
   --shadow-ambient: var(--shadow);
 
 
@@ -526,7 +529,7 @@ body {
   flex-shrink: 0;
   padding: 0 var(--space-3);
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: var(--surface-container-high);
   color: var(--on-surface);
   font-family: 'Inter', sans-serif;
@@ -582,7 +585,7 @@ body {
 
 .input-group input[type="file"]::file-selector-button {
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface-container-high);
   color: var(--on-surface);
   cursor: pointer;
@@ -816,7 +819,7 @@ body {
 
 
 /* ===== BUTTONS ===== */
-/* Primary — high-gloss pill with jewel-like gradient */
+/* Primary — gradiente da marca; pílula como todo botão (--radius-button) */
 .button {
   display: inline-flex;
   align-items: center;
@@ -825,7 +828,7 @@ body {
   height: var(--control-h);
   padding: 0 var(--space-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-button);
   background: linear-gradient(135deg, var(--brand), var(--brand-dark));
   color: var(--on-primary);
   cursor: pointer;
@@ -930,7 +933,7 @@ body {
   padding: var(--space-1-5);
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
 }
 
 .filtros-tabs {
@@ -953,7 +956,7 @@ body {
   gap: var(--space-05);
   padding: var(--space-05);
   background: var(--surface-container);
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
 }
 
 .view-btn {
@@ -965,7 +968,7 @@ body {
   border: none;
   background: transparent;
   color: var(--on-surface-variant);
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: var(--radius-button);
   cursor: pointer;
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
@@ -988,7 +991,7 @@ body {
   gap: var(--space-2);
   height: var(--control-h);
   padding: 0 var(--space-3);
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: var(--radius-button);
   border: 1px solid transparent;
   background: transparent;
   color: var(--on-surface-variant);
@@ -1022,7 +1025,7 @@ body {
   min-width: var(--badge-h);
   height: var(--badge-h);
   padding: 0 var(--space-1-5);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-button);
   background: var(--surface-container);
   color: var(--on-surface-variant);
   font-size: var(--text-xs);
@@ -1053,7 +1056,7 @@ body {
   gap: var(--space-2);
   height: var(--control-h);
   padding: 0 var(--space-3);
-  border-radius: calc(var(--radius) - 2px);
+  border-radius: var(--radius-button);
   border: 1px solid var(--color-border-strong);
   background: var(--surface);
   color: var(--on-surface);
@@ -1230,7 +1233,7 @@ body {
   width: 250px;
   height: var(--control-h);
   padding: 0 var(--space-11) 0 var(--space-9);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-button); /* mesmo raio dos botões ao lado (a classe mantém o nome antigo) */
   border: 1px solid var(--color-border-strong);
   font-family: 'Inter', sans-serif;
   font-size: var(--text-base);
@@ -1291,7 +1294,7 @@ body {
   justify-content: center;
   width: var(--control-h);
   height: var(--control-h);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-button);
   border: 1px solid var(--color-border-strong);
   background: var(--surface);
   color: var(--on-surface-variant);
@@ -1914,7 +1917,7 @@ body {
   height: 2rem;
   border: none;
   background: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   color: var(--on-surface-variant);
   opacity: 0.6;
   cursor: pointer;
@@ -2367,7 +2370,7 @@ body {
   height: var(--control-h);
   padding: 0 var(--space-3);
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-button);
   background: var(--surface-container-high);
   color: var(--on-surface);
   cursor: pointer;
@@ -2634,7 +2637,7 @@ body {
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-2-5) var(--space-3-5);
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: var(--primary);
   color: var(--on-primary);
   font-size: var(--text-base);
@@ -2711,7 +2714,7 @@ body {
   justify-content: center;
   gap: var(--space-1-5);
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   cursor: pointer;
   font-family: inherit;
   font-size: var(--text-md);
@@ -3011,9 +3014,10 @@ body {
 
 
 /* ===== USER PROFILE PAGE ===== */
+/* Formulário estreito (900px), mas alinhado à esquerda da coluna como o título
+   das outras páginas; centralizado, o nome do usuário "pulava" ao trocar de tela. */
 .profile-page {
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .profile-avatar-block {
@@ -3047,22 +3051,25 @@ body {
   background: var(--surface);
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius);
-  padding: var(--space-8);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
   box-shadow: var(--shadow-card);
 }
 
 .profile-section-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
+  font: var(--type-medium-title);
   color: var(--on-background);
-  letter-spacing: -0.01em;
   margin: 0 0 var(--space-4);
 }
 
 .profile-senha-row {
   display: flex;
   gap: var(--space-4);
+}
+
+/* os dois campos de senha dividem a linha (antes via style inline) */
+.profile-senha-row > * {
+  flex: 1;
+  min-width: 0;
 }
 
 /* fora do conjunto canônico: 540px é o ponto em que os dois campos de senha
@@ -3077,6 +3084,22 @@ body {
   display: flex;
   gap: var(--space-3);
   margin-top: var(--space-7);
+}
+
+.profile-actions > * {
+  flex: 1;
+}
+
+@media (max-width: 540px) {
+  /* botões empilhados, ação principal em cima (mesmo padrão dos modais no celular) */
+  .profile-actions {
+    flex-direction: column-reverse;
+  }
+
+  .profile-actions > * {
+    flex: none; /* flex: 1 numa coluna achataria a altura */
+    width: 100%;
+  }
 }
 
 .profile-email-atual {
@@ -3639,6 +3662,10 @@ html {
 /* Mesma curva fluida da .dashboard-main (fase 6): 40px em ≥1250px, piso de 16px. */
 .pintura-content {
   padding: clamp(var(--space-4), 3.2vw, var(--space-10));
+  /* mesma coluna das outras páginas: sem isto o título e a ação principal
+     mudavam de lugar ao ir de Pedidos para o Kanban em telas largas */
+  max-width: 1380px;
+  margin: 0 auto;
 }
 
 /* `flex-wrap: wrap` na regra base porque o scroll horizontal agora é do quadro e
@@ -3657,9 +3684,9 @@ html {
 
 .pintura-filter-static,
 .pintura-view-toggle {
-  min-height: 40px;
+  min-height: var(--control-h);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-button);
   background: var(--surface);
 }
 
@@ -3675,8 +3702,8 @@ html {
 }
 
 .pintura-toolbar .ui-select-filter .filtro-action {
-  min-height: 40px;
-  border-radius: var(--radius-sm);
+  min-height: var(--control-h);
+  border-radius: var(--radius-button);
   font-size: var(--text-sm);
 }
 
@@ -3712,7 +3739,7 @@ html {
   place-items: center;
   width: 34px;
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-button);
   background: transparent;
   color: var(--color-text-subtle);
 }
@@ -4320,9 +4347,14 @@ html {
 }
 
 .btn-acao-pequeno {
-  padding: var(--space-2) var(--space-3-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  height: var(--control-h);
+  padding: 0 var(--space-3-5);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: var(--surface-container-lowest);
   color: var(--on-surface);
   cursor: pointer;
@@ -5508,7 +5540,7 @@ html {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: var(--primary);
   color: var(--on-primary);
   font-size: var(--text-lg);
@@ -5525,7 +5557,7 @@ html {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: transparent;
   color: var(--on-surface-variant);
   font-size: var(--text-base);
@@ -5820,7 +5852,7 @@ html {
   gap: 0.3rem;
   padding: 0.5rem 0.65rem;
   border: 1px solid transparent;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-button);
   background: transparent;
   cursor: pointer;
   font: inherit;
@@ -6515,7 +6547,7 @@ html {
   height: var(--control-h);
   padding: 0 var(--space-4);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-button);
   background: var(--color-surface);
   color: var(--color-text);
   font-family: 'Inter', sans-serif;
