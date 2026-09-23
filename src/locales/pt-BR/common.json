@@ -200,6 +200,17 @@
         "changeBanner": "Trocar banner"
     },
 
+    "inviteBanner": {
+        "title": "{{gerente}} convidou você para a equipe {{equipe}}",
+        "someone": "Um gerente",
+        "description": "Ao aceitar, você entra na equipe como técnico e passa a trabalhar nos pedidos da loja.",
+        "accept": "Aceitar convite",
+        "accepting": "Entrando...",
+        "decline": "Recusar",
+        "declining": "Recusando...",
+        "error": "Não foi possível responder o convite. Tente de novo."
+    },
+
     "inviteModal": {
         "title": "Convidar usuário",
         "description": "Digite o e-mail de um cliente cadastrado para convidá-lo a esta equipe.",

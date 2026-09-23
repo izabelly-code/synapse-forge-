@@ -200,6 +200,17 @@
         "changeBanner": "Change banner"
     },
 
+    "inviteBanner": {
+        "title": "{{gerente}} invited you to join {{equipe}}",
+        "someone": "A manager",
+        "description": "If you accept, you join the team as a technician and work on the shop's orders.",
+        "accept": "Accept invite",
+        "accepting": "Joining...",
+        "decline": "Decline",
+        "declining": "Declining...",
+        "error": "Could not respond to the invite. Try again."
+    },
+
     "inviteModal": {
         "title": "Invite user",
         "description": "Enter the email of a registered customer to invite them to this team.",
