@@ -838,7 +838,6 @@ body {
 
 .button:hover:not(:disabled) {
   filter: brightness(0.9);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .button:active:not(:disabled) {
@@ -2146,7 +2145,7 @@ body {
   cursor: pointer;
   /* abaixo do scrim da gaveta (--z-menu) e dos popovers; acima do conteúdo sticky */
   z-index: var(--z-sticky);
-  box-shadow: var(--shadow-ambient), 0 6px 16px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  box-shadow: var(--shadow-ambient), var(--shadow-md);
   transition: filter var(--duration-base) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
 }
 

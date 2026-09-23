@@ -133,27 +133,11 @@
     border-color: var(--color-primary);
     background: var(--color-primary);
     color: var(--on-primary, #ffffff);
-
-    box-shadow:
-        0 4px 12px
-        color-mix(
-            in srgb,
-            var(--color-primary) 16%,
-            transparent
-        );
 }
 
 .equipe-primary-button:hover:not(:disabled) {
     border-color: var(--primary-dark);
     background: var(--primary-dark);
-
-    box-shadow:
-        0 6px 16px
-        color-mix(
-            in srgb,
-            var(--color-primary) 22%,
-            transparent
-        );
 }
 
 .equipe-secondary-button {
