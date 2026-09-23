@@ -200,6 +200,22 @@
         "changeBanner": "Trocar banner"
     },
 
+    "inviteCard": {
+        "label": "Convite de equipe",
+        "invitedBy": "{{gerente}} convidou você para entrar na equipe.",
+        "someone": "Um gerente",
+        "description": "Ao aceitar, você passa a trabalhar nos pedidos da loja como técnico.",
+        "expires": "O convite vale até {{data}}.",
+        "accept": "Aceitar convite",
+        "accepting": "Entrando...",
+        "decline": "Recusar",
+        "declining": "Recusando...",
+        "error": "Não foi possível responder o convite. Tente de novo.",
+        "close": "Fechar",
+        "tag": "Convite",
+        "notifSubtitle": "Convite de {{gerente}}"
+    },
+
     "inviteModal": {
         "title": "Convidar usuário",
         "description": "Digite o e-mail de um cliente cadastrado para convidá-lo a esta equipe.",

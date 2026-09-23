@@ -12,8 +12,8 @@ export interface NotificationItem {
     subtitle: ReactNode;
     /** Texto da etiqueta à direita (ex.: "Atrasado"). */
     tagLabel: string;
-    /** `danger` = atrasado, `warn` = vence hoje. */
-    tone: "danger" | "warn";
+    /** `danger` = atrasado, `warn` = vence hoje, `info` = neutro (ex.: convite de equipe). */
+    tone: "danger" | "warn" | "info";
     /** Ação ao clicar no item; o painel fecha em seguida. */
     onSelect: () => void;
 }
