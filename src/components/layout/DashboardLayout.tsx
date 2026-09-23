@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import MobileHeader from "./MobileHeader";
+import ConvitePendenteAviso from "./ConvitePendenteAviso";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
@@ -76,6 +77,7 @@ function DashboardLayout() {
                         drawerId={DRAWER_ID}
                     />
                 )}
+                <ConvitePendenteAviso />
                 <Outlet />
             </div>
         </div>

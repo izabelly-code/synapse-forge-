@@ -6410,3 +6410,120 @@ html {
     padding-right: var(--space-4);
   }
 }
+
+/* ===== CONVITE DE EQUIPE NO APP (SYN-101) ===== */
+/* Faixa no topo da coluna de conteúdo, de borda a borda: cada página define a
+   própria largura (Pedidos 1380px, Equipe 1200px), então alinhar a uma delas
+   desalinharia das outras. */
+.convite-aviso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.convite-aviso-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.convite-aviso-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.convite-aviso-titulo {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.convite-aviso-descricao {
+  margin: var(--space-05) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+}
+
+.convite-aviso-acoes {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.convite-aviso-btn {
+  height: var(--control-h);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), filter var(--duration-fast) var(--ease-standard);
+}
+
+.convite-aviso-btn:hover:not(:disabled) {
+  background: var(--state-hover);
+}
+
+.convite-aviso-btn-primario {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--on-primary);
+}
+
+.convite-aviso-btn-primario:hover:not(:disabled) {
+  background: var(--color-primary);
+  filter: brightness(0.94);
+}
+
+.convite-aviso-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.convite-aviso-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .convite-aviso {
+    animation: convite-aviso-entra var(--duration-slow) var(--ease-out-expo) both;
+  }
+}
+
+@keyframes convite-aviso-entra {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 640px) {
+  .convite-aviso {
+    flex-wrap: wrap;
+  }
+
+  .convite-aviso-acoes {
+    width: 100%;
+  }
+
+  .convite-aviso-btn {
+    flex: 1;
+  }
+}
