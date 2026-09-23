@@ -1,12 +1,19 @@
 const API_URL = "http://localhost:8081/equipes/meu-convite";
 
-/** Convite de equipe pendente do usuário logado (SYN-101). */
+/** Convite de equipe pendente do usuário logado, com a equipe que convida (SYN-101). */
 export interface MeuConvite {
-    id: string;
-    equipeId: string;
-    equipeNome: string | null;
-    gerenteNome: string | null;
-    expiraEm: string | null;
+    convite: {
+        id: string;
+        equipeNome: string | null;
+        gerenteNome: string | null;
+        expiraEm: string | null;
+    };
+    equipe: {
+        id: string;
+        nome: string;
+        fotoBase64: string | null;
+        bannerBase64: string | null;
+    } | null;
 }
 
 function headers(token: string | null) {
