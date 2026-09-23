@@ -24,6 +24,227 @@
     "errorAccountLocked_other": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minutos ou redefina sua senha.",
     "errorGeneric": "Não foi possível entrar. Verifique seus dados."
   },
+  "register": {
+  "choice": {
+    "title": "Qual seu objetivo no Synapse Forge?",
+    "description": "Escolha como você pretende utilizar o Synapse Forge.",
+    "client": {
+      "title": "Como cliente",
+      "description": "Quero solicitar serviços e acompanhar meus pedidos."
+    },
+    "manager": {
+      "title": "Para meu negócio",
+      "description": "Quero gerenciar meu negócio e minha equipe."
+    },
+    "back": "Voltar para o login"
+  },
+
+  "client": {
+    "leftTitle": "Crie sua conta",
+    "leftDescription": "Comece agora e aproveite todos os recursos.",
+    "formTitle": "Cadastro"
+  },
+
+  "manager": {
+    "leftTitle": "Crie sua conta empresarial",
+    "leftDescription": "Comece a gerenciar seu negócio no Synapse Forge.",
+    "formTitle": "Cadastro para negócio"
+  },
+
+  "fields": {
+    "name": "Nome",
+    "email": "Email",
+    "cpf": "CPF",
+    "phone": "Telefone",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha"
+  },
+
+  "placeholders": {
+    "name": "Digite seu nome",
+    "email": "Digite seu email",
+    "cpf": "000.000.000-00",
+    "phone": "(00) 00000-0000",
+    "password": "Digite sua senha",
+    "confirmPassword": "Repita sua senha"
+  },
+
+  "passwordStrength": {
+    "weak": "Senha fraca",
+    "medium": "Senha média",
+    "strong": "Senha forte"
+  },
+
+  "buttons": {
+    "register": "Cadastrar",
+    "registering": "Cadastrando...",
+    "backToChoice": "Voltar para escolha",
+    "alreadyHaveAccount": "Já tem conta? Voltar para login",
+    "backToLogin": "Voltar para o login",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
+  },
+
+  "validation": {
+    "nameShort": "Nome muito curto",
+    "emailInvalidFormat": "Formato inválido (ex: nome@email.com)",
+    "cpfInvalid": "CPF inválido",
+    "cpfIncomplete": "CPF incompleto",
+    "phoneInvalid": "DDD/número inválido",
+    "phoneIncomplete": "Telefone incompleto",
+    "passwordMismatch": "Senhas não coincidem"
+  },
+
+  "errors": {
+    "nameRequired": "Por favor, informe seu nome.",
+    "nameMinLength": "O nome deve ter pelo menos 3 caracteres.",
+    "emailRequired": "Por favor, informe seu email.",
+    "emailInvalid": "Digite um email válido (ex: nome@email.com).",
+    "cpfIncomplete": "CPF incompleto.",
+    "cpfInvalid": "CPF inválido. Verifique os números digitados.",
+    "phoneIncomplete": "Telefone incompleto.",
+    "phoneInvalid": "Telefone inválido. Verifique DDD e número.",
+    "passwordRequired": "Crie uma senha.",
+    "passwordMinLength": "A senha deve ter no mínimo 6 caracteres.",
+    "confirmPasswordRequired": "Confirme sua senha.",
+    "passwordMismatch": "As senhas não coincidem.",
+    "emailAlreadyRegistered": "Este email já está cadastrado.",
+    "generic": "Erro ao cadastrar. Tente novamente em instantes."
+  },
+
+  "confirmation": {
+    "almostThere": "Quase lá!",
+    "subtitle": "Confirme seu email para começar a usar a plataforma.",
+    "title": "Verifique seu email",
+    "sentTo": "Enviamos um link de confirmação para",
+    "instructions": "Clique no link do email para ativar sua conta e entrar automaticamente."
+  }
+},
+  "equipe": {
+    "kicker": "Equipe",
+    "title": "Minha equipe",
+    "subtitle": "Visualize e gerencie os integrantes da sua equipe.",
+
+    "actions": {
+        "refresh": "Atualizar",
+        "refreshing": "Atualizando...",
+        "inviteUser": "Convidar usuário",
+        "createTeam": "Criar equipe",
+        "editTeam": "Editar equipe",
+        "leaveTeam": "Sair da equipe",
+        "leaving": "Saindo...",
+        "inviteFirstMember": "Convidar primeiro integrante",
+        "removeMember": "Remover integrante",
+        "close": "Fechar",
+        "cancel": "Cancelar",
+        "saving": "Salvando...",
+        "creating": "Criando...",
+        "saveChanges": "Salvar alterações",
+        "sending": "Enviando...",
+        "sendInvite": "Enviar convite"
+    },
+
+    "loading": {
+        "team": "Carregando equipe...",
+        "members": "Carregando integrantes...",
+        "clients": "Carregando clientes..."
+    },
+
+    "empty": {
+        "noTeamTitle": "Você ainda não possui uma equipe",
+        "technicianNoTeam": "Você ainda não está vinculado a nenhuma equipe.",
+        "managerNoTeam": "Crie sua equipe para começar a organizar os integrantes e gerenciar sua produção."
+    },
+
+    "teamDescription": "Equipe de produção e desenvolvimento",
+
+    "members": {
+        "title": "Integrantes",
+        "description": "Pessoas que fazem parte desta equipe.",
+        "member": "integrante",
+        "members": "integrantes",
+        "emptyTitle": "Nenhum integrante ainda",
+        "emptyManager": "Convide usuários para começar a montar sua equipe.",
+        "emptyTechnician": "Nenhum integrante encontrado."
+    },
+
+    "invites": {
+        "title": "Convites pendentes",
+        "description": "Usuários que ainda precisam responder ao convite.",
+        "invite": "convite",
+        "invites": "convites",
+        "empty": "Nenhum convite pendente.",
+        "defaultUser": "Usuário",
+        "expiresAt": "Expira em {{date}}",
+        "pending": "Pendente"
+    },
+
+    "modal": {
+        "createTitle": "Criar equipe",
+        "createDescription": "Configure as informações iniciais da sua equipe.",
+        "editTitle": "Editar equipe",
+        "editDescription": "Atualize as informações da sua equipe."
+    },
+
+    "form": {
+        "teamName": "Nome da equipe",
+        "teamNamePlaceholder": "Ex.: Equipe Synapse",
+        "teamPhoto": "Foto da equipe",
+        "teamBanner": "Banner da equipe",
+        "selectPhoto": "Selecionar foto",
+        "changePhoto": "Trocar foto",
+        "selectBanner": "Selecionar banner",
+        "changeBanner": "Trocar banner"
+    },
+
+    "inviteModal": {
+        "title": "Convidar usuário",
+        "description": "Escolha um cliente para enviar um convite para esta equipe.",
+        "availableClients": "Clientes disponíveis",
+        "noClients": "Não há clientes disponíveis para convite."
+    },
+
+    "images": {
+        "bannerAlt": "Banner da equipe",
+        "teamPhotoAlt": "Foto da equipe {{name}}",
+        "photoPreviewAlt": "Preview da foto",
+        "bannerPreviewAlt": "Preview do banner"
+    },
+
+    "confirm": {
+        "removeMember": "Deseja realmente remover {{name}} da equipe?",
+        "leaveTeam": "Deseja realmente sair desta equipe?"
+    },
+
+    "errors": {
+        "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+        "loadTeam": "Não foi possível carregar a equipe.",
+        "loadMembers": "Não foi possível carregar os integrantes.",
+        "loadAvailableClients": "Não foi possível carregar os clientes disponíveis.",
+        "loadInvites": "Não foi possível carregar os convites.",
+        "loadData": "Não foi possível carregar os dados da equipe.",
+        "updateData": "Não foi possível atualizar os dados.",
+        "photoMustBeImage": "A foto precisa ser uma imagem.",
+        "bannerMustBeImage": "O banner precisa ser uma imagem.",
+        "updatePhoto": "Não foi possível atualizar a foto da equipe.",
+        "updateBanner": "Não foi possível atualizar o banner da equipe.",
+        "teamNameRequired": "Digite um nome para a equipe.",
+        "createTeam": "Não foi possível criar a equipe.",
+        "updateTeamName": "Não foi possível atualizar o nome da equipe.",
+        "editTeam": "Não foi possível editar a equipe.",
+        "selectUser": "Selecione um usuário para convidar.",
+        "sendInvite": "Não foi possível enviar o convite.",
+        "removeMember": "Não foi possível remover o integrante.",
+        "leaveTeam": "Não foi possível sair da equipe."
+    },
+
+    "roles": {
+        "ADMIN": "Administrador",
+        "GERENTE": "Gerente",
+        "TECNICO": "Técnico",
+        "CLIENTE": "Cliente"
+    }
+},
   "sidebar": {
     "navAria": "Navegação principal",
     "areaPedidos": "Pedidos",
@@ -31,14 +252,22 @@
     "areaAgenda": "Agenda",
     "areaEstoqueCores": "Estoque & Cores",
     "areaAdmin": "Admin",
+
     "pedidosClientes": "Pedidos de clientes",
+    "pedidosCliente": "Meus pedidos",
+    "areaEquipe": "Equipe",
+    "equipe": "Equipe",
     "paletaCores": "Paleta de Cores",
     "calculadoraMistura": "Calculadora de Mistura",
     "materiais": "Materiais",
     "orcamento": "Orçamento",
     "ordensPintura": "Ordens de Pintura",
     "calendario": "Calendário",
+
     "perfil": "Perfil",
+
+    "areaClienteConta": "Minha conta",
+
     "userFallback": "Usuário",
     "themeToLight": "Tema claro",
     "themeToDark": "Tema escuro",
@@ -51,6 +280,101 @@
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
     "estoque": "Estoque"
+  },
+  "admin": {
+    "kicker": "Administração",
+    "title": "Administração do sistema",
+    "subtitle": "Gerencie usuários e pedidos armazenados no sistema.",
+    
+    
+
+
+
+    "actions": {
+      "refresh": "Atualizar",
+      "refreshing": "Atualizando...",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "save": "Salvar alterações",
+      "saving": "Salvando...",
+      "delete": "Excluir"
+    },
+
+    "tabs": {
+      "users": "Usuários",
+      "orders": "Pedidos"
+    },
+
+    "search": {
+      "usersPlaceholder": "Buscar por nome, email ou função...",
+      "ordersPlaceholder": "Buscar por cliente, projeto ou status...",
+      "aria": "Buscar dados da administração"
+    },
+
+    "results": {
+      "users": "{{count}} usuário",
+      "users_other": "{{count}} usuários",
+      "orders": "{{count}} pedido",
+      "orders_other": "{{count}} pedidos"
+    },
+
+    "loading": "Carregando dados...",
+
+    "errors": {
+      "load": "Não foi possível carregar os dados da administração.",
+      "save": "Não foi possível atualizar o usuário.",
+      "deleteUser": "Não foi possível excluir o usuário."
+    },
+
+    "empty": {
+      "users": "Nenhum usuário encontrado.",
+      "orders": "Nenhum pedido encontrado."
+    },
+
+    "users": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "team": "Equipe",
+      "function": "Função visual",
+      "status": "Status",
+      "createdAt": "Criado em",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "noTeam": "Sem equipe",
+      "noFunction": "Não definida",
+      "editTitle": "Editar usuário",
+      "editDescription": "Atualize as informações do usuário no sistema.",
+      "deleteConfirm": "Tem certeza de que deseja excluir este usuário?",
+      "fields": {
+        "name": "Nome",
+        "email": "Email",
+        "cpf": "CPF",
+        "phone": "Telefone",
+        "role": "Função",
+        "team": "ID da equipe",
+        "function": "Função visual",
+        "active": "Ativo"
+      }
+    },
+
+    "orders": {
+      "project": "Projeto",
+      "client": "Cliente",
+      "status": "Status",
+      "deadline": "Prazo",
+      "price": "Preço final",
+      "images": "Imagens",
+      "createdAt": "Criado em",
+      "editTitle": "Editar pedido",
+      "editDescription": "Atualize as informações do pedido.",
+      "deleteOrder": "Não foi possível excluir o pedido."
+    },
+
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    }
   },
   "pedidos": {
     "status": {
@@ -191,6 +515,11 @@
     "dashboard": {
       "title": "Produção",
       "subtitle": "Acompanhe todos os pedidos em produção",
+
+      "clientTitle": "Meus Pedidos",
+      "clientSubtitle": "Acompanhe o andamento dos seus pedidos",
+      "clientSearchPlaceholder": "Buscar pedido ou projeto...",
+
       "searchPlaceholder": "Buscar cliente ou projeto...",
       "searchAria": "Buscar pedidos",
       "notificationsAria": "Notificações",

@@ -1,0 +1,354 @@
+
+/* =========================================================
+   REGISTER - TELA DE ESCOLHA
+   ========================================================= */
+
+.register-choice-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  box-sizing: border-box;
+
+  background-image:
+    linear-gradient(
+      120deg,
+      rgba(8, 8, 10, 0.88),
+      rgba(15, 15, 18, 0.68),
+      rgba(8, 8, 10, 0.86)
+    ),
+    url("../assets/images/background.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+/* =========================================================
+   ORANGE GLOW
+   ========================================================= */
+
+.register-choice-page::before {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  top: -180px;
+  left: -160px;
+  border-radius: 50%;
+  background: rgba(251, 74, 20, 0.20);
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.register-choice-page::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  right: -220px;
+  bottom: -240px;
+  border-radius: 50%;
+  background: rgba(251, 74, 20, 0.16);
+  filter: blur(110px);
+  pointer-events: none;
+}
+
+/* =========================================================
+   GLASS CARD
+   ========================================================= */
+
+.register-choice-card {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+
+  padding: 54px;
+
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+
+  background: rgba(20, 20, 23, 0.72);
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.register-choice-content {
+  width: 100%;
+  text-align: center;
+}
+
+.register-choice-content h1 {
+  margin: 0 0 14px;
+
+  color: #ffffff;
+
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.register-choice-description {
+  max-width: 580px;
+  margin: 0 auto 36px;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   OPTIONS
+   ========================================================= */
+
+.register-choice-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+
+  width: 100%;
+}
+
+.register-choice-button {
+  position: relative;
+
+  min-height: 190px;
+  padding: 28px 24px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  color: #ffffff;
+
+  font-family: "Inter", sans-serif;
+
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.register-choice-button::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(251, 74, 20, 0.10),
+      transparent 55%
+    );
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+
+  pointer-events: none;
+}
+
+.register-choice-button:hover {
+  transform: translateY(-5px);
+
+  border-color: rgba(251, 74, 20, 0.55);
+
+  background: rgba(255, 255, 255, 0.085);
+
+  box-shadow:
+    0 16px 35px rgba(0, 0, 0, 0.28),
+    0 0 30px rgba(251, 74, 20, 0.08);
+}
+
+.register-choice-button:hover::before {
+  opacity: 1;
+}
+
+.register-choice-button:active {
+  transform: translateY(-2px);
+}
+
+.register-choice-button:focus-visible {
+  outline: 2px solid #fb4a14;
+  outline-offset: 4px;
+}
+
+/* =========================================================
+   BUTTON TEXT
+   ========================================================= */
+
+.register-choice-button-title {
+  position: relative;
+  z-index: 1;
+
+  margin-bottom: 10px;
+
+  color: #ffffff;
+
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.register-choice-button-description {
+  position: relative;
+  z-index: 1;
+
+  max-width: 280px;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   CLIENT / MANAGER VARIANTS
+   ========================================================= */
+
+.register-choice-client:hover {
+  border-color: rgba(251, 74, 20, 0.65);
+}
+
+.register-choice-manager:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.register-choice-back {
+  margin-top: 30px;
+
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.68);
+
+  font-family: "Inter", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.register-choice-back:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.register-choice-back:focus-visible {
+  outline: 2px solid #fb4a14;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .register-choice-page {
+    padding: 28px 18px;
+  }
+
+  .register-choice-card {
+    padding: 38px 24px;
+    border-radius: 24px;
+  }
+
+  .register-choice-options {
+    grid-template-columns: 1fr;
+  }
+
+  .register-choice-button {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 420px) {
+  .register-choice-page {
+    padding: 20px 14px;
+  }
+
+  .register-choice-card {
+    padding: 30px 18px;
+    border-radius: 20px;
+  }
+
+  .register-choice-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .register-choice-description {
+    font-size: 0.92rem;
+    margin-bottom: 28px;
+  }
+
+  .register-choice-button {
+    min-height: 145px;
+    padding: 22px 18px;
+  }
+
+  .register-choice-button-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .register-choice-button,
+  .register-choice-button::before,
+  .register-choice-back {
+    transition: none;
+  }
+
+  .register-choice-button:hover {
+    transform: none;
+  }
+}
