@@ -150,8 +150,10 @@ function podeVerItem(
         return role === "ADMIN";
     }
 
+    // Orçamento é só do GERENTE (App.tsx e @PreAuthorize do OrcamentoController):
+    // mostrar ao ADMIN levava a uma tela de acesso negado.
     if (path === "/orcamento") {
-        return role === "GERENTE" || role === "ADMIN";
+        return role === "GERENTE";
     }
 
     return true;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import MobileHeader from "./MobileHeader";
+import AvisoSemPermissao from "./AvisoSemPermissao";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
@@ -78,6 +79,8 @@ function DashboardLayout() {
                 )}
                 <Outlet />
             </div>
+
+            <AvisoSemPermissao />
         </div>
     );
 }

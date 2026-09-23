@@ -1153,6 +1153,7 @@
       "connection": "Connection error. Check that the server is running.",
       "nameRequired": "Name cannot be empty.",
       "currentPasswordRequired": "Enter your current password to change it.",
+      "currentPasswordWrong": "Your current password is incorrect.",
       "passwordTooShort": "The new password must be at least 6 characters long.",
       "passwordsMismatch": "Passwords do not match.",
       "passwordsMismatchInline": "Passwords do not match",
@@ -1167,5 +1168,8 @@
       "saved": "Details updated successfully!",
       "emailSent": "Confirmation email sent to {{email}}. Check your inbox."
     }
+  },
+  "avisos": {
+    "semPermissao": "You don't have permission for this action."
   }
 }
