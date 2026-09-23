@@ -78,6 +78,15 @@ intermediários usam sufixo `-5` (`--space-1-5` = 6px).
 `border-radius: 50%` (6 ocorrências) não entra na escala: é uma **forma** (círculo), não uma
 medida.
 
+**Botões (SYN-58):** todo botão e controle de toolbar (filtros, alternador lista/grade, busca)
+usa **`--radius-button`** (= `--radius-pill`, pílula); botão só com ícone é círculo. Cards,
+campos e modais seguem em `--radius`. Nunca misturar pílula dentro de container quadrado.
+
+### Sombras
+
+`--shadow-card` (= `--shadow-sm`) é a sombra de card em repouso; `--shadow` fica para o que
+flutua (menus, popovers, modais, avisos).
+
 ### Camadas de empilhamento (`--z-*`)
 
 Mapeadas a partir dos empilhamentos reais antes da troca; **nenhum valor numérico mudou**.
