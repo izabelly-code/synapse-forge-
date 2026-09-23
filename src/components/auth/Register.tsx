@@ -26,6 +26,8 @@ interface RegisterProps {
     tipoCadastro?: "CLIENTE" | "GERENTE";
 }
 
+type CampoRegistro = "nome" | "email" | "cpf" | "telefone" | "confirmSenha";
+
 function Register({
     onRegister,
     onVoltarEscolha,
@@ -49,9 +51,18 @@ function Register({
 
     const [showSenha, setShowSenha] = useState(false);
 
-    const [emailValido, setEmailValido] = useState(true);
-    const [cpfValido, setCpfValido] = useState(true);
-    const [telefoneValido, setTelefoneValido] = useState(true);
+    // "Reward early, punish late" (SYN-73): o erro de um campo só aparece depois que a
+    // pessoa sai dele (ou tenta enviar); a partir daí some assim que o valor fica válido.
+    const [tocados, setTocados] = useState<ReadonlySet<CampoRegistro>>(new Set());
+    const [tentouEnviar, setTentouEnviar] = useState(false);
+
+    function tocar(campo: CampoRegistro) {
+        setTocados((atuais) => (atuais.has(campo) ? atuais : new Set(atuais).add(campo)));
+    }
+
+    function mostrarErro(campo: CampoRegistro, erro: string | undefined) {
+        return tentouEnviar || tocados.has(campo) ? erro : undefined;
+    }
 
     const nomeRef = useRef<HTMLInputElement>(null);
 
@@ -64,7 +75,7 @@ function Register({
     // =========================================================
 
     function validarEmail(valor: string) {
-        return /\S+@\S+\.\S+/.test(valor);
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor.trim());
     }
 
     // =========================================================
@@ -93,8 +104,10 @@ function Register({
 
     function formatarCPF(valor: string) {
 
+        // Corta em 11 dígitos antes da máscara: colar 12 dígitos gerava "123.456.7890-1".
         return valor
             .replace(/\D/g, "")
+            .slice(0, 11)
             .replace(/(\d{3})(\d)/, "$1.$2")
             .replace(/(\d{3})(\d)/, "$1.$2")
             .replace(
@@ -122,11 +135,13 @@ function Register({
             return `(${numeros}`;
         }
 
-        if (numeros.length <= 7) {
+        if (numeros.length <= 6) {
             return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
         }
 
-        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+        // Fixo (10 dígitos): (11) 3456-7890 · celular (11): (11) 93456-7890
+        const corte = numeros.length === 11 ? 7 : 6;
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, corte)}-${numeros.slice(corte)}`;
     }
 
     // =========================================================
@@ -243,39 +258,48 @@ function Register({
     const cpfDigitos = cpf.replace(/\D/g, "");
     const telDigitos = telefone.replace(/\D/g, "");
 
-    const erroNome =
-        nome.length > 0 &&
+    const erroNome = mostrarErro(
+        "nome",
         nome.trim().length < 3
             ? t("register.validation.nameShort")
-            : undefined;
+            : undefined
+    );
 
-    const erroEmail =
-        email !== "" &&
-        !emailValido
+    const erroEmail = mostrarErro(
+        "email",
+        email.trim() !== "" && !validarEmail(email)
             ? t("register.validation.emailInvalidFormat")
-            : undefined;
+            : undefined
+    );
 
-    const erroCpf =
-        !cpfValido
-            ? t("register.validation.cpfInvalid")
-            : cpf !== "" &&
-              cpfDigitos.length < 11
+    const erroCpf = mostrarErro(
+        "cpf",
+        cpf === ""
+            ? undefined
+            : cpfDigitos.length < 11
                 ? t("register.validation.cpfIncomplete")
-                : undefined;
+                : !validarCPF(cpf)
+                    ? t("register.validation.cpfInvalid")
+                    : undefined
+    );
 
-    const erroTelefone =
-        !telefoneValido
-            ? t("register.validation.phoneInvalid")
-            : telefone !== "" &&
-              telDigitos.length < 10
+    const erroTelefone = mostrarErro(
+        "telefone",
+        telefone === ""
+            ? undefined
+            : telDigitos.length < 10
                 ? t("register.validation.phoneIncomplete")
-                : undefined;
+                : !validarTelefone(telefone)
+                    ? t("register.validation.phoneInvalid")
+                    : undefined
+    );
 
-    const erroConfirm =
-        confirmSenha !== "" &&
-        senha !== confirmSenha
+    const erroConfirm = mostrarErro(
+        "confirmSenha",
+        confirmSenha !== "" && senha !== confirmSenha
             ? t("register.validation.passwordMismatch")
-            : undefined;
+            : undefined
+    );
 
     function estado(
         erro: string | undefined,
@@ -305,6 +329,7 @@ function Register({
 
         setErro("");
         setSucesso("");
+        setTentouEnviar(true);
 
         if (!nome.trim()) {
             return setErro(
@@ -324,7 +349,7 @@ function Register({
             );
         }
 
-        if (!email) {
+        if (!email.trim()) {
             return setErro(
                 t("register.errors.emailRequired")
             );
@@ -393,8 +418,8 @@ function Register({
             setLoading(true);
 
             const dados = {
-                nome,
-                email,
+                nome: nome.trim(),
+                email: email.trim(),
                 senha,
                 cpf,
                 telefone
@@ -409,7 +434,7 @@ function Register({
                 await register(dados);
             }
 
-            setEmailCadastrado(email);
+            setEmailCadastrado(email.trim());
 
         } catch (error) {
 
@@ -583,7 +608,7 @@ function Register({
                     </h2>
 
                     {erro && (
-                        <p className="error">
+                        <p className="error" role="alert">
                             {erro}
                         </p>
                     )}
@@ -596,18 +621,22 @@ function Register({
 
                     <div className="input-group">
 
-                        <label>
+                        <label htmlFor="register-nome">
                             {t("register.fields.name")}
                         </label>
 
                         <div className="input-wrapper">
 
                             <input
+                                id="register-nome"
                                 ref={nomeRef}
+                                autoComplete="name"
                                 value={nome}
                                 onChange={(e) =>
                                     setNome(e.target.value)
                                 }
+                                onBlur={() => tocar("nome")}
+                                className={erroNome ? "input-error" : ""}
                                 placeholder={t(
                                     "register.placeholders.name"
                                 )}
@@ -661,43 +690,22 @@ function Register({
 
                     <div className="input-group">
 
-                        <label>
+                        <label htmlFor="register-email">
                             {t("register.fields.email")}
                         </label>
 
                         <div className="input-wrapper">
 
                             <input
+                                id="register-email"
+                                type="email"
+                                autoComplete="email"
                                 value={email}
-                                onChange={(e) => {
-
-                                    setEmail(
-                                        e.target.value
-                                    );
-
-                                    if (
-                                        !emailValido &&
-                                        (
-                                            validarEmail(
-                                                e.target.value
-                                            ) ||
-                                            e.target.value === ""
-                                        )
-                                    ) {
-                                        setEmailValido(true);
-                                    }
-                                }}
-                                onBlur={() =>
-                                    setEmailValido(
-                                        validarEmail(email) ||
-                                        email === ""
-                                    )
+                                onChange={(e) =>
+                                    setEmail(e.target.value)
                                 }
-                                className={
-                                    !emailValido
-                                        ? "input-error"
-                                        : ""
-                                }
+                                onBlur={() => tocar("email")}
+                                className={erroEmail ? "input-error" : ""}
                                 placeholder={t(
                                     "register.placeholders.email"
                                 )}
@@ -726,42 +734,21 @@ function Register({
 
                         <div className="input-group">
 
-                            <label>
+                            <label htmlFor="register-cpf">
                                 {t("register.fields.cpf")}
                             </label>
 
                             <div className="input-wrapper">
 
                                 <input
+                                    id="register-cpf"
+                                    inputMode="numeric"
                                     value={cpf}
-                                    onChange={(e) => {
-
-                                        const valor =
-                                            formatarCPF(
-                                                e.target.value
-                                            );
-
-                                        setCpf(valor);
-
-                                        const numeros =
-                                            valor.replace(
-                                                /\D/g,
-                                                ""
-                                            );
-
-                                        if (
-                                            numeros.length === 11
-                                        ) {
-                                            setCpfValido(
-                                                validarCPF(valor)
-                                            );
-                                        }
-                                    }}
-                                    className={
-                                        !cpfValido
-                                            ? "input-error"
-                                            : ""
+                                    onChange={(e) =>
+                                        setCpf(formatarCPF(e.target.value))
                                     }
+                                    onBlur={() => tocar("cpf")}
+                                    className={erroCpf ? "input-error" : ""}
                                     placeholder={t(
                                         "register.placeholders.cpf"
                                     )}
@@ -773,7 +760,7 @@ function Register({
                                         estado(
                                             erroCpf,
                                             cpfDigitos.length === 11 &&
-                                            cpfValido
+                                            validarCPF(cpf)
                                         )
                                     }
                                 />
@@ -788,44 +775,22 @@ function Register({
 
                         <div className="input-group">
 
-                            <label>
+                            <label htmlFor="register-telefone">
                                 {t("register.fields.phone")}
                             </label>
 
                             <div className="input-wrapper">
 
                                 <input
+                                    id="register-telefone"
+                                    type="tel"
+                                    autoComplete="tel-national"
                                     value={telefone}
-                                    onChange={(e) => {
-
-                                        const valor =
-                                            formatarTelefone(
-                                                e.target.value
-                                            );
-
-                                        setTelefone(valor);
-
-                                        const numeros =
-                                            valor.replace(
-                                                /\D/g,
-                                                ""
-                                            );
-
-                                        if (
-                                            numeros.length >= 10
-                                        ) {
-                                            setTelefoneValido(
-                                                validarTelefone(
-                                                    valor
-                                                )
-                                            );
-                                        }
-                                    }}
-                                    className={
-                                        !telefoneValido
-                                            ? "input-error"
-                                            : ""
+                                    onChange={(e) =>
+                                        setTelefone(formatarTelefone(e.target.value))
                                     }
+                                    onBlur={() => tocar("telefone")}
+                                    className={erroTelefone ? "input-error" : ""}
                                     placeholder={t(
                                         "register.placeholders.phone"
                                     )}
@@ -837,7 +802,7 @@ function Register({
                                         estado(
                                             erroTelefone,
                                             telDigitos.length >= 10 &&
-                                            telefoneValido
+                                            validarTelefone(telefone)
                                         )
                                     }
                                 />
@@ -856,13 +821,15 @@ function Register({
 
                         <div className="input-group">
 
-                            <label>
+                            <label htmlFor="register-senha">
                                 {t("register.fields.password")}
                             </label>
 
                             <div className="input-wrapper">
 
                                 <input
+                                    id="register-senha"
+                                    autoComplete="new-password"
                                     type={
                                         showSenha
                                             ? "text"
@@ -927,13 +894,15 @@ function Register({
 
                         <div className="input-group">
 
-                            <label>
+                            <label htmlFor="register-confirmar">
                                 {t("register.fields.confirmPassword")}
                             </label>
 
                             <div className="input-wrapper">
 
                                 <input
+                                    id="register-confirmar"
+                                    autoComplete="new-password"
                                     type="password"
                                     value={confirmSenha}
                                     onChange={(e) =>
@@ -941,6 +910,8 @@ function Register({
                                             e.target.value
                                         )
                                     }
+                                    onBlur={() => tocar("confirmSenha")}
+                                    className={erroConfirm ? "input-error" : ""}
                                     placeholder={t(
                                         "register.placeholders.confirmPassword"
                                     )}
