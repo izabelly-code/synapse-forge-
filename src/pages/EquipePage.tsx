@@ -22,6 +22,7 @@ import { useSearchParams } from "react-router-dom";
 import "./EquipePage.css";
 
 import { getUserRole, getToken } from "../hooks/useAuth";
+import { useAnimatedHeight } from "../hooks/useAnimatedHeight";
 import {
     buscarClientePorEmail as buscarClientePorEmailApi,
     type ClienteResumo,
@@ -95,13 +96,11 @@ function EquipePage() {
     const [clienteNaoEncontrado, setClienteNaoEncontrado] =
         useState(false);
 
-    // Confirmação do convite: guarda quem foi convidado e a altura do corpo do
-    // modal no momento do envio, para a troca de conteúdo não fazer o modal pular.
+    // Confirmação do convite: guarda quem foi convidado. A altura do corpo do
+    // modal acompanha o conteúdo com transição (useAnimatedHeight), então a troca
+    // formulário → confirmação, e o card do cliente encontrado, não fazem o modal pular.
     const [conviteEnviado, setConviteEnviado] =
         useState<ClienteEncontrado | null>(null);
-    const [alturaCorpoConvite, setAlturaCorpoConvite] =
-        useState<number | null>(null);
-    const corpoConviteRef = useRef<HTMLDivElement>(null);
     const concluirConviteRef = useRef<HTMLButtonElement>(null);
 
     const [convites, setConvites] = useState<Convite[]>([]);
@@ -114,6 +113,9 @@ function EquipePage() {
         useState<ModalEquipeModo>("criacao");
 
     const [modalConviteAberto, setModalConviteAberto] = useState(false);
+    const alturaConvite = useAnimatedHeight<HTMLDivElement, HTMLDivElement>(
+        modalConviteAberto
+    );
 
     const [nomeEquipe, setNomeEquipe] = useState("");
 
@@ -988,7 +990,6 @@ function EquipePage() {
 
     function limparBuscaConvite() {
         setConviteEnviado(null);
-        setAlturaCorpoConvite(null);
         setEmailConvite("");
         setClienteEncontrado(null);
         setClienteNaoEncontrado(false);
@@ -1055,9 +1056,6 @@ function EquipePage() {
             }
 
             // Em vez de fechar, o modal mostra a confirmação (ver .equipe-convite-sucesso).
-            setAlturaCorpoConvite(
-                corpoConviteRef.current?.offsetHeight ?? null
-            );
             setConviteEnviado(clienteEncontrado);
 
             await buscarConvites();
@@ -2218,18 +2216,17 @@ function EquipePage() {
                         </div>
 
                         <div
+                            className="equipe-modal-altura"
+                            ref={alturaConvite.outerRef}
+                        >
+                        <div
                             className="equipe-modal-body"
-                            ref={corpoConviteRef}
+                            ref={alturaConvite.innerRef}
                         >
                             {conviteEnviado ? (
                                 <div
                                     className="equipe-convite-sucesso"
                                     role="status"
-                                    style={
-                                        alturaCorpoConvite
-                                            ? { minHeight: alturaCorpoConvite }
-                                            : undefined
-                                    }
                                 >
                                     <svg
                                         className="equipe-convite-check"
@@ -2367,6 +2364,7 @@ function EquipePage() {
                                 )}
                                 </>
                             )}
+                        </div>
                         </div>
 
                         <div className="equipe-modal-footer">

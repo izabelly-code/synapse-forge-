@@ -1421,6 +1421,7 @@ body {
 
 .tag-danger { background: var(--error-container); color: var(--error-color); }
 .tag-warn { background: var(--secondary-fixed); color: var(--secondary); }
+.tag-info { background: var(--surface-container-high); color: var(--color-text); }
 
 
 /* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
@@ -6409,4 +6410,142 @@ html {
   .ui-search-field--pill input {
     padding-right: var(--space-4);
   }
+}
+
+/* ===== CONVITE DE EQUIPE NO APP (SYN-101) ===== */
+/* Card aberto pelo sino: a equipe como aparece na página de Equipe (banner,
+   foto sobreposta, nome), para a pessoa decidir sabendo onde entra. */
+.convite-card {
+  max-width: 420px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.convite-card-banner {
+  position: relative;
+  height: 120px;
+  background: linear-gradient(135deg, var(--color-surface-2), var(--surface-container-high));
+}
+
+.convite-card-banner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.convite-card-fechar {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+.convite-card-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--space-6) var(--space-6);
+  text-align: center;
+}
+
+.convite-card-foto {
+  /* sobe metade da própria altura sobre o banner, como no cabeçalho da Equipe */
+  position: relative;
+  z-index: var(--z-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-top: -36px;
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+  border: 4px solid var(--surface);
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.convite-card-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.convite-card-rotulo {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.convite-card-nome {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.convite-card-texto {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text);
+  font-size: var(--text-base);
+}
+
+.convite-card-detalhe {
+  max-width: 34ch;
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+}
+
+.convite-card-acoes {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-6);
+}
+
+.convite-card-btn {
+  flex: 1;
+  height: var(--control-h);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), filter var(--duration-fast) var(--ease-standard);
+}
+
+.convite-card-btn:hover:not(:disabled) {
+  background: var(--state-hover);
+}
+
+.convite-card-btn-primario {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--on-primary);
+}
+
+.convite-card-btn-primario:hover:not(:disabled) {
+  background: var(--color-primary);
+  filter: brightness(0.94);
+}
+
+.convite-card-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.convite-card-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }

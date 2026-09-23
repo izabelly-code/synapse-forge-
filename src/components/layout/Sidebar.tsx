@@ -14,6 +14,8 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import IconButton from "../ui/IconButton";
 import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
+import ConviteEquipeCard from "../equipe/ConviteEquipeCard";
+import { useMeuConvite } from "../../hooks/useMeuConvite";
 import MenuSurface from "../ui/MenuSurface";
 
 interface NavItem {
@@ -236,7 +238,23 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
         ordensUrgentes
     } = useNotificacoesUrgentes();
 
+    // SYN-101: o convite de equipe pendente entra no sino e abre o card da equipe.
+    const { convite: meuConvite, descartar: descartarConvite } = useMeuConvite();
+    const [conviteAberto, setConviteAberto] = useState(false);
+
     const notificacoes: NotificationItem[] = [
+        ...(meuConvite
+            ? [{
+                id: `convite-${meuConvite.convite.id}`,
+                title: meuConvite.equipe?.nome ?? meuConvite.convite.equipeNome ?? "",
+                subtitle: t("equipe.inviteCard.notifSubtitle", {
+                    gerente: meuConvite.convite.gerenteNome ?? t("equipe.inviteCard.someone"),
+                }),
+                tone: "info" as const,
+                tagLabel: t("equipe.inviteCard.tag"),
+                onSelect: () => setConviteAberto(true),
+            }]
+            : []),
         ...pedidosUrgentes.map(
             ({ pedido, atrasado }) => ({
                 id: `pedido-${pedido.id}`,
@@ -562,6 +580,17 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                     )}
                     items={notificacoes}
                 />
+
+                {meuConvite && conviteAberto && (
+                    <ConviteEquipeCard
+                        convite={meuConvite}
+                        onClose={() => setConviteAberto(false)}
+                        onRecusado={() => {
+                            setConviteAberto(false);
+                            descartarConvite();
+                        }}
+                    />
+                )}
             </div>
 
             <div className="sidebar-account">

@@ -200,6 +200,22 @@
         "changeBanner": "Change banner"
     },
 
+    "inviteCard": {
+        "label": "Team invite",
+        "invitedBy": "{{gerente}} invited you to join the team.",
+        "someone": "A manager",
+        "description": "If you accept, you work on the shop's orders as a technician.",
+        "expires": "The invite is valid until {{data}}.",
+        "accept": "Accept invite",
+        "accepting": "Joining...",
+        "decline": "Decline",
+        "declining": "Declining...",
+        "error": "Could not respond to the invite. Try again.",
+        "close": "Close",
+        "tag": "Invite",
+        "notifSubtitle": "Invite from {{gerente}}"
+    },
+
     "inviteModal": {
         "title": "Invite user",
         "description": "Enter the email of a registered customer to invite them to this team.",
