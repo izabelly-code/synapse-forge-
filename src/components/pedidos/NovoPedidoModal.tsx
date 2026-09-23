@@ -11,6 +11,7 @@ import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
 import LoadingButton from "../ui/LoadingButton";
 import Select from "../ui/Select";
+import { hojeISO } from "../../utils/format";
 
 interface NovoPedidoModalProps {
     onClose: () => void;
@@ -57,7 +58,7 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const prazoRef = useRef<HTMLInputElement>(null);
     const painelRef = useRef<HTMLElement>(null);
 
-    const hoje = new Date().toISOString().split("T")[0];
+    const hoje = hojeISO();
 
     useEscapeKey(onClose);
     useBodyScrollLock();

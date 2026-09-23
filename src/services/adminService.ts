@@ -115,26 +115,6 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     return await response.json();
 }
 
-export async function getAdminUser(
-    id: string
-): Promise<AdminUser> {
-    const response = await fetch(
-        `${API_URL}/usuarios/${encodeURIComponent(id)}`,
-        {
-            method: "GET",
-            headers: getHeaders(),
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            "Falha ao buscar usuário."
-        );
-    }
-
-    return await response.json();
-}
-
 export interface AdminUserUpdateData {
     nome?: string;
     email?: string;
@@ -209,27 +189,6 @@ export async function getAdminPedidos(): Promise<AdminPedido[]> {
 
     return await response.json();
 }
-
-export async function getAdminPedido(
-    id: string
-): Promise<AdminPedido> {
-    const response = await fetch(
-        `${API_URL}/pedidos/${encodeURIComponent(id)}`,
-        {
-            method: "GET",
-            headers: getHeaders(),
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            "Falha ao buscar pedido."
-        );
-    }
-
-    return await response.json();
-}
-
 
 export async function atualizarAdminPedido(
     id: string,
