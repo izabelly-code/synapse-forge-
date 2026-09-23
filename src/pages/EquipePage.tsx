@@ -1356,18 +1356,14 @@ function EquipePage() {
 
     return (
         <>
-            <main className="equipe-page">
+            <main className="dashboard-main equipe-page">
                 <header className="equipe-page-header">
                     <div>
-                        <span className="equipe-page-kicker">
-                            {t("equipe.kicker")}
-                        </span>
-
-                        <h1 className="equipe-page-title">
+                        <h1 className="dashboard-title">
                             {t("equipe.title")}
                         </h1>
 
-                        <p className="equipe-page-subtitle">
+                        <p className="dashboard-subtitle">
                             {t("equipe.subtitle")}
                         </p>
                     </div>
