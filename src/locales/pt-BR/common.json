@@ -146,8 +146,7 @@
 
     "loading": {
         "team": "Carregando equipe...",
-        "members": "Carregando integrantes...",
-        "clients": "Carregando clientes..."
+        "members": "Carregando integrantes..."
     },
 
     "empty": {
@@ -199,9 +198,13 @@
 
     "inviteModal": {
         "title": "Convidar usuário",
-        "description": "Escolha um cliente para enviar um convite para esta equipe.",
-        "availableClients": "Clientes disponíveis",
-        "noClients": "Não há clientes disponíveis para convite."
+        "description": "Digite o e-mail de um cliente cadastrado para convidá-lo a esta equipe.",
+        "emailLabel": "E-mail do cliente",
+        "emailPlaceholder": "cliente@email.com",
+        "search": "Buscar",
+        "searching": "Buscando...",
+        "hint": "Por privacidade, só é possível convidar quem você já conhece pelo e-mail exato.",
+        "notFound": "Nenhum cliente com esse e-mail. Confira o endereço ou peça para a pessoa se cadastrar como cliente."
     },
 
     "images": {
@@ -220,7 +223,7 @@
         "sessionExpired": "Sua sessão expirou. Faça login novamente.",
         "loadTeam": "Não foi possível carregar a equipe.",
         "loadMembers": "Não foi possível carregar os integrantes.",
-        "loadAvailableClients": "Não foi possível carregar os clientes disponíveis.",
+        "searchClient": "Não foi possível buscar o cliente.",
         "loadInvites": "Não foi possível carregar os convites.",
         "loadData": "Não foi possível carregar os dados da equipe.",
         "updateData": "Não foi possível atualizar os dados.",

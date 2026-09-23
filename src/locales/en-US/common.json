@@ -146,8 +146,7 @@
 
     "loading": {
         "team": "Loading team...",
-        "members": "Loading members...",
-        "clients": "Loading clients..."
+        "members": "Loading members..."
     },
 
     "empty": {
@@ -199,9 +198,13 @@
 
     "inviteModal": {
         "title": "Invite user",
-        "description": "Choose a customer to send an invitation to this team.",
-        "availableClients": "Available customers",
-        "noClients": "There are no customers available to invite."
+        "description": "Enter the email of a registered customer to invite them to this team.",
+        "emailLabel": "Customer email",
+        "emailPlaceholder": "customer@email.com",
+        "search": "Search",
+        "searching": "Searching...",
+        "hint": "For privacy, you can only invite people whose exact email you already know.",
+        "notFound": "No customer has this email. Check the address or ask them to sign up as a customer."
     },
 
     "images": {
@@ -220,7 +223,7 @@
         "sessionExpired": "Your session has expired. Please sign in again.",
         "loadTeam": "Unable to load the team.",
         "loadMembers": "Unable to load team members.",
-        "loadAvailableClients": "Unable to load available customers.",
+        "searchClient": "Unable to search for the customer.",
         "loadInvites": "Unable to load invitations.",
         "loadData": "Unable to load team data.",
         "updateData": "Unable to update the data.",

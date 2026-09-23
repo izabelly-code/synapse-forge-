@@ -44,14 +44,11 @@ interface Integrante {
     funcaoVisual?: string | null;
 }
 
-interface ClienteDisponivel {
+/** Resultado da busca de cliente por e-mail exato (convite de equipe). */
+interface ClienteEncontrado {
     id: string;
     nome: string;
     email: string;
-    cpf?: string | null;
-    telefone?: string | null;
-    role: string;
-    equipeId?: string | null;
 }
 
 interface Convite {
@@ -86,8 +83,11 @@ function EquipePage() {
     const [carregandoIntegrantes, setCarregandoIntegrantes] =
         useState(false);
 
-    const [clientesDisponiveis, setClientesDisponiveis] =
-        useState<ClienteDisponivel[]>([]);
+    const [emailConvite, setEmailConvite] = useState("");
+    const [clienteEncontrado, setClienteEncontrado] =
+        useState<ClienteEncontrado | null>(null);
+    const [clienteNaoEncontrado, setClienteNaoEncontrado] =
+        useState(false);
 
     const [convites, setConvites] = useState<Convite[]>([]);
 
@@ -111,7 +111,7 @@ function EquipePage() {
 
     const [salvandoEquipe, setSalvandoEquipe] = useState(false);
 
-    const [carregandoClientes, setCarregandoClientes] =
+    const [buscandoCliente, setBuscandoCliente] =
         useState(false);
     const [enviandoConvite, setEnviandoConvite] = useState(false);
 
@@ -301,18 +301,28 @@ function EquipePage() {
      * =========================================================
      */
 
-    async function buscarClientesDisponiveis() {
-        if (!podeGerenciarEquipe || !equipe) {
+    /*
+     * A busca é por e-mail exato: o gerente não vê uma lista de clientes
+     * da plataforma, só confirma a pessoa cujo e-mail já conhece.
+     */
+    async function buscarClientePorEmail() {
+        const email = emailConvite.trim();
+
+        if (!email) {
             return;
         }
 
         try {
-            setCarregandoClientes(true);
+            setBuscandoCliente(true);
+            setErro(null);
+            setClienteEncontrado(null);
+            setClienteNaoEncontrado(false);
+            setClienteSelecionado("");
 
             const token = obterToken();
 
             const response = await fetch(
-                `${API_URL}/equipes/minha/clientes-disponiveis`,
+                `${API_URL}/users/clientes/buscar?email=${encodeURIComponent(email)}`,
                 {
                     method: "GET",
                     headers: {
@@ -321,28 +331,38 @@ function EquipePage() {
                 }
             );
 
+            if (response.status === 404) {
+                setClienteNaoEncontrado(true);
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(
                     await obterMensagemErro(
                         response,
-                        t("equipe.errors.loadAvailableClients")
+                        t("equipe.errors.searchClient")
                     )
                 );
             }
 
-            const data: ClienteDisponivel[] =
+            const data: ClienteEncontrado =
                 await response.json();
 
-            setClientesDisponiveis(data);
+            setClienteEncontrado(data);
+            setClienteSelecionado(data.id);
         } catch (error) {
             console.error(
-                "Erro ao carregar clientes disponíveis:",
+                "Erro ao buscar cliente por e-mail:",
                 error
             );
 
-            setClientesDisponiveis([]);
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : t("equipe.errors.searchClient")
+            );
         } finally {
-            setCarregandoClientes(false);
+            setBuscandoCliente(false);
         }
     }
 
@@ -411,7 +431,6 @@ function EquipePage() {
 
             if (!minhaEquipe) {
                 setIntegrantes([]);
-                setClientesDisponiveis([]);
                 setConvites([]);
                 return;
             }
@@ -443,24 +462,6 @@ function EquipePage() {
             }
 
             if (podeGerenciarEquipe) {
-                const clientesResponse =
-                    await fetch(
-                        `${API_URL}/equipes/minha/clientes-disponiveis`,
-                        {
-                            method: "GET",
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
-
-                if (clientesResponse.ok) {
-                    const clientesData =
-                        await clientesResponse.json();
-
-                    setClientesDisponiveis(clientesData);
-                }
-
                 const convitesResponse =
                     await fetch(
                         `${API_URL}/equipes/${minhaEquipe.id}/convites`,
@@ -524,7 +525,6 @@ function EquipePage() {
 
             if (!minhaEquipe) {
                 setIntegrantes([]);
-                setClientesDisponiveis([]);
                 setConvites([]);
                 return;
             }
@@ -549,10 +549,7 @@ function EquipePage() {
             }
 
             if (podeGerenciarEquipe) {
-                await Promise.all([
-                    buscarClientesDisponiveis(),
-                    buscarConvites(),
-                ]);
+                await buscarConvites();
             }
         } catch (error) {
             console.error(
@@ -992,11 +989,16 @@ function EquipePage() {
             return;
         }
 
-        setClienteSelecionado("");
+        limparBuscaConvite();
         setErro(null);
         setModalConviteAberto(true);
+    }
 
-        await buscarClientesDisponiveis();
+    function limparBuscaConvite() {
+        setEmailConvite("");
+        setClienteEncontrado(null);
+        setClienteNaoEncontrado(false);
+        setClienteSelecionado("");
     }
 
     /*
@@ -1011,7 +1013,7 @@ function EquipePage() {
         }
 
         setModalConviteAberto(false);
-        setClienteSelecionado("");
+        limparBuscaConvite();
     }
 
     /*
@@ -1059,12 +1061,9 @@ function EquipePage() {
             }
 
             setModalConviteAberto(false);
-            setClienteSelecionado("");
+            limparBuscaConvite();
 
-            await Promise.all([
-                buscarClientesDisponiveis(),
-                buscarConvites(),
-            ]);
+            await buscarConvites();
         } catch (error) {
             console.error(
                 "Erro ao enviar convite:",
@@ -1140,10 +1139,7 @@ function EquipePage() {
                 );
             }
 
-            await Promise.all([
-                buscarIntegrantes(),
-                buscarClientesDisponiveis(),
-            ]);
+            await buscarIntegrantes();
         } catch (error) {
             console.error(
                 "Erro ao remover integrante:",
@@ -1306,7 +1302,6 @@ function EquipePage() {
 
             setEquipe(null);
             setIntegrantes([]);
-            setClientesDisponiveis([]);
             setConvites([]);
         } catch (error) {
             console.error(
@@ -2222,78 +2217,97 @@ function EquipePage() {
                                 </div>
                             )}
 
-                            <div className="equipe-form-group">
-                                <span className="equipe-form-label">
+                            <form
+                                className="equipe-form-group"
+                                onSubmit={(event) => {
+                                    event.preventDefault();
+                                    buscarClientePorEmail();
+                                }}
+                            >
+                                <label
+                                    className="equipe-form-label"
+                                    htmlFor="convite-email"
+                                >
                                     {t(
-                                        "equipe.inviteModal.availableClients"
+                                        "equipe.inviteModal.emailLabel"
+                                    )}
+                                </label>
+
+                                <div className="equipe-invite-search">
+                                    <input
+                                        id="convite-email"
+                                        type="email"
+                                        className="equipe-form-input"
+                                        value={emailConvite}
+                                        onChange={(event) => {
+                                            setEmailConvite(
+                                                event.target.value
+                                            );
+                                            setClienteEncontrado(null);
+                                            setClienteNaoEncontrado(false);
+                                            setClienteSelecionado("");
+                                        }}
+                                        placeholder={t(
+                                            "equipe.inviteModal.emailPlaceholder"
+                                        )}
+                                        autoComplete="off"
+                                        disabled={
+                                            enviandoConvite
+                                        }
+                                        autoFocus
+                                    />
+
+                                    <button
+                                        type="submit"
+                                        className="equipe-button"
+                                        disabled={
+                                            buscandoCliente ||
+                                            enviandoConvite ||
+                                            !emailConvite.trim()
+                                        }
+                                    >
+                                        {buscandoCliente
+                                            ? t(
+                                                  "equipe.inviteModal.searching"
+                                              )
+                                            : t(
+                                                  "equipe.inviteModal.search"
+                                              )}
+                                    </button>
+                                </div>
+
+                                <span className="equipe-form-hint">
+                                    {t(
+                                        "equipe.inviteModal.hint"
                                     )}
                                 </span>
+                            </form>
 
-                                {carregandoClientes ? (
-                                    <div className="equipe-loading-clients">
-                                        {t(
-                                            "equipe.loading.clients"
-                                        )}
+                            {clienteEncontrado && (
+                                <div className="equipe-client-option selected">
+                                    <div className="equipe-client-avatar">
+                                        <UserGroupIcon size={19} />
                                     </div>
-                                ) : clientesDisponiveis.length ===
-                                  0 ? (
-                                    <div className="equipe-empty-clients">
-                                        {t(
-                                            "equipe.inviteModal.noClients"
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="equipe-client-list">
-                                        {clientesDisponiveis.map(
-                                            (cliente) => (
-                                                <button
-                                                    type="button"
-                                                    key={
-                                                        cliente.id
-                                                    }
-                                                    className={
-                                                        "equipe-client-option" +
-                                                        (clienteSelecionado ===
-                                                        cliente.id
-                                                            ? " selected"
-                                                            : "")
-                                                    }
-                                                    onClick={() =>
-                                                        setClienteSelecionado(
-                                                            cliente.id
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        enviandoConvite
-                                                    }
-                                                >
-                                                    <div className="equipe-client-avatar">
-                                                        <UserGroupIcon
-                                                            size={
-                                                                19
-                                                            }
-                                                        />
-                                                    </div>
 
-                                                    <div className="equipe-client-info">
-                                                        <strong>
-                                                            {
-                                                                cliente.nome
-                                                            }
-                                                        </strong>
+                                    <div className="equipe-client-info">
+                                        <strong>
+                                            {clienteEncontrado.nome}
+                                        </strong>
 
-                                                        <span>
-                                                            {
-                                                                cliente.email
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </button>
-                                            )
-                                        )}
+                                        <span>
+                                            {clienteEncontrado.email}
+                                        </span>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
+
+                            {clienteNaoEncontrado && (
+                                <div className="equipe-empty-clients">
+                                    {t(
+                                        "equipe.inviteModal.notFound"
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="equipe-modal-footer">
@@ -2320,9 +2334,7 @@ function EquipePage() {
                                 }
                                 disabled={
                                     enviandoConvite ||
-                                    !clienteSelecionado ||
-                                    clientesDisponiveis.length ===
-                                        0
+                                    !clienteSelecionado
                                 }
                             >
                                 <Mail01Icon size={17} />

@@ -893,6 +893,27 @@
     font-weight: var(--weight-semibold, 600);
 }
 
+.equipe-form-hint {
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+}
+
+/* Convite: campo de e-mail + botão de busca na mesma linha */
+.equipe-invite-search {
+    display: flex;
+    gap: 8px;
+}
+
+.equipe-invite-search .equipe-form-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.equipe-invite-search .equipe-button {
+    flex-shrink: 0;
+}
+
 .equipe-form-input {
     width: 100%;
     min-height: 44px;
@@ -1101,23 +1122,8 @@
 }
 
 /* =========================================================
-   CLIENTES DISPONÍVEIS
+   CONVITE: RESULTADO DA BUSCA
    ========================================================= */
-
-.equipe-loading-clients {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    min-height: 130px;
-
-    border: 1px dashed var(--color-border-strong);
-    border-radius: 12px;
-
-    color: var(--color-text-muted);
-
-    font-size: 13px;
-}
 
 .equipe-empty-clients {
     padding: 22px 16px;
@@ -1131,19 +1137,6 @@
     line-height: 1.45;
 
     text-align: center;
-}
-
-.equipe-client-list {
-    display: flex;
-    flex-direction: column;
-
-    gap: 8px;
-
-    max-height: 340px;
-
-    overflow-y: auto;
-
-    padding-right: 3px;
 }
 
 .equipe-client-option {
@@ -1254,25 +1247,21 @@
    SCROLLBARS
    ========================================================= */
 
-.equipe-modal::-webkit-scrollbar,
-.equipe-client-list::-webkit-scrollbar {
+.equipe-modal::-webkit-scrollbar {
     width: 7px;
 }
 
-.equipe-modal::-webkit-scrollbar-track,
-.equipe-client-list::-webkit-scrollbar-track {
+.equipe-modal::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.equipe-modal::-webkit-scrollbar-thumb,
-.equipe-client-list::-webkit-scrollbar-thumb {
+.equipe-modal::-webkit-scrollbar-thumb {
     border-radius: 999px;
 
     background: var(--color-border-strong);
 }
 
-.equipe-modal::-webkit-scrollbar-thumb:hover,
-.equipe-client-list::-webkit-scrollbar-thumb:hover {
+.equipe-modal::-webkit-scrollbar-thumb:hover {
     background: var(--color-text-subtle);
 }
 
