@@ -208,7 +208,11 @@
         "search": "Buscar",
         "searching": "Buscando...",
         "hint": "Por privacidade, só é possível convidar quem você já conhece pelo e-mail exato.",
-        "notFound": "Nenhum cliente com esse e-mail. Confira o endereço ou peça para a pessoa se cadastrar como cliente."
+        "notFound": "Nenhum cliente com esse e-mail. Confira o endereço ou peça para a pessoa se cadastrar como cliente.",
+        "sentTitle": "Convite enviado",
+        "sentDescription": "{{nome}} vai receber em {{email}} o link para entrar na equipe. O link vale por 24 horas.",
+        "inviteAnother": "Convidar outra pessoa",
+        "done": "Concluir"
     },
 
     "images": {

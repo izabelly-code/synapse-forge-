@@ -208,7 +208,11 @@
         "search": "Search",
         "searching": "Searching...",
         "hint": "For privacy, you can only invite people whose exact email you already know.",
-        "notFound": "No customer has this email. Check the address or ask them to sign up as a customer."
+        "notFound": "No customer has this email. Check the address or ask them to sign up as a customer.",
+        "sentTitle": "Invite sent",
+        "sentDescription": "{{nome}} will get the link to join the team at {{email}}. The link is valid for 24 hours.",
+        "inviteAnother": "Invite someone else",
+        "done": "Done"
     },
 
     "images": {

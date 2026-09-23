@@ -1,5 +1,6 @@
 import {
     useEffect,
+    useRef,
     useState,
     type ChangeEvent,
 } from "react";
@@ -93,6 +94,15 @@ function EquipePage() {
         useState<ClienteEncontrado | null>(null);
     const [clienteNaoEncontrado, setClienteNaoEncontrado] =
         useState(false);
+
+    // Confirmação do convite: guarda quem foi convidado e a altura do corpo do
+    // modal no momento do envio, para a troca de conteúdo não fazer o modal pular.
+    const [conviteEnviado, setConviteEnviado] =
+        useState<ClienteEncontrado | null>(null);
+    const [alturaCorpoConvite, setAlturaCorpoConvite] =
+        useState<number | null>(null);
+    const corpoConviteRef = useRef<HTMLDivElement>(null);
+    const concluirConviteRef = useRef<HTMLButtonElement>(null);
 
     const [convites, setConvites] = useState<Convite[]>([]);
 
@@ -977,6 +987,8 @@ function EquipePage() {
     }
 
     function limparBuscaConvite() {
+        setConviteEnviado(null);
+        setAlturaCorpoConvite(null);
         setEmailConvite("");
         setClienteEncontrado(null);
         setClienteNaoEncontrado(false);
@@ -1042,8 +1054,11 @@ function EquipePage() {
                 );
             }
 
-            setModalConviteAberto(false);
-            limparBuscaConvite();
+            // Em vez de fechar, o modal mostra a confirmação (ver .equipe-convite-sucesso).
+            setAlturaCorpoConvite(
+                corpoConviteRef.current?.offsetHeight ?? null
+            );
+            setConviteEnviado(clienteEncontrado);
 
             await buscarConvites();
         } catch (error) {
@@ -1061,6 +1076,12 @@ function EquipePage() {
             setEnviandoConvite(false);
         }
     }
+
+    useEffect(() => {
+        if (conviteEnviado) {
+            concluirConviteRef.current?.focus();
+        }
+    }, [conviteEnviado]);
 
     /*
      * =========================================================
@@ -2196,143 +2217,222 @@ function EquipePage() {
                             </button>
                         </div>
 
-                        <div className="equipe-modal-body">
-                            {erro && (
-                                <div className="equipe-error">
-                                    {erro}
-                                </div>
-                            )}
-
-                            <form
-                                className="equipe-form-group"
-                                onSubmit={(event) => {
-                                    event.preventDefault();
-                                    buscarClientePorEmail();
-                                }}
-                            >
-                                <label
-                                    className="equipe-form-label"
-                                    htmlFor="convite-email"
+                        <div
+                            className="equipe-modal-body"
+                            ref={corpoConviteRef}
+                        >
+                            {conviteEnviado ? (
+                                <div
+                                    className="equipe-convite-sucesso"
+                                    role="status"
+                                    style={
+                                        alturaCorpoConvite
+                                            ? { minHeight: alturaCorpoConvite }
+                                            : undefined
+                                    }
                                 >
-                                    {t(
-                                        "equipe.inviteModal.emailLabel"
-                                    )}
-                                </label>
-
-                                <div className="equipe-invite-search">
-                                    <input
-                                        id="convite-email"
-                                        type="email"
-                                        className="equipe-form-input"
-                                        value={emailConvite}
-                                        onChange={(event) => {
-                                            setEmailConvite(
-                                                event.target.value
-                                            );
-                                            setClienteEncontrado(null);
-                                            setClienteNaoEncontrado(false);
-                                            setClienteSelecionado("");
-                                        }}
-                                        placeholder={t(
-                                            "equipe.inviteModal.emailPlaceholder"
-                                        )}
-                                        autoComplete="off"
-                                        disabled={
-                                            enviandoConvite
-                                        }
-                                        autoFocus
-                                    />
-
-                                    <button
-                                        type="submit"
-                                        className="equipe-button"
-                                        disabled={
-                                            buscandoCliente ||
-                                            enviandoConvite ||
-                                            !emailConvite.trim()
-                                        }
+                                    <svg
+                                        className="equipe-convite-check"
+                                        viewBox="0 0 52 52"
+                                        aria-hidden="true"
                                     >
-                                        {buscandoCliente
-                                            ? t(
-                                                  "equipe.inviteModal.searching"
-                                              )
-                                            : t(
-                                                  "equipe.inviteModal.search"
-                                              )}
-                                    </button>
+                                        <circle
+                                            className="equipe-convite-check-ring"
+                                            cx="26"
+                                            cy="26"
+                                            r="24"
+                                            pathLength={1}
+                                        />
+                                        <path
+                                            className="equipe-convite-check-tick"
+                                            d="M16 27.5l6.5 6.5L36.5 19"
+                                            pathLength={1}
+                                        />
+                                    </svg>
+
+                                    <h3>
+                                        {t(
+                                            "equipe.inviteModal.sentTitle"
+                                        )}
+                                    </h3>
+
+                                    <p>
+                                        {t(
+                                            "equipe.inviteModal.sentDescription",
+                                            {
+                                                nome: conviteEnviado.nome,
+                                                email: conviteEnviado.email,
+                                            }
+                                        )}
+                                    </p>
                                 </div>
+                            ) : (
+                                <>
+                                {erro && (
+                                    <div className="equipe-error">
+                                        {erro}
+                                    </div>
+                                )}
 
-                                <span className="equipe-form-hint">
-                                    {t(
-                                        "equipe.inviteModal.hint"
-                                    )}
-                                </span>
-                            </form>
+                                <form
+                                    className="equipe-form-group"
+                                    onSubmit={(event) => {
+                                        event.preventDefault();
+                                        buscarClientePorEmail();
+                                    }}
+                                >
+                                    <label
+                                        className="equipe-form-label"
+                                        htmlFor="convite-email"
+                                    >
+                                        {t(
+                                            "equipe.inviteModal.emailLabel"
+                                        )}
+                                    </label>
 
-                            {clienteEncontrado && (
-                                <div className="equipe-client-option selected">
-                                    <div className="equipe-client-avatar">
-                                        <UserGroupIcon size={19} />
+                                    <div className="equipe-invite-search">
+                                        <input
+                                            id="convite-email"
+                                            type="email"
+                                            className="equipe-form-input"
+                                            value={emailConvite}
+                                            onChange={(event) => {
+                                                setEmailConvite(
+                                                    event.target.value
+                                                );
+                                                setClienteEncontrado(null);
+                                                setClienteNaoEncontrado(false);
+                                                setClienteSelecionado("");
+                                            }}
+                                            placeholder={t(
+                                                "equipe.inviteModal.emailPlaceholder"
+                                            )}
+                                            autoComplete="off"
+                                            disabled={
+                                                enviandoConvite
+                                            }
+                                            autoFocus
+                                        />
+
+                                        <button
+                                            type="submit"
+                                            className="equipe-button"
+                                            disabled={
+                                                buscandoCliente ||
+                                                enviandoConvite ||
+                                                !emailConvite.trim()
+                                            }
+                                        >
+                                            {buscandoCliente
+                                                ? t(
+                                                      "equipe.inviteModal.searching"
+                                                  )
+                                                : t(
+                                                      "equipe.inviteModal.search"
+                                                  )}
+                                        </button>
                                     </div>
 
-                                    <div className="equipe-client-info">
-                                        <strong>
-                                            {clienteEncontrado.nome}
-                                        </strong>
+                                    <span className="equipe-form-hint">
+                                        {t(
+                                            "equipe.inviteModal.hint"
+                                        )}
+                                    </span>
+                                </form>
 
-                                        <span>
-                                            {clienteEncontrado.email}
-                                        </span>
+                                {clienteEncontrado && (
+                                    <div className="equipe-client-option selected">
+                                        <div className="equipe-client-avatar">
+                                            <UserGroupIcon size={19} />
+                                        </div>
+
+                                        <div className="equipe-client-info">
+                                            <strong>
+                                                {clienteEncontrado.nome}
+                                            </strong>
+
+                                            <span>
+                                                {clienteEncontrado.email}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {clienteNaoEncontrado && (
-                                <div className="equipe-empty-clients">
-                                    {t(
-                                        "equipe.inviteModal.notFound"
-                                    )}
-                                </div>
+                                {clienteNaoEncontrado && (
+                                    <div className="equipe-empty-clients">
+                                        {t(
+                                            "equipe.inviteModal.notFound"
+                                        )}
+                                    </div>
+                                )}
+                                </>
                             )}
                         </div>
 
                         <div className="equipe-modal-footer">
-                            <button
-                                type="button"
-                                className="equipe-modal-cancel"
-                                onClick={
-                                    fecharModalConvite
-                                }
-                                disabled={
-                                    enviandoConvite
-                                }
-                            >
-                                {t(
-                                    "equipe.actions.cancel"
-                                )}
-                            </button>
+                            {conviteEnviado ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="equipe-modal-cancel"
+                                        onClick={limparBuscaConvite}
+                                    >
+                                        {t(
+                                            "equipe.inviteModal.inviteAnother"
+                                        )}
+                                    </button>
 
-                            <button
-                                type="button"
-                                className="equipe-button equipe-primary-button"
-                                onClick={
-                                    enviarConvite
-                                }
-                                disabled={
-                                    enviandoConvite ||
-                                    !clienteSelecionado
-                                }
-                            >
-                                <Mail01Icon size={17} />
+                                    <button
+                                        type="button"
+                                        ref={concluirConviteRef}
+                                        className="equipe-button equipe-primary-button"
+                                        onClick={fecharModalConvite}
+                                    >
+                                        {t(
+                                            "equipe.inviteModal.done"
+                                        )}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                <button
+                                    type="button"
+                                    className="equipe-modal-cancel"
+                                    onClick={
+                                        fecharModalConvite
+                                    }
+                                    disabled={
+                                        enviandoConvite
+                                    }
+                                >
+                                    {t(
+                                        "equipe.actions.cancel"
+                                    )}
+                                </button>
 
-                                {enviandoConvite
-                                    ? t(
-                                          "equipe.actions.sending"
-                                      )
-                                    : t(
-                                          "equipe.actions.sendInvite"
-                                      )}
-                            </button>
+                                <button
+                                    type="button"
+                                    className="equipe-button equipe-primary-button"
+                                    onClick={
+                                        enviarConvite
+                                    }
+                                    disabled={
+                                        enviandoConvite ||
+                                        !clienteSelecionado
+                                    }
+                                >
+                                    <Mail01Icon size={17} />
+
+                                    {enviandoConvite
+                                        ? t(
+                                              "equipe.actions.sending"
+                                          )
+                                        : t(
+                                              "equipe.actions.sendInvite"
+                                          )}
+                                </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
