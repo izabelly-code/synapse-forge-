@@ -1582,3 +1582,18 @@
         opacity: 0;
     }
 }
+
+/* Invólucro do corpo do modal de convite: recebe a altura do conteúdo em px
+   (useAnimatedHeight) e a anima, então trocar formulário por confirmação ou
+   mostrar o cliente encontrado não faz o modal pular. */
+.equipe-modal-altura {
+    overflow: hidden;
+
+    transition: height var(--duration-slow) var(--ease-settle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .equipe-modal-altura {
+        transition: none;
+    }
+}
