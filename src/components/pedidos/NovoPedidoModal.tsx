@@ -34,7 +34,6 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
     const [prazo, setPrazo] = useState("");
-    const [orcamentoId, setOrcamentoId] = useState("");
     const [materialId, setMaterialId] = useState("");
     const [volumeCm3, setVolumeCm3] = useState("");
     const [tempoImpressaoHoras, setTempoImpressaoHoras] = useState("");
@@ -170,7 +169,6 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
         const data = {
             clienteId: clienteId || undefined,
-            orcamentoId: orcamentoId.trim() || undefined,
             cliente: cliente.trim(),
             projeto: projeto.trim(),
             descricao: descricao.trim(),
@@ -333,7 +331,6 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
 
                     <fieldset className="pedido-orcamento-fields">
                         <div className="pedido-edit-grid">
-                            <div className="input-group"><label htmlFor="pedido-orcamento">ID do orçamento</label><input id="pedido-orcamento" value={orcamentoId} onChange={(e) => setOrcamentoId(e.target.value)} /></div>
                             <div className="input-group"><label htmlFor="pedido-material">ID do material</label><input id="pedido-material" value={materialId} onChange={(e) => setMaterialId(e.target.value)} /></div>
                             <div className="input-group"><label htmlFor="pedido-volume">Volume (cm³)</label><input id="pedido-volume" type="number" min="0" step="0.01" value={volumeCm3} onChange={(e) => setVolumeCm3(e.target.value)} /></div>
                             <div className="input-group"><label htmlFor="pedido-impressao">Impressão (h)</label><input id="pedido-impressao" type="number" min="0" step="0.1" value={tempoImpressaoHoras} onChange={(e) => setTempoImpressaoHoras(e.target.value)} /></div>
