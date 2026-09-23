@@ -193,7 +193,6 @@ export async function cancelarPedido(
 export interface PedidoFormData {
 
     clienteId?: string;
-    orcamentoId?: string;
     cliente: string;
     projeto: string;
     descricao: string;
@@ -272,7 +271,6 @@ function toFormData(
     );
 
     const camposOrcamento: Array<keyof PedidoFormData> = [
-        "orcamentoId",
         "materialId",
         "volumeCm3",
         "tempoImpressaoHoras",
