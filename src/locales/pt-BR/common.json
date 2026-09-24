@@ -430,6 +430,15 @@
       "descriptionLabel": "Descrição",
       "descriptionPlaceholder": "Detalhes do pedido, referências, acabamento desejado...",
       "deadlineLabel": "Prazo",
+      "originLabel": "Canal de origem",
+      "originNone": "Não informado",
+      "originHint": "Campo de demonstração: ainda não é salvo.",
+      "originOptions": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "loja": "Loja física",
+        "indicacao": "Indicação"
+      },
       "object3dFormats": "Formatos aceitos: STL, OBJ, FBX, GLB, GLTF, 3MF",
       "removeFile": "Retirar",
       "cancel": "Cancelar",

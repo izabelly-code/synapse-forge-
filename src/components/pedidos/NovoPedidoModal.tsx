@@ -21,6 +21,9 @@ interface NovoPedidoModalProps {
 type CampoErro = "cliente" | "projeto" | "prazo";
 type Erros = Partial<Record<CampoErro, string>>;
 
+// Opções fixas do campo mock "Canal de origem" (ainda sem backend).
+const CANAIS_ORIGEM = ["whatsapp", "instagram", "loja", "indicacao"] as const;
+
 function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const { t } = useTranslation();
     const [clientes, setClientes] = useState<User[]>([]);
@@ -34,6 +37,8 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
     const [projeto, setProjeto] = useState("");
     const [descricao, setDescricao] = useState("");
     const [prazo, setPrazo] = useState("");
+    // Campo só de mock: fica no estado local e NÃO vai no payload do criarPedido.
+    const [canalOrigem, setCanalOrigem] = useState("");
     const [materialId, setMaterialId] = useState("");
     const [volumeCm3, setVolumeCm3] = useState("");
     const [tempoImpressaoHoras, setTempoImpressaoHoras] = useState("");
@@ -315,6 +320,24 @@ function NovoPedidoModal({ onClose, onCriado }: NovoPedidoModalProps) {
                             <span className="input-hint" id="prazo-erro">
                                 {erros.prazo && <span className="error-text">{erros.prazo}</span>}
                             </span>
+                        </div>
+
+                        <div className="input-group">
+                            <label htmlFor="canal-origem">{t("pedidos.form.originLabel")}</label>
+                            <Select
+                                id="canal-origem"
+                                value={canalOrigem}
+                                onChange={setCanalOrigem}
+                                describedBy="canal-origem-hint"
+                                options={[
+                                    { value: "", label: t("pedidos.form.originNone") },
+                                    ...CANAIS_ORIGEM.map((canal) => ({
+                                        value: canal,
+                                        label: t(`pedidos.form.originOptions.${canal}`),
+                                    })),
+                                ]}
+                            />
+                            <span className="input-hint" id="canal-origem-hint">{t("pedidos.form.originHint")}</span>
                         </div>
                     </div>
 
