@@ -569,6 +569,8 @@
       "notifEmpty": "Tudo em dia. Nenhum prazo crítico.",
       "tagLate": "Atrasado",
       "tagDueToday": "Vence hoje",
+      "tagFinished": "Finalizado",
+      "notifFinishedSubtitle": "Seu pedido foi finalizado",
       "newOrder": "Novo Pedido",
       "statsAria": "Resumo da produção",
       "statTotal": "Total de Pedidos",

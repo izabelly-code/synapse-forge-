@@ -568,6 +568,8 @@
     "notifEmpty": "All on track. No critical deadlines.",
     "tagLate": "Overdue",
     "tagDueToday": "Due today",
+    "tagFinished": "Completed",
+    "notifFinishedSubtitle": "Your order is complete",
     "newOrder": "New Order",
     "statsAria": "Production summary",
     "statTotal": "Total Orders",

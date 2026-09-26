@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, Layers01Icon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido, EtapaError } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
@@ -90,6 +91,21 @@ function PedidosDashboard() {
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
+    // `?pedido=<id>` abre o detalhe direto (ex.: clique no aviso de pedido finalizado no sino).
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pedidoDaUrl = searchParams.get("pedido");
+    const detalheId = pedidoDetalheId ?? pedidoDaUrl;
+
+    function fecharDetalhe() {
+        setPedidoDetalheId(null);
+        setDetalheEmEdicao(false);
+        if (pedidoDaUrl) {
+            setSearchParams((params) => {
+                params.delete("pedido");
+                return params;
+            }, { replace: true });
+        }
+    }
     const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
@@ -155,7 +171,7 @@ function PedidosDashboard() {
     }, []);
 
     // Recarrega ao voltar para a aba, sem skeleton (os dados já estão na tela).
-    useRecarregarAoVoltar(() => void buscarPedidos(), !modalAberto && !pedidoDetalheId);
+    useRecarregarAoVoltar(() => void buscarPedidos(), !modalAberto && !detalheId);
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -283,11 +299,11 @@ function PedidosDashboard() {
                     onCriado={() => { setModalAberto(false); fetchPedidos(); }}
                 />
             )}
-            {pedidoDetalheId && (
+            {detalheId && (
                 <PedidoDetalheModal
-                    pedidoId={pedidoDetalheId}
+                    pedidoId={detalheId}
                     abrirEmEdicao={detalheEmEdicao}
-                    onClose={() => { setPedidoDetalheId(null); setDetalheEmEdicao(false); }}
+                    onClose={fecharDetalhe}
                     onUpdated={(atualizado) => {
                         updatePedidos((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
                     }}

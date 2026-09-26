@@ -12,6 +12,7 @@ import { avatarPalette } from "../../utils/avatarPalette";
 import { useDismissable } from "../../hooks/useDismissable";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
+import { useNotificacoes } from "../../hooks/useNotificacoes";
 import IconButton from "../ui/IconButton";
 import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
 import ConviteEquipeCard from "../equipe/ConviteEquipeCard";
@@ -244,6 +245,9 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
     const { convite: meuConvite, descartar: descartarConvite } = useMeuConvite();
     const [conviteAberto, setConviteAberto] = useState(false);
 
+    // Avisos persistidos (ex.: pedido finalizado para o cliente). Somem ao clicar.
+    const { notificacoes: avisos, marcarComoLida } = useNotificacoes();
+
     const notificacoes: NotificationItem[] = [
         ...(meuConvite
             ? [{
@@ -257,6 +261,19 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                 onSelect: () => setConviteAberto(true),
             }]
             : []),
+        ...avisos.map((aviso) => ({
+            id: `aviso-${aviso.id}`,
+            title: aviso.titulo ?? "",
+            subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
+            tone: "success" as const,
+            tagLabel: t("pedidos.dashboard.tagFinished"),
+            onSelect: () => {
+                marcarComoLida(aviso.id);
+                navigate(aviso.referenciaId
+                    ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
+                    : "/dashboard");
+            },
+        })),
         ...pedidosUrgentes.map(
             ({ pedido, atrasado }) => ({
                 id: `pedido-${pedido.id}`,
