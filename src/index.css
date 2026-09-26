@@ -933,7 +933,11 @@ body {
   padding: var(--space-1-5);
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-button);
+  /* Raio concêntrico ao das abas (pílula de --control-h + o padding da barra):
+     numa linha continua parecendo pílula, mas quando a barra quebra em duas
+     linhas o canto não corta mais a primeira aba nem o seletor de visualização
+     (com --radius-button, 50px, a curva passava por cima de "Todos"). */
+  border-radius: calc(var(--control-h) / 2 + var(--space-1-5));
 }
 
 .filtros-tabs {
@@ -1425,6 +1429,7 @@ body {
 .tag-danger { background: var(--error-container); color: var(--error-color); }
 .tag-warn { background: var(--secondary-fixed); color: var(--secondary); }
 .tag-info { background: var(--surface-container-high); color: var(--color-text); }
+.tag-success { background: var(--success-container); color: var(--success-color); }
 
 
 /* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
