@@ -5780,6 +5780,79 @@ html {
   font-weight: 700;
 }
 
+/* Filtro de orçamentos: ícone no cabeçalho de cada bloco (pendentes / histórico)
+   que abre um modal com cliente, projeto e período. Cada bloco filtra só a si. */
+.orcamento-historico-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.orcamento-filtro-btn.is-active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.orcamento-filtro-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  line-height: 1.125rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.orcamento-filtro-datas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.orcamento-filtro-modal .modal-actions .btn-secondary,
+.orcamento-filtro-modal .modal-actions .button {
+  flex: 1;
+}
+
+.orcamento-filtros-erro {
+  margin: 0 0 var(--space-2);
+  color: var(--error-color);
+  font-size: 0.85rem;
+}
+
+/* "Mostrando 20 de 1000" + Carregar mais, abaixo de cada lista */
+.orcamento-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.orcamento-paginacao-info {
+  color: var(--on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.orcamento-paginacao .btn-secondary {
+  flex: none;
+  padding: 0 var(--space-5, 1.25rem);
+}
+
+.orcamento-paginacao .btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .pedidos-row-head.orcamento-row,
 .pedido-row.orcamento-row {
   grid-template-columns: minmax(140px, 1.4fr) minmax(140px, 1.4fr) minmax(120px, 1fr) minmax(150px, 1.2fr) minmax(120px, 0.9fr);
