@@ -923,6 +923,10 @@ body {
 
 
 /* ===== FILTER BAR ===== */
+/* Raio concêntrico ao dos botões de dentro (pílula de --control-h + o padding
+   da barra), e não --radius-button: a barra é um contêiner que quebra linha.
+   Numa linha só ela ainda parece uma pílula; com duas ou três linhas vira um
+   painel de cantos arredondados em vez de uma bolha (SYN-113). */
 .filtros-bar {
   display: flex;
   align-items: center;
@@ -933,7 +937,7 @@ body {
   padding: var(--space-1-5);
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-button);
+  border-radius: calc(var(--control-h) / 2 + var(--space-1-5));
 }
 
 .filtros-tabs {
@@ -949,6 +953,29 @@ body {
   gap: var(--space-2);
   flex-wrap: wrap;
   min-width: 0;
+}
+
+/* Pedidos: as sete abas de status com contador medem ~830px. Quando a coluna
+   não comporta isso (entre ~769px e ~1220px de janela), elas trocam pelo mesmo
+   dropdown de status do celular, e a barra volta a caber numa linha. O
+   contêiner de consulta é um invólucro só da barra, não o .dashboard-content,
+   porque container-type prenderia os modais fixed da página. */
+.filtros-wrap {
+  container: sf-filtros / inline-size;
+}
+
+.filtros-bar:has(> .filtros-tabs--status) > .filtro-menu-status {
+  display: none;
+}
+
+@container sf-filtros (max-width: 899px) {
+  .filtros-bar > .filtros-tabs--status {
+    display: none;
+  }
+
+  .filtros-bar:has(> .filtros-tabs--status) > .filtro-menu-status {
+    display: block;
+  }
 }
 
 .view-toggle {
@@ -1427,19 +1454,36 @@ body {
 .tag-info { background: var(--surface-container-high); color: var(--color-text); }
 
 
-/* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
-   breakpoint de viewport (eram `repeat(3,1fr)` em 1024 e `repeat(2,1fr)` em 640,
-   que mediam a janela e não a coluna). 168px é o min-content medido do cartão
-   (12+12 de padding + 2 de borda + 40 do ícone + 14 de gap + 95px do rótulo mais
-   longo, "Total de Pedidos" a 12px/500) arredondado PARA BAIXO: em 1280px — a
-   janela mais estreita em que a regra antiga ainda mostrava 5 colunas — a coluna
-   de conteúdo vale 920px e 5 faixas de 168 + 4 gaps de 16 dão 904px, então as 5
-   colunas sobrevivem. Acima disso nada muda. */
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-7);
+}
+
+/* SYN-113: o auto-fit da SYN-76 deixava um cartão órfão (4+1) em colunas médias, e
+   168px não bastava — "Total de Pedidos" quebrava em duas linhas já em 1280px.
+   Agora são cinco colunas quando cada cartão tem ~180px (coluna ≥ 960px) e,
+   abaixo disso, 3+2 numa grade de seis faixas. O celular (≤768px) tem a regra
+   própria de 1+2+2 mais abaixo. */
+.stat-cards-wrap {
+  container: sf-stats / inline-size;
+}
+
+@media (min-width: 769px) {
+  @container sf-stats (max-width: 959px) {
+    .stat-cards {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .stat-cards .stat-card {
+      grid-column: span 2;
+    }
+
+    .stat-cards .stat-card:nth-child(n + 4) {
+      grid-column: span 3;
+    }
+  }
 }
 
 .stat-card {
@@ -2103,7 +2147,10 @@ body {
   .filtros-bar { align-items: stretch; }
   .filtro-menu-status { flex: 1 1 100%; }
   .filtros-actions { width: 100%; }
-  .filtros-actions .filtro-menu { flex: 1 1 40%; }
+  /* base = conteúdo, não 40%: com 40% o "Filtros" (curto) pedia mais espaço do
+     que usa e caía para a linha de baixo em 346px. min-width: 0 mantém o par na
+     mesma linha em 320px, cortando o rótulo com reticências. */
+  .filtros-actions .filtro-menu { flex: 1 1 auto; min-width: 0; }
   .filtros-actions .filtro-action { width: 100%; justify-content: space-between; }
 }
 

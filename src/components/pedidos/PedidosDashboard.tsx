@@ -336,27 +336,47 @@ function PedidosDashboard() {
                     </div>
                 </header>
 
-                <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
-                    {statCards.map((s) => (
-                        <div key={s.key} className="stat-card">
-                            <span className="stat-icon">{s.icon}</span>
-                            <div className="stat-body">
-                                {/* Durante o carregamento os contadores valem 0; montar o
-                                    ValueFlash só quando os dados chegam evita que a tela
-                                    inteira pisque só por ter terminado de carregar. */}
-                                <span className="stat-value">
-                                    {fetching ? s.value : <ValueFlash value={s.value} label={s.label} />}
-                                </span>
-                                <span className="stat-label">{s.label}</span>
+                {/* Contêiner de consulta: a grade dos cards se reorganiza pela largura da coluna, não da janela. */}
+                <div className="stat-cards-wrap">
+                    <section className="stat-cards" aria-label={t("pedidos.dashboard.statsAria")}>
+                        {statCards.map((s) => (
+                            <div key={s.key} className="stat-card">
+                                <span className="stat-icon">{s.icon}</span>
+                                <div className="stat-body">
+                                    {/* Durante o carregamento os contadores valem 0; montar o
+                                        ValueFlash só quando os dados chegam evita que a tela
+                                        inteira pisque só por ter terminado de carregar. */}
+                                    <span className="stat-value">
+                                        {fetching ? s.value : <ValueFlash value={s.value} label={s.label} />}
+                                    </span>
+                                    <span className="stat-label">{s.label}</span>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </section>
+                        ))}
+                    </section>
+                </div>
 
-                <div className="filtros-bar">
-                    {mobile ? (
-                        /* No celular as seis abas com contador não cabem numa linha;
-                           viram um dropdown no mesmo padrão dos outros filtros. */
+                {/* Contêiner de consulta da barra de filtros (abas viram dropdown quando não cabem). */}
+                <div className="filtros-wrap">
+                    <div className="filtros-bar">
+                        {/* Abas de status quando cabem; senão (celular ou coluna estreita) o mesmo
+                            filtro vira um dropdown. A troca na coluna estreita é por container query
+                            (.filtros-wrap no index.css); no celular as abas nem são montadas. */}
+                        {!mobile && (
+                            <div className="filtros-tabs filtros-tabs--status">
+                                {FILTRO_VALUES.map((valor) => (
+                                    <button
+                                        key={valor}
+                                        className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
+                                        onClick={() => setFiltro(valor)}
+                                    >
+                                        {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
+                                        <span className="filtro-count">{counts[valor] ?? 0}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         <div className="filtro-menu filtro-menu-status" ref={statusRef}>
                             <button
                                 type="button"
@@ -393,95 +413,82 @@ function PedidosDashboard() {
                                 </MenuSurface>
                             )}
                         </div>
-                    ) : (
-                        <div className="filtros-tabs">
-                            {FILTRO_VALUES.map((valor) => (
+
+                        <div className="filtros-actions">
+                            {!mobile && (
+                                <ViewToggle
+                                    value={view}
+                                    onChange={alternarView}
+                                    ariaLabel={t("pedidos.dashboard.viewModeAria")}
+                                    options={[
+                                        { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
+                                        { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
+                                    ]}
+                                />
+                            )}
+
+                            <div className="filtro-menu" ref={periodoRef}>
                                 <button
-                                    key={valor}
-                                    className={cn("filtro-btn", filtro === valor && "filtro-ativo")}
-                                    onClick={() => setFiltro(valor)}
+                                    type="button"
+                                    className={cn("filtro-action", periodo !== "all" && "is-active")}
+                                    aria-haspopup="menu"
+                                    aria-expanded={menuAberto === "periodo"}
+                                    onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
                                 >
-                                    {valor === "" ? t("pedidos.dashboard.filterAll") : t(`pedidos.status.${valor}`)}
-                                    <span className="filtro-count">{counts[valor] ?? 0}</span>
+                                    <Calendar03Icon size={15} />
+                                    <span className="filtro-action-label">{t(PERIODO_I18N[periodo])}</span>
+                                    <ArrowDown01Icon size={15} className="filtro-action-chev" />
                                 </button>
-                            ))}
-                        </div>
-                    )}
 
-                    <div className="filtros-actions">
-                        {!mobile && (
-                            <ViewToggle
-                                value={view}
-                                onChange={alternarView}
-                                ariaLabel={t("pedidos.dashboard.viewModeAria")}
-                                options={[
-                                    { value: "list", icon: <LeftToRightListBulletIcon size={16} />, label: t("pedidos.dashboard.viewList") },
-                                    { value: "grid", icon: <GridViewIcon size={16} />, label: t("pedidos.dashboard.viewGrid") },
-                                ]}
-                            />
-                        )}
+                                {menuAberto === "periodo" && (
+                                    <MenuSurface className="filtro-dropdown" role="menu">
+                                        {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
+                                            <button
+                                                key={k}
+                                                type="button"
+                                                role="menuitemradio"
+                                                aria-checked={periodo === k}
+                                                className={cn("filtro-option", periodo === k && "selected")}
+                                                onClick={() => { setPeriodo(k); setMenuAberto(null); }}
+                                            >
+                                                {t(PERIODO_I18N[k])}
+                                                {periodo === k && <Tick02Icon size={15} />}
+                                            </button>
+                                        ))}
+                                    </MenuSurface>
+                                )}
+                            </div>
 
-                        <div className="filtro-menu" ref={periodoRef}>
-                            <button
-                                type="button"
-                                className={cn("filtro-action", periodo !== "all" && "is-active")}
-                                aria-haspopup="menu"
-                                aria-expanded={menuAberto === "periodo"}
-                                onClick={() => setMenuAberto((m) => (m === "periodo" ? null : "periodo"))}
-                            >
-                                <Calendar03Icon size={15} />
-                                {t(PERIODO_I18N[periodo])}
-                                <ArrowDown01Icon size={15} className="filtro-action-chev" />
-                            </button>
+                            <div className="filtro-menu" ref={filtrosRef}>
+                                <button
+                                    type="button"
+                                    className={cn("filtro-action", ordenacao !== "recentes" && "is-active")}
+                                    aria-haspopup="menu"
+                                    aria-expanded={menuAberto === "filtros"}
+                                    onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
+                                >
+                                    <FilterIcon size={15} />
+                                    <span className="filtro-action-label">{t("pedidos.dashboard.filtersButton")}</span>
+                                </button>
 
-                            {menuAberto === "periodo" && (
-                                <MenuSurface className="filtro-dropdown" role="menu">
-                                    {(Object.keys(PERIODO_I18N) as PeriodoKey[]).map((k) => (
-                                        <button
-                                            key={k}
-                                            type="button"
-                                            role="menuitemradio"
-                                            aria-checked={periodo === k}
-                                            className={cn("filtro-option", periodo === k && "selected")}
-                                            onClick={() => { setPeriodo(k); setMenuAberto(null); }}
-                                        >
-                                            {t(PERIODO_I18N[k])}
-                                            {periodo === k && <Tick02Icon size={15} />}
-                                        </button>
-                                    ))}
-                                </MenuSurface>
-                            )}
-                        </div>
-
-                        <div className="filtro-menu" ref={filtrosRef}>
-                            <button
-                                type="button"
-                                className={cn("filtro-action", ordenacao !== "recentes" && "is-active")}
-                                aria-haspopup="menu"
-                                aria-expanded={menuAberto === "filtros"}
-                                onClick={() => setMenuAberto((m) => (m === "filtros" ? null : "filtros"))}
-                            >
-                                <FilterIcon size={15} />
-                                {t("pedidos.dashboard.filtersButton")}
-                            </button>
-
-                            {menuAberto === "filtros" && (
-                                <MenuSurface className="filtro-dropdown" role="menu">
-                                    {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (
-                                        <button
-                                            key={k}
-                                            type="button"
-                                            role="menuitemradio"
-                                            aria-checked={ordenacao === k}
-                                            className={cn("filtro-option", ordenacao === k && "selected")}
-                                            onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
-                                        >
-                                            {t(ORDENACAO_I18N[k])}
-                                            {ordenacao === k && <Tick02Icon size={15} />}
-                                        </button>
-                                    ))}
-                                </MenuSurface>
-                            )}
+                                {menuAberto === "filtros" && (
+                                    <MenuSurface className="filtro-dropdown" role="menu">
+                                        {(Object.keys(ORDENACAO_I18N) as OrdKey[]).map((k) => (
+                                            <button
+                                                key={k}
+                                                type="button"
+                                                role="menuitemradio"
+                                                aria-checked={ordenacao === k}
+                                                className={cn("filtro-option", ordenacao === k && "selected")}
+                                                onClick={() => { setOrdenacao(k); setMenuAberto(null); }}
+                                            >
+                                                {t(ORDENACAO_I18N[k])}
+                                                {ordenacao === k && <Tick02Icon size={15} />}
+                                            </button>
+                                        ))}
+                                    </MenuSurface>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
