@@ -307,7 +307,6 @@
     "estoque": "Estoque"
   },
   "admin": {
-    "kicker": "Administração",
     "title": "Administração do sistema",
     "subtitle": "Gerencie usuários e pedidos armazenados no sistema.",
     
@@ -342,7 +341,6 @@
       "orders_other": "{{count}} pedidos"
     },
 
-    "loading": "Carregando dados...",
 
     "errors": {
       "load": "Não foi possível carregar os dados da administração.",
