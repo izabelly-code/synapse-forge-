@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity01Icon, Alert02Icon, ArrowDown01Icon, Calendar03Icon, CheckmarkCircle02Icon, Clock01Icon, FilterIcon, GridViewIcon, InboxIcon, Layers01Icon, LeftToRightListBulletIcon, PlusSignIcon, ShoppingBag01Icon, Tick02Icon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { getPedidos, avancarStatus, regredirStatus, deletarPedido, EtapaError } from "../../services/PedidoService";
 import { getCached, setCached } from "../../services/cache";
 import PedidoRow from "./PedidoRow";
@@ -91,6 +92,24 @@ function PedidosDashboard() {
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
     const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
+    // `?pedido=<id>` abre o detalhe direto (ex.: clique no aviso de pedido finalizado no sino).
+    // O parâmetro é consumido: vira o pedido aberto e sai da URL, então um novo clique no
+    // sino troca para o pedido do aviso mesmo com outro detalhe já aberto.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pedidoDaUrl = searchParams.get("pedido");
+    if (pedidoDaUrl && pedidoDaUrl !== pedidoDetalheId) {
+        // ajuste de estado durante o render (padrão do React para derivar de uma entrada nova)
+        setDetalheEmEdicao(false);
+        setPedidoDetalheId(pedidoDaUrl);
+    }
+    useEffect(() => {
+        if (!pedidoDaUrl) return;
+        setSearchParams((atuais) => {
+            const params = new URLSearchParams(atuais);
+            params.delete("pedido");
+            return params;
+        }, { replace: true });
+    }, [pedidoDaUrl, setSearchParams]);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "status" | "periodo" | "filtros">(null);
