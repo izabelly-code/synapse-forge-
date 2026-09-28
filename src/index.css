@@ -955,11 +955,13 @@ body {
   min-width: 0;
 }
 
-/* Pedidos: as sete abas de status com contador medem ~830px. Quando a coluna
-   não comporta isso (entre ~769px e ~1220px de janela), elas trocam pelo mesmo
-   dropdown de status do celular, e a barra volta a caber numa linha. O
-   contêiner de consulta é um invólucro só da barra, não o .dashboard-content,
-   porque container-type prenderia os modais fixed da página. */
+/* Pedidos: as sete abas de status com contador medem ~830px e as ações (toggle,
+   prazo, filtros) ~345px; com gaps, padding e folga para contadores de dois
+   dígitos, a barra só cabe numa linha a partir de ~1250px. Abaixo disso as abas
+   trocam pelo mesmo dropdown de status do celular, em vez de a barra quebrar em
+   duas linhas (abas em cima, ações embaixo). O contêiner de consulta é um
+   invólucro só da barra, não o .dashboard-content, porque container-type
+   prenderia os modais fixed da página. */
 .filtros-wrap {
   container: sf-filtros / inline-size;
 }
@@ -968,7 +970,7 @@ body {
   display: none;
 }
 
-@container sf-filtros (max-width: 899px) {
+@container sf-filtros (max-width: 1249px) {
   .filtros-bar > .filtros-tabs--status {
     display: none;
   }
