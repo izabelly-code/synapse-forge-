@@ -91,22 +91,25 @@ function PedidosDashboard() {
     const [error, setError] = useState("");
     const [modalAberto, setModalAberto] = useState(false);
     const [pedidoDetalheId, setPedidoDetalheId] = useState<string | null>(null);
+    const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
     // `?pedido=<id>` abre o detalhe direto (ex.: clique no aviso de pedido finalizado no sino).
+    // O parâmetro é consumido: vira o pedido aberto e sai da URL, então um novo clique no
+    // sino troca para o pedido do aviso mesmo com outro detalhe já aberto.
     const [searchParams, setSearchParams] = useSearchParams();
     const pedidoDaUrl = searchParams.get("pedido");
-    const detalheId = pedidoDetalheId ?? pedidoDaUrl;
-
-    function fecharDetalhe() {
-        setPedidoDetalheId(null);
+    if (pedidoDaUrl && pedidoDaUrl !== pedidoDetalheId) {
+        // ajuste de estado durante o render (padrão do React para derivar de uma entrada nova)
         setDetalheEmEdicao(false);
-        if (pedidoDaUrl) {
-            setSearchParams((params) => {
-                params.delete("pedido");
-                return params;
-            }, { replace: true });
-        }
+        setPedidoDetalheId(pedidoDaUrl);
     }
-    const [detalheEmEdicao, setDetalheEmEdicao] = useState(false);
+    useEffect(() => {
+        if (!pedidoDaUrl) return;
+        setSearchParams((atuais) => {
+            const params = new URLSearchParams(atuais);
+            params.delete("pedido");
+            return params;
+        }, { replace: true });
+    }, [pedidoDaUrl, setSearchParams]);
     const [periodo, setPeriodo] = useState<PeriodoKey>("all");
     const [ordenacao, setOrdenacao] = useState<OrdKey>("recentes");
     const [menuAberto, setMenuAberto] = useState<null | "status" | "periodo" | "filtros">(null);
@@ -171,7 +174,7 @@ function PedidosDashboard() {
     }, []);
 
     // Recarrega ao voltar para a aba, sem skeleton (os dados já estão na tela).
-    useRecarregarAoVoltar(() => void buscarPedidos(), !modalAberto && !detalheId);
+    useRecarregarAoVoltar(() => void buscarPedidos(), !modalAberto && !pedidoDetalheId);
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -299,11 +302,11 @@ function PedidosDashboard() {
                     onCriado={() => { setModalAberto(false); fetchPedidos(); }}
                 />
             )}
-            {detalheId && (
+            {pedidoDetalheId && (
                 <PedidoDetalheModal
-                    pedidoId={detalheId}
+                    pedidoId={pedidoDetalheId}
                     abrirEmEdicao={detalheEmEdicao}
-                    onClose={fecharDetalhe}
+                    onClose={() => { setPedidoDetalheId(null); setDetalheEmEdicao(false); }}
                     onUpdated={(atualizado) => {
                         updatePedidos((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
                     }}
