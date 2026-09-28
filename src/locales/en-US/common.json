@@ -308,7 +308,6 @@
   },
 
   "admin": {
-    "kicker": "Administration",
     "title": "System administration",
     "subtitle": "Manage users and orders stored in the system.",
 
@@ -339,7 +338,6 @@
       "orders_other": "{{count}} orders"
     },
 
-    "loading": "Loading data...",
 
     "errors": {
       "load": "Unable to load administration data.",

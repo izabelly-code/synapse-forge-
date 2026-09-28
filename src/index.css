@@ -2090,25 +2090,25 @@ body {
    Substitui o antigo `@media (max-width: 768px)`, que deixava a linha estourando
    em toda a faixa 769–1265px. */
 @container sf-list (max-width: 960px) {
-  .pedidos-row-head:not(.material-row):not(.orcamento-row) { display: none; }
+  .pedidos-row-head:not(.material-row):not(.orcamento-row):not(.admin-row) { display: none; }
 
-  .pedido-row:not(.material-row):not(.orcamento-row) {
+  .pedido-row:not(.material-row):not(.orcamento-row):not(.admin-row) {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2-5);
     padding: var(--space-4) var(--space-4-5);
   }
 
-  .pedido-row:not(.material-row):not(.orcamento-row) .cell-label { display: inline; }
+  .pedido-row:not(.material-row):not(.orcamento-row):not(.admin-row) .cell-label { display: inline; }
 
-  .pedido-row:not(.material-row):not(.orcamento-row) .cell-prazo { align-items: flex-start; }
+  .pedido-row:not(.material-row):not(.orcamento-row):not(.admin-row) .cell-prazo { align-items: flex-start; }
 
-  .pedido-row:not(.material-row):not(.orcamento-row) .cell-acoes {
+  .pedido-row:not(.material-row):not(.orcamento-row):not(.admin-row) .cell-acoes {
     justify-content: flex-start;
     flex-wrap: wrap;
   }
 
   /* Com o kebab à esquerda, `right: 0` jogava o menu ~122px fora da tela. */
-  .pedido-row:not(.material-row):not(.orcamento-row) .kebab-menu {
+  .pedido-row:not(.material-row):not(.orcamento-row):not(.admin-row) .kebab-menu {
     left: 0;
     right: auto;
   }
@@ -4459,6 +4459,144 @@ html {
   .material-row-actions { justify-content: flex-start; flex-wrap: wrap; }
 }
 
+
+
+/* ===== ADMIN (SYN-114) ===== */
+/* Grade própria das duas listas da Admin. Antes elas reaproveitavam a
+   .material-row (colunas de Materiais), que empilhava tudo abaixo de 980px de
+   lista e deixava cada usuário como um card alto sem rótulos. */
+.pedidos-row-head.admin-row--usuarios,
+.pedido-row.admin-row--usuarios {
+  grid-template-columns: minmax(180px, 2fr) minmax(100px, 1fr) minmax(120px, 1.2fr) 80px 152px;
+}
+
+.pedidos-row-head.admin-row--pedidos,
+.pedido-row.admin-row--pedidos {
+  grid-template-columns: minmax(160px, 2fr) minmax(110px, 1.3fr) 100px 88px 96px 152px;
+}
+
+/* gap um pouco menor que o das outras listas: com 16px a lista de pedidos só
+   caberia a partir de ~1240px de janela */
+.pedidos-row-head.admin-row,
+.pedido-row.admin-row {
+  gap: var(--space-3);
+}
+
+/* a linha não abre nada ao clicar; as ações são os botões */
+.pedido-row.admin-row {
+  cursor: default;
+  font-size: var(--text-base);
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-cell-titulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-05);
+  min-width: 0;
+}
+
+.admin-cell-titulo strong,
+.admin-cell-titulo small,
+.admin-cell-valor {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-cell-titulo strong {
+  font-weight: var(--weight-semibold);
+}
+
+.admin-cell-titulo small {
+  font-size: var(--text-sm);
+  color: var(--on-surface-variant);
+}
+
+.admin-cell {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.admin-status::before {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--success-color);
+  flex-shrink: 0;
+}
+
+.admin-status.is-inativo {
+  color: var(--on-surface-variant);
+}
+
+.admin-status.is-inativo::before {
+  background: var(--outline-variant);
+}
+
+/* Busca em pílula na barra de abas, larga o bastante para o placeholder inteiro;
+   no celular ocupa a linha de baixo inteira. */
+.admin-filtros .ui-search-field input { width: 300px; }
+
+@media (max-width: 640px) {
+  .admin-filtros .ui-search-field { flex: 1 1 100%; }
+  .admin-filtros .ui-search-field input { width: 100%; }
+}
+
+/* Empilhamento por largura da LISTA. Min-content: usuários 720px (180 + 100 +
+   120 + 80 + 152 + 4 gaps de 12 + 40 de padding), pedidos 806px (160 + 110 +
+   100 + 88 + 96 + 152 + 5 gaps + 40): as duas cabem como tabela a partir de
+   ~1190px de janela. Empilhada, a linha vira um card com o
+   título em cima, os campos em duas colunas com rótulo e as ações embaixo. */
+@container sf-list (max-width: 740px) {
+  .pedidos-row-head.admin-row--usuarios { display: none; }
+
+  .pedido-row.admin-row--usuarios {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2-5) var(--space-4);
+    padding: var(--space-4) var(--space-4-5);
+  }
+
+  .pedido-row.admin-row--usuarios .cell-label { display: inline; }
+
+  .pedido-row.admin-row--usuarios .admin-cell-titulo,
+  .pedido-row.admin-row--usuarios .material-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@container sf-list (max-width: 819px) {
+  .pedidos-row-head.admin-row--pedidos { display: none; }
+
+  .pedido-row.admin-row--pedidos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2-5) var(--space-4);
+    padding: var(--space-4) var(--space-4-5);
+  }
+
+  .pedido-row.admin-row--pedidos .cell-label { display: inline; }
+
+  .pedido-row.admin-row--pedidos .admin-cell-titulo,
+  .pedido-row.admin-row--pedidos .material-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@container sf-list (max-width: 420px) {
+  .pedido-row.admin-row { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* ===== ESTOQUE (RF11) ===== */
 /* Reaproveita a página de Materiais (toolbar, linhas .pedido-row, selo de
