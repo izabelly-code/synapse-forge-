@@ -1425,6 +1425,7 @@ body {
 .tag-danger { background: var(--error-container); color: var(--error-color); }
 .tag-warn { background: var(--secondary-fixed); color: var(--secondary); }
 .tag-info { background: var(--surface-container-high); color: var(--color-text); }
+.tag-success { background: var(--success-container); color: var(--success-color); }
 
 
 /* SYN-76 fase 6: os cinco cartões se reorganizam pelo próprio conteúdo, sem
