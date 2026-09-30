@@ -526,6 +526,17 @@
         "cancelar": "Não foi possível cancelar o pedido. Tente novamente."
       }
     },
+    "comments": {
+        "title": "Comentários",
+        "placeholder": "Digite um comentário...",
+        "send": "Enviar",
+        "sending": "Enviando...",
+        "loading": "Carregando comentários...",
+        "empty": "Nenhum comentário ainda.",
+        "errorLoad": "Não foi possível carregar os comentários.",
+        "errorSend": "Não foi possível enviar o comentário.",
+        "anonymous": "Usuário"
+    },
     "row": {
       "deadlineLabel": "Prazo",
       "moreActions": "Mais ações",

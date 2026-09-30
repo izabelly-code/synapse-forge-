@@ -525,6 +525,17 @@
         "cancelar": "Could not cancel the order. Please try again."
       }
     },
+    "comments": {
+        "title": "Comments",
+        "placeholder": "Write a comment...",
+        "send": "Send",
+        "sending": "Sending...",
+        "loading": "Loading comments...",
+        "empty": "No comments yet.",
+        "errorLoad": "Could not load comments.",
+        "errorSend": "Could not send the comment.",
+        "anonymous": "User"
+    },
     "row": {
       "deadlineLabel": "Deadline",
       "moreActions": "More actions",
