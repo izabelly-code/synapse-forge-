@@ -11,9 +11,12 @@ import {
     gerarOrdemServico,
     regredirStatus
 } from "../../services/PedidoService";
-
+import {
+    criarComentario,
+    getComentarios
+} from "../../services/ComentarioService";
 import { useTranslation } from "react-i18next";
-import { Pedido } from "../../types";
+import { Pedido, Comentario, ComentarioRequest } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatCurrency, formatDate, formatNumber } from "../../utils/format";
 import { cn } from "../../utils/cn";
@@ -65,6 +68,11 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [downloading, setDownloading] = useState(false);
     const [downloadError, setDownloadError] = useState("");
     const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+    const [comentarios, setComentarios] = useState<Comentario[]>([]);
+    const [novoComentario, setNovoComentario] = useState("");
+    const [carregandoComentarios, setCarregandoComentarios] = useState(false);
+    const [enviandoComentario, setEnviandoComentario] = useState(false);
+    const [erroComentarios, setErroComentarios] = useState("");
 
     // Etapa: só muda pelos endpoints dedicados (avançar/regredir/cancelar), que
     // fazem a baixa e o estorno de estoque. A edição do pedido não toca nela.
@@ -76,6 +84,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const role = getUserRole();
     const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
     const isGerente = role === "GERENTE";
+    const podeVerComentarios = role === "TECNICO" || role === "GERENTE";
 
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
@@ -168,6 +177,39 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         fetchMaterialNome();
         return () => { active = false; };
     }, [pedido]);
+
+    useEffect(() => {
+    let active = true;
+
+        async function fetchComentarios() {
+            if (!pedidoId || editando || !podeVerComentarios) return;
+
+            setCarregandoComentarios(true);
+            setErroComentarios("");
+
+            try {
+                const data = await getComentarios(pedidoId);
+
+                if (active) {
+                    setComentarios(data);
+                }
+            } catch {
+                if (active) {
+                    setErroComentarios(t("pedidos.comments.errorLoad"));
+                }
+            } finally {
+                if (active) {
+                    setCarregandoComentarios(false);
+                }
+            }
+        }
+
+        fetchComentarios();
+
+        return () => {
+            active = false;
+        };
+    }, [pedidoId, editando]);
 
     useEscapeKey(() => {
         if (editando) {
@@ -321,6 +363,41 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
             setDownloadError(err instanceof Error ? err.message : t("pedidos.detalhe.downloadError"));
         } finally {
             setDownloading(false);
+        }
+    }
+
+    async function handleCriarComentario() {
+        const conteudo = novoComentario.trim();
+
+        if (!conteudo || enviandoComentario) {
+            return;
+        }
+
+        setEnviandoComentario(true);
+        setErroComentarios("");
+
+        const data: ComentarioRequest = {
+            conteudo
+        };
+
+        try {
+            const comentario = await criarComentario(
+                pedidoId,
+                data
+            );
+
+            setComentarios((atuais) => [
+                ...atuais,
+                comentario
+            ]);
+
+            setNovoComentario("");
+        } catch {
+            setErroComentarios(
+                "Não foi possível enviar o comentário."
+            );
+        } finally {
+            setEnviandoComentario(false);
         }
     }
 
@@ -730,6 +807,73 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.viewImagesEmpty")}</p>
                             )}
                         </div>
+                        
+                        {podeVerComentarios && (
+                            <div className="pedido-detalhe-section pedido-comentarios-section">
+                                <h3>{t("pedidos.comments.title")}</h3>
+
+                                <div className="pedido-comentarios-lista">
+                                    {carregandoComentarios ? (
+                                        <p className="pedido-detalhe-empty">
+                                            {t("pedidos.comments.loading")}
+                                        </p>
+                                    ) : comentarios.length === 0 ? (
+                                        <p className="pedido-detalhe-empty">
+                                            {t("pedidos.comments.empty")}
+                                        </p>
+                                    ) : (
+                                        comentarios.map((comentario) => (
+                                            <div
+                                                key={comentario.id}
+                                                className="pedido-comentario"
+                                            >
+                                                <div className="pedido-comentario-header">
+                                                    <strong>{comentario.nomeUsuario}</strong>
+
+                                                    <span>
+                                                        {new Date(
+                                                            comentario.criadoEm
+                                                        ).toLocaleString("pt-BR")}
+                                                    </span>
+                                                </div>
+
+                                                <p>{comentario.conteudo}</p>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                {erroComentarios && (
+                                    <p className="pedido-edit-error" role="alert">
+                                        {erroComentarios}
+                                    </p>
+                                )}
+
+                                <div className="pedido-comentario-form">
+                                    <textarea
+                                        value={novoComentario}
+                                        onChange={(e) => setNovoComentario(e.target.value)}
+                                        placeholder={t("pedidos.comments.placeholder")}
+                                        rows={3}
+                                        disabled={enviandoComentario}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={handleCriarComentario}
+                                        disabled={
+                                            enviandoComentario ||
+                                            !novoComentario.trim()
+                                        }
+                                    >
+                                        {enviandoComentario
+                                            ? t("pedidos.comments.sending")
+                                            : t("pedidos.comments.send")}
+                                    </button>
+                                </div>
+                            </div> 
+                        )}
                     </div>
                 )}
             </section>
