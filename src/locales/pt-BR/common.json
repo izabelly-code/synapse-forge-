@@ -307,7 +307,6 @@
     "estoque": "Estoque"
   },
   "admin": {
-    "kicker": "Administração",
     "title": "Administração do sistema",
     "subtitle": "Gerencie usuários e pedidos armazenados no sistema.",
     
@@ -342,7 +341,6 @@
       "orders_other": "{{count}} pedidos"
     },
 
-    "loading": "Carregando dados...",
 
     "errors": {
       "load": "Não foi possível carregar os dados da administração.",
@@ -569,6 +567,8 @@
       "notifEmpty": "Tudo em dia. Nenhum prazo crítico.",
       "tagLate": "Atrasado",
       "tagDueToday": "Vence hoje",
+      "tagFinished": "Finalizado",
+      "notifFinishedSubtitle": "Seu pedido foi finalizado",
       "newOrder": "Novo Pedido",
       "statsAria": "Resumo da produção",
       "statTotal": "Total de Pedidos",
@@ -1016,6 +1016,25 @@
       "colFinalPrice": "Preço Final",
       "colStatus": "Status",
       "colActions": "Ações",
+      "filterOpenPending": "Filtrar orçamentos pendentes",
+      "filterOpenHistory": "Filtrar histórico de orçamentos",
+      "filterTitlePending": "Filtrar pendentes",
+      "filterTitleHistory": "Filtrar histórico",
+      "filterApply": "Aplicar filtros",
+      "filterClose": "Fechar filtro",
+      "filterActiveCount": "Filtros ativos: {{count}}",
+      "filterClient": "Cliente",
+      "filterClientPlaceholder": "Nome do cliente",
+      "filterProject": "Projeto",
+      "filterProjectPlaceholder": "Nome do projeto",
+      "filterFrom": "De",
+      "filterTo": "Até",
+      "filterClear": "Limpar filtros",
+      "filterInvalidRange": "A data inicial não pode ser depois da data final.",
+      "filterNoResults": "Nenhum orçamento encontrado com esses filtros.",
+      "showingOf": "Mostrando {{shown}} de {{total}}",
+      "loadMore": "Carregar mais",
+      "loadingMore": "Carregando...",
       "volumeValue": "{{value}} cm³",
       "pendingEmpty": "Nenhum orçamento aguardando aprovação.",
       "decidedEmpty": "Nenhuma decisão registrada.",

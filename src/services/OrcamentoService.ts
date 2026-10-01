@@ -1,4 +1,5 @@
 import { CalcularOrcamentoInput, Orcamento } from "../models/Orcamento";
+import { Pagina } from "../models/Pagina";
 
 const API_URL = "http://localhost:8081/orcamentos";
 
@@ -53,6 +54,36 @@ export async function salvarOrcamento(data: CalcularOrcamentoInput): Promise<Orc
 
 export async function getOrcamentos(): Promise<Orcamento[]> {
     const response = await fetch(API_URL, { headers: getHeaders() });
+    if (!response.ok) throw new Error("Falha ao buscar orçamentos");
+    return response.json();
+}
+
+/** PENDENTES = aguardando decisão; DECIDIDOS = aprovados ou rejeitados (histórico). */
+export type SituacaoOrcamento = "PENDENTES" | "DECIDIDOS";
+
+/** Campos vazios não filtram. `de`/`ate` (yyyy-mm-dd) se referem à data de criação. */
+export interface FiltroOrcamentos {
+    cliente: string;
+    projeto: string;
+    de: string;
+    ate: string;
+}
+
+export const FILTRO_ORCAMENTOS_VAZIO: FiltroOrcamentos = { cliente: "", projeto: "", de: "", ate: "" };
+
+/** Busca paginada e filtrada no backend: só a página pedida sai do banco. */
+export async function buscarOrcamentos(
+    situacao: SituacaoOrcamento,
+    filtro: FiltroOrcamentos,
+    pagina = 0,
+    tamanho = 20
+): Promise<Pagina<Orcamento>> {
+    const params = new URLSearchParams({ situacao, pagina: String(pagina), tamanho: String(tamanho) });
+    (Object.keys(filtro) as (keyof FiltroOrcamentos)[]).forEach((campo) => {
+        const valor = filtro[campo].trim();
+        if (valor) params.set(campo, valor);
+    });
+    const response = await fetch(`${API_URL}/busca?${params}`, { headers: getHeaders() });
     if (!response.ok) throw new Error("Falha ao buscar orçamentos");
     return response.json();
 }
