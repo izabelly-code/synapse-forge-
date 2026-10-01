@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { InboxIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 
 import AdminPedidoModal from "../components/admin/AdminPedidoModal";
 import AdminUsuarioModal from "../components/admin/AdminUsuarioModal";
 import { ehPapel } from "../components/admin/papeis";
 import SearchField from "../components/ui/SearchField";
+import SkeletonSwap from "../components/ui/SkeletonSwap";
 import { useRecarregarAoVoltar } from "../hooks/useRecarregarAoVoltar";
 import {
     deletarAdminPedido,
@@ -50,6 +52,7 @@ function AdminPage() {
             const [usuariosData, pedidosData] = await Promise.all([getAdminUsers(), getAdminPedidos()]);
             setUsuarios(usuariosData);
             setPedidos(pedidosData);
+            setErro(null);
         } catch (error) {
             console.error("Erro ao carregar dados administrativos:", error);
             setErro(t("admin.errors.load"));
@@ -118,7 +121,7 @@ function AdminPage() {
                 <button type="button" className="btn-acao-pequeno" onClick={onEditar} disabled={excluindoId !== null}>
                     {t("admin.actions.edit")}
                 </button>
-                <button type="button" className="btn-acao-pequeno" onClick={onExcluir} disabled={excluindoId !== null}>
+                <button type="button" className="btn-acao-pequeno btn-acao-perigo" onClick={onExcluir} disabled={excluindoId !== null}>
                     {excluindoId === id ? t("admin.actions.deleting") : t("admin.actions.delete")}
                 </button>
             </div>
@@ -127,17 +130,14 @@ function AdminPage() {
 
     return (
         <main className="dashboard-main">
-            <section className="dashboard-title-block">
-                <div className="dashboard-title-row">
-                    <div>
-                        <span className="pedido-detalhe-kicker">{t("admin.kicker")}</span>
-                        <h1 className="dashboard-title">{t("admin.title")}</h1>
-                        <p className="dashboard-subtitle">{t("admin.subtitle")}</p>
-                    </div>
+            <header className="materiais-toolbar">
+                <div>
+                    <h1 className="dashboard-title">{t("admin.title")}</h1>
+                    <p className="dashboard-subtitle">{t("admin.subtitle")}</p>
                 </div>
-            </section>
+            </header>
 
-            <section className="filtros-bar">
+            <section className="filtros-bar admin-filtros">
                 <div className="filtros-tabs">
                     {(
                         [
@@ -152,67 +152,91 @@ function AdminPage() {
                     ))}
                 </div>
 
-                <div className="filtros-actions">
-                    <SearchField
-                        variant="boxed"
-                        value={busca}
-                        onChange={setBusca}
-                        placeholder={aba === "usuarios" ? t("admin.search.usersPlaceholder") : t("admin.search.ordersPlaceholder")}
-                        ariaLabel={t("admin.search.aria")}
-                    />
-                </div>
+                <SearchField
+                    variant="pill"
+                    value={busca}
+                    onChange={setBusca}
+                    placeholder={aba === "usuarios" ? t("admin.search.usersPlaceholder") : t("admin.search.ordersPlaceholder")}
+                    ariaLabel={t("admin.search.aria")}
+                />
             </section>
 
-            {erro && <div className="error-text">{erro}</div>}
+            {erro && <div className="dashboard-error">{erro}</div>}
 
-            {carregando ? (
-                <div className="pintura-loading">{t("admin.loading")}</div>
-            ) : aba === "usuarios" ? (
-                <ListaAdmin
-                    cabecalho={[t("admin.users.name"), t("admin.users.role"), t("admin.users.team"), t("admin.users.status"), t("admin.actions.edit")]}
-                    vazio={t("admin.empty.users")}
-                >
-                    {usuariosFiltrados.map((usuario, index) => (
-                        <LinhaAdmin key={usuario.id} index={index}>
-                            <div>
-                                <strong>{usuario.nome}</strong>
-                                <small>{usuario.email}</small>
-                            </div>
-                            <span>{ehPapel(usuario.role) ? t(`equipe.roles.${usuario.role}`) : "—"}</span>
-                            <span>{usuario.equipeId || t("admin.users.noTeam")}</span>
-                            <span>{usuario.ativo ? t("admin.status.active") : t("admin.status.inactive")}</span>
-                            {acoes(usuario.id, () => setUsuarioEditando(usuario), () => excluirUsuario(usuario))}
-                        </LinhaAdmin>
-                    ))}
-                </ListaAdmin>
-            ) : (
-                <ListaAdmin
-                    cabecalho={[
-                        t("admin.orders.project"),
-                        t("admin.orders.client"),
-                        t("admin.orders.status"),
-                        t("admin.orders.deadline"),
-                        t("admin.orders.price"),
-                        t("admin.actions.edit"),
-                    ]}
-                    vazio={t("admin.empty.orders")}
-                >
-                    {pedidosFiltrados.map((pedido, index) => (
-                        <LinhaAdmin key={pedido.id} index={index}>
-                            <div>
-                                <strong>{pedido.projeto}</strong>
-                                <small>{pedido.id}</small>
-                            </div>
-                            <span>{pedido.cliente}</span>
-                            <span>{pedido.status ? t(`pedidos.status.${pedido.status}`) : "—"}</span>
-                            {/* prazo é LocalDate: meia-noite local, senão o fuso volta um dia */}
-                            <span>{pedido.prazo ? formatDate(`${String(pedido.prazo).slice(0, 10)}T00:00:00`) : "—"}</span>
-                            <span>{pedido.precoFinal != null ? formatCurrency(pedido.precoFinal) : "—"}</span>
-                            {acoes(pedido.id, () => setPedidoEditando(pedido), () => excluirPedido(pedido))}
-                        </LinhaAdmin>
-                    ))}
-                </ListaAdmin>
-            )}
+            <SkeletonSwap
+                ready={!carregando}
+                label={t("admin.title")}
+                skeleton={
+                    <div className="pedidos-list">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="pedido-row-skeleton" />
+                        ))}
+                    </div>
+                }
+            >
+                {carregando ? null : aba === "usuarios" ? (
+                    <ListaAdmin
+                        tipo="usuarios"
+                        cabecalho={[t("admin.users.name"), t("admin.users.role"), t("admin.users.team"), t("admin.users.status")]}
+                        vazio={t("admin.empty.users")}
+                    >
+                        {usuariosFiltrados.map((usuario, index) => (
+                            <LinhaAdmin key={usuario.id} tipo="usuarios" index={index}>
+                                <div className="admin-cell-titulo">
+                                    <strong title={usuario.nome}>{usuario.nome}</strong>
+                                    <small title={usuario.email}>{usuario.email}</small>
+                                </div>
+                                <Celula rotulo={t("admin.users.role")}>
+                                    {ehPapel(usuario.role) ? t(`equipe.roles.${usuario.role}`) : "—"}
+                                </Celula>
+                                <Celula rotulo={t("admin.users.team")} titulo={usuario.equipeId}>
+                                    {usuario.equipeId || t("admin.users.noTeam")}
+                                </Celula>
+                                <Celula rotulo={t("admin.users.status")}>
+                                    <span className={cn("admin-status", !usuario.ativo && "is-inativo")}>
+                                        {usuario.ativo ? t("admin.status.active") : t("admin.status.inactive")}
+                                    </span>
+                                </Celula>
+                                {acoes(usuario.id, () => setUsuarioEditando(usuario), () => excluirUsuario(usuario))}
+                            </LinhaAdmin>
+                        ))}
+                    </ListaAdmin>
+                ) : (
+                    <ListaAdmin
+                        tipo="pedidos"
+                        cabecalho={[
+                            t("admin.orders.project"),
+                            t("admin.orders.client"),
+                            t("admin.orders.status"),
+                            t("admin.orders.deadline"),
+                            t("admin.orders.price"),
+                        ]}
+                        vazio={t("admin.empty.orders")}
+                    >
+                        {pedidosFiltrados.map((pedido, index) => (
+                            <LinhaAdmin key={pedido.id} tipo="pedidos" index={index}>
+                                <div className="admin-cell-titulo">
+                                    <strong title={pedido.projeto}>{pedido.projeto}</strong>
+                                    {/* o id inteiro (24 caracteres) só no title; a busca continua achando por ele */}
+                                    <small title={pedido.id}>#{pedido.id.slice(-6)}</small>
+                                </div>
+                                <Celula rotulo={t("admin.orders.client")} titulo={pedido.cliente}>{pedido.cliente}</Celula>
+                                <Celula rotulo={t("admin.orders.status")}>
+                                    {pedido.status ? t(`pedidos.status.${pedido.status}`) : "—"}
+                                </Celula>
+                                {/* prazo é LocalDate: meia-noite local, senão o fuso volta um dia */}
+                                <Celula rotulo={t("admin.orders.deadline")}>
+                                    {pedido.prazo ? formatDate(`${String(pedido.prazo).slice(0, 10)}T00:00:00`) : "—"}
+                                </Celula>
+                                <Celula rotulo={t("admin.orders.price")}>
+                                    {pedido.precoFinal != null ? formatCurrency(pedido.precoFinal) : "—"}
+                                </Celula>
+                                {acoes(pedido.id, () => setPedidoEditando(pedido), () => excluirPedido(pedido))}
+                            </LinhaAdmin>
+                        ))}
+                    </ListaAdmin>
+                )}
+            </SkeletonSwap>
 
             {usuarioEditando && (
                 <AdminUsuarioModal
@@ -240,29 +264,45 @@ function AdminPage() {
     );
 }
 
-function ListaAdmin({ cabecalho, vazio, children }: { cabecalho: string[]; vazio: string; children: ReactNode[] }) {
+type TipoLista = "usuarios" | "pedidos";
+
+function ListaAdmin({ tipo, cabecalho, vazio, children }: { tipo: TipoLista; cabecalho: string[]; vazio: string; children: ReactNode[] }) {
+    if (children.length === 0) {
+        return (
+            <div className="pedidos-empty">
+                <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                <p className="empty-title">{vazio}</p>
+            </div>
+        );
+    }
+
     return (
         <section className="pedidos-list">
-            <div className="pedidos-row-head material-row">
+            <div className={cn("pedidos-row-head admin-row", `admin-row--${tipo}`)} aria-hidden="true">
                 {cabecalho.map((rotulo, i) => (
                     <span key={i}>{rotulo}</span>
                 ))}
+                <span />
             </div>
-            {children.length === 0 ? (
-                <div className="empty-state">
-                    <h2 className="empty-title">{vazio}</h2>
-                </div>
-            ) : (
-                children
-            )}
+            {children}
         </section>
     );
 }
 
-function LinhaAdmin({ index, children }: { index: number; children: ReactNode }) {
+function LinhaAdmin({ tipo, index, children }: { tipo: TipoLista; index: number; children: ReactNode }) {
     return (
-        <div className="pedido-row material-row" style={{ "--row-index": index } as CSSProperties}>
+        <div className={cn("pedido-row admin-row", `admin-row--${tipo}`)} style={{ "--row-index": index } as CSSProperties}>
             {children}
+        </div>
+    );
+}
+
+/** Célula de valor; o rótulo só aparece quando a linha empilha (lista estreita). */
+function Celula({ rotulo, titulo, children }: { rotulo: string; titulo?: string; children: ReactNode }) {
+    return (
+        <div className="admin-cell" title={titulo}>
+            <span className="cell-label">{rotulo}</span>
+            <span className="admin-cell-valor">{children}</span>
         </div>
     );
 }

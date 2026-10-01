@@ -308,7 +308,6 @@
   },
 
   "admin": {
-    "kicker": "Administration",
     "title": "System administration",
     "subtitle": "Manage users and orders stored in the system.",
 
@@ -339,7 +338,6 @@
       "orders_other": "{{count}} orders"
     },
 
-    "loading": "Loading data...",
 
     "errors": {
       "load": "Unable to load administration data.",
@@ -568,6 +566,8 @@
     "notifEmpty": "All on track. No critical deadlines.",
     "tagLate": "Overdue",
     "tagDueToday": "Due today",
+    "tagFinished": "Completed",
+    "notifFinishedSubtitle": "Your order is complete",
     "newOrder": "New Order",
     "statsAria": "Production summary",
     "statTotal": "Total Orders",
@@ -1015,6 +1015,25 @@
       "colFinalPrice": "Final price",
       "colStatus": "Status",
       "colActions": "Actions",
+      "filterOpenPending": "Filter pending quotes",
+      "filterOpenHistory": "Filter quote history",
+      "filterTitlePending": "Filter pending",
+      "filterTitleHistory": "Filter history",
+      "filterApply": "Apply filters",
+      "filterClose": "Close filter",
+      "filterActiveCount": "Active filters: {{count}}",
+      "filterClient": "Client",
+      "filterClientPlaceholder": "Client name",
+      "filterProject": "Project",
+      "filterProjectPlaceholder": "Project name",
+      "filterFrom": "From",
+      "filterTo": "To",
+      "filterClear": "Clear filters",
+      "filterInvalidRange": "The start date can't be after the end date.",
+      "filterNoResults": "No quotes match these filters.",
+      "showingOf": "Showing {{shown}} of {{total}}",
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
       "volumeValue": "{{value}} cm³",
       "pendingEmpty": "No quote waiting for approval.",
       "decidedEmpty": "No decision recorded.",
