@@ -63,6 +63,16 @@ export function getUserRole(): string | null {
     return payload?.role ?? null;
 }
 
+export function getUserId(): string | null {
+    const token = getToken();
+
+    if (!token) return null;
+
+    const payload = getTokenPayload(token);
+
+    return payload?.sub ?? null;
+}
+
 export function clearSession(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");

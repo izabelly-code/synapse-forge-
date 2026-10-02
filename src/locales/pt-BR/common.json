@@ -535,7 +535,16 @@
         "empty": "Nenhum comentário ainda.",
         "errorLoad": "Não foi possível carregar os comentários.",
         "errorSend": "Não foi possível enviar o comentário.",
-        "anonymous": "Usuário"
+        "anonymous": "Usuário",
+        "delete": "Excluir",
+        "deleteConfirm": "Tem certeza de que deseja excluir este comentário?",
+        "errorDelete": "Não foi possível excluir o comentário.",
+        "edit": "Editar",
+        "editConfirm": "Salvar alterações?",
+        "errorEdit": "Não foi possível editar o comentário.",
+        "cancelEdit": "Cancelar",
+        "saveEdit": "Salvar",
+        "savingEdit": "Salvando..."
     },
     "row": {
       "deadlineLabel": "Prazo",

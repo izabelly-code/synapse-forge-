@@ -60,3 +60,41 @@ export async function criarComentario(
 
     return response.json();
 }
+
+export async function deletarComentario(
+    pedidoId: string,
+    comentarioId: string
+): Promise<void> {
+    const response = await fetch(
+        `${API_URL}/${pedidoId}/comentarios/${comentarioId}`,
+        {
+            method: "DELETE",
+            headers: getHeaders(),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Falha ao deletar comentário"
+        );
+    }
+}
+
+export async function editarComentario(
+    pedidoId: string,
+    comentarioId: string,
+    data: ComentarioRequest
+): Promise<Comentario> {
+    const response = await fetch(
+        `${API_URL}/${pedidoId}/comentarios/${comentarioId}`,
+        {
+            method: "PUT",
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+        }
+    );
+    if (!response.ok) {
+        throw new Error("Falha ao editar comentário");
+    }
+    return response.json();
+}
