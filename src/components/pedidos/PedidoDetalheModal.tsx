@@ -13,7 +13,9 @@ import {
 } from "../../services/PedidoService";
 import {
     criarComentario,
-    getComentarios
+    getComentarios,
+    deletarComentario,
+    editarComentario
 } from "../../services/ComentarioService";
 import { useTranslation } from "react-i18next";
 import { Pedido, Comentario, ComentarioRequest } from "../../types";
@@ -25,7 +27,7 @@ import { getMaterialById } from "../../services/MaterialService";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
-import { getUserRole } from "../../hooks/useAuth";
+import { getUserRole, getUserId } from "../../hooks/useAuth";
 
 /** Ação de etapa em andamento; uma por vez, os três botões travam juntos. */
 type AcaoEtapa = "avancar" | "regredir" | "cancelar";
@@ -74,6 +76,11 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [enviandoComentario, setEnviandoComentario] = useState(false);
     const [erroComentarios, setErroComentarios] = useState("");
 
+    //edição
+    const [comentarioEditandoId, setComentarioEditandoId] = useState<string | null>(null);
+    const [conteudoComentarioEditando, setConteudoComentarioEditando] = useState("");
+    const [salvandoComentario, setSalvandoComentario] = useState(false);
+
     // Etapa: só muda pelos endpoints dedicados (avançar/regredir/cancelar), que
     // fazem a baixa e o estorno de estoque. A edição do pedido não toca nela.
     const [acaoEtapa, setAcaoEtapa] = useState<AcaoEtapa | null>(null);
@@ -82,6 +89,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
     /** RF12: CLIENTE só visualiza; editar e mudar etapa é de TECNICO/GERENTE/ADMIN. */
     const role = getUserRole();
+    const usuarioId = getUserId();
     const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
     const isGerente = role === "GERENTE";
     const podeVerComentarios = role === "TECNICO" || role === "GERENTE";
@@ -363,6 +371,68 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
             setDownloadError(err instanceof Error ? err.message : t("pedidos.detalhe.downloadError"));
         } finally {
             setDownloading(false);
+        }
+    }
+
+    async function handleDeletarComentario(comentarioId: string) {
+        try {
+            await deletarComentario(pedidoId, comentarioId);
+
+            setComentarios((atuais) => atuais.filter((comentario) => comentario.id !== comentarioId));
+
+
+        } catch {
+            setErroComentarios(t("pedidos.comments.errorDelete"));
+        }
+    };
+
+    function iniciarEdicaoComentario(comentario: Comentario) {
+        setComentarioEditandoId(comentario.id);
+        setConteudoComentarioEditando(comentario.conteudo);
+        setErroComentarios("");
+    }
+
+    function cancelarEdicaoComentario() {
+        setComentarioEditandoId(null);
+        setConteudoComentarioEditando("");
+    }
+
+    async function handleEditarComentario(comentarioId: string) {
+        const conteudo = conteudoComentarioEditando.trim();
+
+        if (!conteudo || salvandoComentario) {
+            return;
+        }
+
+        setSalvandoComentario(true);
+        setErroComentarios("");
+
+        const data: ComentarioRequest = {
+            conteudo
+        };
+
+        try {
+            const comentarioAtualizado = await editarComentario(
+                pedidoId,
+                comentarioId,
+                data
+            );
+
+            setComentarios((atuais) =>
+                atuais.map((comentario) =>
+                    comentario.id === comentarioId
+                        ? comentarioAtualizado
+                        : comentario
+                )
+            );
+
+            cancelarEdicaoComentario();
+        } catch {
+            setErroComentarios(
+                "Não foi possível editar o comentário."
+            );
+        } finally {
+            setSalvandoComentario(false);
         }
     }
 
@@ -835,9 +905,79 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                                             comentario.criadoEm
                                                         ).toLocaleString("pt-BR")}
                                                     </span>
+
+                                                    {comentario.usuarioId === usuarioId &&
+                                                        comentarioEditandoId !== comentario.id && (
+                                                            <div className="pedido-comentario-acoes">
+                                                                <button
+                                                                    type="button"
+                                                                    className="pedido-comentario-editar"
+                                                                    onClick={() =>
+                                                                        iniciarEdicaoComentario(comentario)
+                                                                    }
+                                                                >
+                                                                    <PencilEdit02Icon size={14} />
+                                                                    {t("pedidos.comments.edit")}
+                                                                </button>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleDeletarComentario(comentario.id)
+                                                                    }
+                                                                    className="pedido-comentario-excluir"
+                                                                >
+                                                                    <Delete02Icon size={14} />
+                                                                    {t("pedidos.comments.delete")}
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                 </div>
 
-                                                <p>{comentario.conteudo}</p>
+                                                {comentarioEditandoId === comentario.id ? (
+                                                    <div className="pedido-comentario-edicao">
+                                                        <textarea
+                                                            value={conteudoComentarioEditando}
+                                                            onChange={(e) =>
+                                                                setConteudoComentarioEditando(
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                            rows={3}
+                                                            disabled={salvandoComentario}
+                                                            autoFocus
+                                                        />
+
+                                                        <div className="pedido-comentario-edicao-acoes">
+                                                            <button
+                                                                type="button"
+                                                                className="btn-secondary"
+                                                                onClick={cancelarEdicaoComentario}
+                                                                disabled={salvandoComentario}
+                                                            >
+                                                                {t("pedidos.comments.cancelEdit")}
+                                                            </button>
+
+                                                            <button
+                                                                type="button"
+                                                                className="button"
+                                                                onClick={() =>
+                                                                    handleEditarComentario(comentario.id)
+                                                                }
+                                                                disabled={
+                                                                    salvandoComentario ||
+                                                                    !conteudoComentarioEditando.trim()
+                                                                }
+                                                            >
+                                                                {salvandoComentario
+                                                                    ? t("pedidos.comments.savingEdit")
+                                                                    : t("pedidos.comments.saveEdit")}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p>{comentario.conteudo}</p>
+                                                )}
                                             </div>
                                         ))
                                     )}
