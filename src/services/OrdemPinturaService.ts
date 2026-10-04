@@ -12,7 +12,7 @@ function headers(): Record<string, string> {
 export interface NovaOrdemPintura {
     pedidoId: string;
     corId: string;
-    /** id de um usuário TECNICO da equipe (o backend recusa qualquer outro). */
+    /** id de um técnico ativo ou do gerente da equipe (o backend recusa qualquer outro). */
     tecnicoId: string;
     prioridade: PrioridadeOrdemPintura;
     prazo: string;
@@ -24,7 +24,7 @@ export async function getOrdensPintura(): Promise<OrdemPintura[]> {
     return response.json();
 }
 
-/** Opção do select de técnico: usuários TECNICO ativos da equipe. */
+/** Opção do select de técnico: técnicos ativos e o gerente da equipe. */
 export interface TecnicoResumo {
     id: string;
     nome: string;

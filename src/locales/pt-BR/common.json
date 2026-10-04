@@ -794,6 +794,7 @@
       "technicianPlaceholder": "Selecione o técnico",
       "technicianEmpty": "Nenhum técnico na equipe",
       "technicianEmptyHint": "Convide um técnico na página Equipe para poder atribuir ordens.",
+      "technicianLoadError": "Não foi possível carregar a lista de técnicos. Recarregue a página para tentar de novo.",
       "deadlineLabel": "Prazo",
       "cancel": "Cancelar",
       "create": "Criar Ordem",

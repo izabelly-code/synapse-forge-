@@ -793,6 +793,7 @@
       "technicianPlaceholder": "Select a technician",
       "technicianEmpty": "No technicians on the team",
       "technicianEmptyHint": "Invite a technician on the Team page to assign orders.",
+      "technicianLoadError": "Couldn't load the technician list. Reload the page to try again.",
       "deadlineLabel": "Deadline",
       "cancel": "Cancel",
       "create": "Create Order",
