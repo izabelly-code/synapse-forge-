@@ -13,11 +13,13 @@ import { useDismissable } from "../../hooks/useDismissable";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import { useNotificacoes } from "../../hooks/useNotificacoes";
+import { useAlertasDispensados } from "../../hooks/useAlertasDispensados";
 import IconButton from "../ui/IconButton";
 import NotificationBell, { NotificationItem } from "../ui/NotificationBell";
 import ConviteEquipeCard from "../equipe/ConviteEquipeCard";
 import { useMeuConvite } from "../../hooks/useMeuConvite";
 import MenuSurface from "../ui/MenuSurface";
+import { formatDate } from "../../utils/format";
 
 interface NavItem {
     labelKey: string;
@@ -245,8 +247,30 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
     const { convite: meuConvite, descartar: descartarConvite } = useMeuConvite();
     const [conviteAberto, setConviteAberto] = useState(false);
 
-    // Avisos persistidos (ex.: pedido finalizado para o cliente). Somem ao clicar.
+    // Avisos persistidos (pedido finalizado para o cliente, ordem de pintura para o
+    // técnico). Somem ao clicar ou no X, que só os marca como lidos.
     const { notificacoes: avisos, marcarComoLida } = useNotificacoes();
+
+    // Alertas de prazo também têm X; como são calculados (não estão no banco),
+    // o que foi dispensado fica guardado neste navegador.
+    const { dispensar: dispensarAlerta, foiDispensado } = useAlertasDispensados();
+
+    /** Identifica o alerta pelo registro + prazo + situação (mudou algum, volta a aparecer). */
+    function chaveAlerta(tipo: "pedido" | "ordem", id: string, prazo: string, atrasado: boolean) {
+        return `${tipo}:${id}:${prazo.slice(0, 10)}:${atrasado ? "atrasado" : "hoje"}`;
+    }
+
+    /** Quando o aviso foi criado: "30/09, 14:20". */
+    function dataDoAviso(criadaEm: string) {
+        return formatDate(criadaEm, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    /** Prazo de pedido/ordem: "Prazo: 23/06". Meio-dia local evita o dia anterior
+     *  no fuso -03:00 (uma data pura vira meia-noite UTC). */
+    function dataDoPrazo(prazo: string) {
+        const data = formatDate(`${prazo.slice(0, 10)}T12:00:00`, { day: "2-digit", month: "2-digit" });
+        return t("pedidos.dashboard.notifDue", { data });
+    }
 
     const notificacoes: NotificationItem[] = [
         ...(meuConvite
@@ -261,24 +285,50 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                 onSelect: () => setConviteAberto(true),
             }]
             : []),
-        ...avisos.map((aviso) => ({
-            id: `aviso-${aviso.id}`,
-            title: aviso.titulo ?? "",
-            subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
-            tone: "success" as const,
-            tagLabel: t("pedidos.dashboard.tagFinished"),
-            onSelect: () => {
-                marcarComoLida(aviso.id);
-                navigate(aviso.referenciaId
-                    ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
-                    : "/dashboard");
-            },
-        })),
-        ...pedidosUrgentes.map(
+        ...avisos.map((aviso): NotificationItem => {
+            const base = {
+                id: `aviso-${aviso.id}`,
+                title: aviso.titulo ?? "",
+                date: dataDoAviso(aviso.criadaEm),
+                onDismiss: () => marcarComoLida(aviso.id),
+            };
+
+            // Técnico: ordem de pintura nova (ou passada para ele) -> abre o quadro
+            if (aviso.tipo === "ORDEM_PINTURA_ATRIBUIDA") {
+                return {
+                    ...base,
+                    subtitle: t("pintura.notifAssignedSubtitle"),
+                    tone: "info",
+                    tagLabel: t("pintura.notifAssignedTag"),
+                    onSelect: () => {
+                        marcarComoLida(aviso.id);
+                        navigate("/ordens-pintura");
+                    },
+                };
+            }
+
+            // Cliente: pedido finalizado -> abre o detalhe do pedido
+            return {
+                ...base,
+                subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
+                tone: "success",
+                tagLabel: t("pedidos.dashboard.tagFinished"),
+                onSelect: () => {
+                    marcarComoLida(aviso.id);
+                    navigate(aviso.referenciaId
+                        ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
+                        : "/dashboard");
+                },
+            };
+        }),
+        ...pedidosUrgentes
+            .filter(({ pedido, atrasado }) => !foiDispensado(chaveAlerta("pedido", pedido.id, pedido.prazo, atrasado)))
+            .map(
             ({ pedido, atrasado }) => ({
                 id: `pedido-${pedido.id}`,
                 title: pedido.projeto,
                 subtitle: pedido.cliente,
+                date: dataDoPrazo(pedido.prazo),
                 tone: atrasado
                     ? ("danger" as const)
                     : ("warn" as const),
@@ -291,15 +341,20 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                     ),
                 onSelect: () =>
                     navigate("/dashboard"),
+                onDismiss: () =>
+                    dispensarAlerta(chaveAlerta("pedido", pedido.id, pedido.prazo, atrasado)),
             })
         ),
 
-        ...ordensUrgentes.map(
+        ...ordensUrgentes
+            .filter(({ ordem, atrasada }) => !foiDispensado(chaveAlerta("ordem", ordem.id, ordem.prazo, atrasada)))
+            .map(
             ({ ordem, atrasada }) => ({
                 id: `ordem-${ordem.id}`,
                 title: ordem.corNome,
                 subtitle:
                     `${ordem.pedidoProjeto} — ${ordem.tecnicoNome}`,
+                date: dataDoPrazo(ordem.prazo),
                 tone: atrasada
                     ? ("danger" as const)
                     : ("warn" as const),
@@ -314,6 +369,8 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                     navigate(
                         "/ordens-pintura"
                     ),
+                onDismiss: () =>
+                    dispensarAlerta(chaveAlerta("ordem", ordem.id, ordem.prazo, atrasada)),
             })
         ),
     ];
@@ -598,6 +655,7 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                         "pedidos.dashboard.notifEmpty"
                     )}
                     items={notificacoes}
+                    dismissLabel={(titulo) => t("pedidos.dashboard.notifDismissAria", { title: titulo })}
                 />
 
                 {meuConvite && conviteAberto && (
