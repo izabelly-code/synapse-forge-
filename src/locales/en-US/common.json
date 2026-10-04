@@ -568,6 +568,7 @@
     "tagDueToday": "Due today",
     "tagFinished": "Completed",
     "notifFinishedSubtitle": "Your order is complete",
+    "notifStageSubtitle": "Your order is now in {{etapa}}",
     "notifDue": "Due: {{data}}",
     "notifDismissAria": "Dismiss notification {{title}}",
     "newOrder": "New Order",

@@ -307,18 +307,34 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                 };
             }
 
-            // Cliente: pedido finalizado -> abre o detalhe do pedido
+            const abrirPedido = () => {
+                marcarComoLida(aviso.id);
+                navigate(aviso.referenciaId
+                    ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
+                    : "/dashboard");
+            };
+
+            // Cliente: pedido mudou de etapa -> "Seu pedido está em Pintura".
+            // FINALIZADO é só mais uma etapa, com texto e cor de "pronto".
+            if (aviso.tipo === "PEDIDO_ETAPA_ALTERADA" && aviso.detalhe !== "FINALIZADO") {
+                const etapa = aviso.detalhe ? t(`pedidos.status.${aviso.detalhe}`) : "";
+                return {
+                    ...base,
+                    subtitle: t("pedidos.dashboard.notifStageSubtitle", { etapa }),
+                    tone: "info",
+                    tagLabel: etapa,
+                    onSelect: abrirPedido,
+                };
+            }
+
+            // Cliente: pedido finalizado (etapa FINALIZADO, ou aviso antigo
+            // do tipo PEDIDO_FINALIZADO que ainda esteja no banco)
             return {
                 ...base,
                 subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
                 tone: "success",
                 tagLabel: t("pedidos.dashboard.tagFinished"),
-                onSelect: () => {
-                    marcarComoLida(aviso.id);
-                    navigate(aviso.referenciaId
-                        ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
-                        : "/dashboard");
-                },
+                onSelect: abrirPedido,
             };
         }),
         ...pedidosUrgentes

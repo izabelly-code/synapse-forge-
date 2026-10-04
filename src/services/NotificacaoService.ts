@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8081/notificacoes";
 
-export type TipoNotificacao = "PEDIDO_FINALIZADO" | "ORDEM_PINTURA_ATRIBUIDA";
+export type TipoNotificacao = "PEDIDO_FINALIZADO" | "ORDEM_PINTURA_ATRIBUIDA" | "PEDIDO_ETAPA_ALTERADA";
 
 /** Aviso persistido do usuário logado. O texto é montado no front a partir do tipo. */
 export interface Notificacao {
@@ -10,6 +10,8 @@ export interface Notificacao {
     referenciaId: string | null;
     /** Texto principal (ex.: nome do projeto). */
     titulo: string | null;
+    /** Complemento da frase; no aviso de etapa é o código da etapa nova (ex.: "PINTURA"). */
+    detalhe: string | null;
     lida: boolean;
     criadaEm: string;
 }
