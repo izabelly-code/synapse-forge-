@@ -11,9 +11,14 @@ import {
     gerarOrdemServico,
     regredirStatus
 } from "../../services/PedidoService";
-
+import {
+    criarComentario,
+    getComentarios,
+    deletarComentario,
+    editarComentario
+} from "../../services/ComentarioService";
 import { useTranslation } from "react-i18next";
-import { Pedido } from "../../types";
+import { Pedido, Comentario, ComentarioRequest } from "../../types";
 import ImageLightbox from "../ui/ImageLightbox";
 import { formatCurrency, formatDate, formatNumber } from "../../utils/format";
 import { cn } from "../../utils/cn";
@@ -22,7 +27,7 @@ import { getMaterialById } from "../../services/MaterialService";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
-import { getUserRole } from "../../hooks/useAuth";
+import { getUserRole, getUserId } from "../../hooks/useAuth";
 
 /** Ação de etapa em andamento; uma por vez, os três botões travam juntos. */
 type AcaoEtapa = "avancar" | "regredir" | "cancelar";
@@ -65,6 +70,16 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     const [downloading, setDownloading] = useState(false);
     const [downloadError, setDownloadError] = useState("");
     const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+    const [comentarios, setComentarios] = useState<Comentario[]>([]);
+    const [novoComentario, setNovoComentario] = useState("");
+    const [carregandoComentarios, setCarregandoComentarios] = useState(false);
+    const [enviandoComentario, setEnviandoComentario] = useState(false);
+    const [erroComentarios, setErroComentarios] = useState("");
+
+    //edição
+    const [comentarioEditandoId, setComentarioEditandoId] = useState<string | null>(null);
+    const [conteudoComentarioEditando, setConteudoComentarioEditando] = useState("");
+    const [salvandoComentario, setSalvandoComentario] = useState(false);
 
     // Etapa: só muda pelos endpoints dedicados (avançar/regredir/cancelar), que
     // fazem a baixa e o estorno de estoque. A edição do pedido não toca nela.
@@ -74,8 +89,10 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
     /** RF12: CLIENTE só visualiza; editar e mudar etapa é de TECNICO/GERENTE/ADMIN. */
     const role = getUserRole();
+    const usuarioId = getUserId();
     const podeMudarEtapa = role === "TECNICO" || role === "GERENTE" || role === "ADMIN";
     const isGerente = role === "GERENTE";
+    const podeVerComentarios = role === "TECNICO" || role === "GERENTE";
 
     const [cliente, setCliente] = useState("");
     const [projeto, setProjeto] = useState("");
@@ -168,6 +185,39 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         fetchMaterialNome();
         return () => { active = false; };
     }, [pedido]);
+
+    useEffect(() => {
+    let active = true;
+
+        async function fetchComentarios() {
+            if (!pedidoId || editando || !podeVerComentarios) return;
+
+            setCarregandoComentarios(true);
+            setErroComentarios("");
+
+            try {
+                const data = await getComentarios(pedidoId);
+
+                if (active) {
+                    setComentarios(data);
+                }
+            } catch {
+                if (active) {
+                    setErroComentarios(t("pedidos.comments.errorLoad"));
+                }
+            } finally {
+                if (active) {
+                    setCarregandoComentarios(false);
+                }
+            }
+        }
+
+        fetchComentarios();
+
+        return () => {
+            active = false;
+        };
+    }, [pedidoId, editando]);
 
     useEscapeKey(() => {
         if (editando) {
@@ -321,6 +371,103 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
             setDownloadError(err instanceof Error ? err.message : t("pedidos.detalhe.downloadError"));
         } finally {
             setDownloading(false);
+        }
+    }
+
+    async function handleDeletarComentario(comentarioId: string) {
+        try {
+            await deletarComentario(pedidoId, comentarioId);
+
+            setComentarios((atuais) => atuais.filter((comentario) => comentario.id !== comentarioId));
+
+
+        } catch {
+            setErroComentarios(t("pedidos.comments.errorDelete"));
+        }
+    };
+
+    function iniciarEdicaoComentario(comentario: Comentario) {
+        setComentarioEditandoId(comentario.id);
+        setConteudoComentarioEditando(comentario.conteudo);
+        setErroComentarios("");
+    }
+
+    function cancelarEdicaoComentario() {
+        setComentarioEditandoId(null);
+        setConteudoComentarioEditando("");
+    }
+
+    async function handleEditarComentario(comentarioId: string) {
+        const conteudo = conteudoComentarioEditando.trim();
+
+        if (!conteudo || salvandoComentario) {
+            return;
+        }
+
+        setSalvandoComentario(true);
+        setErroComentarios("");
+
+        const data: ComentarioRequest = {
+            conteudo
+        };
+
+        try {
+            const comentarioAtualizado = await editarComentario(
+                pedidoId,
+                comentarioId,
+                data
+            );
+
+            setComentarios((atuais) =>
+                atuais.map((comentario) =>
+                    comentario.id === comentarioId
+                        ? comentarioAtualizado
+                        : comentario
+                )
+            );
+
+            cancelarEdicaoComentario();
+        } catch {
+            setErroComentarios(
+                "Não foi possível editar o comentário."
+            );
+        } finally {
+            setSalvandoComentario(false);
+        }
+    }
+
+    async function handleCriarComentario() {
+        const conteudo = novoComentario.trim();
+
+        if (!conteudo || enviandoComentario) {
+            return;
+        }
+
+        setEnviandoComentario(true);
+        setErroComentarios("");
+
+        const data: ComentarioRequest = {
+            conteudo
+        };
+
+        try {
+            const comentario = await criarComentario(
+                pedidoId,
+                data
+            );
+
+            setComentarios((atuais) => [
+                ...atuais,
+                comentario
+            ]);
+
+            setNovoComentario("");
+        } catch {
+            setErroComentarios(
+                "Não foi possível enviar o comentário."
+            );
+        } finally {
+            setEnviandoComentario(false);
         }
     }
 
@@ -730,6 +877,143 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 <p className="pedido-detalhe-empty"><Image02Icon size={16} /> {t("pedidos.detalhe.viewImagesEmpty")}</p>
                             )}
                         </div>
+                        
+                        {podeVerComentarios && (
+                            <div className="pedido-detalhe-section pedido-comentarios-section">
+                                <h3>{t("pedidos.comments.title")}</h3>
+
+                                <div className="pedido-comentarios-lista">
+                                    {carregandoComentarios ? (
+                                        <p className="pedido-detalhe-empty">
+                                            {t("pedidos.comments.loading")}
+                                        </p>
+                                    ) : comentarios.length === 0 ? (
+                                        <p className="pedido-detalhe-empty">
+                                            {t("pedidos.comments.empty")}
+                                        </p>
+                                    ) : (
+                                        comentarios.map((comentario) => (
+                                            <div
+                                                key={comentario.id}
+                                                className="pedido-comentario"
+                                            >
+                                                <div className="pedido-comentario-header">
+                                                    <strong>{comentario.nomeUsuario}</strong>
+
+                                                    <span>
+                                                        {new Date(
+                                                            comentario.criadoEm
+                                                        ).toLocaleString("pt-BR")}
+                                                    </span>
+
+                                                    {comentario.usuarioId === usuarioId &&
+                                                        comentarioEditandoId !== comentario.id && (
+                                                            <div className="pedido-comentario-acoes">
+                                                                <button
+                                                                    type="button"
+                                                                    className="pedido-comentario-editar"
+                                                                    onClick={() =>
+                                                                        iniciarEdicaoComentario(comentario)
+                                                                    }
+                                                                >
+                                                                    <PencilEdit02Icon size={14} />
+                                                                    {t("pedidos.comments.edit")}
+                                                                </button>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleDeletarComentario(comentario.id)
+                                                                    }
+                                                                    className="pedido-comentario-excluir"
+                                                                >
+                                                                    <Delete02Icon size={14} />
+                                                                    {t("pedidos.comments.delete")}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                </div>
+
+                                                {comentarioEditandoId === comentario.id ? (
+                                                    <div className="pedido-comentario-edicao">
+                                                        <textarea
+                                                            value={conteudoComentarioEditando}
+                                                            onChange={(e) =>
+                                                                setConteudoComentarioEditando(
+                                                                    e.target.value
+                                                                )
+                                                            }
+                                                            rows={3}
+                                                            disabled={salvandoComentario}
+                                                            autoFocus
+                                                        />
+
+                                                        <div className="pedido-comentario-edicao-acoes">
+                                                            <button
+                                                                type="button"
+                                                                className="btn-secondary"
+                                                                onClick={cancelarEdicaoComentario}
+                                                                disabled={salvandoComentario}
+                                                            >
+                                                                {t("pedidos.comments.cancelEdit")}
+                                                            </button>
+
+                                                            <button
+                                                                type="button"
+                                                                className="button"
+                                                                onClick={() =>
+                                                                    handleEditarComentario(comentario.id)
+                                                                }
+                                                                disabled={
+                                                                    salvandoComentario ||
+                                                                    !conteudoComentarioEditando.trim()
+                                                                }
+                                                            >
+                                                                {salvandoComentario
+                                                                    ? t("pedidos.comments.savingEdit")
+                                                                    : t("pedidos.comments.saveEdit")}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p>{comentario.conteudo}</p>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                {erroComentarios && (
+                                    <p className="pedido-edit-error" role="alert">
+                                        {erroComentarios}
+                                    </p>
+                                )}
+
+                                <div className="pedido-comentario-form">
+                                    <textarea
+                                        value={novoComentario}
+                                        onChange={(e) => setNovoComentario(e.target.value)}
+                                        placeholder={t("pedidos.comments.placeholder")}
+                                        rows={3}
+                                        disabled={enviandoComentario}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={handleCriarComentario}
+                                        disabled={
+                                            enviandoComentario ||
+                                            !novoComentario.trim()
+                                        }
+                                    >
+                                        {enviandoComentario
+                                            ? t("pedidos.comments.sending")
+                                            : t("pedidos.comments.send")}
+                                    </button>
+                                </div>
+                            </div> 
+                        )}
                     </div>
                 )}
             </section>
