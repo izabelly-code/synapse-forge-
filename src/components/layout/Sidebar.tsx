@@ -307,18 +307,46 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
                 };
             }
 
-            // Cliente: pedido finalizado -> abre o detalhe do pedido
+            const abrirPedido = () => {
+                marcarComoLida(aviso.id);
+                navigate(aviso.referenciaId
+                    ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
+                    : "/dashboard");
+            };
+
+            // Cliente: pedido mudou de etapa -> "Seu pedido está em Pintura".
+            // FINALIZADO é só mais uma etapa, com texto e cor de "pronto".
+            if (aviso.tipo === "PEDIDO_ETAPA_ALTERADA" && aviso.detalhe !== "FINALIZADO") {
+                const etapa = aviso.detalhe ? t(`pedidos.status.${aviso.detalhe}`) : "";
+                return {
+                    ...base,
+                    subtitle: t("pedidos.dashboard.notifStageSubtitle", { etapa }),
+                    tone: "info",
+                    tagLabel: etapa,
+                    onSelect: abrirPedido,
+                };
+            }
+
+            // Cliente: pedido finalizado (etapa FINALIZADO, ou aviso antigo
+            // do tipo PEDIDO_FINALIZADO que ainda esteja no banco)
+            if (aviso.tipo === "PEDIDO_ETAPA_ALTERADA" || aviso.tipo === "PEDIDO_FINALIZADO") {
+                return {
+                    ...base,
+                    subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
+                    tone: "success",
+                    tagLabel: t("pedidos.dashboard.tagFinished"),
+                    onSelect: abrirPedido,
+                };
+            }
+
+            // Tipo que este front ainda não conhece (o back pode ganhar avisos
+            // novos antes): mostra um aviso neutro em vez de afirmar algo errado.
             return {
                 ...base,
-                subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
-                tone: "success",
-                tagLabel: t("pedidos.dashboard.tagFinished"),
-                onSelect: () => {
-                    marcarComoLida(aviso.id);
-                    navigate(aviso.referenciaId
-                        ? `/dashboard?pedido=${encodeURIComponent(aviso.referenciaId)}`
-                        : "/dashboard");
-                },
+                subtitle: t("pedidos.dashboard.notifGenericSubtitle"),
+                tone: "info",
+                tagLabel: t("pedidos.dashboard.notifGenericTag"),
+                onSelect: () => marcarComoLida(aviso.id),
             };
         }),
         ...pedidosUrgentes
