@@ -28,6 +28,19 @@ export interface Pedido {
   atualizadoEm?: string;
 }
 
+export interface Comentario {
+  id: string;
+  pedidoId: string;
+  usuarioId: string;
+  nomeUsuario: string;
+  conteudo: string;
+  criadoEm: string;
+}
+
+export interface ComentarioRequest {
+  conteudo: string;
+}
+
 export interface EventData {
   id: string;
   userId: string;
