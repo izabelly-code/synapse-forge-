@@ -329,12 +329,24 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
 
             // Cliente: pedido finalizado (etapa FINALIZADO, ou aviso antigo
             // do tipo PEDIDO_FINALIZADO que ainda esteja no banco)
+            if (aviso.tipo === "PEDIDO_ETAPA_ALTERADA" || aviso.tipo === "PEDIDO_FINALIZADO") {
+                return {
+                    ...base,
+                    subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
+                    tone: "success",
+                    tagLabel: t("pedidos.dashboard.tagFinished"),
+                    onSelect: abrirPedido,
+                };
+            }
+
+            // Tipo que este front ainda não conhece (o back pode ganhar avisos
+            // novos antes): mostra um aviso neutro em vez de afirmar algo errado.
             return {
                 ...base,
-                subtitle: t("pedidos.dashboard.notifFinishedSubtitle"),
-                tone: "success",
-                tagLabel: t("pedidos.dashboard.tagFinished"),
-                onSelect: abrirPedido,
+                subtitle: t("pedidos.dashboard.notifGenericSubtitle"),
+                tone: "info",
+                tagLabel: t("pedidos.dashboard.notifGenericTag"),
+                onSelect: () => marcarComoLida(aviso.id),
             };
         }),
         ...pedidosUrgentes

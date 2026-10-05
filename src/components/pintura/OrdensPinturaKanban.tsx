@@ -69,8 +69,10 @@ function referenciaCurta(id: string): string {
 interface NovaOrdemModalProps {
     pedidos: Pedido[];
     cores: Cor[];
-    /** Técnicos cadastrados na equipe: únicas opções válidas do campo técnico. */
+    /** Técnicos ativos e gerente da equipe: únicas opções válidas do campo técnico. */
     tecnicos: TecnicoResumo[];
+    /** A lista de técnicos não carregou (rede/backend), diferente de equipe sem técnicos. */
+    tecnicosErro: boolean;
     ordem?: OrdemPintura;
     onClose: () => void;
     onSave: (data: {
@@ -94,7 +96,7 @@ function tecnicoInicial(ordem: OrdemPintura | undefined, tecnicos: TecnicoResumo
     return tecnicos.find((tec) => tec.nome.trim().toLocaleLowerCase("pt-BR") === nome)?.id ?? "";
 }
 
-function NovaOrdemModal({ pedidos, cores, tecnicos, ordem, onClose, onSave }: NovaOrdemModalProps) {
+function NovaOrdemModal({ pedidos, cores, tecnicos, tecnicosErro, ordem, onClose, onSave }: NovaOrdemModalProps) {
     const { t } = useTranslation();
     const editando = !!ordem;
     const [pedidoId, setPedidoId] = useState(ordem?.pedidoId ?? "");
@@ -115,6 +117,11 @@ function NovaOrdemModal({ pedidos, cores, tecnicos, ordem, onClose, onSave }: No
         opcoesTecnico.push({ value: ordem.tecnicoId, label: ordem.tecnicoNome });
     }
     const semTecnicos = opcoesTecnico.length === 0;
+    const ajudaTecnico = tecnicosErro
+        ? t("pintura.modal.technicianLoadError")
+        : semTecnicos
+            ? t("pintura.modal.technicianEmptyHint")
+            : "";
 
     async function handleSubmit(event: React.FormEvent) {
         event.preventDefault();
@@ -200,14 +207,14 @@ function NovaOrdemModal({ pedidos, cores, tecnicos, ordem, onClose, onSave }: No
                                 id="ordem-tecnico"
                                 value={tecnicoId}
                                 onChange={setTecnicoId}
-                                placeholder={semTecnicos ? t("pintura.modal.technicianEmpty") : t("pintura.modal.technicianPlaceholder")}
+                                placeholder={semTecnicos && !tecnicosErro ? t("pintura.modal.technicianEmpty") : t("pintura.modal.technicianPlaceholder")}
                                 options={opcoesTecnico}
                                 disabled={semTecnicos}
-                                describedBy={semTecnicos ? "ordem-tecnico-ajuda" : undefined}
+                                describedBy={ajudaTecnico ? "ordem-tecnico-ajuda" : undefined}
                             />
-                            {semTecnicos && (
+                            {ajudaTecnico && (
                                 <small id="ordem-tecnico-ajuda" className="input-hint">
-                                    {t("pintura.modal.technicianEmptyHint")}
+                                    {ajudaTecnico}
                                 </small>
                             )}
                         </div>
@@ -254,6 +261,7 @@ function OrdensPinturaKanban() {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [cores, setCores] = useState<Cor[]>([]);
     const [tecnicos, setTecnicos] = useState<TecnicoResumo[]>([]);
+    const [tecnicosErro, setTecnicosErro] = useState(false);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState("");
     const [busca, setBusca] = useState("");
@@ -278,17 +286,22 @@ function OrdensPinturaKanban() {
     // (`loading` já nasce true e `erro` vazio no useState acima).
     async function buscarDados() {
         try {
+            let tecnicosFalhou = false;
             const [ordensData, pedidosData, coresData, tecnicosData] = await Promise.all([
                 getOrdensPintura(),
                 getPedidos(),
                 getCores(),
                 // Sem a lista o quadro continua funcionando; só o formulário fica sem opções.
-                getTecnicos().catch(() => [] as TecnicoResumo[]),
+                getTecnicos().catch(() => {
+                    tecnicosFalhou = true;
+                    return [] as TecnicoResumo[];
+                }),
             ]);
             setOrdens(ordensData);
             setPedidos(pedidosData);
             setCores(coresData);
             setTecnicos(tecnicosData);
+            setTecnicosErro(tecnicosFalhou);
             setAtualizadoEm(new Date());
             setErro("");
         } catch {
@@ -386,6 +399,7 @@ function OrdensPinturaKanban() {
                     pedidos={pedidos}
                     cores={cores}
                     tecnicos={tecnicos}
+                    tecnicosErro={tecnicosErro}
                     ordem={ordemEditando ?? undefined}
                     onClose={() => {
                         setModalAberto(false);

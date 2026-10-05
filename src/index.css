@@ -1480,7 +1480,7 @@ body {
   width: 1.5rem;
   height: 1.5rem;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-button);
   background: none;
   color: var(--on-surface-variant);
   cursor: pointer;
@@ -6683,9 +6683,10 @@ html {
     --control-h: 2.75rem;   /* 44px no toque (36px com mouse) */
   }
 
-  /* Botões-ícone que não usam o token (tinham 32px, 25px, 30px). */
+  /* Botões-ícone que não usam o token (tinham 32px, 25px, 30px, 24px). */
   .kebab-btn,
-  .modal-close {
+  .modal-close,
+  .notif-item-fechar {
     width: 2.75rem;
     height: 2.75rem;
   }
