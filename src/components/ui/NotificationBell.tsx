@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Cancel01Icon, Notification03Icon } from "hugeicons-react";
 import { cn } from "../../utils/cn";
 import { useDismissable } from "../../hooks/useDismissable";
@@ -46,6 +46,23 @@ interface NotificationBellProps {
 function NotificationBell({ items, panelTitle, emptyText, ariaLabel, variant = "toolbar", direction = "down", dismissLabel }: NotificationBellProps) {
     const [aberto, setAberto] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+    const listaRef = useRef<HTMLUListElement>(null);
+    // Posição do item dispensado pelo X, para devolver o foco depois que a lista mudar
+    const focoAposDispensar = useRef<number | null>(null);
+
+    // O X some junto com o item: o foco vai para o item que ocupou o lugar dele (ou o
+    // anterior, se era o último), no X dele quando houver; sem itens, volta para o sino.
+    useEffect(() => {
+        const indice = focoAposDispensar.current;
+        if (indice === null) return;
+        focoAposDispensar.current = null;
+        const linhas = listaRef.current?.querySelectorAll<HTMLLIElement>(".notif-list-item");
+        const linha = linhas?.[Math.min(indice, linhas.length - 1)];
+        const alvo = linha?.querySelector<HTMLButtonElement>(".notif-item-fechar")
+            ?? linha?.querySelector<HTMLButtonElement>(".notif-item")
+            ?? ref.current?.querySelector<HTMLButtonElement>("button");
+        alvo?.focus();
+    }, [items]);
 
     useDismissable({
         enabled: aberto,
@@ -71,8 +88,8 @@ function NotificationBell({ items, panelTitle, emptyText, ariaLabel, variant = "
                     {items.length === 0 ? (
                         <p className="notif-empty">{emptyText}</p>
                     ) : (
-                        <ul className="notif-list">
-                            {items.map((item) => (
+                        <ul className="notif-list" ref={listaRef}>
+                            {items.map((item, indice) => (
                                 <li key={item.id} className="notif-list-item">
                                     <button
                                         className="notif-item"
@@ -91,9 +108,12 @@ function NotificationBell({ items, panelTitle, emptyText, ariaLabel, variant = "
                                         <button
                                             type="button"
                                             className="notif-item-fechar"
-                                            onClick={item.onDismiss}
-                                            aria-label={dismissLabel ? dismissLabel(typeof item.title === "string" ? item.title : "") : undefined}
-                                            title={dismissLabel ? dismissLabel(typeof item.title === "string" ? item.title : "") : undefined}
+                                            onClick={() => {
+                                                focoAposDispensar.current = indice;
+                                                item.onDismiss?.();
+                                            }}
+                                            aria-label={dismissLabel?.(typeof item.title === "string" ? item.title : "")}
+                                            title={dismissLabel?.(typeof item.title === "string" ? item.title : "")}
                                         >
                                             <Cancel01Icon size={14} />
                                         </button>

@@ -26,16 +26,15 @@ function ler(): string[] {
 export function useAlertasDispensados() {
     const [dispensados, setDispensados] = useState<string[]>(ler);
 
+    // Grava fora do updater do setState: ele precisa ser puro (o StrictMode o roda duas vezes)
     function dispensar(chave: string) {
-        setDispensados((atuais) => {
-            const proximos = [...atuais.filter((c) => c !== chave), chave].slice(-MAXIMO_GUARDADO);
-            try {
-                localStorage.setItem(chaveStorage(), JSON.stringify(proximos));
-            } catch {
-                // sem storage (modo privado, cota cheia): dispensa só até recarregar a página
-            }
-            return proximos;
-        });
+        const proximos = [...dispensados.filter((c) => c !== chave), chave].slice(-MAXIMO_GUARDADO);
+        setDispensados(proximos);
+        try {
+            localStorage.setItem(chaveStorage(), JSON.stringify(proximos));
+        } catch {
+            // sem storage (modo privado, cota cheia): dispensa só até recarregar a página
+        }
     }
 
     function foiDispensado(chave: string) {
