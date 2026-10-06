@@ -217,7 +217,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
         return () => {
             active = false;
         };
-    }, [pedidoId, editando]);
+    }, [pedidoId, editando, podeVerComentarios, t]);
 
     useEscapeKey(() => {
         if (editando) {
@@ -375,12 +375,12 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     }
 
     async function handleDeletarComentario(comentarioId: string) {
+        if (!window.confirm(t("pedidos.comments.deleteConfirm"))) return;
+
         try {
             await deletarComentario(pedidoId, comentarioId);
 
             setComentarios((atuais) => atuais.filter((comentario) => comentario.id !== comentarioId));
-
-
         } catch {
             setErroComentarios(t("pedidos.comments.errorDelete"));
         }
@@ -428,9 +428,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
             cancelarEdicaoComentario();
         } catch {
-            setErroComentarios(
-                "Não foi possível editar o comentário."
-            );
+            setErroComentarios(t("pedidos.comments.errorEdit"));
         } finally {
             setSalvandoComentario(false);
         }
@@ -463,9 +461,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
 
             setNovoComentario("");
         } catch {
-            setErroComentarios(
-                "Não foi possível enviar o comentário."
-            );
+            setErroComentarios(t("pedidos.comments.errorSend"));
         } finally {
             setEnviandoComentario(false);
         }
@@ -901,9 +897,10 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                                     <strong>{comentario.nomeUsuario}</strong>
 
                                                     <span>
-                                                        {new Date(
-                                                            comentario.criadoEm
-                                                        ).toLocaleString("pt-BR")}
+                                                        {formatDate(comentario.criadoEm, {
+                                                            dateStyle: "short",
+                                                            timeStyle: "short"
+                                                        })}
                                                     </span>
 
                                                     {comentario.usuarioId === usuarioId &&
