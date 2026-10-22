@@ -93,6 +93,10 @@ function Login({ onLogin, goToRegister, goToRecovery }: LoginProps) {
             } else if (msg.startsWith("CONTA_BLOQUEADA")) {
                 const minutos = Number(msg.split(":")[1]) || 15;
                 setErro(t("login.errorAccountLocked", { count: minutos }));
+            } else if (msg === "CONTA_DESATIVADA") {
+                setErro(t("login.errorAccountDisabled"));
+            } else if (msg === "MUITAS_TENTATIVAS") {
+                setErro(t("login.errorTooManyAttempts"));
             } else {
                 setErro(t("login.errorGeneric"));
             }

@@ -28,7 +28,8 @@ export async function login(
     });
 
     if (!response.ok) {
-        const msg = await response.text();
+        // 429 = limite de tentativas por IP do back (o corpo é texto livre)
+        const msg = response.status === 429 ? "MUITAS_TENTATIVAS" : await response.text();
         throw new Error(msg);
     }
 
