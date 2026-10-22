@@ -1,6 +1,7 @@
 import { EtapaOrdemPintura, OrdemPintura, PrioridadeOrdemPintura } from "../types";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/ordens-pintura";
+const API_URL = `${API_BASE_URL}/ordens-pintura`;
 
 function headers(): Record<string, string> {
     return {

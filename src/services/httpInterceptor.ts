@@ -1,6 +1,7 @@
 import { getToken, clearSession, isTokenExpired } from "../hooks/useAuth";
+import { API_BASE_URL } from "../config/api";
 
-const API_BASE = "http://localhost:8081";
+const API_BASE = API_BASE_URL;
 
 /** Disparado quando o back nega uma ação (403) a um usuário com sessão válida. */
 export const EVENTO_SEM_PERMISSAO = "sf:sem-permissao";

@@ -1,6 +1,7 @@
 import { User } from '../types';
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/users";
+const API_URL = `${API_BASE_URL}/users`;
 
 /** PUT /users/me: campo ausente não muda. E-mail só muda pelo fluxo com confirmação. */
 export interface PerfilUpdateData {

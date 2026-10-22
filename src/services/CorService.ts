@@ -1,6 +1,7 @@
 import { Cor } from '../types';
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/cores";
+const API_URL = `${API_BASE_URL}/cores`;
 
 function getHeaders(): Record<string, string> {
     const token = localStorage.getItem("token");

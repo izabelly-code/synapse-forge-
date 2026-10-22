@@ -1,6 +1,8 @@
-const API_URL = "http://localhost:8081/auth";
-const USERS_URL = "http://localhost:8081/users";
-const EQUIPES_URL = "http://localhost:8081/equipes";
+import { API_BASE_URL } from "../config/api";
+
+const API_URL = `${API_BASE_URL}/auth`;
+const USERS_URL = `${API_BASE_URL}/users`;
+const EQUIPES_URL = `${API_BASE_URL}/equipes`;
 
 // =========================================================
 // LOGIN

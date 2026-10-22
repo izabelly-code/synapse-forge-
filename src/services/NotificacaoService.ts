@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:8081/notificacoes";
+import { API_BASE_URL } from "../config/api";
+
+const API_URL = `${API_BASE_URL}/notificacoes`;
 
 export type TipoNotificacao = "PEDIDO_FINALIZADO" | "ORDEM_PINTURA_ATRIBUIDA" | "PEDIDO_ETAPA_ALTERADA";
 

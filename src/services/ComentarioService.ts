@@ -2,8 +2,9 @@ import {
     Comentario,
     ComentarioRequest
 } from "../types";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/pedidos";
+const API_URL = `${API_BASE_URL}/pedidos`;
 
 function getHeaders(): Record<string, string> {
 
