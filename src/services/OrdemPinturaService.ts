@@ -1,6 +1,7 @@
 import { EtapaOrdemPintura, OrdemPintura, PrioridadeOrdemPintura } from "../types";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/ordens-pintura";
+const API_URL = `${API_BASE_URL}/ordens-pintura`;
 
 function headers(): Record<string, string> {
     return {
@@ -12,7 +13,8 @@ function headers(): Record<string, string> {
 export interface NovaOrdemPintura {
     pedidoId: string;
     corId: string;
-    tecnico: string;
+    /** id de um técnico ativo ou do gerente da equipe (o backend recusa qualquer outro). */
+    tecnicoId: string;
     prioridade: PrioridadeOrdemPintura;
     prazo: string;
 }
@@ -20,6 +22,18 @@ export interface NovaOrdemPintura {
 export async function getOrdensPintura(): Promise<OrdemPintura[]> {
     const response = await fetch(API_URL, { headers: headers() });
     if (!response.ok) throw new Error("Falha ao carregar ordens de pintura");
+    return response.json();
+}
+
+/** Opção do select de técnico: técnicos ativos e o gerente da equipe. */
+export interface TecnicoResumo {
+    id: string;
+    nome: string;
+}
+
+export async function getTecnicos(): Promise<TecnicoResumo[]> {
+    const response = await fetch(`${API_URL}/tecnicos`, { headers: headers() });
+    if (!response.ok) throw new Error("Falha ao carregar técnicos");
     return response.json();
 }
 

@@ -22,7 +22,9 @@
     "errorEmailNotConfirmed": "Confirm your email before signing in. Check your inbox.",
     "errorAccountLocked_one": "Account temporarily locked due to too many attempts. Try again in {{count}} minute or reset your password.",
     "errorAccountLocked_other": "Account temporarily locked due to too many attempts. Try again in {{count}} minutes or reset your password.",
-    "errorGeneric": "Could not sign in. Check your credentials."
+    "errorGeneric": "Could not sign in. Check your credentials.",
+    "errorAccountDisabled": "This account has been deactivated. Contact the administrator.",
+    "errorTooManyAttempts": "Too many attempts in a row. Wait a minute and try again."
   },
   "register": {
   "choice": {
@@ -308,7 +310,6 @@
   },
 
   "admin": {
-    "kicker": "Administration",
     "title": "System administration",
     "subtitle": "Manage users and orders stored in the system.",
 
@@ -339,7 +340,6 @@
       "orders_other": "{{count}} orders"
     },
 
-    "loading": "Loading data...",
 
     "errors": {
       "load": "Unable to load administration data.",
@@ -525,6 +525,28 @@
         "cancelar": "Could not cancel the order. Please try again."
       }
     },
+    "comments": {
+        "title": "Comments",
+        "placeholder": "Write a comment...",
+        "send": "Send",
+        "sending": "Sending...",
+        "loading": "Loading comments...",
+        "empty": "No comments yet.",
+        "errorLoad": "Could not load comments.",
+        "errorSend": "Could not send the comment.",
+        "anonymous": "User",
+        "delete": "Delete",
+        "deleteConfirm": "Are you sure you want to delete this comment?",
+        "errorDelete": "Could not delete the comment.",
+        "errorEdit": "Could not edit the comment.",
+        "errorLoadMore": "Could not load more comments.",
+        "loadMore": "Load more comments",
+        "edit": "Edit",
+        "editConfirm": "Save changes to this comment?",
+        "cancelEdit": "Cancel",
+        "saveEdit": "Save",
+        "savingEdit": "Saving..."
+    },
     "row": {
       "deadlineLabel": "Deadline",
       "moreActions": "More actions",
@@ -568,6 +590,13 @@
     "notifEmpty": "All on track. No critical deadlines.",
     "tagLate": "Overdue",
     "tagDueToday": "Due today",
+    "tagFinished": "Completed",
+    "notifFinishedSubtitle": "Your order is complete",
+    "notifStageSubtitle": "Your order is now in {{etapa}}",
+    "notifGenericSubtitle": "You have a new notification",
+    "notifGenericTag": "Notice",
+    "notifDue": "Due: {{data}}",
+    "notifDismissAria": "Dismiss notification {{title}}",
     "newOrder": "New Order",
     "statsAria": "Production summary",
     "statTotal": "Total Orders",
@@ -748,6 +777,8 @@
     "searchPlaceholder": "Search by order, color or technician...",
     "filters": "Filters",
     "technicianLabel": "Technician",
+    "notifAssignedSubtitle": "New painting order for you",
+    "notifAssignedTag": "New order",
     "allMasc": "All",
     "allFem": "All",
     "priorityLabel": "Priority",
@@ -786,7 +817,10 @@
       "noReferenceImages": "No reference images added.",
       "colorLabel": "Color",
       "colorPlaceholder": "Select the color",
-      "technicianPlaceholder": "Technician name",
+      "technicianPlaceholder": "Select a technician",
+      "technicianEmpty": "No technicians on the team",
+      "technicianEmptyHint": "Invite a technician on the Team page to assign orders.",
+      "technicianLoadError": "Couldn't load the technician list. Reload the page to try again.",
       "deadlineLabel": "Deadline",
       "cancel": "Cancel",
       "create": "Create Order",
@@ -1013,6 +1047,25 @@
       "colFinalPrice": "Final price",
       "colStatus": "Status",
       "colActions": "Actions",
+      "filterOpenPending": "Filter pending quotes",
+      "filterOpenHistory": "Filter quote history",
+      "filterTitlePending": "Filter pending",
+      "filterTitleHistory": "Filter history",
+      "filterApply": "Apply filters",
+      "filterClose": "Close filter",
+      "filterActiveCount": "Active filters: {{count}}",
+      "filterClient": "Client",
+      "filterClientPlaceholder": "Client name",
+      "filterProject": "Project",
+      "filterProjectPlaceholder": "Project name",
+      "filterFrom": "From",
+      "filterTo": "To",
+      "filterClear": "Clear filters",
+      "filterInvalidRange": "The start date can't be after the end date.",
+      "filterNoResults": "No quotes match these filters.",
+      "showingOf": "Showing {{shown}} of {{total}}",
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
       "volumeValue": "{{value}} cm³",
       "pendingEmpty": "No quote waiting for approval.",
       "decidedEmpty": "No decision recorded.",

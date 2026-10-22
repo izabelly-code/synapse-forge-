@@ -1,14 +1,22 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { InboxIcon } from "hugeicons-react";
-import { aprovarOrcamento, getOrcamentos, rejeitarOrcamento } from "../../services/OrcamentoService";
+import { FilterIcon, InboxIcon } from "hugeicons-react";
+import {
+    aprovarOrcamento,
+    rejeitarOrcamento,
+    FILTRO_ORCAMENTOS_VAZIO,
+    type FiltroOrcamentos,
+    type SituacaoOrcamento,
+} from "../../services/OrcamentoService";
 import { Orcamento } from "../../models/Orcamento";
-import { useFlipList } from "../../hooks/useFlipList";
 import { FiCheck, FiX } from "react-icons/fi";
 import { formatCurrency, formatDate } from "../../utils/format";
 import OrcamentoDetalheModal from "./OrcamentoDetalheModal";
+import OrcamentoFiltroModal from "./OrcamentoFiltroModal";
+import IconButton from "../ui/IconButton";
+import LinkButton from "../ui/LinkButton";
 import { useRecarregarAoVoltar } from "../../hooks/useRecarregarAoVoltar";
-
+import { useOrcamentosPaginados } from "../../hooks/useOrcamentosPaginados";
 
 function formatarData(criadoEm: string | null) {
     if (!criadoEm) return "—";
@@ -22,63 +30,63 @@ function statusOrcamento(orcamento: Orcamento): NonNullable<Orcamento["status"]>
     return orcamento.status ?? "PENDENTE";
 }
 
+/** Quantos campos do filtro estão preenchidos (vira o número no ícone). */
+function camposAtivos(filtro: FiltroOrcamentos) {
+    return Object.values(filtro).filter((valor) => valor.trim() !== "").length;
+}
+
 function OrcamentoHistorico() {
     const { t } = useTranslation();
-    const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
-    const [fetching, setFetching] = useState(true);
-    const [error, setError] = useState("");
-    const listaRef = useRef<HTMLDivElement>(null);
     const [loadingIds, setLoadingIds] = useState(new Set<string>());
+    const [erroDecisao, setErroDecisao] = useState("");
     const [orcamentoSelecionado, setOrcamentoSelecionado] = useState<Orcamento | null>(null);
-    // Incrementa ao voltar para a aba: refaz a busca sem voltar ao skeleton.
+
+    // Cada bloco tem o seu filtro: filtrar o histórico não mexe nos pendentes e vice-versa.
+    const [filtroPendentes, setFiltroPendentes] = useState<FiltroOrcamentos>(FILTRO_ORCAMENTOS_VAZIO);
+    const [filtroHistorico, setFiltroHistorico] = useState<FiltroOrcamentos>(FILTRO_ORCAMENTOS_VAZIO);
+    const [filtroAberto, setFiltroAberto] = useState<SituacaoOrcamento | null>(null);
+
+    // Voltar à aba recarrega as duas seções; uma decisão recarrega só o histórico.
     const [recarga, setRecarga] = useState(0);
-    useRecarregarAoVoltar(() => setRecarga((n) => n + 1), !orcamentoSelecionado);
+    const [recargaHistorico, setRecargaHistorico] = useState(0);
+    useRecarregarAoVoltar(() => setRecarga((n) => n + 1), !orcamentoSelecionado && !filtroAberto);
 
-    useEffect(() => {
-        async function fetchOrcamentos() {
-            // `fetching` já nasce true: o skeleton cobre só a primeira carga.
-            setError("");
-            try {
-                setOrcamentos(await getOrcamentos());
-            } catch {
-                setError(t("orcamento.historico.errorLoad"));
-            } finally {
-                setFetching(false);
-            }
-        }
-        fetchOrcamentos();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [recarga]);
+    const pendentes = useOrcamentosPaginados("PENDENTES", filtroPendentes, recarga);
+    const decididos = useOrcamentosPaginados("DECIDIDOS", filtroHistorico, recarga + recargaHistorico);
 
-    // Quando o histórico muda de ordem, as linhas viajam para o novo lugar.
-    useFlipList(listaRef, orcamentos.map((o) => o.id).join("|"));
+    const primeiraCarga = pendentes.carregando || decididos.carregando;
+    const semNenhumOrcamento = !primeiraCarga
+        && camposAtivos(filtroPendentes) === 0
+        && camposAtivos(filtroHistorico) === 0
+        && pendentes.total === 0
+        && decididos.total === 0;
+    const erroCarga = pendentes.erro || decididos.erro;
+
+    function definirFiltro(situacao: SituacaoOrcamento, filtro: FiltroOrcamentos) {
+        if (situacao === "PENDENTES") setFiltroPendentes(filtro);
+        else setFiltroHistorico(filtro);
+    }
 
     async function decidirOrcamento(orcamento: Orcamento, decisao: "aprovar" | "rejeitar") {
         if (!orcamento.id) return;
-        setLoadingIds((ids) => new Set(ids).add(orcamento.id as string));
-        setError("");
+        const id = orcamento.id;
+        setLoadingIds((ids) => new Set(ids).add(id));
+        setErroDecisao("");
         try {
-            const atualizado = await (decisao === "aprovar"
-                ? aprovarOrcamento(orcamento.id)
-                : rejeitarOrcamento(orcamento.id));
-            setOrcamentos((lista) => lista.map((item) => (
-                item.id === orcamento.id
-                    ? atualizado
-                    : item
-            )));
+            await (decisao === "aprovar" ? aprovarOrcamento(id) : rejeitarOrcamento(id));
+            // Sai dos pendentes na hora; o histórico é recarregado para entrar na posição certa.
+            pendentes.remover(id);
+            setRecargaHistorico((n) => n + 1);
         } catch {
-            setError(t(decisao === "aprovar" ? "orcamento.historico.errorApprove" : "orcamento.historico.errorReject"));
+            setErroDecisao(t(decisao === "aprovar" ? "orcamento.historico.errorApprove" : "orcamento.historico.errorReject"));
         } finally {
             setLoadingIds((ids) => {
                 const next = new Set(ids);
-                next.delete(orcamento.id as string);
+                next.delete(id);
                 return next;
             });
         }
     }
-
-    const pendentes = orcamentos.filter((o) => statusOrcamento(o) === "PENDENTE");
-    const decididos = orcamentos.filter((o) => statusOrcamento(o) !== "PENDENTE");
 
     function renderLinha(o: Orcamento, comAcoes = false) {
         const carregando = o.id ? loadingIds.has(o.id) : false;
@@ -142,58 +150,125 @@ function OrcamentoHistorico() {
         );
     }
 
-    let pendentesConteudo: ReactNode;
-    if (fetching) {
-        pendentesConteudo = (
+    function renderSkeleton() {
+        return (
             <div className="pedidos-list">
                 {[1, 2, 3].map((i) => <div key={i} className="pedido-row-skeleton" />)}
             </div>
         );
-    } else if (orcamentos.length === 0) {
-        pendentesConteudo = (
-            <div className="pedidos-empty">
-                <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
-                <p className="empty-title">{t("orcamento.historico.emptyTitle")}</p>
-                <p className="empty-sub">{t("orcamento.historico.emptySub")}</p>
-            </div>
-        );
-    } else {
-        pendentesConteudo = (
+    }
+
+    function renderSecao(
+        situacao: SituacaoOrcamento,
+        secao: ReturnType<typeof useOrcamentosPaginados>,
+        subtitulo: string,
+        vazio: string,
+        comAcoes: boolean
+    ): ReactNode {
+        if (secao.carregando) return renderSkeleton();
+        const filtrado = camposAtivos(situacao === "PENDENTES" ? filtroPendentes : filtroHistorico) > 0;
+        return (
             <>
                 <div className="orcamento-secao-head">
-                    <p>{t("orcamento.historico.pendingSubtitle")}</p>
-                    <span className="orcamento-contador">{pendentes.length}</span>
+                    <p>{subtitulo}</p>
+                    <span className="orcamento-contador">{secao.total}</span>
                 </div>
-                {pendentes.length === 0 ? <p className="orcamento-lista-vazia">{t("orcamento.historico.pendingEmpty")}</p> : renderLista(pendentes, true)}
+                {secao.itens.length === 0 && !filtrado && <p className="orcamento-lista-vazia">{vazio}</p>}
+                {secao.itens.length === 0 && filtrado && (
+                    <p className="orcamento-lista-vazia">
+                        {t("orcamento.historico.filterNoResults")}{" "}
+                        <LinkButton onClick={() => definirFiltro(situacao, FILTRO_ORCAMENTOS_VAZIO)}>
+                            {t("orcamento.historico.filterClear")}
+                        </LinkButton>
+                    </p>
+                )}
+                {secao.itens.length > 0 && renderLista(secao.itens, comAcoes)}
+                {secao.itens.length > 0 && (
+                    <div className="orcamento-paginacao">
+                        <span className="orcamento-paginacao-info">
+                            {t("orcamento.historico.showingOf", { shown: secao.itens.length, total: secao.total })}
+                        </span>
+                        {secao.temMais && (
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={() => void secao.carregarMais()}
+                                disabled={secao.carregandoMais}
+                            >
+                                {secao.carregandoMais ? t("orcamento.historico.loadingMore") : t("orcamento.historico.loadMore")}
+                            </button>
+                        )}
+                    </div>
+                )}
             </>
         );
     }
 
-    const historicoConteudo = fetching || orcamentos.length === 0 ? null : (
-        <>
-            <div className="orcamento-secao-head">
-                <p>{t("orcamento.historico.decidedSubtitle")}</p>
-                <span className="orcamento-contador">{decididos.length}</span>
+    function renderCabecalho(situacao: SituacaoOrcamento, titulo: string) {
+        const filtro = situacao === "PENDENTES" ? filtroPendentes : filtroHistorico;
+        const ativos = camposAtivos(filtro);
+        const nomeBloco = situacao === "PENDENTES" ? "Pending" : "History";
+        return (
+            <div className="orcamento-historico-head">
+                <h2 className="dashboard-title orcamento-historico-title">{titulo}</h2>
+                <IconButton
+                    variant="toolbar"
+                    className={ativos > 0 ? "orcamento-filtro-btn is-active" : "orcamento-filtro-btn"}
+                    onClick={() => setFiltroAberto(situacao)}
+                    aria-label={t(`orcamento.historico.filterOpen${nomeBloco}`)}
+                    title={t(`orcamento.historico.filterOpen${nomeBloco}`)}
+                    aria-haspopup="dialog"
+                >
+                    <FilterIcon size={18} />
+                    {ativos > 0 && (
+                        <span className="orcamento-filtro-badge" aria-label={t("orcamento.historico.filterActiveCount", { count: ativos })}>
+                            {ativos}
+                        </span>
+                    )}
+                </IconButton>
             </div>
-            {decididos.length === 0 ? <p className="orcamento-lista-vazia">{t("orcamento.historico.decidedEmpty")}</p> : renderLista(decididos)}
-        </>
-    );
+        );
+    }
 
-    return (
-        <>
+    if (semNenhumOrcamento) {
+        return (
             <section className="orcamento-pendentes">
                 <div className="orcamento-historico-head">
                     <h2 className="dashboard-title orcamento-historico-title">{t("orcamento.historico.pendingTitle")}</h2>
                 </div>
-                {error && <div className="dashboard-error">{error}</div>}
-                {pendentesConteudo}
+                <div className="pedidos-empty">
+                    <span className="pedidos-empty-icon"><InboxIcon size={28} /></span>
+                    <p className="empty-title">{t("orcamento.historico.emptyTitle")}</p>
+                    <p className="empty-sub">{t("orcamento.historico.emptySub")}</p>
+                </div>
+            </section>
+        );
+    }
+
+    return (
+        <>
+            <section className="orcamento-pendentes">
+                {renderCabecalho("PENDENTES", t("orcamento.historico.pendingTitle"))}
+                {(erroCarga || erroDecisao) && (
+                    <div className="dashboard-error">{erroDecisao || t("orcamento.historico.errorLoad")}</div>
+                )}
+                {renderSecao("PENDENTES", pendentes, t("orcamento.historico.pendingSubtitle"), t("orcamento.historico.pendingEmpty"), true)}
             </section>
             <section className="orcamento-historico">
-                <div className="orcamento-historico-head">
-                    <h2 className="dashboard-title orcamento-historico-title">{t("orcamento.historico.title")}</h2>
-                </div>
-                {historicoConteudo}
+                {renderCabecalho("DECIDIDOS", t("orcamento.historico.title"))}
+                {renderSecao("DECIDIDOS", decididos, t("orcamento.historico.decidedSubtitle"), t("orcamento.historico.decidedEmpty"), false)}
             </section>
+            {filtroAberto && (
+                <OrcamentoFiltroModal
+                    titulo={t(filtroAberto === "PENDENTES" ? "orcamento.historico.filterTitlePending" : "orcamento.historico.filterTitleHistory")}
+                    filtro={filtroAberto === "PENDENTES" ? filtroPendentes : filtroHistorico}
+                    onAplicar={(filtro) => {
+                        definirFiltro(filtroAberto, filtro);
+                        setFiltroAberto(null);
+                    }}
+                    onClose={() => setFiltroAberto(null)}
+                />
+            )}
             {orcamentoSelecionado && (
                 <OrcamentoDetalheModal
                     orcamento={orcamentoSelecionado}

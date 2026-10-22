@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:8081/equipes/meu-convite";
+import { API_BASE_URL } from "../config/api";
+
+const API_URL = `${API_BASE_URL}/equipes/meu-convite`;
 
 /** Convite de equipe pendente do usuário logado, com a equipe que convida (SYN-101). */
 export interface MeuConvite {

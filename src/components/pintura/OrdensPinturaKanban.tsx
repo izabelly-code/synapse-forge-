@@ -12,6 +12,8 @@ import {
     editarOrdemPintura,
     excluirOrdemPintura,
     getOrdensPintura,
+    getTecnicos,
+    type TecnicoResumo,
 } from "../../services/OrdemPinturaService";
 import { getPedidos } from "../../services/PedidoService";
 import { cn } from "../../utils/cn";
@@ -67,23 +69,39 @@ function referenciaCurta(id: string): string {
 interface NovaOrdemModalProps {
     pedidos: Pedido[];
     cores: Cor[];
+    /** Técnicos ativos e gerente da equipe: únicas opções válidas do campo técnico. */
+    tecnicos: TecnicoResumo[];
+    /** A lista de técnicos não carregou (rede/backend), diferente de equipe sem técnicos. */
+    tecnicosErro: boolean;
     ordem?: OrdemPintura;
     onClose: () => void;
     onSave: (data: {
         pedidoId: string;
         corId: string;
-        tecnico: string;
+        tecnicoId: string;
         prioridade: PrioridadeOrdemPintura;
         prazo: string;
     }) => Promise<void>;
 }
 
-function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemModalProps) {
+/**
+ * Técnico inicial ao editar. Ordens antigas não têm tecnicoId (o nome era digitado):
+ * se o nome bater com um técnico cadastrado, ele já vem selecionado; senão fica vazio
+ * e a pessoa precisa escolher um da lista.
+ */
+function tecnicoInicial(ordem: OrdemPintura | undefined, tecnicos: TecnicoResumo[]): string {
+    if (!ordem) return "";
+    if (ordem.tecnicoId) return ordem.tecnicoId;
+    const nome = ordem.tecnicoNome?.trim().toLocaleLowerCase("pt-BR");
+    return tecnicos.find((tec) => tec.nome.trim().toLocaleLowerCase("pt-BR") === nome)?.id ?? "";
+}
+
+function NovaOrdemModal({ pedidos, cores, tecnicos, tecnicosErro, ordem, onClose, onSave }: NovaOrdemModalProps) {
     const { t } = useTranslation();
     const editando = !!ordem;
     const [pedidoId, setPedidoId] = useState(ordem?.pedidoId ?? "");
     const [corId, setCorId] = useState(ordem?.corId ?? "");
-    const [tecnico, setTecnico] = useState(ordem?.tecnicoNome ?? "");
+    const [tecnicoId, setTecnicoId] = useState(() => tecnicoInicial(ordem, tecnicos));
     const [prioridade, setPrioridade] = useState<PrioridadeOrdemPintura>(ordem?.prioridade ?? "MEDIA");
     const [prazo, setPrazo] = useState(ordem?.prazo.slice(0, 10) ?? "");
     const [salvando, setSalvando] = useState(false);
@@ -92,9 +110,22 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
     const pedido = pedidos.find((item) => item.id === pedidoId);
     const cor = cores.find((item) => item.id === corId);
 
+    // Ao editar, o técnico atual continua como opção mesmo que tenha saído da equipe
+    // (o backend aceita manter o mesmo); para trocar, só técnicos cadastrados.
+    const opcoesTecnico = tecnicos.map((tec) => ({ value: tec.id, label: tec.nome }));
+    if (ordem?.tecnicoId && !tecnicos.some((tec) => tec.id === ordem.tecnicoId)) {
+        opcoesTecnico.push({ value: ordem.tecnicoId, label: ordem.tecnicoNome });
+    }
+    const semTecnicos = opcoesTecnico.length === 0;
+    const ajudaTecnico = tecnicosErro
+        ? t("pintura.modal.technicianLoadError")
+        : semTecnicos
+            ? t("pintura.modal.technicianEmptyHint")
+            : "";
+
     async function handleSubmit(event: React.FormEvent) {
         event.preventDefault();
-        if (!pedidoId || !corId || !tecnico.trim() || !prazo) {
+        if (!pedidoId || !corId || !tecnicoId || !prazo) {
             setErro(t("pintura.modal.errorRequired"));
             return;
         }
@@ -102,7 +133,7 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
         setSalvando(true);
         setErro("");
         try {
-            await onSave({ pedidoId, corId, tecnico: tecnico.trim(), prioridade, prazo });
+            await onSave({ pedidoId, corId, tecnicoId, prioridade, prazo });
             onClose();
         } catch {
             setErro(editando ? t("pintura.modal.errorEdit") : t("pintura.modal.errorCreate"));
@@ -172,12 +203,20 @@ function NovaOrdemModal({ pedidos, cores, ordem, onClose, onSave }: NovaOrdemMod
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-tecnico">{t("pintura.technicianLabel")}</label>
-                            <input
+                            <Select
                                 id="ordem-tecnico"
-                                value={tecnico}
-                                onChange={(e) => setTecnico(e.target.value)}
-                                placeholder={t("pintura.modal.technicianPlaceholder")}
+                                value={tecnicoId}
+                                onChange={setTecnicoId}
+                                placeholder={semTecnicos && !tecnicosErro ? t("pintura.modal.technicianEmpty") : t("pintura.modal.technicianPlaceholder")}
+                                options={opcoesTecnico}
+                                disabled={semTecnicos}
+                                describedBy={ajudaTecnico ? "ordem-tecnico-ajuda" : undefined}
                             />
+                            {ajudaTecnico && (
+                                <small id="ordem-tecnico-ajuda" className="input-hint">
+                                    {ajudaTecnico}
+                                </small>
+                            )}
                         </div>
                         <div className="input-group">
                             <label htmlFor="ordem-prioridade">{t("pintura.priorityLabel")}</label>
@@ -221,6 +260,8 @@ function OrdensPinturaKanban() {
     const [ordens, setOrdens] = useState<OrdemPintura[]>([]);
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [cores, setCores] = useState<Cor[]>([]);
+    const [tecnicos, setTecnicos] = useState<TecnicoResumo[]>([]);
+    const [tecnicosErro, setTecnicosErro] = useState(false);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState("");
     const [busca, setBusca] = useState("");
@@ -245,14 +286,22 @@ function OrdensPinturaKanban() {
     // (`loading` já nasce true e `erro` vazio no useState acima).
     async function buscarDados() {
         try {
-            const [ordensData, pedidosData, coresData] = await Promise.all([
+            let tecnicosFalhou = false;
+            const [ordensData, pedidosData, coresData, tecnicosData] = await Promise.all([
                 getOrdensPintura(),
                 getPedidos(),
                 getCores(),
+                // Sem a lista o quadro continua funcionando; só o formulário fica sem opções.
+                getTecnicos().catch(() => {
+                    tecnicosFalhou = true;
+                    return [] as TecnicoResumo[];
+                }),
             ]);
             setOrdens(ordensData);
             setPedidos(pedidosData);
             setCores(coresData);
+            setTecnicos(tecnicosData);
+            setTecnicosErro(tecnicosFalhou);
             setAtualizadoEm(new Date());
             setErro("");
         } catch {
@@ -349,6 +398,8 @@ function OrdensPinturaKanban() {
                 <NovaOrdemModal
                     pedidos={pedidos}
                     cores={cores}
+                    tecnicos={tecnicos}
+                    tecnicosErro={tecnicosErro}
                     ordem={ordemEditando ?? undefined}
                     onClose={() => {
                         setModalAberto(false);

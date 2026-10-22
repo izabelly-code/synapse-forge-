@@ -28,6 +28,19 @@ export interface Pedido {
   atualizadoEm?: string;
 }
 
+export interface Comentario {
+  id: string;
+  pedidoId: string;
+  usuarioId: string;
+  nomeUsuario: string;
+  conteudo: string;
+  criadoEm: string;
+}
+
+export interface ComentarioRequest {
+  conteudo: string;
+}
+
 export interface EventData {
   id: string;
   userId: string;
@@ -65,6 +78,8 @@ export interface OrdemPintura {
   corNome: string;
   corHex: string;
   acabamento?: string;
+  /** null em ordens antigas, de quando o técnico era um nome digitado. */
+  tecnicoId: string | null;
   tecnicoNome: string;
   prioridade: PrioridadeOrdemPintura;
   prazo: string;

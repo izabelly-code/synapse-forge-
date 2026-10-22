@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import Login from "../components/auth/Login";
 import { getUserRole } from "../hooks/useAuth";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081";
+const API_URL = API_BASE_URL;
 
 /** Gerente recém-cadastrado ainda não tem equipe: sem ela, todas as telas vêm vazias. */
 async function gerenteSemEquipe(token: string): Promise<boolean> {

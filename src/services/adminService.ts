@@ -1,11 +1,12 @@
 
 import { User } from "../types";
+import { API_BASE_URL } from "../config/api";
 
 // =========================================================
 // CONFIGURAÇÃO
 // =========================================================
 
-const API_URL = "http://localhost:8081/admin";
+const API_URL = `${API_BASE_URL}/admin`;
 
 // =========================================================
 // HEADERS
