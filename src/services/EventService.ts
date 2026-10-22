@@ -1,5 +1,6 @@
 import Event from '../models/Event';
 import { EventData } from '../types';
+import { API_BASE_URL } from "../config/api";
 
 type BackendEventData = Partial<EventData> & {
   _id?: string | number;
@@ -60,7 +61,7 @@ class EventService {
     };
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch('http://localhost:8081/evento/registrar', {
+      const response = await fetch(`${API_BASE_URL}/evento/registrar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,7 +84,7 @@ class EventService {
   async buscarEventosPorUsuarioMes(userId: string, mes: string, ano: string): Promise<EventData[]> {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:8081/evento/buscar-mes/${userId}?mes=${mes}&ano=${ano}`,
+      const response = await fetch(`${API_BASE_URL}/evento/buscar-mes/${userId}?mes=${mes}&ano=${ano}`,
         {
           method: 'GET',
           headers: {
@@ -136,7 +137,7 @@ class EventService {
         payload.userId = userId;
       }
 
-      const response = await fetch(`http://localhost:8081/evento/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/evento/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -160,7 +161,7 @@ class EventService {
   async deletarEvento(id: string): Promise<boolean> {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8081/evento/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/evento/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

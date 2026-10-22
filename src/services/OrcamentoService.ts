@@ -1,7 +1,8 @@
 import { CalcularOrcamentoInput, Orcamento } from "../models/Orcamento";
 import { Pagina } from "../models/Pagina";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/orcamentos";
+const API_URL = `${API_BASE_URL}/orcamentos`;
 
 function getHeaders(): Record<string, string> {
     const token = localStorage.getItem("token");

@@ -1,7 +1,8 @@
 import { UnidadeMedida } from "../models/Material";
 import { PedidoStatus } from "../types";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081/estoque";
+const API_URL = `${API_BASE_URL}/estoque`;
 
 export type TipoInsumo = "MATERIAL" | "COR";
 

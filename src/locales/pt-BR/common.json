@@ -22,7 +22,9 @@
     "errorEmailNotConfirmed": "Confirme seu email antes de entrar. Verifique sua caixa de entrada.",
     "errorAccountLocked_one": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minuto ou redefina sua senha.",
     "errorAccountLocked_other": "Conta bloqueada temporariamente por excesso de tentativas. Tente novamente em {{count}} minutos ou redefina sua senha.",
-    "errorGeneric": "Não foi possível entrar. Verifique seus dados."
+    "errorGeneric": "Não foi possível entrar. Verifique seus dados.",
+    "errorAccountDisabled": "Esta conta foi desativada. Fale com o administrador.",
+    "errorTooManyAttempts": "Muitas tentativas seguidas. Aguarde um minuto e tente de novo."
   },
   "register": {
   "choice": {

@@ -22,7 +22,9 @@
     "errorEmailNotConfirmed": "Confirm your email before signing in. Check your inbox.",
     "errorAccountLocked_one": "Account temporarily locked due to too many attempts. Try again in {{count}} minute or reset your password.",
     "errorAccountLocked_other": "Account temporarily locked due to too many attempts. Try again in {{count}} minutes or reset your password.",
-    "errorGeneric": "Could not sign in. Check your credentials."
+    "errorGeneric": "Could not sign in. Check your credentials.",
+    "errorAccountDisabled": "This account has been deactivated. Contact the administrator.",
+    "errorTooManyAttempts": "Too many attempts in a row. Wait a minute and try again."
   },
   "register": {
   "choice": {

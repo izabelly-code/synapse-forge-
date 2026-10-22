@@ -28,8 +28,9 @@ import {
     buscarClientePorEmail as buscarClientePorEmailApi,
     type ClienteResumo,
 } from "../services/UserService";
+import { API_BASE_URL } from "../config/api";
 
-const API_URL = "http://localhost:8081";
+const API_URL = API_BASE_URL;
 
 interface Equipe {
     id: string;
