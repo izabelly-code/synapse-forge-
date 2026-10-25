@@ -306,7 +306,8 @@
     "logout": "Sair",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
-    "estoque": "Estoque"
+    "estoque": "Estoque",
+    "metricasPedidos": "Dashboard"
   },
   "admin": {
     "title": "Administração do sistema",
@@ -414,6 +415,31 @@
     }
   },
   "pedidos": {
+    "metricas": {
+      "title": "Dashboard de pedidos",
+      "subtitle": "Como os pedidos da equipe estão distribuídos pelas etapas e quais materiais mais aparecem neles.",
+      "kpiAria": "Resumo dos pedidos",
+      "kpiTotal": "Pedidos (sem cancelados)",
+      "kpiInProduction": "Em produção",
+      "kpiValue": "Valor total",
+      "kpiLate": "Atrasados",
+      "statusTitle": "Pedidos por etapa",
+      "statusSubtitle": "Quantidade, valor e atrasos em cada etapa do fluxo.",
+      "materialsTitle": "Materiais mais usados",
+      "materialsSubtitle": "Os {{count}} materiais que mais aparecem nos pedidos não cancelados.",
+      "ordersCount_zero": "Nenhum pedido",
+      "ordersCount_one": "{{count}} pedido",
+      "ordersCount_other": "{{count}} pedidos",
+      "lateCount_one": "{{count}} atrasado",
+      "lateCount_other": "{{count}} atrasados",
+      "deletedMaterial": "Material excluído",
+      "emptyStatusTitle": "Nenhum pedido ainda",
+      "emptyStatusSubtitle": "Os indicadores aparecem assim que a equipe cadastrar pedidos.",
+      "emptyMaterialsTitle": "Nenhum material em uso",
+      "emptyMaterialsSubtitle": "Vincule materiais aos pedidos para ver o ranking.",
+      "errorStatus": "Falha ao carregar os pedidos por etapa.",
+      "errorMaterials": "Falha ao carregar os materiais mais usados."
+    },
     "status": {
       "MODELAGEM": "Modelagem",
       "IMPRESSAO": "Impressão",
