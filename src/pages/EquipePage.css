@@ -1473,6 +1473,16 @@
         width: min(180px, 100%);
     }
 }
+
+/* Alvo de toque (SYN-181): editar/remover integrante tinham 35px. Com o dedo
+   sobem para o --control-h, que vale 44px no toque; com mouse nada muda. */
+@media (pointer: coarse) {
+    .equipe-icon-button {
+        width: var(--control-h);
+        height: var(--control-h);
+    }
+}
+
 /* =========================================================
    CONVITE ENVIADO: CONFIRMAÇÃO
    Momento raro (um convite por pessoa), então cabe um pequeno gesto:

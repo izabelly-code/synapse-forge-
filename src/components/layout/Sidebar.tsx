@@ -11,6 +11,7 @@ import { cn } from "../../utils/cn";
 import { avatarPalette } from "../../utils/avatarPalette";
 import { useDismissable } from "../../hooks/useDismissable";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { usePistaDeRolagem } from "../../hooks/usePistaDeRolagem";
 import { useNotificacoesUrgentes } from "../../hooks/useNotificacoesUrgentes";
 import { useNotificacoes } from "../../hooks/useNotificacoes";
 import { useAlertasDispensados } from "../../hooks/useAlertasDispensados";
@@ -196,6 +197,11 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
     const [langMenuAberto, setLangMenuAberto] = useState(false);
     const langMenuRef = useRef<HTMLDivElement>(null);
     const asideRef = useRef<HTMLElement>(null);
+    const navRef = useRef<HTMLElement>(null);
+
+    // Em tela deitada (tablet, notebook baixo) a navegação não cabe e a barra de
+    // rolagem overlay some: o fade na borda avisa que a lista continua.
+    usePistaDeRolagem(navRef);
 
     // Enquanto a gaveta está aberta ela é um diálogo: o Tab não deve passear pelo
     // conteúdo atrás do scrim. Fora do modo compacto a sidebar é navegação normal.
@@ -442,6 +448,7 @@ function Sidebar({ id, compacto, drawerAberto, onFecharDrawer }: SidebarProps) {
             </div>
 
             <nav
+                ref={navRef}
                 className="sidebar-nav"
                 aria-label={t(
                     "sidebar.navAria"
