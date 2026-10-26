@@ -56,7 +56,7 @@ automáticos por Git (`git.deploymentEnabled: false`) e quem publica é o workfl
 |---|---|---|---|
 | PR para `dev` ou `main` | Preview | URL única do deploy (no resumo do job) | API de homologação |
 | push na `dev` | Preview (variáveis da branch `dev`) | `synapse-forge-homolog.vercel.app` (alias) | API de homologação |
-| push na `main` | Production | domínio de produção do projeto (ex.: `synapse-forge.vercel.app`) | API de produção |
+| push na `main` | Production | `synapse-forge-one.vercel.app` | API de produção |
 
 O pipeline fica no job `deploy · vercel` do `ci.yml`, que só roda depois do `lint · typecheck · build`
 passar no mesmo commit:
@@ -72,6 +72,10 @@ passar no mesmo commit:
 Sem o segredo `VERCEL_TOKEN` (PR vindo de fork ou segredos ainda não cadastrados), o job mostra um
 aviso e termina verde, sem publicar.
 
+Atenção: enquanto o projeto não tem nenhum deploy de produção, a Vercel promove o primeiro deploy que
+chegar, mesmo sem `--prod`. No primeiro uso, publique a `main` antes da `dev` (ou rode de novo o
+workflow da `main` depois), senão o domínio de produção fica com o build da homologação.
+
 ### Variáveis na Vercel
 
 `VITE_API_URL` entra no build (o Vite embute o valor no JavaScript), então vem das variáveis do
@@ -79,9 +83,10 @@ projeto na Vercel, baixadas pelo `vercel pull`. Em *Project → Settings → Env
 
 | Variável | Production | Preview |
 |---|---|---|
-| `VITE_API_URL` | `https://synapse-forge-api.onrender.com` (API de produção) | `https://synapse-forge-api-homolog.onrender.com` (API de homologação) |
+| `VITE_API_URL` | `https://synapse-forge-api-1dfp.onrender.com` (API de produção) | `https://synapse-forge-api-homolog.onrender.com` (API de homologação) |
 
-Os endereços exatos são os que o Render mostrar para cada serviço. Mudou a variável, é preciso um
+Os endereços exatos são os que o Render mostrar para cada serviço (o de produção ganhou o sufixo `-1dfp`
+porque `synapse-forge-api` já existia). Mudou a variável, é preciso um
 novo deploy para valer (re-executar o workflow ou um novo push).
 
 ### Segredos do GitHub (a dona do repo cadastra uma vez)
@@ -115,7 +120,7 @@ endereço da homologação; o padrão é `synapse-forge-homolog.vercel.app`.
    navegador bloqueia as chamadas:
    - homologação: `https://synapse-forge-homolog.vercel.app` e os previews
      (`https://synapse-forge-*.vercel.app`);
-   - produção: só o domínio de produção (ex.: `https://synapse-forge.vercel.app`).
+   - produção: só o domínio de produção (`https://synapse-forge-one.vercel.app`).
 
    O `CorsConfig` do back usa `setAllowedOriginPatterns`, então o `*` no meio do domínio funciona.
    O `APP_URL` de cada API (links dos e-mails) aponta para o front do mesmo ambiente.
