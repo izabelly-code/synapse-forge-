@@ -1,5 +1,14 @@
-# CI do front-end (SYN-85). Roda em todo PR e em todo push para dev e main.
+# CI/CD do front-end. CI (SYN-85) em todo PR e em todo push para dev e main; CD na Vercel
+# (SYN-88) só depois que a CI passa no mesmo commit.
 # O gate é o PR: lint, typecheck e build precisam passar antes do merge.
+#
+#   PR para dev/main  → deploy de preview (URL no resumo do job)
+#   push na dev       → preview com as variáveis de Preview + alias fixo = homologação
+#   push na main      → deploy de produção
+#
+# Segredos do repositório: VERCEL_TOKEN, VERCEL_ORG_ID e VERCEL_PROJECT_ID (ver README, "Deploy").
+# Sem o VERCEL_TOKEN (PR de fork ou segredos ainda não cadastrados) o deploy é pulado com aviso,
+# e o pipeline continua verde.
 name: CI
 
 on:
@@ -10,6 +19,9 @@ on:
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   verify:
@@ -31,3 +43,141 @@ jobs:
       - run: npm run typecheck
 
       - run: npm run build
+
+  deploy:
+    name: deploy · vercel
+    needs: verify
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && (github.base_ref == 'dev' || github.base_ref == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      # Versão fixa da CLI: atualizar de propósito, não a cada release da Vercel
+      VERCEL_CLI_VERSION: 63.1.2
+      VERCEL_TELEMETRY_DISABLED: 1
+      # Endereço fixo da homologação (variável do repositório, opcional)
+      HOMOLOG_ALIAS: ${{ vars.VERCEL_HOMOLOG_ALIAS || 'synapse-forge-homolog.vercel.app' }}
+    steps:
+      - name: Conferir segredos da Vercel
+        id: segredos
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            msg="VERCEL_TOKEN não configurado (PR de fork ou segredos ainda não cadastrados): deploy pulado."
+            echo "::notice title=Deploy na Vercel pulado::$msg"
+            {
+              echo "### Deploy na Vercel pulado"
+              echo ""
+              echo "$msg Ver a seção Deploy do README."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "ativo=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error title=Segredos incompletos::VERCEL_TOKEN existe, mas faltam VERCEL_ORG_ID e/ou VERCEL_PROJECT_ID."
+            exit 1
+          fi
+          echo "ativo=true" >> "$GITHUB_OUTPUT"
+
+      - name: Definir ambiente
+        if: steps.segredos.outputs.ativo == 'true'
+        id: alvo
+        env:
+          PR_NUMERO: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_NAME" = "main" ]; then
+            ambiente=production; nome="produção"; branch=main
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_NAME" = "dev" ]; then
+            ambiente=preview; nome="homologação"; branch=dev
+          else
+            ambiente=preview; nome="preview do PR #$PR_NUMERO"; branch="$GITHUB_HEAD_REF"
+          fi
+          {
+            echo "ambiente=$ambiente"
+            echo "nome=$nome"
+            echo "branch=$branch"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        if: steps.segredos.outputs.ativo == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.segredos.outputs.ativo == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar a CLI da Vercel
+        if: steps.segredos.outputs.ativo == 'true'
+        run: npm install --global "vercel@$VERCEL_CLI_VERSION"
+
+      # Baixa as configurações do projeto e as variáveis do ambiente (VITE_API_URL entra aqui:
+      # Production = API de produção, Preview = API de homologação)
+      - name: Baixar variáveis do ambiente (${{ steps.alvo.outputs.nome }})
+        if: steps.segredos.outputs.ativo == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          AMBIENTE: ${{ steps.alvo.outputs.ambiente }}
+          BRANCH: ${{ steps.alvo.outputs.branch }}
+        run: |
+          if [ "$AMBIENTE" = "preview" ]; then
+            vercel pull --yes --environment=preview --git-branch="$BRANCH" --token="$VERCEL_TOKEN"
+          else
+            vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Build
+        if: steps.segredos.outputs.ativo == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          AMBIENTE: ${{ steps.alvo.outputs.ambiente }}
+        run: |
+          if [ "$AMBIENTE" = "production" ]; then
+            vercel build --prod --token="$VERCEL_TOKEN"
+          else
+            vercel build --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Deploy
+        if: steps.segredos.outputs.ativo == 'true'
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          AMBIENTE: ${{ steps.alvo.outputs.ambiente }}
+        run: |
+          # stdout da CLI é sempre a URL do deploy
+          if [ "$AMBIENTE" = "production" ]; then
+            url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          else
+            url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Apontar o endereço da homologação
+        if: steps.segredos.outputs.ativo == 'true' && github.event_name == 'push' && github.ref_name == 'dev'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: vercel alias set "$URL" "$HOMOLOG_ALIAS" --token="$VERCEL_TOKEN"
+
+      - name: Resumo
+        if: steps.segredos.outputs.ativo == 'true'
+        env:
+          NOME: ${{ steps.alvo.outputs.nome }}
+          URL: ${{ steps.deploy.outputs.url }}
+          EH_HOMOLOG: ${{ github.event_name == 'push' && github.ref_name == 'dev' }}
+        run: |
+          {
+            echo "### Deploy na Vercel: $NOME"
+            echo ""
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Deploy: $URL"
+            if [ "$EH_HOMOLOG" = "true" ]; then
+              echo "- Homologação: https://$HOMOLOG_ALIAS"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=Deploy ($NOME)::$URL"
