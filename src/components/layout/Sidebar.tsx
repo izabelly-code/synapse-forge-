@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, PackageIcon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon, UserGroupIcon } from "hugeicons-react";
+import { Calendar03Icon, DashboardSquare01Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, PackageIcon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon, UserGroupIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getMyUser } from "../../services/UserService";
 import { getUserRole } from "../../hooks/useAuth";
@@ -39,6 +39,17 @@ interface NavGroup {
  * Agrupamento é só visual: todos os itens ficam sempre visíveis, sem expandir/colapsar.
  */
 const NAV_GROUPS: NavGroup[] = [
+    {
+        id: "visao-geral",
+        labelKey: "sidebar.areaVisaoGeral",
+        items: [
+            {
+                labelKey: "sidebar.painel",
+                path: "/painel",
+                icon: <DashboardSquare01Icon size={18} />,
+            },
+        ],
+    },
     {
         id: "pedidos",
         labelKey: "sidebar.areaPedidos",
