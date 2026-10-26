@@ -24,3 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 *~
+
+# Vercel CLI (vercel link/pull/build): configurações e variáveis baixadas, nunca versionar
+.vercel
