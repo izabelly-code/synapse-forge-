@@ -5,6 +5,7 @@ import MobileHeader from "./MobileHeader";
 import AvisoSemPermissao from "./AvisoSemPermissao";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useSincronizarPreferencias } from "../../hooks/useSincronizarPreferencias";
 
 /** Espelha o colapso do shell no CSS (`@media (max-width: 1024px)`, passo canônico lg). */
 const SHELL_COMPACTO = "(max-width: 1024px)";
@@ -21,6 +22,7 @@ function BodyScrollLock() {
 
 function DashboardLayout() {
     const location = useLocation();
+    useSincronizarPreferencias();
     const [compacto, setCompacto] = useState(() => window.matchMedia(SHELL_COMPACTO).matches);
     const [drawerAberto, setDrawerAberto] = useState(false);
 
