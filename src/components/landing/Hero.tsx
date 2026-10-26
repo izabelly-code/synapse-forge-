@@ -8,6 +8,7 @@ import "./Hero.css";
 import { FaReact, FaJava } from "react-icons/fa";
 import { SiTypescript, SiVite, SiTailwindcss, SiMongodb, SiSpringboot } from "react-icons/si";
 import Footer from "./Footer";
+import { isAuthenticated, rotaInicial } from "../../hooks/useAuth";
 
 const navItems = [
   { href: "#recursos", label: "Recursos" },
@@ -215,6 +216,9 @@ function CalendarIcon() {
 }
 
 function Hero() {
+  // Quem já entrou volta para o app pelo mesmo botão, em vez de cair no login de novo
+  const logado = isAuthenticated();
+
   return (
     <main className="sf-hero-page">
       <div className="sf-hero-shell">
@@ -231,8 +235,8 @@ function Hero() {
             ))}
           </nav>
 
-          <a className="sf-hero-contact" href="/login">
-            Entrar
+          <a className="sf-hero-contact" href={logado ? rotaInicial() : "/login"}>
+            {logado ? "Ir para o app" : "Entrar"}
           </a>
         </header>
 

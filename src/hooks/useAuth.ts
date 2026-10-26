@@ -79,3 +79,8 @@ export function clearSession(): void {
     localStorage.removeItem("userNome");
     localStorage.removeItem("userEmail");
 }
+
+/** Primeira tela do app por perfil: quem trabalha na loja cai no painel gerencial; o cliente, nos pedidos dele. */
+export function rotaInicial(): string {
+    return getUserRole() === "CLIENTE" ? "/dashboard" : "/painel";
+}

@@ -1,0 +1,741 @@
+/* ===== PAINEL GERENCIAL (SYN-167) =====
+   Cor de dados: uma série só por gráfico, sempre --chart-1 (azul validado para
+   os dois temas: faixa de luminosidade, croma e contraste ≥ 3:1 sobre a
+   superfície). O laranja da marca fica fora dos dados (accent com moderação). */
+
+:root {
+  --chart-1: #2a78d6;
+}
+
+.dark {
+  --chart-1: #3987e5;
+}
+
+/* ----- filtros ----- */
+
+.painel-filtros {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.painel-filtros-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.painel-filtro-rotulo {
+  color: var(--on-surface-variant);
+}
+
+.painel-periodo-menu {
+  left: 0;
+  right: auto;
+  min-width: 20rem;
+  max-height: none;
+}
+
+.painel-periodo-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1-5);
+  padding: var(--space-2-5) var(--space-1) var(--space-1);
+  border-top: 1px solid var(--outline-variant);
+}
+
+.painel-periodo-form-titulo {
+  padding: 0 var(--space-1-5);
+  font: var(--type-label);
+  color: var(--on-surface-variant);
+}
+
+.painel-periodo-campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.painel-periodo-campos label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+}
+
+.painel-periodo-campos input {
+  min-width: 0;
+  height: var(--control-h);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--on-surface);
+  font: var(--type-body);
+  color-scheme: light;
+  outline: none;
+  transition: border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.dark .painel-periodo-campos input {
+  color-scheme: dark;
+}
+
+.painel-periodo-campos input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.painel-periodo-erro {
+  margin: 0;
+  padding: 0 var(--space-1);
+  font: var(--type-caption);
+  color: var(--error-color);
+}
+
+.painel-periodo-aplicar {
+  flex: none;
+  width: 100%;
+}
+
+.painel-botao {
+  flex: none;
+  width: auto;
+  padding: 0 var(--space-4);
+}
+
+.painel-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 2rem;
+  padding: 0 var(--space-2-5);
+  border: none;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--on-surface-variant);
+  font: var(--type-label);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.painel-acao:hover {
+  background: var(--state-hover);
+  color: var(--on-surface);
+}
+
+.painel-aviso {
+  font: var(--type-caption);
+  color: var(--success-color);
+}
+
+.painel-aviso.is-erro {
+  color: var(--error-color);
+}
+
+.painel-ajuda {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font: var(--type-body);
+  color: var(--on-surface-variant);
+}
+
+/* ----- grade de widgets ----- */
+
+/* Contêiner de consulta num invólucro só da grade: container-type no
+   .dashboard-content prenderia os modais fixed (ver .pedidos-list). */
+.painel-grid-wrap {
+  container: sf-painel / inline-size;
+}
+
+.painel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@container sf-painel (max-width: 760px) {
+  .painel-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.painel-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.painel-card--largo {
+  grid-column: 1 / -1;
+}
+
+/* Indicadores: os cartões de número já são a moldura, como nas outras telas.
+   O cabeçalho continua no DOM para o leitor de tela e volta no modo personalizar. */
+.painel-card--sem-moldura:not(.is-editando) {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.painel-card--sem-moldura:not(.is-editando) > .painel-card-head {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.painel-card.is-editando {
+  border-color: var(--color-border-strong);
+}
+
+.painel-card.is-oculto {
+  background: var(--surface-container-low);
+  box-shadow: none;
+}
+
+.painel-card.is-oculto .painel-card-titulos {
+  opacity: 0.6;
+}
+
+.painel-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.painel-card-titulos {
+  min-width: 0;
+}
+
+.painel-card-titulos h2 {
+  margin: 0 0 var(--space-05);
+  font: var(--type-medium-title);
+  color: var(--on-surface);
+}
+
+.painel-card-titulos p {
+  margin: 0;
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+}
+
+.painel-card-controles {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-1);
+}
+
+.painel-controle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button);
+  background: var(--surface);
+  color: var(--on-surface);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.painel-controle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text) 6%, var(--surface));
+}
+
+.painel-controle:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.painel-controle.is-desligado {
+  color: var(--on-surface-variant);
+}
+
+@media (pointer: coarse) {
+  .painel-controle {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+.painel-oculto {
+  margin: 0;
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+}
+
+.painel-page :is(.painel-controle, .painel-acao, .painel-link, .grafico-alvo):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Troca de período: os dados antigos ficam na tela, esmaecidos, até chegar o novo
+   recorte (sem skeleton, sem pulo de layout). */
+.painel-conteudo {
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.painel-conteudo.is-atualizando {
+  opacity: 0.55;
+}
+
+/* ----- indicadores ----- */
+
+.painel-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+@container sf-painel (max-width: 760px) {
+  .painel-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+}
+
+.painel-kpi-corpo dt,
+.painel-kpi-corpo dd {
+  margin: 0;
+}
+
+/* valor em cima do rótulo; no DOM o <dt> vem antes, como o <dl> exige */
+.painel-kpi-corpo dd {
+  order: -1;
+}
+
+/* número grande: algarismos proporcionais (tabular deixa "121" frouxo) */
+.painel-kpi-valor {
+  font-variant-numeric: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.painel-kpi.is-alerta .stat-icon {
+  background: var(--warning-container);
+  color: var(--warning-color);
+}
+
+/* ----- pedidos por mês ----- */
+
+.painel-mensal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.painel-segmento {
+  align-self: flex-start;
+}
+
+.painel-segmento .view-btn {
+  width: auto;
+  padding: 0 var(--space-3);
+  font: var(--type-label);
+}
+
+/* seleção com destaque neutro, não com o laranja da marca */
+.painel-segmento .view-btn.is-active {
+  color: var(--on-surface);
+}
+
+.grafico-colunas {
+  position: relative;
+  width: 100%;
+  min-height: 256px;
+}
+
+.grafico-colunas svg {
+  display: block;
+  overflow: visible;
+}
+
+.grafico-grade {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.grafico-base {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.grafico-tick,
+.grafico-eixo-x {
+  fill: var(--on-surface-variant);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.grafico-eixo-ano {
+  fill: var(--color-text-subtle);
+}
+
+.grafico-coluna {
+  fill: var(--chart-1);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.grafico-coluna.is-ativa {
+  opacity: 0.78;
+}
+
+.grafico-rotulo {
+  fill: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.grafico-alvo {
+  fill: transparent;
+  outline: none;
+}
+
+.grafico-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-05);
+  min-width: 9rem;
+  padding: var(--space-2) var(--space-2-5);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+
+.grafico-tooltip strong {
+  font: var(--weight-semibold) var(--text-lg) / var(--leading-tight) 'Inter', sans-serif;
+  color: var(--on-surface);
+}
+
+.grafico-tooltip-titulo {
+  font: var(--type-label);
+  color: var(--on-surface-variant);
+}
+
+.grafico-tooltip-titulo::first-letter {
+  text-transform: uppercase;
+}
+
+.grafico-tooltip-detalhe {
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+}
+
+.painel-tabela-wrap {
+  overflow-x: auto;
+}
+
+.painel-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-body);
+  color: var(--on-surface);
+}
+
+.painel-tabela th,
+.painel-tabela td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--outline-variant);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.painel-tabela thead th {
+  font: var(--type-label);
+  color: var(--on-surface-variant);
+}
+
+.painel-tabela th:first-child {
+  text-align: left;
+  font-weight: var(--weight-medium);
+}
+
+.painel-tabela tbody th::first-letter {
+  text-transform: uppercase;
+}
+
+/* ----- barras horizontais (etapas e materiais) ----- */
+
+.painel-barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.painel-barra-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1-5);
+}
+
+.painel-barra-nome {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font: var(--weight-medium) var(--text-base) / 1.25rem 'Inter', sans-serif;
+  color: var(--on-surface);
+}
+
+.painel-barra-valor {
+  font: var(--weight-semibold) var(--text-base) / 1.25rem 'Inter', sans-serif;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.painel-barra-trilho {
+  height: 0.625rem;
+  overflow: hidden;
+  border-radius: 0 var(--radius-2xs) var(--radius-2xs) 0;
+  background: var(--surface-container);
+}
+
+/* ponta da barra arredondada (4px), base reta na linha de partida */
+.painel-barra-preenchimento {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 0 var(--radius-2xs) var(--radius-2xs) 0;
+  background: var(--chart-1);
+}
+
+.painel-barra.is-secundaria .painel-barra-preenchimento {
+  background: var(--color-text-subtle);
+}
+
+.painel-barra.is-secundaria .painel-barra-nome {
+  color: var(--on-surface-variant);
+}
+
+.painel-barra-detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-1);
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.painel-atrasados {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--weight-medium);
+  color: var(--warning-color);
+}
+
+.painel-posicao {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--surface-container);
+  font: var(--type-label);
+  color: var(--on-surface-variant);
+}
+
+.painel-sem-nome {
+  font-style: italic;
+  color: var(--on-surface-variant);
+}
+
+/* ----- estoque abaixo do mínimo ----- */
+
+.painel-estoque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.painel-estoque-topo,
+.painel-estoque-detalhe {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.painel-estoque-topo {
+  align-items: baseline;
+  margin-bottom: var(--space-1-5);
+}
+
+.painel-estoque-nome {
+  min-width: 0;
+  font: var(--weight-medium) var(--text-base) / 1.25rem 'Inter', sans-serif;
+  color: var(--on-surface);
+}
+
+.painel-estoque-tipo {
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+/* medidor: o trilho é um passo mais claro da mesma cor do preenchimento */
+.painel-estoque-trilho {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-2xs);
+  background: var(--warning-container);
+}
+
+.painel-estoque-preenchimento {
+  display: block;
+  height: 100%;
+  border-radius: 0 var(--radius-2xs) var(--radius-2xs) 0;
+  background: var(--warning-color);
+}
+
+.painel-estoque-detalhe {
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.painel-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--on-surface);
+  font: var(--weight-medium) var(--text-md) / 1.25rem 'Inter', sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.painel-estoque-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-4);
+  font: var(--type-caption);
+  color: var(--on-surface-variant);
+}
+
+/* ----- estados ----- */
+
+.painel-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--on-surface-variant);
+}
+
+.painel-estado p {
+  margin: 0;
+}
+
+.painel-estado-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--space-1);
+  border-radius: 50%;
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+}
+
+.painel-estado-titulo {
+  margin: 0;
+  font: var(--weight-medium) var(--text-base) / 1.25rem 'Inter', sans-serif;
+  color: var(--on-surface);
+}
+
+.painel-estado-texto {
+  font: var(--type-caption);
+}
+
+.painel-estado--erro {
+  color: var(--error-color);
+}
+
+.painel-estado--erro p {
+  color: var(--on-surface);
+}
+
+.painel-vazio-geral {
+  align-items: center;
+  text-align: center;
+}
+
+.painel-skeleton-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.painel-skeleton {
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-container);
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite;
+}
+
+.painel-skeleton--grafico {
+  height: 256px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painel-skeleton {
+    animation: none;
+  }
+
+  .painel-conteudo,
+  .grafico-coluna {
+    transition: none;
+  }
+}
