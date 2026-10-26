@@ -261,6 +261,21 @@
   filter: brightness(0.97);
 }
 
+/* Data ocupa a linha inteira; os dois horarios dividem a de baixo (SYN-181).
+   Em tres colunas de ~139px o campo de data cortava o ano ("26/10/202") sempre
+   que a fonte dos campos sobe para 16px: no toque (qualquer largura) e em
+   janela estreita, pela regra anti-zoom do iOS do index.css. Com mouse em
+   janela larga a fonte fica em 15px, o ano cabe e as tres colunas ficam. */
+@media (max-width: 768px), (pointer: coarse) {
+  .field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-row > .form-group:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .evento-modal-content {
@@ -301,14 +316,8 @@
     font-size: var(--text-xl);
   }
 
-  /* data ocupa a linha inteira; os dois horarios dividem a de baixo */
   .field-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
-  }
-
-  .field-row > .form-group:first-child {
-    grid-column: 1 / -1;
   }
 }
 
