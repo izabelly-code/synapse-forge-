@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar03Icon, Cancel01Icon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, PackageIcon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon, UserGroupIcon } from "hugeicons-react";
+import { Calendar03Icon, Cancel01Icon, ChartHistogramIcon, ClipboardIcon, DollarCircleIcon, DropletIcon, Globe02Icon, Logout03Icon, Moon02Icon, PackageIcon, ShoppingBag01Icon, SlidersHorizontalIcon, Sun03Icon, Tick02Icon, UserIcon, WarehouseIcon, UserGroupIcon } from "hugeicons-react";
 import { useTranslation } from "react-i18next";
 import { getMyUser } from "../../services/UserService";
 import { getUserRole } from "../../hooks/useAuth";
@@ -47,6 +47,11 @@ const NAV_GROUPS: NavGroup[] = [
                 labelKey: "sidebar.pedidosClientes",
                 path: "/dashboard",
                 icon: <ShoppingBag01Icon size={18} />,
+            },
+            {
+                labelKey: "sidebar.metricasPedidos",
+                path: "/metricas-pedidos",
+                icon: <ChartHistogramIcon size={18} />,
             },
             {
                 labelKey: "sidebar.ordensPintura",

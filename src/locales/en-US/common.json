@@ -306,7 +306,8 @@
     "logout": "Sign out",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "estoque": "Stock"
+    "estoque": "Stock",
+    "metricasPedidos": "Dashboard"
   },
 
   "admin": {
@@ -413,6 +414,31 @@
   },
 
   "pedidos": {
+    "metricas": {
+      "title": "Orders dashboard",
+      "subtitle": "How the team's orders are spread across stages and which materials show up most.",
+      "kpiAria": "Orders summary",
+      "kpiTotal": "Orders (excl. cancelled)",
+      "kpiInProduction": "In production",
+      "kpiValue": "Total value",
+      "kpiLate": "Overdue",
+      "statusTitle": "Orders by stage",
+      "statusSubtitle": "Count, value and overdue orders at each stage.",
+      "materialsTitle": "Most used materials",
+      "materialsSubtitle": "The {{count}} materials that appear most in non-cancelled orders.",
+      "ordersCount_zero": "No orders",
+      "ordersCount_one": "{{count}} order",
+      "ordersCount_other": "{{count}} orders",
+      "lateCount_one": "{{count}} overdue",
+      "lateCount_other": "{{count}} overdue",
+      "deletedMaterial": "Deleted material",
+      "emptyStatusTitle": "No orders yet",
+      "emptyStatusSubtitle": "Indicators show up once the team creates orders.",
+      "emptyMaterialsTitle": "No materials in use",
+      "emptyMaterialsSubtitle": "Link materials to orders to see the ranking.",
+      "errorStatus": "Failed to load orders by stage.",
+      "errorMaterials": "Failed to load the most used materials."
+    },
     "status": {
       "MODELAGEM": "Modeling",
       "IMPRESSAO": "Printing",
