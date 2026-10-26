@@ -273,6 +273,8 @@
     }
 },
   "sidebar": {
+    "areaVisaoGeral": "Overview",
+    "painel": "Management dashboard",
     "navAria": "Main navigation",
     "areaPedidos": "Orders",
     "areaOrcamentos": "Budgets",
@@ -1224,5 +1226,107 @@
   },
   "avisos": {
     "semPermissao": "You don't have permission for this action."
+  },
+  "painel": {
+    "title": "Management dashboard",
+    "subtitle": "Your shop's orders, amounts and stock for the selected period.",
+    "periodo": {
+      "label": "Period",
+      "atalhos": "Period shortcuts",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "6m": "Last 6 months",
+      "12m": "Last 12 months",
+      "ano": "This year",
+      "tudo": "All time",
+      "personalizado": "Custom range",
+      "de": "From",
+      "ate": "To",
+      "aplicar": "Apply",
+      "obrigatorio": "Choose both dates.",
+      "invalido": "The start date must be on or before the end date."
+    },
+    "personalizar": {
+      "botao": "Customize",
+      "ajuda": "Reorder the blocks and choose which ones appear. The layout is saved to your account.",
+      "salvar": "Save layout",
+      "salvando": "Saving...",
+      "cancelar": "Cancel",
+      "restaurar": "Restore default",
+      "salvo": "Layout saved.",
+      "erroSalvar": "Couldn't save the layout. Try again.",
+      "subir": "Move \"{{nome}}\" up",
+      "descer": "Move \"{{nome}}\" down",
+      "ocultar": "Hide \"{{nome}}\"",
+      "mostrar": "Show \"{{nome}}\"",
+      "oculto": "Hidden. Use the eye button to show it again.",
+      "nenhumVisivel": "All blocks are hidden."
+    },
+    "kpis": {
+      "total": "Orders in period",
+      "valor": "Order amount",
+      "producao": "In production",
+      "atrasados": "Overdue"
+    },
+    "widgets": {
+      "indicadores": {
+        "titulo": "Key figures",
+        "subtitulo": "Summary of the orders created in the period, excluding cancelled ones."
+      },
+      "pedidosPorMes": {
+        "titulo": "Orders per month",
+        "subtitulo": "Orders created in each month of the period, excluding cancelled ones.",
+        "metricaAria": "What the chart shows",
+        "metrica_quantidade": "Orders",
+        "metrica_valor": "Amount",
+        "graficoAria_quantidade": "Column chart: number of orders per month",
+        "graficoAria_valor": "Column chart: order amount per month"
+      },
+      "pedidosPorEtapa": {
+        "titulo": "Orders by stage",
+        "subtitulo": "Which stage the orders created in the period are in."
+      },
+      "materiaisMaisUsados": {
+        "titulo": "Most used materials",
+        "subtitulo_one": "The material with the most orders in the period, excluding cancelled ones.",
+        "subtitulo_other": "The {{count}} materials with the most orders in the period, excluding cancelled ones."
+      },
+      "estoqueBaixo": {
+        "titulo": "Stock below minimum",
+        "subtitulo": "Current status; not affected by the period.",
+        "vazio": "No supplies below the minimum.",
+        "abaixo": "Below minimum",
+        "saldoDe": "{{saldo}} of {{minimo}}",
+        "tipoMaterial": "Material",
+        "tipoCor": "Paint",
+        "verEstoque": "View stock",
+        "maisItens_one": "{{count}} more item below minimum.",
+        "maisItens_other": "{{count}} more items below minimum."
+      }
+    },
+    "tabela": {
+      "ver": "View table",
+      "verGrafico": "View chart",
+      "mes": "Month",
+      "pedidos": "Orders",
+      "cancelados": "Cancelled",
+      "valor": "Amount"
+    },
+    "pedidosCount_zero": "no orders",
+    "pedidosCount_one": "{{count}} order",
+    "pedidosCount_other": "{{count}} orders",
+    "canceladosCount_zero": "none cancelled",
+    "canceladosCount_one": "{{count}} cancelled",
+    "canceladosCount_other": "{{count}} cancelled",
+    "atrasadosCount_one": "{{count}} overdue",
+    "atrasadosCount_other": "{{count}} overdue",
+    "materialExcluido": "Deleted material",
+    "erro": "Couldn't load this data.",
+    "tentarDeNovo": "Try again",
+    "vazio": {
+      "pedidos": "No orders in this period.",
+      "pedidosTexto": "Pick another period or create an order.",
+      "materiais": "No materials used in this period."
+    }
   }
 }

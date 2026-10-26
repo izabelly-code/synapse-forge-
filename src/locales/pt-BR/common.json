@@ -273,6 +273,8 @@
     }
 },
   "sidebar": {
+    "areaVisaoGeral": "Visão geral",
+    "painel": "Painel gerencial",
     "navAria": "Navegação principal",
     "areaPedidos": "Pedidos",
     "areaOrcamentos": "Orçamentos",
@@ -1223,5 +1225,107 @@
   },
   "avisos": {
     "semPermissao": "Você não tem permissão para esta ação."
+  },
+  "painel": {
+    "title": "Painel gerencial",
+    "subtitle": "Pedidos, valores e estoque da sua loja no período escolhido.",
+    "periodo": {
+      "label": "Período",
+      "atalhos": "Atalhos de período",
+      "30d": "Últimos 30 dias",
+      "90d": "Últimos 90 dias",
+      "6m": "Últimos 6 meses",
+      "12m": "Últimos 12 meses",
+      "ano": "Este ano",
+      "tudo": "Todo o período",
+      "personalizado": "Intervalo personalizado",
+      "de": "De",
+      "ate": "Até",
+      "aplicar": "Aplicar",
+      "obrigatorio": "Escolha as duas datas.",
+      "invalido": "A data inicial precisa ser anterior ou igual à final."
+    },
+    "personalizar": {
+      "botao": "Personalizar",
+      "ajuda": "Mude a ordem dos blocos e escolha quais aparecem. O layout fica salvo na sua conta.",
+      "salvar": "Salvar layout",
+      "salvando": "Salvando...",
+      "cancelar": "Cancelar",
+      "restaurar": "Restaurar padrão",
+      "salvo": "Layout salvo.",
+      "erroSalvar": "Não foi possível salvar o layout. Tente de novo.",
+      "subir": "Mover \"{{nome}}\" para cima",
+      "descer": "Mover \"{{nome}}\" para baixo",
+      "ocultar": "Ocultar \"{{nome}}\"",
+      "mostrar": "Mostrar \"{{nome}}\"",
+      "oculto": "Oculto. Use o botão do olho para mostrar de novo.",
+      "nenhumVisivel": "Todos os blocos estão ocultos."
+    },
+    "kpis": {
+      "total": "Pedidos no período",
+      "valor": "Valor dos pedidos",
+      "producao": "Em produção",
+      "atrasados": "Atrasados"
+    },
+    "widgets": {
+      "indicadores": {
+        "titulo": "Indicadores",
+        "subtitulo": "Resumo dos pedidos criados no período, sem os cancelados."
+      },
+      "pedidosPorMes": {
+        "titulo": "Pedidos por mês",
+        "subtitulo": "Pedidos criados em cada mês do período, sem os cancelados.",
+        "metricaAria": "O que o gráfico mostra",
+        "metrica_quantidade": "Pedidos",
+        "metrica_valor": "Valor",
+        "graficoAria_quantidade": "Gráfico de colunas: quantidade de pedidos por mês",
+        "graficoAria_valor": "Gráfico de colunas: valor dos pedidos por mês"
+      },
+      "pedidosPorEtapa": {
+        "titulo": "Pedidos por etapa",
+        "subtitulo": "Em que etapa estão os pedidos criados no período."
+      },
+      "materiaisMaisUsados": {
+        "titulo": "Materiais mais usados",
+        "subtitulo_one": "O material com mais pedidos no período, sem os cancelados.",
+        "subtitulo_other": "Os {{count}} materiais com mais pedidos no período, sem os cancelados."
+      },
+      "estoqueBaixo": {
+        "titulo": "Estoque abaixo do mínimo",
+        "subtitulo": "Situação de agora; não depende do período.",
+        "vazio": "Nenhum insumo abaixo do mínimo.",
+        "abaixo": "Abaixo do mínimo",
+        "saldoDe": "{{saldo}} de {{minimo}}",
+        "tipoMaterial": "Material",
+        "tipoCor": "Tinta",
+        "verEstoque": "Ver estoque",
+        "maisItens_one": "Mais {{count}} item abaixo do mínimo.",
+        "maisItens_other": "Mais {{count}} itens abaixo do mínimo."
+      }
+    },
+    "tabela": {
+      "ver": "Ver tabela",
+      "verGrafico": "Ver gráfico",
+      "mes": "Mês",
+      "pedidos": "Pedidos",
+      "cancelados": "Cancelados",
+      "valor": "Valor"
+    },
+    "pedidosCount_zero": "nenhum pedido",
+    "pedidosCount_one": "{{count}} pedido",
+    "pedidosCount_other": "{{count}} pedidos",
+    "canceladosCount_zero": "nenhum cancelado",
+    "canceladosCount_one": "{{count}} cancelado",
+    "canceladosCount_other": "{{count}} cancelados",
+    "atrasadosCount_one": "{{count}} atrasado",
+    "atrasadosCount_other": "{{count}} atrasados",
+    "materialExcluido": "Material excluído",
+    "erro": "Não foi possível carregar estes dados.",
+    "tentarDeNovo": "Tentar de novo",
+    "vazio": {
+      "pedidos": "Nenhum pedido no período.",
+      "pedidosTexto": "Escolha outro período ou crie um pedido.",
+      "materiais": "Nenhum material usado no período."
+    }
   }
 }
