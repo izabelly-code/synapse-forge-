@@ -22,7 +22,6 @@ import SessionExpiredPage from "./pages/SessionExpiredPage";
 import EquipePage from "./pages/EquipePage";
 import ConviteEquipePage from "./pages/ConviteEquipePage";
 import AdminPage from "./pages/AdminPage";
-import PedidosMetricasPage from "./pages/PedidosMetricasPage";
 import PainelPage from "./pages/PainelPage";
 
 function App() {
@@ -96,11 +95,6 @@ function App() {
                                 />
                             }
                         >
-                            <Route
-                                path="/metricas-pedidos"
-                                element={<PedidosMetricasPage />}
-                            />
-
                             <Route
                                 path="/painel"
                                 element={<PainelPage />}
