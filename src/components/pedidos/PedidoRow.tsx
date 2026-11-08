@@ -184,8 +184,8 @@ function PedidoRow({ pedido, onAvancar, onRegredir, onDeletar, onAbrir, onEditar
 
             <div className="cell cell-cliente">
                 <span className="cell-label">{t("pedidos.dashboard.headClient")}</span>
-                <span className={cn("row-avatar", avatarPalette(pedido.cliente))} aria-hidden="true">{pedido.cliente.charAt(0).toUpperCase()}</span>
-                <span className="row-cliente-nome">{pedido.cliente}</span>
+                <span className={cn("row-avatar", avatarPalette(pedido.cliente))} aria-hidden="true">{pedido.cliente ? pedido.cliente.charAt(0).toUpperCase() : "?"}</span>
+                <span className="row-cliente-nome">{pedido.cliente || t("pedidos.form.noClientLinked")}</span>
             </div>
 
             <div className="cell cell-projeto">

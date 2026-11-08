@@ -3,7 +3,9 @@
  * determinístico (a mesma pessoa vê sempre a mesma cor), variado entre pessoas.
  * As paletas vivem em .avatar-grad-0..5 no index.css.
  */
-export function avatarPalette(seed: string): string {
+export function avatarPalette(seed: string | null | undefined): string {
+    // Pedido sem cliente vinculado chega com cliente null: cai na primeira paleta.
+    seed ??= "";
     let h = 0;
     for (let i = 0; i < seed.length; i++) {
         h = (h * 31 + seed.charCodeAt(i)) >>> 0;

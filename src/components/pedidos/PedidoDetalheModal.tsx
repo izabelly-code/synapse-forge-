@@ -121,7 +121,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
     }, [atualizarNovasImagens]);
 
     const iniciarEdicao = useCallback((alvo: Pedido) => {
-        setCliente(alvo.cliente);
+        setCliente(alvo.cliente ?? "");
         setProjeto(alvo.projeto);
         setDescricao(alvo.descricao ?? "");
         setPrazo(alvo.prazo.slice(0, 10));
@@ -790,7 +790,7 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                             <div className="pedido-detalhe-info">
                                 <UserIcon size={17} />
                                 <span>{t("pedidos.form.clientLabel")}</span>
-                                <strong>{pedido.cliente}</strong>
+                                <strong>{pedido.cliente || t("pedidos.form.noClientLinked")}</strong>
                             </div>
                             <div className="pedido-detalhe-info">
                                 <Calendar03Icon size={17} />

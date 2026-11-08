@@ -2,7 +2,8 @@ export type PedidoStatus = 'MODELAGEM' | 'IMPRESSAO' | 'PINTURA' | 'ACABAMENTO' 
 
 export interface Pedido {
   id: string;
-  cliente: string;
+  /** null em pedido sem cliente vinculado (ex.: pedidos mock da SYN-164). */
+  cliente: string | null;
   projeto: string;
   descricao?: string;
   orcamentoId?: string;
