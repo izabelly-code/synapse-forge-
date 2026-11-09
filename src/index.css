@@ -2551,6 +2551,52 @@ body {
   color: var(--error-color);
 }
 
+/* Envio ainda em preparação: estado neutro, sem a cor de "em andamento". */
+.pedido-chip.chip-neutral {
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+}
+
+/* RF15: bloco de envio e rastreio do detalhe do pedido. O título divide a linha
+   com o selo de situação do envio; o formulário reaproveita .pedido-edit-grid. */
+.pedido-envio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.pedido-envio-link {
+  align-self: flex-start;
+}
+
+.pedido-envio-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3-5);
+  border-radius: var(--radius);
+  background: var(--surface-container-lowest);
+}
+
+.pedido-envio-form .input-group {
+  margin-bottom: 0;
+}
+
+.pedido-envio-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.pedido-envio-saved {
+  color: var(--success-color);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
 /* Controles de etapa: avançar/regredir/cancelar chamam os endpoints dedicados
    (que debitam e estornam estoque). Os botões reaproveitam .pedido-edit-btn e
    .pedido-download-btn; a confirmação de cancelamento é o aviso de remoção. */

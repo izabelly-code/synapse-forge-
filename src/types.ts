@@ -1,5 +1,37 @@
 export type PedidoStatus = 'MODELAGEM' | 'IMPRESSAO' | 'PINTURA' | 'ACABAMENTO' | 'FINALIZADO' | 'CANCELADO';
 
+/** RF15: situação do envio, independente da etapa de produção. */
+export type StatusEnvio = 'PREPARANDO' | 'POSTADO' | 'EM_TRANSITO' | 'ENTREGUE';
+
+export const STATUS_ENVIO: StatusEnvio[] = ['PREPARANDO', 'POSTADO', 'EM_TRANSITO', 'ENTREGUE'];
+
+/** Forma de envio (coleção auxiliar formas_envio); o pedido guarda só o id. */
+export interface FormaEnvio {
+  id: string;
+  nome: string;
+  transportadora?: string | null;
+  /** Modelo da URL de rastreio com {codigo}; null em formas sem rastreio (retirada). */
+  urlRastreioTemplate?: string | null;
+  /** true nas formas padrão do sistema, false nas cadastradas pela equipe. */
+  padrao: boolean;
+  ativo: boolean;
+}
+
+export interface FormaEnvioInput {
+  nome: string;
+  transportadora?: string;
+  urlRastreioTemplate?: string;
+}
+
+/** Corpo do PATCH /pedidos/{id}/envio. Campos vazios limpam o valor no pedido. */
+export interface PedidoEnvioInput {
+  formaEnvioId?: string | null;
+  codigoRastreio?: string | null;
+  dataPostagem?: string | null;
+  previsaoEntrega?: string | null;
+  statusEnvio?: StatusEnvio | null;
+}
+
 export interface Pedido {
   id: string;
   /** null em pedido sem cliente vinculado (ex.: pedidos mock da SYN-164). */
@@ -27,6 +59,15 @@ export interface Pedido {
   prazo: string;
   criadoEm?: string;
   atualizadoEm?: string;
+  /** Envio (RF15): ausentes em pedidos antigos ou sem envio registrado. */
+  formaEnvioId?: string | null;
+  formaEnvioNome?: string | null;
+  codigoRastreio?: string | null;
+  dataPostagem?: string | null;
+  previsaoEntrega?: string | null;
+  statusEnvio?: StatusEnvio | null;
+  /** Montado no back a partir do modelo da forma; null sem código ou sem rastreio. */
+  linkRastreio?: string | null;
 }
 
 export interface Comentario {
