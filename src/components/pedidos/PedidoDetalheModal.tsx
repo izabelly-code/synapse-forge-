@@ -27,6 +27,7 @@ import { getMaterialById } from "../../services/MaterialService";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import IconButton from "../ui/IconButton";
+import PedidoEnvioSection from "./PedidoEnvioSection";
 import { getUserRole, getUserId } from "../../hooks/useAuth";
 
 /** Ação de etapa em andamento; uma por vez, os três botões travam juntos. */
@@ -832,6 +833,13 @@ function PedidoDetalheModal({ pedidoId, onClose, onUpdated, abrirEmEdicao = fals
                                 <p>{t("pedidos.detalhe.budgetEmpty")}</p>
                             )}
                         </div>
+
+                        {/* RF15: envio e rastreio; o cliente acompanha, a equipe registra */}
+                        <PedidoEnvioSection
+                            pedido={pedido}
+                            podeEditar={podeMudarEtapa && pedido.status !== "CANCELADO"}
+                            onUpdated={(atualizado) => { setPedido(atualizado); onUpdated?.(atualizado); }}
+                        />
 
                         <div className="pedido-detalhe-section">
                             <h3>{t("pedidos.detalhe.object3dSectionTitle")}</h3>

@@ -528,6 +528,34 @@
         "cancelar": "Não foi possível cancelar o pedido. Tente novamente."
       }
     },
+    "statusEnvio": {
+      "PREPARANDO": "Preparando envio",
+      "POSTADO": "Postado",
+      "EM_TRANSITO": "Em trânsito",
+      "ENTREGUE": "Entregue"
+    },
+    "envio": {
+      "title": "Envio",
+      "empty": "Nenhum envio registrado ainda.",
+      "formaLabel": "Forma de envio",
+      "formaPlaceholder": "Selecione a forma de envio",
+      "formaNone": "Sem forma de envio",
+      "formaLoading": "Carregando formas de envio...",
+      "formaLoadError": "Não foi possível carregar as formas de envio.",
+      "noTracking": "Esta forma de envio não tem rastreio online.",
+      "trackingCodeLabel": "Código de rastreio",
+      "trackingCodePlaceholder": "Ex.: AA123456789BR",
+      "trackingCodeHint": "Ao informar o código, o envio passa a Postado.",
+      "postedAtLabel": "Data de postagem",
+      "etaLabel": "Previsão de entrega",
+      "statusLabel": "Situação do envio",
+      "statusHint": "Use para marcar Em trânsito ou Entregue.",
+      "trackLink": "Rastrear objeto",
+      "save": "Salvar envio",
+      "saving": "Salvando...",
+      "saved": "Envio salvo.",
+      "errorSave": "Não foi possível salvar o envio. Tente novamente."
+    },
     "comments": {
         "title": "Comentários",
         "placeholder": "Digite um comentário...",

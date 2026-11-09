@@ -1,4 +1,4 @@
-import { Pedido, PedidoStatus } from '../types';
+import { Pedido, PedidoEnvioInput, PedidoStatus } from '../types';
 import { API_BASE_URL } from "../config/api";
 
 const API_URL = `${API_BASE_URL}/pedidos`;
@@ -184,6 +184,40 @@ export async function cancelarPedido(
         return lancarErroEtapa(
             response,
             "Falha ao cancelar pedido"
+        );
+    }
+
+    return response.json();
+}
+
+
+/**
+ * RF15: grava forma de envio, código de rastreio e datas. O back passa o envio a
+ * POSTADO quando há código e devolve o pedido com o link de rastreio montado.
+ */
+export async function registrarEnvio(
+    id: string,
+    data: PedidoEnvioInput
+): Promise<Pedido> {
+
+    const response = await fetch(
+        `${API_URL}/${id}/envio`,
+        {
+            method: "PATCH",
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+        }
+    );
+
+    if (!response.ok) {
+
+        const texto =
+            await response
+                .text()
+                .catch(() => "");
+
+        throw new Error(
+            texto.trim() || "Falha ao registrar envio"
         );
     }
 
