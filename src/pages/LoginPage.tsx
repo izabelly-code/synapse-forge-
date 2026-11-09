@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Login from "../components/auth/Login";
-import { getUserRole } from "../hooks/useAuth";
+import { getUserRole, isAuthenticated, rotaInicial } from "../hooks/useAuth";
 import { API_BASE_URL } from "../config/api";
 
 const API_URL = API_BASE_URL;
@@ -23,7 +23,12 @@ function LoginPage() {
 
   async function handleLogin(token: string) {
     localStorage.setItem("token", token);
-    navigate((await gerenteSemEquipe(token)) ? "/equipe?semEquipe=1" : "/dashboard");
+    navigate((await gerenteSemEquipe(token)) ? "/equipe?semEquipe=1" : rotaInicial());
+  }
+
+  // Sessão ainda válida (ex.: voltou da landing): segue para o app em vez de pedir login de novo
+  if (isAuthenticated()) {
+    return <Navigate to={rotaInicial()} replace />;
   }
 
   return (

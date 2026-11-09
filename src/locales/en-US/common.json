@@ -527,6 +527,34 @@
         "cancelar": "Could not cancel the order. Please try again."
       }
     },
+    "statusEnvio": {
+      "PREPARANDO": "Preparing shipment",
+      "POSTADO": "Shipped",
+      "EM_TRANSITO": "In transit",
+      "ENTREGUE": "Delivered"
+    },
+    "envio": {
+      "title": "Shipping",
+      "empty": "No shipment recorded yet.",
+      "formaLabel": "Shipping method",
+      "formaPlaceholder": "Select the shipping method",
+      "formaNone": "No shipping method",
+      "formaLoading": "Loading shipping methods...",
+      "formaLoadError": "Could not load the shipping methods.",
+      "noTracking": "This shipping method has no online tracking.",
+      "trackingCodeLabel": "Tracking code",
+      "trackingCodePlaceholder": "E.g.: AA123456789BR",
+      "trackingCodeHint": "Entering a code marks the shipment as Shipped.",
+      "postedAtLabel": "Shipping date",
+      "etaLabel": "Estimated delivery",
+      "statusLabel": "Shipment status",
+      "statusHint": "Use it to mark In transit or Delivered.",
+      "trackLink": "Track package",
+      "save": "Save shipment",
+      "saving": "Saving...",
+      "saved": "Shipment saved.",
+      "errorSave": "Could not save the shipment. Please try again."
+    },
     "comments": {
         "title": "Comments",
         "placeholder": "Write a comment...",

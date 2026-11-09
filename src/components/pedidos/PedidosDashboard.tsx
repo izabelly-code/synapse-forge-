@@ -219,7 +219,7 @@ function PedidosDashboard() {
             if (!dentroDoPeriodo(p, periodo)) return false;
             if (!q) return true;
             return (
-                p.cliente.toLowerCase().includes(q) ||
+                (p.cliente ?? "").toLowerCase().includes(q) ||
                 p.projeto.toLowerCase().includes(q) ||
                 (p.descricao?.toLowerCase().includes(q) ?? false)
             );
