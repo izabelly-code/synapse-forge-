@@ -2321,8 +2321,10 @@ body {
   width: 100%;
   max-width: 460px;
   /* 2.5vw chega aos 32px do desktop em 1280px; piso de 16px (fase 6) — 32px de
-     respiro num modal de 390px de largura comia 16% da caixa. */
-  padding: clamp(var(--space-4), 2.5vw, var(--space-8));
+     respiro num modal de 390px de largura comia 16% da caixa. Em variável porque
+     o rodapé sticky assume o respiro de baixo (ver .modal-actions). */
+  --modal-pad: clamp(var(--space-4), 2.5vw, var(--space-8));
+  padding: var(--modal-pad);
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   overflow-x: hidden; /* o que não couber quebra ou corta; o modal nunca rola de lado */
@@ -2446,6 +2448,22 @@ body {
   position: sticky;
   bottom: 0;
   background: var(--surface);
+}
+
+/* Rodapé sticky dos modais com formulário (Material, Cor, Estoque, Ordem de
+   pintura, Admin, filtro de orçamentos): mesma receita dos modais de pedido
+   (.pedido-detalhe-modal.is-editing). O sticky para na borda do padding do card,
+   então o conteúdo rolado aparecia na fresta abaixo dos botões. O card perde o
+   padding de baixo e o rodapé o assume no próprio padding: em repouso a
+   geometria não muda; rolando, a barra vai até a borda e cobre o conteúdo.
+   O `:where` mantém a especificidade de uma classe, para o .pedido-edit-actions
+   (declarado depois) continuar valendo nos modais de pedido. */
+.modal-card:has(> form > .modal-actions:last-child) {
+  padding-bottom: 0;
+}
+
+:where(.modal-card > form) > .modal-actions:where(:last-child) {
+  padding-bottom: calc(var(--space-6) + var(--modal-pad));
 }
 
 .modal-actions .button {
@@ -3459,6 +3477,23 @@ html {
   overflow-y: auto;
 }
 
+/* Pista de rolagem (SYN-181): em tela deitada (tablet, notebook baixo) a lista
+   não cabe e a barra overlay do iPad/macOS some, então Calendário e Perfil
+   ficavam abaixo da dobra sem aviso. O hook usePistaDeRolagem marca o lado com
+   conteúdo escondido e a borda desse lado esmaece. Quando tudo cabe, nada muda.
+   Na máscara só o alfa conta: `black` é "visível", `transparent` é "some". */
+.sidebar-nav[data-mais-abaixo] {
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--space-10)), transparent);
+}
+
+.sidebar-nav[data-mais-acima] {
+  mask-image: linear-gradient(to top, black calc(100% - var(--space-10)), transparent);
+}
+
+.sidebar-nav[data-mais-acima][data-mais-abaixo] {
+  mask-image: linear-gradient(to bottom, transparent, black var(--space-10), black calc(100% - var(--space-10)), transparent);
+}
+
 .sidebar-nav-group {
   display: flex;
   flex-direction: column;
@@ -4350,10 +4385,15 @@ html {
     overflow: hidden;
   }
 
+  /* `width: 100%` porque a página virou flex em coluna: num item flex, o
+     `margin: 0 auto` da regra base desliga o `stretch` no eixo cruzado e o item
+     assumia a largura do conteúdo (as 6 colunas, travadas no max-width de
+     1380px). As duas últimas colunas e o último filtro ficavam fora da tela. */
   .pintura-content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
     min-height: 0;
     padding-bottom: 0;
   }
@@ -6265,6 +6305,28 @@ html {
   }
 }
 
+/* Pendentes (com Aprovar/Rejeitar): a linha pede 860px (140 + 140 + 120 + 150 +
+   230 da coluna de ações + 4 gaps de 16 + padding) e a lista no tablet vale de
+   719 a 825px. O "Rejeitar" ficava além da borda, escondido pelo `overflow-x`
+   da lista. Abaixo de 900px de lista as ações descem para uma linha própria,
+   à direita, e os dados seguem em 4 colunas (598px) até o empilhamento de 640px
+   logo abaixo, que vem depois de propósito para vencer este bloco. */
+@container sf-list (max-width: 900px) {
+  .pedidos-row-head.orcamento-row-pendente,
+  .pedido-row.orcamento-row:has(.orcamento-acoes) {
+    grid-template-columns: minmax(140px, 1.3fr) minmax(140px, 1.3fr) minmax(120px, 1fr) minmax(150px, 1.2fr);
+  }
+
+  /* o rótulo "Ações" não tem mais coluna */
+  .pedidos-row-head.orcamento-row-pendente > span:last-child {
+    display: none;
+  }
+
+  .orcamento-acoes {
+    grid-column: 1 / -1;
+  }
+}
+
 /* 640px = min-content da linha de orçamento (588px: 140 + 90 + 150 + 120 +
    3 gaps de 16 + 40 de padding) com folga. Medido na lista, não no viewport. */
 @container sf-list (max-width: 640px) {
@@ -6802,6 +6864,20 @@ html {
   .pintura-updated button {
     width: 2.75rem;
     height: 2.75rem;
+  }
+
+  /* SYN-181 — os que ainda escapavam: controles do rodapé da sidebar (34px),
+     hambúrguer (36px), fechar da gaveta (18px de altura: só tinha largura) e
+     Aprovar/Rejeitar do orçamento (36px, a ação principal da tela). */
+  .sidebar-icon-btn,
+  .orcamento-decisao {
+    min-height: var(--control-h);
+  }
+
+  /* Sair: quadrado de 28px no cartão da conta. Mesmo seletor da regra base. */
+  .sidebar-account .sidebar-account-logout {
+    width: var(--control-h);
+    height: var(--control-h);
   }
 
   /* Itens de menu suspenso: o alvo cresce pela altura mínima, não pelo padding,

@@ -308,10 +308,22 @@
   margin: 0;
 }
 
-@container sf-painel (max-width: 760px) {
+/* 2×2 abaixo de 960px de grade (SYN-181). Cada cartão pede ~208px para o valor
+   caber sem reticências (ícone 40 + gap 14 + "R$ 123.456" ~128 + padding e
+   borda 26): 4 × 208 + 3 gaps = 880px, e 922px no modo personalizar, que põe a
+   moldura do widget em volta. Com 760px o valor era cortado já em 820px de tela. */
+@container sf-painel (max-width: 960px) {
   .painel-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
+  }
+}
+
+/* Celular: em 2 colunas o cartão tem ~173px e sobram ~93px para o valor, que
+   cortava até "R$ 6.356". Uma coluna por indicador. */
+@container sf-painel (max-width: 480px) {
+  .painel-kpis {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

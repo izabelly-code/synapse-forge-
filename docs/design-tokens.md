@@ -167,9 +167,13 @@ largura disponível usa `@container`, com o ponto de empilhamento calculado a pa
 | `sf-list` | `.pedidos-list`, `.cores-list` | `max-width: 960px` → linha de pedido empilha | 906px |
 | `sf-list` | idem | `max-width: 820px` → linha de material empilha | 752px |
 | `sf-list` | idem | `max-width: 800px` → linha de cor empilha | 736px |
+| `sf-list` | idem | `max-width: 900px` → Aprovar/Rejeitar do orçamento pendente descem para linha própria | 860px |
 | `sf-list` | idem | `max-width: 640px` → linha de orçamento empilha | 588px |
 | `sf-list` | idem | `max-width: 420px` → etiquetas do stepper somem | — |
 | `sf-pane` | `.orcamento-calculator` | `max-width: 820px` → formulário vira 1 coluna | — |
+| `sf-painel` | `.painel-grid-wrap` | `max-width: 960px` → indicadores em 2×2 | 880px (922px no modo personalizar) |
+| `sf-painel` | idem | `max-width: 760px` → widgets em 1 coluna | — |
+| `sf-painel` | idem | `max-width: 480px` → indicadores em 1 coluna | — |
 
 O `container-type: inline-size` fica na **lista** (e no painel do orçamento), nunca no
 `.dashboard-content`: `container-type` implica `contain: layout`, o que tornaria o elemento o
